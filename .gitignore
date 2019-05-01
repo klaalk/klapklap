@@ -1,4 +1,11 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 /build/**
 /dist/**
-/server/src/Server/Server.xcodeproj
+
+#Ignore IDE configs
+/server/.idea
+/server/src/cmake-build-debug
+
+#Ignore asio doc files
+/server/libs/asio-1.12.2/doc/**
+!/server/libs/asio-1.12.2/doc/examples
