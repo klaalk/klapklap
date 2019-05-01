@@ -2,6 +2,9 @@
 
 # 2018-2019
 
+# Sign Up Trello
+    Ragazzi, iscrivetevi a Trello (www.trello.com) e fate il join della bacheca (https://trello.com/invite/b/ouGkn0Pt/bf8220fd342ce64189ccb1ffb05f17e5/progettomalnati). E' un comodo modo per organnizare i task.
+
 # STRUTTURA CARTELLE
 
 # Le cartelle vanno organizzate in modo piuttosto coerente.

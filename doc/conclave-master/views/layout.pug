@@ -1,0 +1,50 @@
+doctype html
+html(lang="en")
+  head
+    title= title
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css")
+    link(rel='stylesheet' href='css/style.css')
+    link(rel='shortcut icon' href='assets/img/favicon.ico' type='image/x-icon')
+  body
+    .navbar
+      a(href='/' target="_blank")
+        h1.logo Conclave
+      .nav-items
+        block nav
+    p#safari Your browser doesn't support WebRTC yet.</br></br>Please use the Chrome or Firefox desktop browsers.
+    #conclave.hide
+      .text-wrapper
+        .editor
+          .header
+            block link
+            button#download(type='button') Save
+            label#upload(for='file') Upload
+            input#file(type='file' accept='.txt, .js, .rb, .md')
+          textarea(row='10' col='20')
+        p#peerId Peers:
+      .video-modal.hide
+        .video-bar
+            i(data-feather="minus" class="minimize")
+            i(data-feather='x' class="exit")
+        video
+    .loading
+      p Loading
+      .sk-fading-circle
+        .sk-circle1.sk-circle
+        .sk-circle2.sk-circle
+        .sk-circle3.sk-circle
+        .sk-circle4.sk-circle
+        .sk-circle5.sk-circle
+        .sk-circle6.sk-circle
+        .sk-circle7.sk-circle
+        .sk-circle8.sk-circle
+        .sk-circle9.sk-circle
+        .sk-circle10.sk-circle
+        .sk-circle11.sk-circle
+        .sk-circle12.sk-circle
+      p Conclave currently supports Chrome or Firefox desktop browsers.
+      p <strong>Note:</strong> Chrome v63 introduced a bug that causes sporadic issues. If loading takes longer than 10 sec, please upgrade to Chrome v64 or consider using Firefox.
+    script(src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js")
+    script.
+      feather.replace({ 'stroke-width': 3 });
+    block scripts
