@@ -3,7 +3,7 @@ project(server)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(server main.cpp)
+add_executable(server main.cpp classes/server/server.cpp classes/server/server.h classes/connection_handler/con_handler.cpp classes/connection_handler/con_handler.h)
 find_package(Boost)
 IF (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIR})
@@ -13,6 +13,7 @@ IF (Boost_FOUND)
     target_link_libraries(server  ${BOOST_LIBRARYDIR})
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             target_link_libraries(server ws2_32)
+            target_link_libraries(server wsock32)
         endif()
 endif()
 
