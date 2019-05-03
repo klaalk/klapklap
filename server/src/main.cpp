@@ -32,7 +32,7 @@ int main(int argc, const char * argv[]) {
     boost::asio::io_service io_service;
 
     //listen for new connection
-    tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), 1234 )); //Any IPv4, listen on port 1234
+    tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), 3310 )); //Any IPv4, listen on port 1234
 
     //socket creation
     tcp::socket socket_(io_service);
