@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.13)
 project(server)
 
 set(CMAKE_CXX_STANDARD 17)
-set(BOOST_ROOTDIR /usr/local/Cellar/boost/1.69.0_2/include/boost )
 
 add_executable(server main.cpp)
 find_package(Boost)
@@ -12,6 +11,7 @@ IF (Boost_FOUND)
     set (Boost_USE_MULTITHREAD ON)  # enable multithreading
     find_package (Boost COMPONENTS REQUIRED chrono filesystem)
     target_link_libraries(server  ${BOOST_LIBRARYDIR})
+    target_link_libraries(server ws2_32)
 endif()
 
 
