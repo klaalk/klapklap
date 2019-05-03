@@ -11,7 +11,9 @@ IF (Boost_FOUND)
     set (Boost_USE_MULTITHREAD ON)  # enable multithreading
     find_package (Boost COMPONENTS REQUIRED chrono filesystem)
     target_link_libraries(server  ${BOOST_LIBRARYDIR})
-    target_link_libraries(server ws2_32)
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+            target_link_libraries(server ws2_32)
+        endif()
 endif()
 
 
