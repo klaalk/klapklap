@@ -29,8 +29,12 @@ public:
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
     {
         if (!err) {
-            connection->start();
+//          qui viene gestita la connessione in entrata
+
+            while(1) connection->start();
+
         }
+//      dopo aver gestito mi rimetto in attesa di nuove connessioni
         start_accept();
     }
 };

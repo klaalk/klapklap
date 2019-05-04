@@ -14,7 +14,7 @@ IF (Boost_FOUND)
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             target_link_libraries(server ws2_32)
             target_link_libraries(server wsock32)
-        endif()
+    endif()
 endif()
 
 
