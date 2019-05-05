@@ -13,13 +13,11 @@ Server::Server(boost::asio::io_service& io_service): acceptor_(io_service, tcp::
 void Server::handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
 {
     if (!err) {
-//          qui viene gestita la connessione in entrata
+    // TODO: staccare un thread.
+    // qui viene gestita la connessione in entrata
         connection->start();
-
-            while(1) connection->start();
-
     }
-//      dopo aver gestito mi rimetto in attesa di nuove connessioni
+    // dopo aver gestito mi rimetto in attesa di nuove connessioni
     start_accept();
 }
 
