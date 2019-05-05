@@ -20,19 +20,20 @@ int main() {
     //connection
     socket.connect( tcp::endpoint( boost::asio::ip::address::from_string("192.168.0.100"), 3310 ));
     // request/message from client
-    string msg = "";
+    string msg = "Client Start :D";
 
     boost::system::error_code error;
-    do {
-        getline(cin, msg);
+    while (msg!='\n'){
         boost::asio::write( socket, boost::asio::buffer(msg), error );
         if( !error ) {
             cout << "Client sent: " << msg << endl;
         }
         else {
             cout << "send failed: " << error.message() << endl;
+            break;
         }
-    } while (msg.size() > 0);
+        getline(cin, msg);
+    }
     socket.close();
     return 0;
 }
