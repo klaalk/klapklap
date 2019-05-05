@@ -9,7 +9,7 @@
 #include <iostream>
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
-#include "../src/classes/server/server.cpp"
+#include "../src/classes/server/server.h"
 
 int main(int argc, const char * argv[]) {
     try
