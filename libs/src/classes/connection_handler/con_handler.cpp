@@ -16,7 +16,7 @@ void con_handler::start()
                             boost::asio::placeholders::bytes_transferred));
 
     sock.async_write_some(
-            boost::asio::buffer(data, max_length),
+            boost::asio::buffer(message, max_length),
             boost::bind(&con_handler::handle_write,
                         shared_from_this(),
                         boost::asio::placeholders::error,
@@ -27,7 +27,7 @@ void con_handler::start()
 void con_handler::handle_read(const boost::system::error_code& err, size_t bytes_transferred)
 {
     if (!err) {
-        cout << data << endl;
+        cout << "[debug] - " << data << endl;
         start();
     } else {
         std::cerr << "error: " << err.message() << std::endl;
@@ -38,7 +38,7 @@ void con_handler::handle_read(const boost::system::error_code& err, size_t bytes
 void con_handler::handle_write(const boost::system::error_code& err, size_t bytes_transferred)
 {
     if (!err) {
-        cout << "Server sent: I have recived " << data << endl;
+        cout << "[debug] - write finished" << endl;
     } else {
         std::cerr << "error: " << err.message() << endl;
         sock.close();
