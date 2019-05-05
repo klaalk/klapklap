@@ -4,10 +4,11 @@ project(client)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(client main.cpp)
-include_directories(${CMAKE_SOURCE_DIR}/kklib) # include files from kklib
-target_link_libraries(client kklib)
 
-install(TARGETS client RUNTIME DESTINATION bin)
+#include_directories(${CMAKE_SOURCE_DIR}/kklib) # include files from kklib
+#target_link_libraries(client kklib)
+#
+#install(TARGETS client RUNTIME DESTINATION bin)
 
 find_package(Boost)
 IF (Boost_FOUND)

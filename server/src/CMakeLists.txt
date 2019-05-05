@@ -3,11 +3,13 @@ project(server)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(server main.cpp classes/server/server.cpp classes/server/server.h)
-include_directories(${CMAKE_SOURCE_DIR}/kklib) # include files from kklib
-target_link_libraries(server kklib)
+add_executable(server main.cpp classes/server/server.cpp classes/server/server.h
+        classes/connection_handler/con_handler.cpp classes/connection_handler/con_handler.h)
 
-install(TARGETS server RUNTIME DESTINATION bin)
+#include_directories(${CMAKE_SOURCE_DIR}/kklib) # include files from kklib
+#target_link_libraries(server kklib)
+#
+#install(TARGETS server RUNTIME DESTINATION bin)
 
 
 find_package(Boost)

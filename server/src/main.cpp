@@ -22,8 +22,5 @@ int main(int argc, const char * argv[]) {
     {
         std::cerr << e.what() << endl;
     }
-
-
-
     return 0;
 }

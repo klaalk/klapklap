@@ -21,7 +21,7 @@ using std::endl;
 class con_handler: public boost::enable_shared_from_this<con_handler> {
 private:
     tcp::socket sock;
-    std::string message = "Hello From Server!";
+    std::string message = "OK";
     enum { max_length = 1024 };
     char data[max_length];
 public:
