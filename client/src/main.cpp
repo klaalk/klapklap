@@ -1,71 +1,55 @@
+#include <cstdlib>
+#include <deque>
 #include <iostream>
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include <sstream>
+#include <boost/asio.hpp>
+#include <pthread.h>
+#include "./classes/message/chat_message.h"
+#include "./classes/chat/chat_client.h"
 
-#import <string.h>
 
+boost::asio::io_service io_service;
 
-
-using namespace boost::asio;
-using ip::tcp;
-using std::string;
-using std::cout;
-using std::cin;
-using std::endl;
-using std::getline;
-
-char msg2[1024];
-
-void handle_read (const boost::system::error_code& err, size_t bytes_transferred)
+void *start(void*)
 {
-    if (!err) {
-        cout << "[debug] - " << msg2 << endl;
-
-    } else {
-        std::cerr << "error: " << err.message() << std::endl;
-
-    }
+    io_service.run();
+    return 0;
 }
 
-int main() {
-    boost::asio::io_service io_service;
-    //socket creation
-    tcp::socket socket(io_service);
-    //connection
-    socket.connect( tcp::endpoint( boost::asio::ip::address::from_string("192.168.0.101"), 3310 ));
-    // request/message from client
-    string msg = "";
 
+using boost::asio::ip::tcp;
+int main(int argc, char* argv[])
+{
+    try
+    {
+        pthread_t client_thread;
 
-    boost::system::error_code error;
-    while (msg != "\n"){
+        tcp::resolver resolver(io_service);
+        tcp::resolver::query query("192.168.1.8", "3310");
+        tcp::resolver::iterator iterator = resolver.resolve(query);
 
-        boost::asio::write( socket, boost::asio::buffer(msg, msg.size()), error );
+        chat_client c(io_service, iterator);
 
-        if( !error ) {
-            cout << "Client sent: " << msg << endl;
+        pthread_create(&client_thread, NULL, &start, NULL);
+
+        char line[chat_message::max_body_length + 1];
+        while (std::cin.getline(line, chat_message::max_body_length + 1))
+        {
+            using namespace std; // For strlen and memcpy.
+            chat_message msg;
+            msg.body_length(strlen(line));
+            memcpy(msg.body(), line, msg.body_length());
+            msg.encode_header();
+            c.write(msg);
         }
-        else {
-            cout << "send failed: " << error.message() << endl;
-            break;
-        }
 
-        socket.async_read_some(
-                boost::asio::buffer(msg2, 1024),
-                boost::bind(&handle_read,
-                            boost::asio::placeholders::error,
-                            boost::asio::placeholders::bytes_transferred));
-
-        if( !error ) {
-            cout << "Server sent: " << msg2 << endl;
-        }
-        else {
-            cout << "send failed: " << error.message() << endl;
-            break;
-        }
-        getline(cin, msg);
+        c.close();
+        pthread_join(client_thread, NULL);
     }
-    socket.close();
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
+
     return 0;
 }

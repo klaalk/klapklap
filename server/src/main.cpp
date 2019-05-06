@@ -9,18 +9,24 @@
 #include <iostream>
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
-#include "../src/classes/server/server.h"
 
-int main(int argc, const char * argv[]) {
+#include "./classes/chat/chat_server.h"
+
+int main(int argc, char* argv[])
+{
     try
     {
         boost::asio::io_service io_service;
-        Server server(io_service);
+        // SOLO UNA PORTA APERTA
+        int port = 3310;
+        tcp::endpoint endpoint(tcp::v4(), port);
+        chat_server_ptr server(new chat_server(io_service, endpoint));
         io_service.run();
     }
-    catch(std::exception& e)
+    catch (std::exception& e)
     {
-        std::cerr << e.what() << endl;
+        std::cerr << "Exception: " << e.what() << "\n";
     }
+
     return 0;
 }
