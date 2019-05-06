@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.13)
 project(client)
 
 set(CMAKE_CXX_STANDARD 17)
-set(Boost_USE_MULTITHREADED ON)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 
-add_executable(client main.cpp classes/client/KKClient.cpp classes/client/KKClient.h classes/chat/chat_client.cpp classes/chat/chat_client.h classes/message/chat_message.cpp classes/message/chat_message.h)
+add_executable(client main.cpp
+        classes/chat/chat_client.cpp classes/chat/chat_client.h
+        classes/message/chat_message.cpp classes/message/chat_message.h)
 
 #include_directories(${CMAKE_SOURCE_DIR}/kklib) # include files from kklib
 #target_link_libraries(client kklib)
@@ -18,7 +20,6 @@ IF (Boost_FOUND)
     set (Boost_USE_MULTITHREAD ON)  # enable multithreading
     find_package (Boost COMPONENTS chrono filesystem thread system REQUIRED)
     target_link_libraries(client ${BOOST_LIBRARYDIR})
-    target_link_libraries(client Threads::Threads)
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         target_link_libraries(client ws2_32)
     endif()
