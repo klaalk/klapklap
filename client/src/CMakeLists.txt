@@ -1,17 +1,14 @@
 cmake_minimum_required(VERSION 3.13)
-project(client)
+project(client LANGUAGES CXX C VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 
 add_executable(client main.cpp
-        classes/chat/chat_client.cpp classes/chat/chat_client.h
-        classes/message/chat_message.cpp classes/message/chat_message.h)
+        classes/chat/chat_client.cpp classes/chat/chat_client.h)
 
-#include_directories(${CMAKE_SOURCE_DIR}/kklib) # include files from kklib
-#target_link_libraries(client kklib)
-#
-#install(TARGETS client RUNTIME DESTINATION bin)
+add_subdirectory(../../libs kklib)
+target_link_libraries(client kklib)
 
 find_package(Boost)
 IF (Boost_FOUND)

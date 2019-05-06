@@ -8,7 +8,7 @@
 #include <set>
 #include <algorithm>
 #include <boost/bind.hpp>
-#include "../../message/chat_message.h"
+#include "../../../../../libs/src/classes/chat/message/chat_message.h"
 #include "../partecipant/chat_partecipant.h"
 
 class chat_room

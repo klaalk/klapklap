@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <pthread.h>
-#include "./classes/message/chat_message.h"
+#include "../../libs/src/classes/chat/message/chat_message.h"
 #include "./classes/chat/chat_client.h"
 
 

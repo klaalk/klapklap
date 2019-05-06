@@ -6,7 +6,8 @@
 #define SERVER_CHAT_PARTECIPANT_H
 #include <boost/asio.hpp>
 #include <deque>
-#include "../../message/chat_message.h"
+
+#include "../../../../../libs/src/classes/chat/message/chat_message.h"
 
 class chat_participant
 {

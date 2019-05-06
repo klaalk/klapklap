@@ -5,12 +5,14 @@
 #ifndef SERVER_CHAT_SESSION_H
 #define SERVER_CHAT_SESSION_H
 
+#include "../../../../../libs/src/classes/chat/message/chat_message.h"
+
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
-#include "../../message/chat_message.h"
+
 #include "../partecipant/chat_partecipant.h"
 #include "../room/chat_room.h"
 
