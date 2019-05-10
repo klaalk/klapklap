@@ -1,5 +1,5 @@
 //
-// Created by Augens on 06/05/2019.
+// Created by Klaus on 06/05/2019.
 //
 
 #include "chat_message.h"

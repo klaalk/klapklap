@@ -8,7 +8,13 @@ add_executable(server main.cpp
         classes/chat/chat_server.cpp classes/chat/chat_server.h
         classes/chat/session/chat_session.cpp classes/chat/session/chat_session.h
         classes/chat/room/chat_room.cpp classes/chat/room/chat_room.h
-        classes/chat/partecipant/chat_partecipant.cpp classes/chat/partecipant/chat_partecipant.h)
+        classes/chat/partecipant/chat_partecipant.cpp classes/chat/partecipant/chat_partecipant.h
+
+        classes/crdt/room/crdt_room.cpp classes/crdt/room/crdt_room.h
+        classes/crdt/crdt_server.cpp classes/crdt/crdt_server.h
+        classes/crdt/session/crdt_session.cpp classes/crdt/session/crdt_session.h
+        classes/crdt/file/crdt_file.cpp classes/crdt/file/crdt_file.h
+        classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h)
 
 
 add_subdirectory(../../libs kklib)

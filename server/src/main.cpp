@@ -10,7 +10,8 @@
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
 
-#include "./classes/chat/chat_server.h"
+#include "./classes/crdt/crdt_server.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -20,7 +21,7 @@ int main(int argc, char* argv[])
         // SOLO UNA PORTA APERTA
         int port = 3310;
         tcp::endpoint endpoint(tcp::v4(), port);
-        chat_server_ptr server(new chat_server(io_service, endpoint));
+        crdt_server_ptr server(new crdt_server(io_service, endpoint));
         io_service.run();
     }
     catch (std::exception& e)

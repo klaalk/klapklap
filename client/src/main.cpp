@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
         pthread_t client_thread;
 
         tcp::resolver resolver(io_service);
-        tcp::resolver::query query("192.168.1.8", "3310");
+        tcp::resolver::query query("127.0.0.1", "3310");
         tcp::resolver::iterator iterator = resolver.resolve(query);
 
         chat_client c(io_service, iterator);

@@ -12,15 +12,19 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
+#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
 
-#include "../partecipant/chat_partecipant.h"
-#include "../room/chat_room.h"
+
+#include "../partecipant/crdt_partecipant.h"
+#include "../file/crdt_file.h"
+#include "../room/crdt_room.h"
 
 using boost::asio::ip::tcp;
-class chat_session : public chat_participant, public boost::enable_shared_from_this<chat_session>
+
+class crdt_session : public crdt_participant, public boost::enable_shared_from_this<crdt_session>
 {
 public:
-    chat_session(boost::asio::io_service& io_service, chat_room& room);
+    crdt_session(boost::asio::io_service& io_service, crdt_room& room_);
 
     tcp::socket& socket();
 
@@ -36,11 +40,15 @@ public:
 
 private:
     tcp::socket socket_;
-    chat_room& room_;
+    crdt_room& room_;
+    crdt_file actual_file_;
+    // std::shared_ptr<std::map<std::string, crdt_file>> files_;
+
+    bool isInWriteMode_ = false;
     chat_message read_msg_;
-    chat_message_queue write_msgs_;
+    crdt_message_queue write_msgs_;
 };
 
-typedef boost::shared_ptr<chat_session> chat_session_ptr;
+typedef boost::shared_ptr<crdt_session> crdt_session_ptr;
 
 #endif //SERVER_CHAT_SESSION_H

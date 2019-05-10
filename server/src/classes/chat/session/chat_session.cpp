@@ -1,5 +1,5 @@
 //
-// Created by Augens on 06/05/2019.
+// Created by Klaus on 06/05/2019.
 //
 
 #include "chat_session.h"
@@ -43,12 +43,13 @@ void chat_session::handle_read_header(const boost::system::error_code& error)
 {
     if (!error && read_msg_.decode_header())
     {
-        std::cout << "handle_read_header" << std::endl;
-        std::cout << read_msg_.data() << std::endl;
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
                                 boost::bind(&chat_session::handle_read_body, shared_from_this(),
                                             boost::asio::placeholders::error));
+
+        std::cout << "handle_read_header" << std::endl;
+        std::cout << read_msg_.data() << std::endl;
     }
     else
     {
