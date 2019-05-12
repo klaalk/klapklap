@@ -17,7 +17,11 @@ IF (Boost_FOUND)
     set (Boost_USE_MULTITHREAD ON)  # enable multithreading
     find_package (Boost COMPONENTS chrono filesystem thread system REQUIRED)
     target_link_libraries(client ${BOOST_LIBRARYDIR})
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        target_link_libraries(client ws2_32)
-    endif()
+endif()
+
+target_link_libraries(client mysqlcppconn)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    target_link_libraries(client ws2_32)
+    target_link_libraries(client wsock32)
 endif()

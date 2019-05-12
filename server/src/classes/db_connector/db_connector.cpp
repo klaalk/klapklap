@@ -21,7 +21,7 @@ void db_connector::close(void) {
     con->close();
 }
 
-  bool db_connector::db_query(std::string query,int n_col){
+bool db_connector::db_query(std::string query,int n_col){
     sql::Statement *stmt = connect();
     sql::ResultSet * res = stmt->executeQuery(query);
 
@@ -32,6 +32,7 @@ void db_connector::close(void) {
         cout<<endl;
     }
     close();
+    return true;
 }
 
 sql::ResultSet* db_connector::db_query(std::string query){

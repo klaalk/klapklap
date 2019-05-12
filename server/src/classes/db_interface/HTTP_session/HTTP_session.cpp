@@ -4,9 +4,6 @@
 
 #include "HTTP_session.h"
 
-
-
-
 // Return a reasonable mime type based on the extension of a file.
 boost::beast::string_view
 mime_type(boost::beast::string_view path)
@@ -124,6 +121,7 @@ handle_request(
 
     // Make sure we can handle the method
     if( req.method() != http::verb::get &&
+        req.method() != http::verb::post &&
         req.method() != http::verb::head)
         return send(bad_request("Unknown HTTP-method"));
 
@@ -171,7 +169,8 @@ handle_request(
     res.set(http::field::content_type, mime_type(path));
     res.content_length(body.size());
     res.keep_alive(req.keep_alive());
-    return send(std::move(res));
+    send(std::move(res));
+    return;
 }
 
 

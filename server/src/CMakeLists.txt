@@ -15,7 +15,7 @@ add_executable(server main.cpp
         classes/crdt/session/crdt_session.cpp classes/crdt/session/crdt_session.h
         classes/crdt/file/crdt_file.cpp classes/crdt/file/crdt_file.h
         classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h
-
+        classes/classes_include.h
         classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h
         classes/db_interface/db_interface.cpp classes/db_interface/db_interface.h
         classes/classes_include.h classes/db_interface/HTTP_listener/HTTP_listener.cpp
@@ -31,11 +31,13 @@ IF (Boost_FOUND)
     set (Boost_USE_MULTITHREAD ON)  # enable multithreading
     find_package (Boost COMPONENTS REQUIRED chrono filesystem)
     target_link_libraries(server  ${BOOST_LIBRARYDIR})
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        target_link_libraries(server ws2_32)
-        target_link_libraries(server wsock32)
-    endif()
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 target_link_libraries( server mysqlcppconn)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    target_link_libraries(server ws2_32)
+    target_link_libraries(server wsock32)
+endif()
+
