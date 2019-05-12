@@ -7,9 +7,9 @@
 //
 
 #include <iostream>
-#include <boost/chrono.hpp>
-#include <boost/asio.hpp>
 #include "./classes/db_connector/db_connector.h"
+#include "./classes/db_interface/db_interface.h"
+#include "./classes/db_interface/HTTP_listener/HTTP_listener.h"
 
 using namespace boost::asio;
 using ip::tcp;
@@ -18,9 +18,7 @@ using std::cout;
 using std::endl;
 
 int main(int argc, const char * argv[]) {
-    db_connector connection(get_driver_instance());
-
-    //TODO: passare numero di parametri
-    connection.db_query("SELECT USERNAME FROM USERS WHERE USERNAME='Michele6000';");
-    return 0;
+    std::unique_ptr<db_interface> interface;
+    interface->start();
+    return EXIT_SUCCESS;
 }

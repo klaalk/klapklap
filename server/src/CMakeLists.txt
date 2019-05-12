@@ -3,7 +3,7 @@ project(server)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(server main.cpp classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h)
+add_executable(server main.cpp classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h classes/db_interface/db_interface.cpp classes/db_interface/db_interface.h classes/classes_include.h classes/db_interface/HTTP_listener/HTTP_listener.cpp classes/db_interface/HTTP_listener/HTTP_listener.h classes/db_interface/HTTP_session/HTTP_session.cpp classes/db_interface/HTTP_session/HTTP_session.h classes/db_interface/HTTP_request_handler/HTTP_request_handler.h)
 find_package(Boost)
 IF (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIR})

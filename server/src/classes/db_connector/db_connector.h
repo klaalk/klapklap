@@ -4,18 +4,8 @@
 
 #ifndef SERVER_DB_CONNECTOR_H
 #define SERVER_DB_CONNECTOR_H
-#include <cppconn/driver.h>
-#include <cppconn/resultset.h>
-#include <cppconn/exception.h>
-#include <cppconn/statement.h>
-#include <string>
-#include <iostream>
 
-using std::string;
-using std::cout;
-using std::endl;
-
-
+#include "../classes_include.h"
 
 class db_connector {
 private:
@@ -29,8 +19,8 @@ public:
     explicit db_connector(sql::Driver *driver);
 
     ///Generic query exec
-    bool db_query(std::string query);
-
+    bool db_query(std::string query, int col_n);
+    sql::ResultSet *db_query(std::string query);
 
 
 
