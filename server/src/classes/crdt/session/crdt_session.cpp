@@ -3,6 +3,7 @@
 //
 
 #include "crdt_session.h"
+
 std::map<std::string, crdt_file> files_;
 
 crdt_session::crdt_session(boost::asio::io_service& io_service, crdt_room& room)
@@ -50,12 +51,6 @@ void crdt_session::handle_read_body(const boost::system::error_code& error)
             // Non ho nessun file aperto
             std::string fileName = std::string(read_msg_.body());
             auto search = files_.find(fileName);
-
-            for(auto it = files_.cbegin(); it != files_.cend(); ++it)
-            {
-                std::cout << it->first << "\n";
-            }
-
             if(search != files_.end()) {
                 // il file era già aperto ed è nella mappa globale
                 actual_file_ = files_.at(fileName);
@@ -65,11 +60,7 @@ void crdt_session::handle_read_body(const boost::system::error_code& error)
                 // TODO: actual_file.open(fileName);
                 actual_file_.join(shared_from_this());
                 files_.insert(make_pair(fileName, actual_file_));
-
-                auto search = files_.find(fileName);
-                if(search != files_.end()) {
-                   std::cout<< "partecipante inserito" << std::endl;
-                }
+                std::cout<< "partecipante inserito" << std::endl;
             }
             isInWriteMode_ = true;
         } else {
@@ -123,6 +114,7 @@ void crdt_session::handle_write(const boost::system::error_code& error)
     }
     else
     {
+        actual_file_.leave(shared_from_this());
         room_.leave(shared_from_this());
     }
 }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(server  LANGUAGES CXX C VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 
 add_executable(server main.cpp
@@ -14,8 +14,12 @@ add_executable(server main.cpp
         classes/crdt/crdt_server.cpp classes/crdt/crdt_server.h
         classes/crdt/session/crdt_session.cpp classes/crdt/session/crdt_session.h
         classes/crdt/file/crdt_file.cpp classes/crdt/file/crdt_file.h
-        classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h)
+        classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h
 
+        classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h
+        classes/db_interface/db_interface.cpp classes/db_interface/db_interface.h
+        classes/classes_include.h classes/db_interface/HTTP_listener/HTTP_listener.cpp
+        classes/db_interface/HTTP_listener/HTTP_listener.h classes/db_interface/HTTP_session/HTTP_session.cpp)
 
 add_subdirectory(../../libs kklib)
 target_link_libraries(server kklib)
@@ -32,3 +36,6 @@ IF (Boost_FOUND)
         target_link_libraries(server wsock32)
     endif()
 endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+target_link_libraries( server mysqlcppconn)

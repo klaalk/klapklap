@@ -42,8 +42,7 @@ private:
     tcp::socket socket_;
     crdt_room& room_;
     crdt_file actual_file_;
-    // std::shared_ptr<std::map<std::string, crdt_file>> files_;
-
+    
     bool isInWriteMode_ = false;
     chat_message read_msg_;
     crdt_message_queue write_msgs_;
