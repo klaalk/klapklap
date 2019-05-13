@@ -6,6 +6,7 @@
 #define SERVER_CHAT_SERVER_H
 
 #include <boost/asio.hpp>
+#include <list>
 #include "./session/chat_session.h"
 #include "./room/chat_room.h"
 

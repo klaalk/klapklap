@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.13)
 project(server  LANGUAGES CXX C VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+#    Non supportato in MacOS (da controllare su linux)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
+endif()
+
 
 add_executable(server main.cpp
         classes/chat/chat_server.cpp classes/chat/chat_server.h
