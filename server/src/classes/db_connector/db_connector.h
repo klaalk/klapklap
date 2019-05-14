@@ -21,6 +21,9 @@ public:
     ///Generic query exec
     bool db_query(std::string query, int col_n);
     sql::ResultSet *db_query(std::string query);
+    ///inserimento utente. Ritorna 0 successo, -1 username fault, -2 email fault.
+    int db_insert_user(std::string username,std::string password, std::string email, std::string name, std::string surname);
+
 
 
 

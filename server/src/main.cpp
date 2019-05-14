@@ -15,19 +15,26 @@
 
 int main(int argc, char* argv[])
 {
-    try
-    {
-        boost::asio::io_service io_service;
-        // SOLO UNA PORTA APERTA
-        int port = 3310;
-        tcp::endpoint endpoint(tcp::v4(), port);
-        crdt_server_ptr server(new crdt_server(io_service, endpoint));
-        io_service.run();
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
+//    try
+//    {
+//        boost::asio::io_service io_service;
+//        // SOLO UNA PORTA APERTA
+//        int port = 3310;
+//        tcp::endpoint endpoint(tcp::v4(), port);
+//        crdt_server_ptr server(new crdt_server(io_service, endpoint));
+//        io_service.run();
+//    }
+//    catch (std::exception& e)
+//    {
+//        std::cerr << "Exception: " << e.what() << "\n";
+//    }
+
+    sql::Driver *driver= get_driver_instance();
+    db_connector my_conn(driver);
+
+    if(my_conn.db_insert_user("Michele","password","michele@live.it","Michele Luigi","Greco")<0)
+        puts("Error");
+    my_conn.db_insert_user("Klaus","password","klaus@live.it","Klaus","cuko");
 
     return 0;
 }

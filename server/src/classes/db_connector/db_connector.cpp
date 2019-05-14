@@ -41,3 +41,59 @@ sql::ResultSet* db_connector::db_query(std::string query){
     close();
     return res;
 }
+
+int db_connector::db_insert_user(std::string username,std::string password, std::string email, std::string name, std::string surname){
+    std::ostringstream _string,_date;
+    string id,date;
+    int ID;
+    sql::ResultSet * res;
+    std::time_t t = std::time(0);
+    std::tm* now = std::localtime(&t);
+    sql::Statement *stmt = connect();
+
+//    Check univocita username
+    _string << "SELECT COUNT(*) FROM USERS WHERE USERNAME='" + username + "';";
+    res = stmt->executeQuery(_string.str());
+    res->next();
+    _string.str("");
+    if(res->getInt(1))
+        return -1;
+
+//    Check univocita email
+    _string << "SELECT COUNT(*) FROM USERS WHERE EMAIL='" + email + "';";
+    res = stmt->executeQuery(_string.str());
+    res->next();
+    _string.str("");
+    if(res->getInt(1))
+        return -2;
+
+//    Inserimento dati
+    _string << "SELECT MAX(ID) FROM USERS;";
+    res = stmt->executeQuery(_string.str());
+    res->next();
+    _string.str("");
+
+
+//  Sto recuperando ed aggiornando l'ID
+    if(res->getString(1) == "")
+        ID=0;
+    else
+        ID=std::stoi(res->getString(1));
+    ID++;
+
+    id=std::to_string(ID);
+
+//    Sto recuperando la data odierna
+    _date << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' <<  now->tm_mday;
+
+
+//  Sono pronto per eseguire la insert
+    _string << "INSERT INTO `USERS` (`ID`,`USERNAME`,`PSW`,`EMAIL`,`NAME`,`SURNAME`,`IMAGE`,`REGISTRATION_DATE`) "
+            << "VALUES('"+id+"','"+username+"','"+password+"','"+email+"','"+name+"','"+surname+"',"+"NULL,'"+_date.str()+"');";
+
+    stmt->execute(_string.str());
+    _string.str("");
+    _date.str("");
+    return 0;
+    close();
+}
