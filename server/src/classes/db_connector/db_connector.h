@@ -30,6 +30,10 @@ public:
     int db_insert_user(std::string username, std::string password, std::string email, std::string name,
                        std::string surname);
 
+    ///inserimento utente. Ritorna 0 successo,
+    int db_insert_file(std::string username, std::string filename,std::string path);
+
+
 
 };
 
