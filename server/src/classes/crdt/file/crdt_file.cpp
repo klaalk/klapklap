@@ -4,20 +4,17 @@
 
 #include "crdt_file.h"
 
-void crdt_file::join(crdt_participant_ptr participant)
-{
+void crdt_file::join(crdt_participant_ptr participant) {
     participants_.insert(participant);
     std::for_each(recent_msgs_.begin(), recent_msgs_.end(),
                   boost::bind(&crdt_participant::deliver, participant, _1));
 }
 
-void crdt_file::leave(crdt_participant_ptr participant)
-{
+void crdt_file::leave(crdt_participant_ptr participant) {
     participants_.erase(participant);
 }
 
-void crdt_file::deliver(const chat_message& msg)
-{
+void crdt_file::deliver(const chat_message &msg) {
     recent_msgs_.push_back(msg);
     while (recent_msgs_.size() > max_recent_msgs)
         recent_msgs_.pop_front();

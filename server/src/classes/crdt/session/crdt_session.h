@@ -21,28 +21,27 @@
 
 using boost::asio::ip::tcp;
 
-class crdt_session : public crdt_participant, public boost::enable_shared_from_this<crdt_session>
-{
+class crdt_session : public crdt_participant, public boost::enable_shared_from_this<crdt_session> {
 public:
-    crdt_session(boost::asio::io_service& io_service, crdt_room& room_);
+    crdt_session(boost::asio::io_service &io_service, crdt_room &room_);
 
-    tcp::socket& socket();
+    tcp::socket &socket();
 
     void start();
 
-    void deliver(const chat_message& msg);
+    void deliver(const chat_message &msg);
 
-    void handle_read_header(const boost::system::error_code& error);
+    void handle_read_header(const boost::system::error_code &error);
 
-    void handle_read_body(const boost::system::error_code& error);
+    void handle_read_body(const boost::system::error_code &error);
 
-    void handle_write(const boost::system::error_code& error);
+    void handle_write(const boost::system::error_code &error);
 
 private:
     tcp::socket socket_;
-    crdt_room& room_;
+    crdt_room &room_;
     crdt_file actual_file_;
-    
+
     bool isInWriteMode_ = false;
     chat_message read_msg_;
     crdt_message_queue write_msgs_;

@@ -15,7 +15,6 @@
 #define HOST_DOOR  3000
 
 
-
 class db_interface {
 private:
     // Utilizzato per il singleton
@@ -28,10 +27,9 @@ private:
 
 public:
     db_interface();
+
     void start();
 };
-
-
 
 
 #endif //SERVER_DB_INTERFACE_H

@@ -17,26 +17,26 @@
 #include "../room/chat_room.h"
 
 using boost::asio::ip::tcp;
-class chat_session : public chat_participant, public boost::enable_shared_from_this<chat_session>
-{
-public:
-    chat_session(boost::asio::io_service& io_service, chat_room& room);
 
-    tcp::socket& socket();
+class chat_session : public chat_participant, public boost::enable_shared_from_this<chat_session> {
+public:
+    chat_session(boost::asio::io_service &io_service, chat_room &room);
+
+    tcp::socket &socket();
 
     void start();
 
-    void deliver(const chat_message& msg);
+    void deliver(const chat_message &msg);
 
-    void handle_read_header(const boost::system::error_code& error);
+    void handle_read_header(const boost::system::error_code &error);
 
-    void handle_read_body(const boost::system::error_code& error);
+    void handle_read_body(const boost::system::error_code &error);
 
-    void handle_write(const boost::system::error_code& error);
+    void handle_write(const boost::system::error_code &error);
 
 private:
     tcp::socket socket_;
-    chat_room& room_;
+    chat_room &room_;
     chat_message read_msg_;
     chat_message_queue write_msgs_;
 };

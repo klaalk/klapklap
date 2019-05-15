@@ -21,12 +21,12 @@ class HTTP_session : public std::enable_shared_from_this<HTTP_session> {
 
         template<bool isRequest, class Body, class Fields>
         void
-        operator()(http::message <isRequest, Body, Fields> &&msg) const {
+        operator()(http::message<isRequest, Body, Fields> &&msg) const {
             // The lifetime of the message has to extend
             // for the duration of the async operation so
             // we use a shared_ptr to manage it.
-            auto sp = std::make_shared <
-            http::message < isRequest, Body, Fields >> (std::move(msg));
+            auto sp = std::make_shared<
+                    http::message<isRequest, Body, Fields >>(std::move(msg));
 
             // Store a type-erased version of the shared
             // pointer in the class to keep it alive.
@@ -47,14 +47,14 @@ class HTTP_session : public std::enable_shared_from_this<HTTP_session> {
         }
     };
 
-    void fail(boost::system::error_code ec, char const* what);
+    void fail(boost::system::error_code ec, char const *what);
 
     tcp::socket socket_;
-    boost::asio::strand <
-    boost::asio::io_context::executor_type> strand_;
+    boost::asio::strand<
+            boost::asio::io_context::executor_type> strand_;
     boost::beast::flat_buffer buffer_;
     std::string const &doc_root_;
-    http::request <http::string_body> req_;
+    http::request<http::string_body> req_;
     std::shared_ptr<void> res_;
     send_lambda lambda_;
 
@@ -66,16 +66,19 @@ public:
             std::string const &doc_root);
 
     // Start the asynchronous operation
-    void run() ;
-    void do_read() ;
+    void run();
+
+    void do_read();
+
     void on_read(
             boost::system::error_code ec,
-            std::size_t bytes_transferred) ;
+            std::size_t bytes_transferred);
 
     void on_write(
             boost::system::error_code ec,
             std::size_t bytes_transferred,
             bool close);
+
     void do_close();
 };
 

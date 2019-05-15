@@ -12,15 +12,19 @@
 #include "../partecipant/crdt_partecipant.h"
 
 
-class crdt_file
-{
+class crdt_file {
 public:
     void join(crdt_participant_ptr participant);
+
     void leave(crdt_participant_ptr participant);
-    void deliver(const chat_message& msg);
+
+    void deliver(const chat_message &msg);
+
 private:
     std::set<crdt_participant_ptr> participants_;
-    enum { max_recent_msgs = 100 };
+    enum {
+        max_recent_msgs = 100
+    };
     crdt_message_queue recent_msgs_;
 };
 

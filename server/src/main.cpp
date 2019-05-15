@@ -13,8 +13,7 @@
 
 #include "./classes/crdt/crdt_server.h"
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
 //    try
 //    {
 //        boost::asio::io_service io_service;
@@ -29,12 +28,12 @@ int main(int argc, char* argv[])
 //        std::cerr << "Exception: " << e.what() << "\n";
 //    }
 
-    sql::Driver *driver= get_driver_instance();
+    sql::Driver *driver = get_driver_instance();
     db_connector my_conn(driver);
 
-    if(my_conn.db_insert_user("Michele","password","michele@live.it","Michele Luigi","Greco")<0)
+    if (my_conn.db_insert_user("Michele", "password", "michele@live.it", "Michele Luigi", "Greco") < 0)
         puts("Error");
-    my_conn.db_insert_user("Klaus","password","klaus@live.it","Klaus","cuko");
+    my_conn.db_insert_user("Klaus", "password", "klaus@live.it", "Klaus", "cuko");
 
     return 0;
 }

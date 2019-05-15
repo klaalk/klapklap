@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
-project(server  LANGUAGES CXX C VERSION 0.1.0)
+project(server LANGUAGES CXX C VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 14)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-#    Non supportato in MacOS (da controllare su linux)
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
-endif()
+    #    Non supportato in MacOS (da controllare su linux)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
+endif ()
 
 
 add_executable(server main.cpp
@@ -31,17 +31,17 @@ target_link_libraries(server kklib)
 find_package(Boost)
 IF (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIR})
-    set (Boost_USE_STATIC_LIBS OFF) # enable dynamic linking
-    set (Boost_USE_MULTITHREAD ON)  # enable multithreading
-    find_package (Boost COMPONENTS REQUIRED chrono filesystem)
-    target_link_libraries(server  ${BOOST_LIBRARYDIR})
-endif()
+    set(Boost_USE_STATIC_LIBS OFF) # enable dynamic linking
+    set(Boost_USE_MULTITHREAD ON)  # enable multithreading
+    find_package(Boost COMPONENTS REQUIRED chrono filesystem)
+    target_link_libraries(server ${BOOST_LIBRARYDIR})
+endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-target_link_libraries( server mysqlcppconn)
+target_link_libraries(server mysqlcppconn)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     target_link_libraries(server ws2_32)
     target_link_libraries(server wsock32)
-endif()
+endif ()
 
