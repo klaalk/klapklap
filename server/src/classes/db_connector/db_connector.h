@@ -33,6 +33,17 @@ public:
     ///inserimento utente. Ritorna 0 successo,
     int db_insert_file(std::string username, std::string filename,std::string path);
 
+    ///inserimento permessi (share file). Ritorna 0 successo,
+    int db_share_file(std::string username, std::string filename);
+
+    ///reset password ask. Invia una main con hash key dell'user. Ritorna 0 successo,
+    int db_reset_psw_ask(std::string username);
+
+    ///reset password do. data la hash key permette il reset della password. Ritorna 0 successo, -1 se hash_key errata
+    int db_reset_psw_do(std::string username, std::string hash_key, std::string new_psw);
+
+
+
 
 
 };

@@ -10,6 +10,7 @@
 #include "./classes/db_connector/db_connector.h"
 #include "./classes/db_interface/db_interface.h"
 #include "./classes/db_interface/HTTP_listener/HTTP_listener.h"
+#include "../src/classes/SMTP_client/SMTP_client.h"
 
 #include "./classes/crdt/crdt_server.h"
 
@@ -27,6 +28,10 @@ int main(int argc, char *argv[]) {
 
     if ((ret=my_conn.db_insert_file("Michele", "file23.txt", "./file23.txt")) < 0)
     cout << ret << endl;
+
+// Test email service
+    SMTP_client sender;
+    sender.SMPT_sendmail("Paola.caso96@gmail.com","test2","sto testando lapp");
 
     return 0;
 }

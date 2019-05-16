@@ -95,3 +95,9 @@ int db_connector::db_insert_file(std::string username, std::string filename,std:
     }
     return 0;
 }
+
+int db_share_file(std::string username, std::string filename){}
+
+int db_reset_psw_ask(std::string username){}
+
+int db_reset_psw_do(std::string username, std::string hash_key, std::string new_psw){}
