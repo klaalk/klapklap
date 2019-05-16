@@ -55,6 +55,9 @@ int db_connector::db_insert_user(std::string username, std::string password, std
     std::ostringstream _string;
     sql::ResultSet *res;
     sql::Statement *stmt = connect();
+    SMTP_client sender;
+    std::string mex;
+
 
     _string << "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) "
             << "VALUES('" + username + "','" + password + "','" + email + "','" + name + "','" + surname +
@@ -63,15 +66,16 @@ int db_connector::db_insert_user(std::string username, std::string password, std
     try {
         stmt->execute(_string.str());
         _string.str("");
+        mex=sender.SMTP_message_builder("Welcome in KlapKlap Soft :)",name+" "+surname,username+" complete your registration now!","Activate Now","http://www.facebook.it");
+        sender.SMPT_sendmail(mex,email,"KlapKlap Registration");
         close();
     } catch (sql::SQLException &e) {
         std::string str(e.what());
+        close();
         if(str.find("EMAIL")!=string::npos)
             return -1;
         else if(str.find("USERNAME")!=string::npos)
             return -2;
-
-        close();
     }
     return errCode;
 }

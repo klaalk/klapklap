@@ -6,6 +6,7 @@
 #define SERVER_DB_CONNECTOR_H
 
 #include "../classes_include.h"
+#include "../SMTP_client/SMTP_client.h"
 
 class db_connector {
 private:
