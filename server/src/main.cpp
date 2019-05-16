@@ -20,18 +20,20 @@ int main(int argc, char *argv[]) {
 
     int ret;
 
+
 //    if ((ret=my_conn.db_insert_user("Michela", "password", "michele@live.it", "Michele Luigi", "Greco")) < 0)
 //    cout << ret << endl;
 //
 //    if ((ret=my_conn.db_insert_user("Klaus", "password", "kllaus@live.it", "Klaus", "cuko")) < 0)
 //    cout << ret << endl;
 
-    if ((ret=my_conn.db_insert_file("Michele", "file23.txt", "./file23.txt")) < 0)
-    cout << ret << endl;
+//    if ((ret = my_conn.db_insert_file("Michele", "file23.txt", "./file23.txt")) < 0)
+//        cout << ret << endl;
 
 // Test email service
     SMTP_client sender;
-    sender.SMPT_sendmail("Paola.caso96@gmail.com","test2","sto testando lapp");
+    std::string mex=sender.SMTP_message_builder("Welcome","Rocco Greco","Try now our new application!","Download Now","http://www.facebook.it");
+    sender.SMPT_sendmail(mex,"grecomichele96@gmail.com","Test5");
 
     return 0;
 }

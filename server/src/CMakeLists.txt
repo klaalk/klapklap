@@ -12,7 +12,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 endif ()
 
-
 add_executable(server main.cpp
         classes/chat/chat_server.cpp classes/chat/chat_server.h
         classes/chat/session/chat_session.cpp classes/chat/session/chat_session.h
@@ -44,7 +43,6 @@ endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 target_link_libraries(server mysqlcppconn)
-#target_link_libraries(server poco)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     target_link_libraries(server ws2_32)
@@ -59,7 +57,6 @@ if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 else()
     message(WARNING "The file conanbuildinfo.cmake doesn't exist, you have to run conan install first")
 endif()
-
 
 find_package(Poco REQUIRED COMPONENTS Net NetSSL)
 include_directories( ${Poco_INCLUDE_DIRS})

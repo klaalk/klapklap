@@ -6,16 +6,16 @@
 #define SERVER_SMTP_CLIENT_H
 
 #include <iostream>
-#include "Poco/Net/MailMessage.h"
-#include "Poco/Net/MailRecipient.h"
-#include "Poco/Net/SMTPClientSession.h"
-#include "Poco/Net/NetException.h"
-#include "Poco/Net/SecureSMTPClientSession.h"
-#include "Poco/Net/InvalidCertificateHandler.h"
-#include "Poco/Net/AcceptCertificateHandler.h"
-#include "Poco/Net/SSLManager.h"
-#include "Poco/Net/SecureStreamSocket.h"
-#include "Poco/Net/MailRecipient.h"
+#include <Poco/Net/MailMessage.h>
+#include <Poco/Net/MailRecipient.h>
+#include <Poco/Net/SMTPClientSession.h>
+#include <Poco/Net/NetException.h>
+#include <Poco/Net/SecureSMTPClientSession.h>
+#include <Poco/Net/InvalidCertificateHandler.h>
+#include <Poco/Net/AcceptCertificateHandler.h>
+#include <Poco/Net/SSLManager.h>
+#include <Poco/Net/SecureStreamSocket.h>
+#include <Poco/Net/MailRecipient.h>
 
 using Poco::Net::InvalidCertificateHandler;
 using Poco::Net::AcceptCertificateHandler;
@@ -44,7 +44,8 @@ private:
 
 
 public:
-    int SMPT_sendmail(std::string to_user, std::string subject, std::string message);
+    int SMPT_sendmail(std::string message,std::string dest,std::string subject);
+    std::string SMTP_message_builder(std::string header,std::string username, std::string message, std::string button_text,std::string button_action);
 };
 
 
