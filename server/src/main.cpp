@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     int ret;
 
 
-    if ((ret=my_conn.db_insert_user("Mother_of_dragons", "password", "paola.caso96@gmail.com", "Paola", "Caso")) < 0)
+    if ((ret=my_conn.db_insert_user("paola_dracarys", "password", "paola.caso96@gmail.com", "Paola", "Caso")) < 0)
     cout << ret << endl;
 //
 //    if ((ret=my_conn.db_insert_user("Klaus", "password", "kllaus@live.it", "Klaus", "cuko")) < 0)
@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
 
 //    if ((ret = my_conn.db_insert_file("Michele", "file23.txt", "./file23.txt")) < 0)
 //        cout << ret << endl;
+
+    my_conn.db_insert_file("paola_dracarys","lista_gente_da_bruciare.txt","./lista_gente_da_bruciare.txt");
 
 // Test email service
 //    SMTP_client sender;

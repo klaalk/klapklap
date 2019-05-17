@@ -58,7 +58,6 @@ int db_connector::db_insert_user(std::string username, std::string password, std
     SMTP_client sender;
     std::string mex;
 
-
     _string << "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) "
             << "VALUES('" + username + "','" + password + "','" + email + "','" + name + "','" + surname +
                "');";
@@ -81,17 +80,26 @@ int db_connector::db_insert_user(std::string username, std::string password, std
 }
 
 int db_connector::db_insert_file(std::string username, std::string filename,std::string path){
+    SMTP_client sender;
+    std::string mex,name,surname,email;
     std::ostringstream _string;
-    sql::Statement *stmt = connect();
-    sql::ResultSet *res=stmt->executeQuery("SELECT `ID` FROM `USERS` WHERE `USERNAME`='"+username+"';");
-    res->next();
 
+    sql::Statement *stmt = connect();
+    sql::ResultSet *res=stmt->executeQuery("SELECT `ID`,`NAME`,`SURNAME`,`EMAIL` FROM `USERS` WHERE `USERNAME`='"+username+"';");
+
+    res->next();
     _string << "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) "
             << "VALUES('" + res->getString(1) + "','" + filename + "','" + path + "');";
+
+    name=res->getString(2);
+    surname=res->getString(3);
+    email=res->getString(4);
+    mex=sender.SMTP_message_builder("New File added: "+filename,"Owner: "+name+" "+surname,username+"","Share now!","http://www.facebook.it");
 
     try {
         stmt->execute(_string.str());
         close();
+        sender.SMPT_sendmail(mex,email,"KlapKlap File_Add");
     } catch (sql::SQLException &e) {
         close();
         cout << e.what() << endl ;
