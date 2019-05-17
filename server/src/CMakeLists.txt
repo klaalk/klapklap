@@ -50,6 +50,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif ()
 
 
+
 #Serve per impostare conan come sorgente librerie
 if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
     include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
@@ -61,3 +62,4 @@ endif()
 find_package(Poco REQUIRED COMPONENTS Net NetSSL)
 include_directories( ${Poco_INCLUDE_DIRS})
 target_link_libraries(server ${Poco_LIBRARIES})
+

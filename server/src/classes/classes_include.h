@@ -36,6 +36,11 @@
 #include <thread>
 #include <vector>
 
+//Crypto
+#include <Poco/Crypto/CipherFactory.h>
+#include <Poco/Crypto/Cipher.h>
+#include <Poco/Crypto/CipherKey.h>
+
 using std::string;
 using std::cout;
 using std::endl;

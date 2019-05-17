@@ -8,11 +8,17 @@
 #include "../classes_include.h"
 #include "../SMTP_client/SMTP_client.h"
 
+typedef struct var user_info;
+
+
 class db_connector {
+
+
 private:
     sql::Driver *driver;
     sql::Connection *con;
 
+    Poco::Crypto::CipherFactory& factory = Poco::Crypto::CipherFactory::defaultFactory();
     ///Open connection. Private.
     sql::Statement *connect(void);
 
@@ -35,13 +41,17 @@ public:
     int db_insert_file(std::string username, std::string filename,std::string path);
 
     ///inserimento permessi (share file). Ritorna 0 successo,
-    int db_share_file(std::string username, std::string filename);
+    int db_share_file(std::string username_from,std::string username_to, std::string filename);
 
+    user_info* db_getUserInfo(std::string username);
+
+    bool db_login(std::string username, std::string password);
     ///reset password ask. Invia una main con hash key dell'user. Ritorna 0 successo,
-    int db_reset_psw_ask(std::string username);
+//    int db_reset_psw_ask(std::string username);
 
-    ///reset password do. data la hash key permette il reset della password. Ritorna 0 successo, -1 se hash_key errata
-    int db_reset_psw_do(std::string username, std::string hash_key, std::string new_psw);
+//    ///reset password do. data la hash key permette il reset della password. Ritorna 0 successo, -1 se hash_key errata
+//    int db_reset_psw(std::string username, std::string hash_key, std::string new_psw);
+
 
 
 
