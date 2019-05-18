@@ -18,7 +18,8 @@ private:
     sql::Driver *driver;
     sql::Connection *con;
 
-    Poco::Crypto::CipherFactory& factory = Poco::Crypto::CipherFactory::defaultFactory();
+    Poco::Crypto::CipherFactory &factory = Poco::Crypto::CipherFactory::defaultFactory();
+
     ///Open connection. Private.
     sql::Statement *connect(void);
 
@@ -38,12 +39,12 @@ public:
                        std::string surname);
 
     ///inserimento utente. Ritorna 0 successo,
-    int db_insert_file(std::string username, std::string filename,std::string path);
+    int db_insert_file(std::string username, std::string filename, std::string path);
 
     ///inserimento permessi (share file). Ritorna 0 successo,
-    int db_share_file(std::string username_from,std::string username_to, std::string filename);
+    int db_share_file(std::string username_from, std::string username_to, std::string filename);
 
-    user_info* db_getUserInfo(std::string username);
+    user_info *db_getUserInfo(std::string username);
 
     bool db_login(std::string username, std::string password);
     ///reset password ask. Invia una main con hash key dell'user. Ritorna 0 successo,

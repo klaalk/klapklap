@@ -54,6 +54,6 @@ bool chat_message::decode_header() {
 void chat_message::encode_header() {
     using namespace std; // For sprintf and memcpy.
     char header[header_length + 1] = "";
-    sprintf(header, "%4d", (int)body_length_);
+    sprintf(header, "%4d", (int) body_length_);
     memcpy(data_, header, header_length);
 }

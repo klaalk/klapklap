@@ -27,7 +27,7 @@ add_executable(server main.cpp
         classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h
         classes/db_interface/db_interface.cpp classes/db_interface/db_interface.h
         classes/classes_include.h classes/db_interface/HTTP_listener/HTTP_listener.cpp
-        classes/db_interface/HTTP_listener/HTTP_listener.h classes/db_interface/HTTP_session/HTTP_session.cpp classes/SMTP_client/SMTP_client.cpp classes/SMTP_client/SMTP_client.h)
+        classes/db_interface/HTTP_listener/HTTP_listener.h classes/db_interface/HTTP_session/HTTP_session.cpp classes/SMTP_client/SMTP_client.cpp classes/SMTP_client/SMTP_client.h classes/db_connector/db_crypto.cpp classes/db_connector/db_crypto.h)
 
 add_subdirectory(../../libs kklib)
 target_link_libraries(server kklib)
@@ -50,16 +50,15 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif ()
 
 
-
 #Serve per impostare conan come sorgente librerie
-if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
     include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
     conan_basic_setup()
-else()
+else ()
     message(WARNING "The file conanbuildinfo.cmake doesn't exist, you have to run conan install first")
-endif()
+endif ()
 
 find_package(Poco REQUIRED COMPONENTS Net NetSSL)
-include_directories( ${Poco_INCLUDE_DIRS})
+include_directories(${Poco_INCLUDE_DIRS})
 target_link_libraries(server ${Poco_LIBRARIES})
 

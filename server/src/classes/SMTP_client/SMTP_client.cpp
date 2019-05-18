@@ -4,7 +4,8 @@
 
 #include "SMTP_client.h"
 
-std::string SMTP_client::SMTP_message_builder(std::string header,std::string username, std::string message, std::string button_text,std::string button_action){
+std::string SMTP_client::SMTP_message_builder(std::string header, std::string username, std::string message,
+                                              std::string button_text, std::string button_action) {
     return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
            "\n"
            "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:v=\"urn:schemas-microsoft-com:vml\">\n"
@@ -386,10 +387,10 @@ std::string SMTP_client::SMTP_message_builder(std::string header,std::string use
            "<div style=\"color:#052d3d;font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:150%;padding-top:20px;padding-right:10px;padding-bottom:0px;padding-left:15px;\">\n"
            "<div style=\"font-size: 12px; line-height: 18px; font-family: 'Lato', Tahoma, Verdana, Segoe, sans-serif; color: #052d3d;\">\n"
            "<p style=\"font-size: 14px; line-height: 75px; text-align: center; margin: 0;\"><span style=\"font-size: 50px;\"><strong><span style=\"line-height: 75px; font-size: 50px;\"><span style=\"font-size: 38px; line-height: 57px;\">\n"
-           +header+
+           + header +
            "</span></span></strong></span></p>\n"
            "<p style=\"font-size: 14px; line-height: 51px; text-align: center; margin: 0;\"><span style=\"font-size: 34px;\"><strong><span style=\"line-height: 51px; font-size: 34px;\"><span style=\"color: #2190e3; line-height: 51px; font-size: 34px;\">\n"
-           +username+
+           + username +
            "</span></span></strong></span></p>\n"
            "</div>\n"
            "</div>\n"
@@ -398,15 +399,19 @@ std::string SMTP_client::SMTP_message_builder(std::string header,std::string use
            "<div style=\"color:#555555;font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px;\">\n"
            "<div style=\"font-size: 12px; line-height: 14px; color: #555555; font-family: 'Lato', Tahoma, Verdana, Segoe, sans-serif;\">\n"
            "<p style=\"font-size: 14px; line-height: 21px; text-align: center; margin: 0;\"><span style=\"font-size: 18px; color: #000000;\">\n"
-           +message+
+           + message +
            "</span></p>\n"
            "</div>\n"
            "</div>\n"
            "<!--[if mso]></td></tr></table><![endif]-->\n"
            "<div align=\"center\" class=\"button-container\" style=\"padding-top:20px;padding-right:10px;padding-bottom:10px;padding-left:10px;\">\n"
-           "<!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;\"><tr><td style=\"padding-top: 20px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px\" align=\"center\"><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\""+button_action+"\" style=\"height:39pt; width:174pt; v-text-anchor:middle;\" arcsize=\"29%\" stroke=\"false\" fillcolor=\"#fc7318\"><w:anchorlock/><v:textbox inset=\"0,0,0,0\"><center style=\"color:#ffffff; font-family:Tahoma, Verdana, sans-serif; font-size:16px\"><![endif]--><a href=\""+button_action+"\" style=\"-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #ffffff; background-color: #fc7318; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; width: auto; width: auto; border-top: 1px solid #fc7318; border-right: 1px solid #fc7318; border-bottom: 1px solid #fc7318; border-left: 1px solid #fc7318; padding-top: 10px; padding-bottom: 10px; font-family: 'Lato', Tahoma, Verdana, Segoe, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;\" target=\"_blank\"><span style=\"padding-left:40px;padding-right:40px;font-size:16px;display:inline-block;\">\n"
+           "<!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;\"><tr><td style=\"padding-top: 20px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px\" align=\"center\"><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"" +
+           button_action +
+           "\" style=\"height:39pt; width:174pt; v-text-anchor:middle;\" arcsize=\"29%\" stroke=\"false\" fillcolor=\"#fc7318\"><w:anchorlock/><v:textbox inset=\"0,0,0,0\"><center style=\"color:#ffffff; font-family:Tahoma, Verdana, sans-serif; font-size:16px\"><![endif]--><a href=\"" +
+           button_action +
+           "\" style=\"-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #ffffff; background-color: #fc7318; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; width: auto; width: auto; border-top: 1px solid #fc7318; border-right: 1px solid #fc7318; border-bottom: 1px solid #fc7318; border-left: 1px solid #fc7318; padding-top: 10px; padding-bottom: 10px; font-family: 'Lato', Tahoma, Verdana, Segoe, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;\" target=\"_blank\"><span style=\"padding-left:40px;padding-right:40px;font-size:16px;display:inline-block;\">\n"
            "<span style=\"font-size: 16px; line-height: 32px;\"><strong>\n"
-           +button_text+
+           + button_text +
            "</strong></span>\n"
            "</span></a>\n"
            "<!--[if mso]></center></v:textbox></v:roundrect></td></tr></table><![endif]-->\n"
@@ -474,7 +479,7 @@ std::string SMTP_client::SMTP_message_builder(std::string header,std::string use
            "</html>";
 }
 
-int SMTP_client::SMPT_sendmail(std::string message,std::string dest,std::string subject){
+int SMTP_client::SMPT_sendmail(std::string message, std::string dest, std::string subject) {
     MailMessage _message;
     SSLManager::instance().initializeClient(0, pCert, pContext);
     SecureStreamSocket pSSLSocket(pContext);
@@ -487,7 +492,7 @@ int SMTP_client::SMPT_sendmail(std::string message,std::string dest,std::string 
     _message.setContentType("text/html; charset=UTF-8");
     _message.setContent(message, MailMessage::ENCODING_8BIT);
 
-    try{
+    try {
         secure.login();
         bool tlsStarted = secure.startTLS(pContext);
         secure.login(SMTPClientSession::AUTH_LOGIN, sUserName, sPassword);

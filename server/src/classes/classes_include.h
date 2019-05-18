@@ -48,4 +48,9 @@ using std::endl;
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
 
+#include <openssl/evp.h>
+#include <openssl/aes.h>
+#include <openssl/err.h>
+#include <cstring>
+
 #endif //SERVER_CLASSES_INCLUDE_H
