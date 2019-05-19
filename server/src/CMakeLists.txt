@@ -21,19 +21,19 @@ add_executable(server main.cpp
         classes/crdt_rc/CRDT_pos.h
 )
 
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 #add_subdirectory(../../libs kklib)
 #target_link_libraries(server kklib)
 
-find_package(Boost)
-IF (Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIR})
-    set (Boost_USE_STATIC_LIBS OFF) # enable dynamic linking
-    set (Boost_USE_MULTITHREAD ON)  # enable multithreading
-    find_package (Boost COMPONENTS REQUIRED chrono filesystem)
-    target_link_libraries(server  ${BOOST_LIBRARYDIR})
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        target_link_libraries(server ws2_32)
-        target_link_libraries(server wsock32)
-    endif()
-endif()
+#find_package(Boost)
+#IF (Boost_FOUND)
+#    include_directories(${Boost_INCLUDE_DIR})
+#    set (Boost_USE_STATIC_LIBS OFF) # enable dynamic linking
+#    set (Boost_USE_MULTITHREAD ON)  # enable multithreading
+#    find_package (Boost COMPONENTS REQUIRED chrono filesystem)
+#    target_link_libraries(server  ${BOOST_LIBRARYDIR})
+#    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+#        target_link_libraries(server ws2_32)
+#        target_link_libraries(server wsock32)
+#    endif()
+#endif()
