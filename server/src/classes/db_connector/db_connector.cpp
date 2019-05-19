@@ -18,6 +18,8 @@ struct var {
     std::string image; //cosa è questo? quanto fa questo?
     std::string reg_date;
     std::string password;
+    int psw_len;
+
 };
 
 db_connector::db_connector(sql::Driver *driver) : driver(driver) {
@@ -66,7 +68,7 @@ user_info *db_connector::db_getUserInfo(std::string username) {
     sql::Statement *stmt = connect();
     auto userInfo = new user_info;
     sql::ResultSet *res = stmt->executeQuery(
-            "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`='" +
+            "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD`,`PSWLEN` FROM `USERS` WHERE `USERNAME`='" +
             username + "';");
     res->next();
     userInfo->id = res->getString(1);
@@ -76,24 +78,22 @@ user_info *db_connector::db_getUserInfo(std::string username) {
     userInfo->image = res->getString(5);
     userInfo->reg_date = res->getString(6);
     userInfo->password = res->getString(7);
+    userInfo->psw_len = res->getInt(8);
     close();
     return userInfo;
 }
 
-int db_connector::db_insert_user(std::string username, std::string password, std::string email, std::string name,
+int db_connector::db_insert_user(std::string username, std::string password,int pass_len, std::string email, std::string name,
                                  std::string surname) {
     int errCode = 0;
     std::ostringstream _string;
     sql::ResultSet *res;
     sql::Statement *stmt = connect();
     SMTP_client sender;
-    std::string mex;
+    std::string mex,_psw_len=to_string(pass_len);
 
-    Poco::Crypto::Cipher *pCipher = factory.createCipher(
-            Poco::Crypto::RSAKey(Poco::Crypto::RSAKey::KL_1024, Poco::Crypto::RSAKey::EXP_SMALL));
-    std::string key1 = pCipher->encryptString(password, Poco::Crypto::Cipher::ENC_BASE64);
-    _string << "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) "
-            << "VALUES('" + username + "','" + key1 + "','" + email + "','" + name + "','" + surname +
+    _string << "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`PSWLEN`,`EMAIL`,`NAME`,`SURNAME`) "
+            << "VALUES('" + username + "','" + password + "','" + _psw_len + "','" + email + "','" + name + "','" + surname +
                "');";
     try {
         stmt->execute(_string.str());
@@ -193,15 +193,18 @@ int db_connector::db_share_file(std::string username_from, std::string username_
 //
 //}
 
-bool db_connector::db_login(std::string username, std::string password) {
+bool db_connector::db_login(std::string username, std::string password, int psw_len) {
     user_info *user;
     user = db_getUserInfo(username);
-    Poco::Crypto::Cipher *pCipher = factory.createCipher(
-            Poco::Crypto::RSAKey(Poco::Crypto::RSAKey::KL_1024, Poco::Crypto::RSAKey::EXP_SMALL));
-    std::string key = pCipher->name();
-    std::string key1 = pCipher->decryptString(password, Poco::Crypto::Cipher::ENC_BASE64);
-    std::string usrpsw = user->password;
-    std::string key2 = pCipher->decryptString(usrpsw, Poco::Crypto::Cipher::ENC_BASE64);
+
+    std::string key1=password;
+    std::string key2=user->password;
+
+    if(user->psw_len!=psw_len)
+        return false;
+
     return key1 == key2;
 }
+
+//TODO: delete user
 

@@ -29,56 +29,13 @@ int main(int argc, char *argv[]) {
     db_connector my_conn(driver);
     db_crypto my_crypto;
 
-//
-//    int ret;
-
-//
-//    cout << key1 << endl ;
-////
-//    if ((ret=my_conn.db_insert_user("paola", "password", "paola.caso96@gmail.com", "Paola", "Caso")) < 0)
-//    cout << ret << endl;
-
-//    my_conn.db_insert_user("Klaus", "password", "kllaus@live.it", "Klaus", "cuko");
-////    cout << ret << endl;
-
-//    if ((ret = my_conn.db_insert_file("Michele", "file23.txt", "./file23.txt")) < 0)
-//        cout << ret << endl;
-
-////    my_conn.db_insert_file("paola_dracarys","lista_gente_da_bruciare.txt","./lista_gente_da_bruciare.txt");
-
-////
-// if(my_conn.db_login("paola","fsdfhsjkf"))
-//    cout<<"FUNZIA! :D"<< endl;
-
-// Test email service
-//    SMTP_client sender;
-//    std::string mex=sender.SMTP_message_builder("Welcome","Rocco Greco","Try now our new application!","Download Now","http://www.facebook.it");
-//    sender.SMPT_sendmail(mex,"grecomichele96@gmail.com","Test5");
-
-//    my_conn.db_share_file("paola_dracarys","michele6000","lista_gente_da_bruciare.txt");
 
 
 
-    /* Buffer for the tag */
-    unsigned char tag[16];
-    int cifred_len = 0;
-
-    std::string test = my_crypto.db_encrypt("stringa di prova", tag, &cifred_len);
-    cout << "Testo Password cifrata: " << test << endl;
-    test = my_crypto.db_decrypt(test, tag, &cifred_len);
 
 
-    if (cifred_len < 0) {
-        /* Verify error */
-        printf("Decrypted text failed to verify\n");
-    } else {
-        /* Show the decrypted text */
-        printf("Decrypted text is:\n");
-        cout << test << endl;
-    }
 
-    /* Remove error strings */
-    ERR_free_strings();
+
 
     return 0;
 

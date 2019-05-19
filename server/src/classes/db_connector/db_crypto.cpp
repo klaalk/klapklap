@@ -4,6 +4,7 @@
 
 #include "db_crypto.h"
 
+
 void db_crypto::handleErrors(void) {
     unsigned long errCode;
 
@@ -130,11 +131,13 @@ int db_crypto::decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned c
 }
 
 db_crypto::db_crypto(void) {
-    OpenSSL_add_all_algorithms();
-    ERR_load_crypto_strings();
+//    OpenSSL_add_all_algorithms();
+//    ERR_load_crypto_strings();
 }
 
-std::string db_crypto::db_encrypt(std::string password, unsigned char *tag, int *cifred_len) {
+std::string db_crypto::db_encrypt(std::string password,int *cifred_len) {
+
+
 
     /* A 256 bit key */
     constexpr static const unsigned char key[] = "+KbPeShVmYp3s6v9y$B&E)H@McQfTjWn";
@@ -143,25 +146,29 @@ std::string db_crypto::db_encrypt(std::string password, unsigned char *tag, int 
     constexpr static const unsigned char iv[] = "eThWmZq3t6w9z$C&";;
 
     /* Some additional data to be authenticated */
-    constexpr static const unsigned char aad[] = "jsnowkissdaenerys";
+    constexpr static const unsigned char aad[] = "khfgdsdjkgdsjkkd";
 
     std::string c_password;
+    int len = *cifred_len;
     unsigned char ciphertext[128];
+    unsigned char tag2[len];
+    std::strcpy((char*)tag2,"");
+
 //    unsigned char tag[16];
     unsigned char plaintext[password.length()];
     std::strcpy((char *) plaintext, password.c_str());
 
-
     *cifred_len = encrypt(plaintext, std::strlen((char *) plaintext), const_cast<unsigned char *>(aad),
                           std::strlen((char *) aad),
-                          const_cast<unsigned char *>(key), const_cast<unsigned char *>(iv), ciphertext, tag);
+                          const_cast<unsigned char *>(key), const_cast<unsigned char *>(iv), ciphertext, tag2);
 
     c_password.append(reinterpret_cast<const char *>(ciphertext));
     return c_password;
 
 }
+std::string db_crypto::db_decrypt(std::string password,int *cifred_len) {
 
-std::string db_crypto::db_decrypt(std::string password, unsigned char *tag, int *cifred_len) {
+//std::string db_crypto::db_decrypt(std::string password, unsigned char *tag, int *cifred_len) {
 
     /* A 256 bit key */
     constexpr static const unsigned char key[] = "+KbPeShVmYp3s6v9y$B&E)H@McQfTjWn";
@@ -170,16 +177,19 @@ std::string db_crypto::db_decrypt(std::string password, unsigned char *tag, int 
     constexpr static const unsigned char iv[] = "eThWmZq3t6w9z$C&";;
 
     /* Some additional data to be authenticated */
-    constexpr static const unsigned char aad[] = "jsnowkissdaenerys";
+    constexpr static const unsigned char aad[] = "khfgdsdjkgdsjkkd";
 
     std::string c_password;
+    int len = *cifred_len;
     unsigned char decryptedtext[128];
+    unsigned char tag2[len];
+    std::strcpy((char*)tag2,"");
+
 //    unsigned char tag[16];
     unsigned char plaintext[password.length()];
     std::strcpy((char *) plaintext, password.c_str());
 
-
-    *cifred_len = decrypt(plaintext, *cifred_len, const_cast<unsigned char *>(aad), std::strlen((char *) aad), tag,
+    *cifred_len = decrypt(plaintext, *cifred_len, const_cast<unsigned char *>(aad), std::strlen((char *) aad), tag2,
                           const_cast<unsigned char *>(key), const_cast<unsigned char *>(iv), decryptedtext);
 
     decryptedtext[*cifred_len] = '\0';

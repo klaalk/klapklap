@@ -32,9 +32,13 @@ private:
 public:
     explicit db_crypto(void);
 
-    std::string db_encrypt(std::string password, unsigned char *tag, int *cifred_len);
+    std::string db_encrypt(std::string password,int *cifred_len);
 
-    std::string db_decrypt(std::string password, unsigned char *tag, int *cifred_len);
+    std::string db_decrypt(std::string password,int *cifred_len);
+
+//    std::string db_encrypt(std::string password, unsigned char *tag, int *cifred_len);
+//
+//    std::string db_decrypt(std::string password, unsigned char *tag, int *cifred_len);
 
 };
 
