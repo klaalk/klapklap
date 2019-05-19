@@ -1,27 +1,27 @@
 //
 // Created by Alberto Bruno on 2019-05-12.
 //
-#include "../crdt_identifier/identifier.h"
+#include "CRDT_Identifier.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "Char.h"
 #define DIMPOSITION 10
 
-Char::Char(char value, std::string siteId,counter=0): value(value), siteId(siteId){};
+Char::Char(char value, std::string siteId,int counter): value(value), siteId(siteId), counter(counter){};
 
 int Char::compareTo(const Char& other){
     int min,comp;
     identifier id1,id2;
 
-    if(this->position.size()<other.position.size()){ //per trovare la char con meno cifre (serve per il ciclo for di dopo)
-        min=this->position.size();
+    if(position.size()<other.position.size()){ //per trovare la char con meno cifre (serve per il ciclo for di dopo)
+        min=position.size();
     }else{
         min=other.position.size();
     }
 
     for(int i=0;i<min;i++){
 
-        id1=this->position[i];
+        id1=position[i];
         id2=other.position[i];
         comp = id1.compareTo(id2);
 
@@ -29,11 +29,12 @@ int Char::compareTo(const Char& other){
             return comp;
         }
     }
-    if(this->position.size()<other.position()){
+    if(position.size()<other.position()){
         return -1;
-    } else if(this->position.size()>other.position()){
+    } else if(position.size()>other.position()){
         return 1;
     } else {
         return 0;
     }
 }
+
