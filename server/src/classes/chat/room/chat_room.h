@@ -8,7 +8,7 @@
 #include <set>
 #include <algorithm>
 #include <boost/bind.hpp>
-#include "../../../../../libs/src/classes/chat/message/chat_message.h"
+#include "../../../../../libs/src/classes/message/message.h"
 #include "../partecipant/chat_partecipant.h"
 
 class chat_room
@@ -16,11 +16,11 @@ class chat_room
 public:
     void join(chat_participant_ptr participant);
     void leave(chat_participant_ptr participant);
-    void deliver(const chat_message& msg);
+    void deliver(const message& msg);
 private:
     std::set<chat_participant_ptr> participants_;
     enum { max_recent_msgs = 100 };
-    chat_message_queue recent_msgs_;
+    message_queue recent_msgs_;
 };
 
 #endif //SERVER_CHAT_ROOM_H

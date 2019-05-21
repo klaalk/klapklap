@@ -16,7 +16,7 @@ chat_client::chat_client(boost::asio::io_service& io_service,
                                       boost::asio::placeholders::error, ++endpoint_iterator));
 }
 
-void chat_client::write(const chat_message& msg)
+void chat_client::write(const message& msg)
 {
     io_service_.post(boost::bind(&chat_client::do_write, this, msg));
 }
@@ -33,9 +33,19 @@ void chat_client::handle_connect(const boost::system::error_code& error,
     if (!error)
     {
         boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+                                boost::asio::buffer(read_msg_.data(), message::header_length),
                                 boost::bind(&chat_client::handle_read_header, this,
                                             boost::asio::placeholders::error));
+        // Effettuo il login
+        char line[message::max_body_length + 1];
+        std::cout<<"Inserisci username/email e password: <username/email> <password>"<<std::endl;
+        std::cin.getline(line, 128);
+
+        message msg;
+        msg.body_length(strlen(line));
+        memcpy(msg.body(), line, msg.body_length());
+        msg.encode_header(login);
+        write(msg);
     }
     else if (endpoint_iterator != tcp::resolver::iterator())
     {
@@ -47,14 +57,15 @@ void chat_client::handle_connect(const boost::system::error_code& error,
     }
 }
 
-void chat_client::handle_read_header(const boost::system::error_code& error)
+void chat_client::handle_read_header(const boost::system::error_code& _error)
 {
-    if (!error && read_msg_.decode_header())
+    kk_payload_type _type = read_msg_.decode_header();
+    if (!_error &&  _type != error )
     {
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
                                 boost::bind(&chat_client::handle_read_body, this,
-                                            boost::asio::placeholders::error));
+                                            boost::asio::placeholders::error, _type));
     }
     else
     {
@@ -62,16 +73,71 @@ void chat_client::handle_read_header(const boost::system::error_code& error)
     }
 }
 
-void chat_client::handle_read_body(const boost::system::error_code& error)
+void chat_client::handle_read_body(const boost::system::error_code& error, kk_payload_type _type)
 {
+    using namespace std; // For strlen and memcpy.
+    char line[message::max_body_length + 1];
     if (!error)
     {
-        std::cout.write(read_msg_.body(), read_msg_.body_length());
-        std::cout << "\n";
         boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+                                boost::asio::buffer(read_msg_.data(), message::header_length),
                                 boost::bind(&chat_client::handle_read_header, this,
                                             boost::asio::placeholders::error));
+
+        switch (_type) {
+            case login: {
+                if(strcmp(read_msg_.body(), "OK") == 0) {
+                    char line[message::max_body_length + 1];
+                    std::cout<<"Inserisci il nome del file che vuoi aprire:"<<std::endl;
+                    std::cin.getline(line, 128);
+
+                    message msg;
+                    msg.body_length(strlen(line));
+                    memcpy(msg.body(), line, msg.body_length());
+                    msg.encode_header(openfile);
+                    write(msg);
+                } else {
+                    std::cout<<"Il login non è andato a buon fine. Vuoi registrarti? y/n"<<std::endl;
+                    char line[message::max_body_length + 1];
+                    std::cout<<"WIP"<<std::endl;
+                }
+                break;
+            }
+            case openfile: {
+                if(strcmp(read_msg_.body(), "OK") == 0) {
+                    std::cout<<"Comandi possibili:"<<std::endl;
+                    std::cout<<"<chat> per mandare una messaggio."<<std::endl;
+                    std::cout<<"<crdt> per mandare un carattere."<<std::endl;
+                    std::cout<<"<logout> per uscire."<<std::endl;
+                    std::cin.getline(line, message::max_body_length + 1);
+
+                    if(strcmp(line, "chat") == 0){
+                        std::cout<<"Inserisci il corpo del messaggio:"<<std::endl;
+                        std::cin.getline(line, message::max_body_length + 1);
+                        message msg;
+                        msg.body_length(strlen(line));
+                        memcpy(msg.body(), line, msg.body_length());
+                        msg.encode_header(chat);
+                        write(msg);
+                    } else if (strcmp(line, "crdt") == 0) {
+                        std::cout<<"Inserisci <char> e <pos>:"<<std::endl;
+                        std::cin.getline(line, message::max_body_length + 1);
+                        message msg;
+                        msg.body_length(strlen(line));
+                        memcpy(msg.body(), line, msg.body_length());
+                        msg.encode_header(crdt);
+                        write(msg);
+                    } else if (strcmp(line, "logout") == 0) {
+                        char logoutmsg[] = "logout";
+                        message msg;
+                        msg.body_length(strlen(logoutmsg));
+                        memcpy(msg.body(), logoutmsg, msg.body_length());
+                        msg.encode_header(logout);
+                        write(msg);
+                    }
+                }
+            }
+        }
     }
     else
     {
@@ -79,7 +145,7 @@ void chat_client::handle_read_body(const boost::system::error_code& error)
     }
 }
 
-void chat_client::do_write(chat_message msg)
+void chat_client::do_write(message msg)
 {
     bool write_in_progress = !write_msgs_.empty();
     write_msgs_.push_back(msg);

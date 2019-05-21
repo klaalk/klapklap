@@ -16,7 +16,6 @@ class crdt_server
 public:
     crdt_server(boost::asio::io_service& io_service, const tcp::endpoint& endpoint);
     void handle_accept(crdt_session_ptr session, const boost::system::error_code& error);
-
 private:
     boost::asio::io_service& io_service_;
     tcp::acceptor acceptor_;

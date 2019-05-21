@@ -21,20 +21,21 @@ void crdt_session::start()
     // mi aggiungo a tutti i partecipanti del server
     room_.join(shared_from_this());
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+                            boost::asio::buffer(read_msg_.data(), message::header_length),
                             boost::bind(
                                     &crdt_session::handle_read_header, shared_from_this(),
                                     boost::asio::placeholders::error));
 }
 
-void crdt_session::handle_read_header(const boost::system::error_code& error)
+void crdt_session::handle_read_header(const boost::system::error_code& _error)
 {
-    if (!error && read_msg_.decode_header())
+    kk_payload_type _type = read_msg_.decode_header();
+    if (!_error && _type != error)
     {
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
                                 boost::bind(&crdt_session::handle_read_body, shared_from_this(),
-                                            boost::asio::placeholders::error));
+                                            boost::asio::placeholders::error, _type));
     }
     else
     {
@@ -42,44 +43,62 @@ void crdt_session::handle_read_header(const boost::system::error_code& error)
     }
 }
 
-void crdt_session::handle_read_body(const boost::system::error_code& error)
+void crdt_session::handle_read_body(const boost::system::error_code& error, kk_payload_type _type)
 {
     if (!error)
     {
-        if(!isInWriteMode_) {
-            // Non ho nessun file aperto
-            std::string fileName = std::string(read_msg_.body());
-            auto search = files_.find(fileName);
+        char _body[message::max_body_length];
+        strncat(_body, read_msg_.body(), read_msg_.body_length());
 
-            for(auto it = files_.cbegin(); it != files_.cend(); ++it)
-            {
-                std::cout << it->first << "\n";
+        switch (_type) {
+            case login: {
+                char usr[128];
+                char psw[128];
+                sscanf(read_msg_.body(), "%s %s", usr, psw);
+                std::cout<<"utente " << usr << " password " << psw << std::endl;
+                //TODO: fare query e controllare se esiste.
+                char logoutmsg[] = "OK";
+                message msg;
+                msg.body_length(strlen(logoutmsg));
+                memcpy(msg.body(), logoutmsg, msg.body_length());
+                msg.encode_header(login);
+                deliver(msg);
+                break;
             }
-
-            if(search != files_.end()) {
-                // il file era già aperto ed è nella mappa globale
-                actual_file_ = files_.at(fileName);
-                actual_file_.join(shared_from_this());
-            } else {
-                // Apro il file. Con i dovuti controlli
-                // TODO: actual_file.open(fileName);
-                actual_file_.join(shared_from_this());
-                files_.insert(make_pair(fileName, actual_file_));
-
-                auto search = files_.find(fileName);
+            case openfile: {
+                char openfile_msg[] = "KO";
+                std::string filename = std::string(_body);
+                std::cout<<"richiesta di apertura file: " << filename << std::endl;
+                //TODO: fare query e controllare se esiste.
+                auto search = files_.find(filename);
                 if(search != files_.end()) {
-                   std::cout<< "partecipante inserito" << std::endl;
+                    // il file era già aperto ed è nella mappa globale
+                    actual_file_ = files_.at(filename);
+                    actual_file_.join(shared_from_this());
+                    strcpy(openfile_msg, "OK");
+                } else {
+                    // Apro il file. Con i dovuti controlli
+                    // TODO: fare query per inserire file
+                    actual_file_.join(shared_from_this());
+                    files_.insert(make_pair(filename, actual_file_));
+
+                    auto search = files_.find(filename);
+                    if(search != files_.end()) {
+                        std::cout<< "file creato correttamente" << std::endl;
+                        strcpy(openfile_msg, "OK");
+                    }
                 }
+
+                message msg;
+                msg.body_length(strlen(openfile_msg));
+                memcpy(msg.body(), openfile_msg, msg.body_length());
+                msg.encode_header(openfile);
+                deliver(msg);
+                break;
             }
-            isInWriteMode_ = true;
-        } else {
-            // Scrivo nel file.
-            // TODO: actual_file_.writeOnFile(read_msg_.body());
-            std::cout << "Scrivo nel file:\n" << read_msg_.body() << std::endl;
-            actual_file_.deliver(read_msg_);
         }
         boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+                                boost::asio::buffer(read_msg_.data(), message::header_length),
                                 boost::bind(&crdt_session::handle_read_header, shared_from_this(),
                                             boost::asio::placeholders::error));
     }
@@ -92,7 +111,7 @@ void crdt_session::handle_read_body(const boost::system::error_code& error)
     }
 }
 
-void crdt_session::deliver(const chat_message& msg)
+void crdt_session::deliver(const message& msg)
 {
     bool write_in_progress = !write_msgs_.empty();
     write_msgs_.push_back(msg);
