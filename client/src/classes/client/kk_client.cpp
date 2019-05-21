@@ -2,39 +2,39 @@
 // Created by Augens on 06/05/2019.
 //
 
-#include "chat_client.h"
+#include "kk_client.h"
 
 
-chat_client::chat_client(boost::asio::io_service& io_service,
+kk_client::kk_client(boost::asio::io_service& io_service,
             tcp::resolver::iterator endpoint_iterator)
         : io_service_(io_service),
           socket_(io_service)
 {
     tcp::endpoint endpoint = *endpoint_iterator;
     socket_.async_connect(endpoint,
-                          boost::bind(&chat_client::handle_connect, this,
+                          boost::bind(&kk_client::handle_connect, this,
                                       boost::asio::placeholders::error, ++endpoint_iterator));
 }
 
-void chat_client::write(const message& msg)
+void kk_client::write(const message& msg)
 {
-    io_service_.post(boost::bind(&chat_client::do_write, this, msg));
+    io_service_.post(boost::bind(&kk_client::do_write, this, msg));
 }
 
-void chat_client::close()
+void kk_client::close()
 {
-    io_service_.post(boost::bind(&chat_client::do_close, this));
+    io_service_.post(boost::bind(&kk_client::do_close, this));
 }
 
 
-void chat_client::handle_connect(const boost::system::error_code& error,
+void kk_client::handle_connect(const boost::system::error_code& error,
                     tcp::resolver::iterator endpoint_iterator)
 {
     if (!error)
     {
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.data(), message::header_length),
-                                boost::bind(&chat_client::handle_read_header, this,
+                                boost::bind(&kk_client::handle_read_header, this,
                                             boost::asio::placeholders::error));
         // Effettuo il login
         char line[message::max_body_length + 1];
@@ -52,19 +52,19 @@ void chat_client::handle_connect(const boost::system::error_code& error,
         socket_.close();
         tcp::endpoint endpoint = *endpoint_iterator;
         socket_.async_connect(endpoint,
-                              boost::bind(&chat_client::handle_connect, this,
+                              boost::bind(&kk_client::handle_connect, this,
                                           boost::asio::placeholders::error, ++endpoint_iterator));
     }
 }
 
-void chat_client::handle_read_header(const boost::system::error_code& _error)
+void kk_client::handle_read_header(const boost::system::error_code& _error)
 {
     kk_payload_type _type = read_msg_.decode_header();
     if (!_error &&  _type != error )
     {
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
-                                boost::bind(&chat_client::handle_read_body, this,
+                                boost::bind(&kk_client::handle_read_body, this,
                                             boost::asio::placeholders::error, _type));
     }
     else
@@ -73,7 +73,7 @@ void chat_client::handle_read_header(const boost::system::error_code& _error)
     }
 }
 
-void chat_client::handle_read_body(const boost::system::error_code& error, kk_payload_type _type)
+void kk_client::handle_read_body(const boost::system::error_code& error, kk_payload_type _type)
 {
     using namespace std; // For strlen and memcpy.
     char line[message::max_body_length + 1];
@@ -81,7 +81,7 @@ void chat_client::handle_read_body(const boost::system::error_code& error, kk_pa
     {
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.data(), message::header_length),
-                                boost::bind(&chat_client::handle_read_header, this,
+                                boost::bind(&kk_client::handle_read_header, this,
                                             boost::asio::placeholders::error));
 
         switch (_type) {
@@ -145,7 +145,7 @@ void chat_client::handle_read_body(const boost::system::error_code& error, kk_pa
     }
 }
 
-void chat_client::do_write(message msg)
+void kk_client::do_write(message msg)
 {
     bool write_in_progress = !write_msgs_.empty();
     write_msgs_.push_back(msg);
@@ -154,12 +154,12 @@ void chat_client::do_write(message msg)
         boost::asio::async_write(socket_,
                                  boost::asio::buffer(write_msgs_.front().data(),
                                                      write_msgs_.front().length()),
-                                 boost::bind(&chat_client::handle_write, this,
+                                 boost::bind(&kk_client::handle_write, this,
                                              boost::asio::placeholders::error));
     }
 }
 
-void chat_client::handle_write(const boost::system::error_code& error)
+void kk_client::handle_write(const boost::system::error_code& error)
 {
     if (!error)
     {
@@ -169,7 +169,7 @@ void chat_client::handle_write(const boost::system::error_code& error)
             boost::asio::async_write(socket_,
                                      boost::asio::buffer(write_msgs_.front().data(),
                                                          write_msgs_.front().length()),
-                                     boost::bind(&chat_client::handle_write, this,
+                                     boost::bind(&kk_client::handle_write, this,
                                                  boost::asio::placeholders::error));
         }
     }
@@ -179,7 +179,7 @@ void chat_client::handle_write(const boost::system::error_code& error)
     }
 }
 
-void chat_client::do_close()
+void kk_client::do_close()
 {
     socket_.close();
 }

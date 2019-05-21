@@ -18,10 +18,10 @@ using boost::asio::ip::tcp;
 
 typedef std::deque<message> message_queue;
 
-class chat_client
+class kk_client
 {
 public:
-    chat_client(boost::asio::io_service& io_service,
+    kk_client(boost::asio::io_service& io_service,
                 tcp::resolver::iterator endpoint_iterator);
     void write(const message& msg);
     void close();
