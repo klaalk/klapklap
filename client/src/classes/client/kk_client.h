@@ -26,17 +26,24 @@ public:
     void write(const message& msg);
     void close();
 private:
-
     void handle_connect(const boost::system::error_code& error,
                         tcp::resolver::iterator endpoint_iterator);
 
     void handle_read_header(const boost::system::error_code& error);
 
-    void handle_read_body(const boost::system::error_code& error, kk_payload_type _type);
-
-    void do_write(message msg);
+    void handle_read_body(const boost::system::error_code& error);
 
     void handle_write(const boost::system::error_code& error);
+
+    void send_message(const char *line, kk_payload_type _type);
+
+    void receive_message();
+
+    void menu();
+
+    void do_login();
+
+    void do_write(message msg);
 
     void do_close();
 private:

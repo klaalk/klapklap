@@ -11,6 +11,8 @@
 
 class crdt_participant
 {
+protected:
+    std::string name;
 public:
     virtual ~crdt_participant() {}
     virtual void deliver(const message& msg) = 0;

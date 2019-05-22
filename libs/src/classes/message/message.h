@@ -13,7 +13,7 @@
 class message {
 public:
     enum {
-        header_length = 5
+        header_length = 10
     };
     enum {
         max_body_length = 512
@@ -44,13 +44,17 @@ public:
     /// Imposta il body length in base al massimo lenght possibile.
     void body_length(size_t length);
 
+    kk_payload_type type();
+    kk_payload_result_type result_type();
 
     kk_payload_type decode_header();
-    void encode_header(kk_payload_type type);
+    void encode_header(kk_payload_type type, kk_payload_result_type result);
 
     void delete_data();
 private:
     char data_[header_length + max_body_length];
+    kk_payload_type type_;
+    kk_payload_result_type result_;
     size_t body_length_;
 };
 

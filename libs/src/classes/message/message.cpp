@@ -4,7 +4,7 @@
 
 #include "message.h"
 
-#define MESSAGE_CODE "%d%4d"
+#define MESSAGE_CODE "%d-%3d-%4d"
 
 message::message()
         : body_length_(0) {
@@ -41,29 +41,43 @@ void message::body_length(size_t length) {
 }
 
 void message::delete_data() {
+    memset(data_, '\0', header_length + body_length_);
     body_length_ = 0;
-    data_[0] = 0;
+}
+
+kk_payload_type message::type() {
+    return type_;
+}
+
+kk_payload_result_type message::result_type(){
+    return  result_;
 }
 
 kk_payload_type message::decode_header() {
     using namespace std; // For strncat and atoi.
     char header[header_length + 1] = "";
-    kk_payload_type type_;
-    int length_;
+    kk_payload_type _type;
+    kk_payload_result_type _result;
+    int _length = 0;
 
     strncat(header, data_, header_length);
-    sscanf(header, MESSAGE_CODE, &type_, &length_);
-    if (length_ > max_body_length) {
+    sscanf(header, MESSAGE_CODE, &_type, &_result, &_length);
+
+    type_ = _type;
+    if (_length > max_body_length) {
         body_length_ = 0;
+        result_ = ERR_SIZE;
         return error;
     }
-    body_length_ = length_;
+    body_length_ = _length;
+    result_ = _result;
+
     return type_;
 }
 
-void message::encode_header(kk_payload_type type) {
+void message::encode_header(kk_payload_type type, kk_payload_result_type result) {
     using namespace std; // For sprintf and memcpy.
     char header[header_length + 1] = "";
-    sprintf(header, MESSAGE_CODE,(int)type, (int)body_length_);
+    sprintf(header, MESSAGE_CODE,(int)type, (int)result, (int)body_length_);
     memcpy(data_, header, header_length);
 }

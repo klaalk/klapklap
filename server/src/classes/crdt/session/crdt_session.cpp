@@ -29,13 +29,12 @@ void crdt_session::start()
 
 void crdt_session::handle_read_header(const boost::system::error_code& _error)
 {
-    kk_payload_type _type = read_msg_.decode_header();
-    if (!_error && _type != error)
+    if (!_error && read_msg_.decode_header() != error)
     {
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
                                 boost::bind(&crdt_session::handle_read_body, shared_from_this(),
-                                            boost::asio::placeholders::error, _type));
+                                            boost::asio::placeholders::error));
     }
     else
     {
@@ -43,72 +42,85 @@ void crdt_session::handle_read_header(const boost::system::error_code& _error)
     }
 }
 
-void crdt_session::handle_read_body(const boost::system::error_code& error, kk_payload_type _type)
+void crdt_session::handle_read_body(const boost::system::error_code& error)
 {
     if (!error)
     {
-        char _body[message::max_body_length];
-        strncat(_body, read_msg_.body(), read_msg_.body_length());
-
-        switch (_type) {
-            case login: {
-                char usr[128];
-                char psw[128];
-                sscanf(read_msg_.body(), "%s %s", usr, psw);
-                std::cout<<"utente " << usr << " password " << psw << std::endl;
-                //TODO: fare query e controllare se esiste.
-                char logoutmsg[] = "OK";
-                message msg;
-                msg.body_length(strlen(logoutmsg));
-                memcpy(msg.body(), logoutmsg, msg.body_length());
-                msg.encode_header(login);
-                deliver(msg);
-                break;
-            }
-            case openfile: {
-                char openfile_msg[] = "KO";
-                std::string filename = std::string(_body);
-                std::cout<<"richiesta di apertura file: " << filename << std::endl;
-                //TODO: fare query e controllare se esiste.
-                auto search = files_.find(filename);
-                if(search != files_.end()) {
-                    // il file era già aperto ed è nella mappa globale
-                    actual_file_ = files_.at(filename);
-                    actual_file_.join(shared_from_this());
-                    strcpy(openfile_msg, "OK");
-                } else {
-                    // Apro il file. Con i dovuti controlli
-                    // TODO: fare query per inserire file
-                    actual_file_.join(shared_from_this());
-                    files_.insert(make_pair(filename, actual_file_));
-
-                    auto search = files_.find(filename);
-                    if(search != files_.end()) {
-                        std::cout<< "file creato correttamente" << std::endl;
-                        strcpy(openfile_msg, "OK");
-                    }
-                }
-
-                message msg;
-                msg.body_length(strlen(openfile_msg));
-                memcpy(msg.body(), openfile_msg, msg.body_length());
-                msg.encode_header(openfile);
-                deliver(msg);
-                break;
-            }
-        }
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.data(), message::header_length),
                                 boost::bind(&crdt_session::handle_read_header, shared_from_this(),
                                             boost::asio::placeholders::error));
+        handle_request();
+
     }
     else
     {
-        if(isInWriteMode_) {
-            actual_file_.leave(shared_from_this());
-        }
+        actual_file_.leave(shared_from_this());
         room_.leave(shared_from_this());
     }
+}
+
+void crdt_session::handle_request(){
+    std::cout << "Ho ricevuto: " << read_msg_.data() << std::endl;
+    switch (read_msg_.type()) {
+        case login: {
+            char usr[128];
+            char psw[128];
+            sscanf(read_msg_.body(), "%s %s", usr, psw);
+            name = std::string(usr);
+            //TODO: fare query e controllare se esiste.
+            handle_response("Login effettuato", login, OK);
+            break;
+        }
+        case openfile: {
+            std::string filename = std::string(read_msg_.body());
+            std::cout<<"richiesta di apertura file: " << filename << std::endl;
+            //TODO: fare query e controllare se esiste.
+            auto search = files_.find(filename);
+            if(search != files_.end()) {
+                // il file era già aperto ed è nella mappa globale
+                actual_file_ = files_.at(filename);
+                actual_file_.join(shared_from_this());
+                handle_response("file esistente, sei stato aggiunto correttamente", openfile, OK);
+            } else {
+                // Apro il file. Con i dovuti controlli
+                // TODO: fare query per inserire file
+                actual_file_.join(shared_from_this());
+                files_.insert(make_pair(filename, actual_file_));
+
+                auto search = files_.find(filename);
+                if(search != files_.end()) {
+                    std::cout<< "file creato correttamente" << std::endl;
+                    handle_response("file creato correttamente", openfile, OK);
+                } else {
+                    handle_response("non è stato possibile aprire il file", openfile, KO);
+                }
+            }
+
+            break;
+        }
+        case chat: {
+            std::cout << name << ": " << read_msg_.body() << std::endl;
+            std::string response = name + ": " + read_msg_.body();
+            char cstr[response.size() + 1];
+
+            response.copy(cstr, response.size() + 1);
+            cstr[response.size()] = '\0';
+
+            handle_response(cstr, chat, KO);
+            break;
+        }
+    }
+
+    read_msg_.delete_data();
+}
+
+void crdt_session::handle_response(const char *body, kk_payload_type _type, kk_payload_result_type _result) {
+    message msg;
+    msg.body_length(strlen(body));
+    memcpy(msg.body(), body, msg.body_length());
+    msg.encode_header(_type, _result);
+    deliver(msg);
 }
 
 void crdt_session::deliver(const message& msg)

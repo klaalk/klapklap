@@ -13,4 +13,11 @@ enum kk_payload_type {
     crdt,
     chat,
 };
+
+enum kk_payload_result_type {
+    OK = 200,
+    NOT_FOUND = 404,
+    ERR_SIZE = 406,
+    KO = 500,
+};
 #endif //SERVER_KK_CONSTANTS_H

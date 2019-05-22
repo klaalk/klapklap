@@ -4,6 +4,7 @@
 
 #ifndef SERVER_CHAT_PARTECIPANT_H
 #define SERVER_CHAT_PARTECIPANT_H
+
 #include <boost/asio.hpp>
 #include <deque>
 
