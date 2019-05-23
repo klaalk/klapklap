@@ -189,21 +189,22 @@ int db_connector::db_share_file(std::string username_from, std::string username_
 
 //int db_reset_psw_ask(std::string username){}
 
-//int db_reset_psw(std::string username, std::string hash_key, std::string new_psw){
-//
-//}
+
 
 bool db_connector::db_login(std::string username, std::string password, int psw_len) {
     user_info *user;
     user = db_getUserInfo(username);
+    crypto solver;
 
     std::string key1=password;
     std::string key2=user->password;
+    int lKey1=psw_len;
+    int lkey2=user->psw_len;
 
-    if(user->psw_len!=psw_len)
+    if(lKey1!=lkey2)
         return false;
 
-    return key1 == key2;
+    return solver._isEqual(key1,key2,lKey1,lkey2);
 }
 
 //TODO: delete user

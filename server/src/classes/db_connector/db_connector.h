@@ -5,8 +5,10 @@
 #ifndef SERVER_DB_CONNECTOR_H
 #define SERVER_DB_CONNECTOR_H
 
-#include "../classes_include.h"
+#include "../../../../libs/src/classes_include.h"
+#include "../../../../libs/src/classes/crypto/crypto.h"
 #include "../SMTP_client/SMTP_client.h"
+
 
 typedef struct var user_info;
 
@@ -17,8 +19,6 @@ class db_connector {
 private:
     sql::Driver *driver;
     sql::Connection *con;
-
-    Poco::Crypto::CipherFactory &factory = Poco::Crypto::CipherFactory::defaultFactory();
 
     ///Open connection. Private.
     sql::Statement *connect(void);

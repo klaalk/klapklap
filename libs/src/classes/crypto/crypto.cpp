@@ -1,11 +1,12 @@
 //
-// Created by Michele Luigi Greco on 2019-05-18.
+// Created by jsnow on 23/05/19.
 //
 
-#include "db_crypto.h"
+#include "crypto.h"
 
 
-void db_crypto::handleErrors(void) {
+
+void crypto::handleErrors(void) {
     unsigned long errCode;
 
     printf("An error occurred\n");
@@ -16,7 +17,7 @@ void db_crypto::handleErrors(void) {
     abort();
 }
 
-int db_crypto::encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *aad,
+int crypto::encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *aad,
                        int aad_len, unsigned char *key, unsigned char *iv,
                        unsigned char *ciphertext, unsigned char *tag) {
     EVP_CIPHER_CTX *ctx = NULL;
@@ -70,7 +71,7 @@ int db_crypto::encrypt(unsigned char *plaintext, int plaintext_len, unsigned cha
     return ciphertext_len;
 }
 
-int db_crypto::decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *aad,
+int crypto::decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *aad,
                        int aad_len, unsigned char *tag, unsigned char *key, unsigned char *iv,
                        unsigned char *plaintext) {
     EVP_CIPHER_CTX *ctx = NULL;
@@ -130,12 +131,12 @@ int db_crypto::decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned c
     }
 }
 
-db_crypto::db_crypto(void) {
+crypto::crypto(void) {
 //    OpenSSL_add_all_algorithms();
 //    ERR_load_crypto_strings();
 }
 
-std::string db_crypto::db_encrypt(std::string password,int *cifred_len) {
+std::string crypto::_encrypt(std::string password,int *cifred_len) {
 
 
 
@@ -166,7 +167,7 @@ std::string db_crypto::db_encrypt(std::string password,int *cifred_len) {
     return c_password;
 
 }
-std::string db_crypto::db_decrypt(std::string password,int *cifred_len) {
+std::string crypto::_decrypt(std::string password,int *cifred_len) {
 
 //std::string db_crypto::db_decrypt(std::string password, unsigned char *tag, int *cifred_len) {
 
@@ -197,4 +198,10 @@ std::string db_crypto::db_decrypt(std::string password,int *cifred_len) {
     c_password.append(reinterpret_cast<const char *>(decryptedtext));
     return c_password;
 
+}
+
+
+bool crypto::_isEqual(std::string key1,std::string key2, int lKey1,int lKey2){
+    int _lKey1=lKey1,_lKye2=lKey2;
+    return _encrypt(key1,&lKey1) == _encrypt(key2,&lKey2);
 }

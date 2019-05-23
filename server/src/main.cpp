@@ -13,21 +13,16 @@
 #include "../src/classes/SMTP_client/SMTP_client.h"
 #include "./classes/crdt/crdt_server.h"
 
-#include <Poco/Crypto/CipherFactory.h>
-#include <Poco/Crypto/Cipher.h>
-#include <Poco/Crypto/CipherKey.h>
-#include <openssl/evp.h>
-#include <openssl/aes.h>
-#include <openssl/err.h>
+
 #include <cstring>
 
-#include "../src/classes/db_connector/db_crypto.h"
+#include "../../libs/src/classes/crypto/crypto.h"
 
 int main(int argc, char *argv[]) {
 //    Queste instaze sono valide per tutto il porgramma e devono essere dichiarate nel main
     sql::Driver *driver = get_driver_instance();
     db_connector my_conn(driver);
-    db_crypto my_crypto;
+    crypto my_crypto;
 
 
 

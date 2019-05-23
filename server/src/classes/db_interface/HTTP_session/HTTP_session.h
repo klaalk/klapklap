@@ -5,7 +5,7 @@
 #ifndef SERVER_HTTP_SESSION_H
 #define SERVER_HTTP_SESSION_H
 
-#include "../../classes_include.h"
+#include "../../../../../libs/src/classes_include.h"
 
 // Handles an HTTP server connection
 class HTTP_session : public std::enable_shared_from_this<HTTP_session> {

@@ -23,11 +23,15 @@ add_executable(server main.cpp
         classes/crdt/session/crdt_session.cpp classes/crdt/session/crdt_session.h
         classes/crdt/file/crdt_file.cpp classes/crdt/file/crdt_file.h
         classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h
-        classes/classes_include.h
+        ../../libs/src/classes_include.h
         classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h
         classes/db_interface/db_interface.cpp classes/db_interface/db_interface.h
-        classes/classes_include.h classes/db_interface/HTTP_listener/HTTP_listener.cpp
-        classes/db_interface/HTTP_listener/HTTP_listener.h classes/db_interface/HTTP_session/HTTP_session.cpp classes/SMTP_client/SMTP_client.cpp classes/SMTP_client/SMTP_client.h classes/db_connector/db_crypto.cpp classes/db_connector/db_crypto.h)
+        ../../libs/src/classes_include.h classes/db_interface/HTTP_listener/HTTP_listener.cpp
+        classes/db_interface/HTTP_listener/HTTP_listener.h classes/db_interface/HTTP_session/HTTP_session.cpp
+        classes/SMTP_client/SMTP_client.cpp classes/SMTP_client/SMTP_client.h
+#        classes/db_connector/db_crypto.cpp classes/db_connector/db_crypto.h
+        ../../libs/src/classes/crypto/crypto.cpp ../../libs/src/classes/crypto/crypto.h
+        )
 
 add_subdirectory(../../libs kklib)
 target_link_libraries(server kklib)
