@@ -10,10 +10,24 @@
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
 
-//#include "./classes/crdt/crdt_server.h"
+#include "./classes/crdt/crdt_server.h"
 
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[])
+{
+    try
+    {
+        boost::asio::io_service io_service;
+        // SOLO UNA PORTA APERTA
+        int port = 3310;
+        tcp::endpoint endpoint(tcp::v4(), port);
+        crdt_server_ptr server(new crdt_server(io_service, endpoint));
+        io_service.run();
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
 
     return 0;
 }

@@ -5,35 +5,30 @@ set(CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 
 add_executable(server main.cpp
-#        classes/chat/chat_server.cpp classes/chat/chat_server.h
-#        classes/chat/session/chat_session.cpp classes/chat/session/chat_session.h
-#        classes/chat/room/chat_room.cpp classes/chat/room/chat_room.h
-#        classes/chat/partecipant/chat_partecipant.cpp classes/chat/partecipant/chat_partecipant.h
+        classes/chat/chat_server.cpp classes/chat/chat_server.h
+        classes/chat/session/chat_session.cpp classes/chat/session/chat_session.h
+        classes/chat/room/chat_room.cpp classes/chat/room/chat_room.h
+        classes/chat/partecipant/chat_partecipant.cpp classes/chat/partecipant/chat_partecipant.h
 
-        classes/crdt_rc/CRDT_main.cpp
-        classes/crdt_rc/CRDT_Char.cpp
-        classes/crdt_rc/CRDT_Char.h
-        classes/crdt_rc/CRDT_identifier.cpp
-        classes/crdt_rc/CRDT_identifier.h
-        classes/crdt_rc/CRDT_Crdt.cpp
-        classes/crdt_rc/CRDT_Crdt.h
-        classes/crdt_rc/CRDT_pos.cpp
-        classes/crdt_rc/CRDT_pos.h
-)
+        classes/crdt/room/crdt_room.cpp classes/crdt/room/crdt_room.h
+        classes/crdt/crdt_server.cpp classes/crdt/crdt_server.h
+        classes/crdt/session/crdt_session.cpp classes/crdt/session/crdt_session.h
+        classes/crdt/file/crdt_file.cpp classes/crdt/file/crdt_file.h
+        classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-#add_subdirectory(../../libs kklib)
-#target_link_libraries(server kklib)
 
-#find_package(Boost)
-#IF (Boost_FOUND)
-#    include_directories(${Boost_INCLUDE_DIR})
-#    set (Boost_USE_STATIC_LIBS OFF) # enable dynamic linking
-#    set (Boost_USE_MULTITHREAD ON)  # enable multithreading
-#    find_package (Boost COMPONENTS REQUIRED chrono filesystem)
-#    target_link_libraries(server  ${BOOST_LIBRARYDIR})
-#    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-#        target_link_libraries(server ws2_32)
-#        target_link_libraries(server wsock32)
-#    endif()
-#endif()
+add_subdirectory(../../libs kklib)
+target_link_libraries(server kklib)
+
+find_package(Boost)
+IF (Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIR})
+    set (Boost_USE_STATIC_LIBS OFF) # enable dynamic linking
+    set (Boost_USE_MULTITHREAD ON)  # enable multithreading
+    find_package (Boost COMPONENTS REQUIRED chrono filesystem)
+    target_link_libraries(server  ${BOOST_LIBRARYDIR})
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+        target_link_libraries(server ws2_32)
+        target_link_libraries(server wsock32)
+    endif()
+endif()
