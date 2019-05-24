@@ -24,6 +24,7 @@ public:
     int compareTo(const CRDT_identifier& other); // torna -1 se questo < l'altro, 1 se questo > l'altro e lo fa confrontando prima il digit e poi se il digit è uguale, il siteId
     int get_digit();
     void set_digit(int digit);
+    string get_siteid();
 };
 
 

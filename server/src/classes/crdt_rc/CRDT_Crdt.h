@@ -35,7 +35,7 @@ public:
     vector<CRDT_identifier> find_position_after(CRDT_pos pos);
     vector<CRDT_identifier> generate_position_between(vector<CRDT_identifier> position_1,vector<CRDT_identifier> position_2,vector<CRDT_identifier> *new_position,int livello);
     strategy find_strategy(int level);
-    int generate_identifier_between(CRDT_identifier id_min, CRDT_identifier id_max,strategy _strategy);
+    int generate_identifier_between(int min, int max,strategy _strategy);
     void handle_remote_insert(CRDT_Char Char);
     CRDT_pos find_insert_position(CRDT_Char Char);
     int is_empty();

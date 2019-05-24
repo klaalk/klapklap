@@ -35,3 +35,7 @@ void CRDT_identifier::set_digit(int digit){
     this->digit=digit;
     return;
 }
+
+string CRDT_identifier::get_siteid() {
+    return this->siteid;
+}
