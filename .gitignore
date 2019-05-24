@@ -7,6 +7,8 @@
 /server/src/cmake-build-debug
 /client/.idea
 /client/src/cmake-build-debug
+/libs/.idea
+/libs/src/cmake-build-debug
 
 #Ignore asio doc files
 /server/libs/asio-1.12.2/doc/**
