@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkklib.a  CMakeFiles/kklib.dir/src/classes/chat/message/chat_message.cpp.o CMakeFiles/kklib.dir/src/classes/crypto/crypto.cpp.o
-/usr/bin/ranlib libkklib.a
