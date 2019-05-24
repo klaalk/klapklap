@@ -48,6 +48,10 @@ int CRDT_Char::compare_to(const CRDT_Char& other){
     }
 }
 
+char CRDT_Char::get_value() {
+    return value;
+}
+
 void CRDT_Char::insert_position(vector<CRDT_identifier> position) {
     this->position = position;
     return;

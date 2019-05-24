@@ -20,6 +20,7 @@
 
 int main(int argc, char* argv[])
 {
+
     CRDT_Crdt *crdt = new CRDT_Crdt("Canguro",casuale);
     crdt->local_insert('c',CRDT_pos(0,0));
     crdt->local_insert('a',CRDT_pos(0,1));

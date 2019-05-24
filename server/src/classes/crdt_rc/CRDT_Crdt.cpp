@@ -15,7 +15,8 @@ using std::string;
 
 
 
-CRDT_Crdt::CRDT_Crdt(string siteid,strategy strategy):siteid(siteid),boundary(10),_strategy(casuale),base(32){};
+CRDT_Crdt::CRDT_Crdt(string siteid,strategy strategy):siteid(siteid),boundary(10),_strategy(casuale),base(32){
+};
 
 void CRDT_Crdt::local_insert(char val,CRDT_pos pos ){
     CRDT_Char* new_Char = new CRDT_Char(val, this->siteid);
@@ -56,13 +57,13 @@ vector<CRDT_identifier> CRDT_Crdt::find_position_after(CRDT_pos pos){
 
     num_lines = this->text.size();
 
-    if(this->text[pos.get_line()].empty()){
+    if(text.empty() || text[pos.get_line()].empty()){
         num_chars=0;
     }else{
         num_chars=this->text[pos.get_line()].size();
     }
 
-    if(pos.get_line()>num_lines && pos.get_ch()==0){ //non dovrebbe mai succedere
+    if(pos.get_line() > num_lines - 1 && pos.get_ch() == 0){ //non dovrebbe mai succedere
         return vuoto;
     }else if(pos.get_line()==num_lines-1 && pos.get_ch()==num_chars){ //sei all'ultima riga e all'ultimo char
         return vuoto;
@@ -89,9 +90,9 @@ vector<CRDT_identifier> CRDT_Crdt::generate_position_between(vector<CRDT_identif
     }
 
     if (position2.size() == 0) {
-        id1 = new CRDT_identifier(base, this->siteid);
+        id2 = new CRDT_identifier(base, this->siteid);
     } else {
-        *id1 = position1[0];
+        *id2 = position1[0];
     }
 
     if (id2->get_digit() - id1->get_digit() > 1) {
@@ -107,27 +108,28 @@ vector<CRDT_identifier> CRDT_Crdt::generate_position_between(vector<CRDT_identif
     } else if (id2->get_digit() - id1->get_digit() == 1) {
 
         new_position->insert(new_position->end(), *id1);
-        return this->generate_position_between(position1.slice(1),vector<CRDT_identifier>(),&new_position,level+1);
+
+        return this->generate_position_between(slice(position1, 1),vector<CRDT_identifier>(),new_position,level+1);
 
     } else if(id1->get_digit()==id2->get_digit()){
         if(id1->get_siteid()<id2->get_siteid()){
             new_position->insert(new_position->end(), *id1);
-            return this->generate_position_between(position1.slice(1),vector<CRDT_identifier>(),&new_position,level+1);
+            return this->generate_position_between(slice(position1, 1),vector<CRDT_identifier>(), new_position,level+1);
 
         }else if(id1->get_siteid()==id2->get_siteid()){
             new_position->insert(new_position->end(), *id1);
-            return this->generate_position_between(position1.slice(1),position2.slice(1),&new_position,level+1);
+            return this->generate_position_between(slice(position1, 1),slice(position2, 1), new_position,level+1);
 
         }else{
            std::cout<<"ERRORE IN GETPOSITION"<<std::endl;//gestire errore
            return vector<CRDT_identifier>();
         }
-
     }
+    return vector<CRDT_identifier>();
 }
 
 strategy CRDT_Crdt::find_strategy(int level){
-    if (strategy_cache[level]) {
+    if (!strategy_cache.empty() && strategy_cache[level]) {
         return strategy_cache[level];
     }
     strategy _local_strategy;
@@ -141,7 +143,7 @@ strategy CRDT_Crdt::find_strategy(int level){
         default:
             _local_strategy = (level%2) == 0 ? plus : minus;
     }
-    this->strategy_cache[level] = _local_strategy;
+    this->strategy_cache.insert(strategy_cache.begin()+level, _local_strategy);
     return _local_strategy;
 }
 
@@ -156,77 +158,116 @@ int CRDT_Crdt::generate_identifier_between(int min, int max, strategy _strategy)
             max=min + this->boundary;
         }
     }
-return floor(rand() * (max - min)) + min;
+    double _rand = ((double) rand() / RAND_MAX);
+return floor( _rand * (max - min)) + min;
 }
-
-void CRDT_Crdt::handle_remote_insert(CRDT_Char _char){
-    CRDT_pos pos = find_insert_position(_char);
-    insert_char(_char, pos);
-    //    this.controller.insertIntoEditor(char.value, pos, char.siteId);
-}
-
-CRDT_pos CRDT_Crdt::find_insert_position(CRDT_Char _char){
-    int min_line = 0;
-    int total_lines = text.size();
-    int maxLine = total_lines - 1;
-    vector<CRDT_Char> last_line = text[maxLine];
-
-    int char_idx, mid_line;
-    vector<CRDT_Char> current_line, min_current_line, max_current_line;
-    CRDT_Char min_last_char, max_last_char, last_char;
-
-    if(is_empty() || _char.compare_to(text[0][0]) <= 0) {
-        return CRDT_pos(0,0);
-    }
-    last_char = last_line[last_line.size() - 1];
-
-    if(_char.compare_to(last_char) > 0) {
-        return find_end_position(last_char, last_line, total_lines);
-    }
-
-    // binary search
-    while (min_line + 1 < maxLine) {
-        mid_line = floor(min_line + (maxLine - min_line) / 2);
-        current_line = text[mid_line];
-        last_char = current_line[current_line.size() - 1];
-
-        if (_char.compare_to(last_char) == 0) {
-            return CRDT_pos(mid_line, current_line.size() - 1);
-        } else if (_char.compare_to(last_char) < 0) {
-            maxLine = mid_line;
-        } else {
-            min_line = mid_line;
-        }
-    }
-
-    // Check between min and max line.
-    min_current_line = text[min_line];
-    min_last_char = min_current_line[min_current_line.size() - 1];
-    max_current_line = text[maxLine];
-
-    if (_char.compare_to(min_last_char) <= 0) {
-        char_idx = find_insert_index_in_line(_char, min_current_line);
-        return CRDT_pos(min_line, char_idx);
-    } else {
-        char_idx = find_insert_index_in_line(_char, max_current_line);
-        return CRDT_pos(maxLine, char_idx);
-    }
-}
-
-int CRDT_Crdt::is_empty(){
-    return text.size() == 1 && text[0].size() == 0;
-}
-
-CRDT_pos CRDT_Crdt::find_end_position (CRDT_Char last_char, vector<CRDT_Char> last_line, int total_lines){
-
-}
-
-int CRDT_Crdt::find_insert_index_in_line(CRDT_Char _char, vector<CRDT_Char> line){
-
-}
+//
+//void CRDT_Crdt::handle_remote_insert(CRDT_Char _char){
+//    CRDT_pos pos = find_insert_position(_char);
+//    insert_char(_char, pos);
+//    //    this.controller.insertIntoEditor(char.value, pos, char.siteId);
+//}
+//
+//CRDT_pos CRDT_Crdt::find_insert_position(CRDT_Char _char){
+////    int min_line = 0;
+//    int total_lines = text.size();
+//    int maxLine = total_lines - 1;
+//    vector<CRDT_Char> last_line = text[maxLine];
+//
+//    int char_idx, mid_line;
+//    vector<CRDT_Char> current_line, min_current_line, max_current_line;
+//    CRDT_Char min_last_char, max_last_char, last_char;
+//
+//    if(is_empty() || _char.compare_to(text[0][0]) <= 0) {
+//        return CRDT_pos(0,0);
+//    }
+//    last_char = last_line[last_line.size() - 1];
+//
+//    if(_char.compare_to(last_char) > 0) {
+//        return find_end_position(last_char, last_line, total_lines);
+//    }
+//
+//    // binary search
+//    while (min_line + 1 < maxLine) {
+//        mid_line = floor(min_line + (maxLine - min_line) / 2);
+//        current_line = text[mid_line];
+//        last_char = current_line[current_line.size() - 1];
+//
+//        if (_char.compare_to(last_char) == 0) {
+//            return CRDT_pos(mid_line, current_line.size() - 1);
+//        } else if (_char.compare_to(last_char) < 0) {
+//            maxLine = mid_line;
+//        } else {
+//            min_line = mid_line;
+//        }
+//    }
+//
+//    // Check between min and max line.
+//    min_current_line = text[min_line];
+//    min_last_char = min_current_line[min_current_line.size() - 1];
+//    max_current_line = text[maxLine];
+//
+//    if (_char.compare_to(min_last_char) <= 0) {
+//        char_idx = find_insert_index_in_line(_char, min_current_line);
+//        return CRDT_pos(min_line, char_idx);
+//    } else {
+//        char_idx = find_insert_index_in_line(_char, max_current_line);
+//        return CRDT_pos(maxLine, char_idx);
+//    }
+//}
+//
+//int CRDT_Crdt::is_empty(){
+//    return text.size() == 1 && text[0].size() == 0;
+//}
+//
+//CRDT_pos CRDT_Crdt::find_end_position (CRDT_Char last_char, vector<CRDT_Char> last_line, int total_lines){
+//
+//}
+//
+//int CRDT_Crdt::find_insert_index_in_line(CRDT_Char _char, vector<CRDT_Char> line){
+//
+//}
 
 void CRDT_Crdt::insert_char(CRDT_Char _char, CRDT_pos pos){
+    if (pos.get_line() == text.size()) {
+        text.insert(text.end(), vector<CRDT_Char>());
+    }
 
+    // if inserting a newline, split line into two lines
+    if (_char.get_value() == '\n') {
+//        vector<CRDT_Char> pos_line = text[pos.get_line()];
+//        vector<CRDT_Char> new_pos_line = Utility::splice<CRDT_Char>(pos_line, pos.get_ch());
+//        text[pos.get_line()] = new_pos_line;
+//
+//        if (new_pos_line.size() == 0) {
+//            vector<CRDT_Char> pos_line = text[pos.get_line()];
+//            text[pos.get_line()].insert(_char);
+//        } else {
+//            const lineBefore = this.struct[pos.get_line()].concat(char);
+//            this.struct.splice(pos.get_line(), 1, lineBefore, lineAfter);
+//        }
+    } else {
+        if(text.at(pos.get_line()).empty()) {
+            text.insert(text.begin() + pos.get_line(),vector<CRDT_Char>());
+        }
+        text.at(pos.get_line()).insert(text.at(pos.get_line()).begin()+pos.get_ch(),_char);
+
+    }
 }
 
+std::vector<CRDT_identifier> CRDT_Crdt::slice(std::vector<CRDT_identifier> const &v, int i) {
+    auto first = v.cbegin() + i;
+    auto last = v.cend();
+
+    std::vector<CRDT_identifier> vec(first, last);
+    return vec;
+}
+
+std::vector<CRDT_Char>  CRDT_Crdt::splice(std::vector<CRDT_Char> const &v, int i) {
+    auto first = v.cbegin();
+    auto last = v.cbegin()+ i;
+
+    std::vector<CRDT_Char> vec(first, last);
+    return vec;
+}
 

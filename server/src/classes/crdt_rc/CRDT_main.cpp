@@ -5,7 +5,7 @@
 #include <string>
 #include "CRDT_Crdt.h"
 
-int main() {
+int main_rtrrtrr() {
 //
 //   /* Test compare To
 //    * int i;
@@ -29,7 +29,5 @@ crdt->local_insert('o',CRDT_pos(0,2));
 crdt->local_insert('i',CRDT_pos(0,1));
 
 
-
-
-
+    return 0;
 }
