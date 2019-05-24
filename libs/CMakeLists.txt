@@ -7,3 +7,4 @@ add_library(
         src/classes/chat/message/chat_message.cpp src/classes/chat/message/chat_message.h
         src/classes/crypto/crypto.cpp src/classes/crypto/crypto.h
 )
+

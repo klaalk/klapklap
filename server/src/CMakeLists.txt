@@ -33,8 +33,6 @@ add_executable(server main.cpp
         ../../libs/src/classes/crypto/crypto.cpp ../../libs/src/classes/crypto/crypto.h
         )
 
-add_subdirectory(../../libs kklib)
-target_link_libraries(server kklib)
 
 find_package(Boost)
 IF (Boost_FOUND)
@@ -66,3 +64,5 @@ find_package(Poco REQUIRED COMPONENTS Net NetSSL)
 include_directories(${Poco_INCLUDE_DIRS})
 target_link_libraries(server ${Poco_LIBRARIES})
 
+add_subdirectory(../../libs kklib)
+target_link_libraries(server kklib)

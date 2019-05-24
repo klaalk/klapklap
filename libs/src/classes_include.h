@@ -62,9 +62,9 @@ using Poco::Net::MailRecipient;
 
 
 //Crypto
-#include "../../../../.conan/data/OpenSSL/1.0.2o/conan/stable/package/7ee2b9bfcba105a6bcb3e1d60e3a0b24323ef7e1/include/openssl/evp.h"
-#include "../../../../.conan/data/OpenSSL/1.0.2o/conan/stable/package/7ee2b9bfcba105a6bcb3e1d60e3a0b24323ef7e1/include/openssl/aes.h"
-#include "../../../../.conan/data/OpenSSL/1.0.2o/conan/stable/package/7ee2b9bfcba105a6bcb3e1d60e3a0b24323ef7e1/include/openssl/err.h"
+#include <openssl/evp.h>
+#include <openssl/aes.h>
+#include <openssl/err.h>
 
 
 using std::string;
