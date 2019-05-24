@@ -4,8 +4,7 @@ project(client LANGUAGES CXX C VERSION 0.1.0)
 set(CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 
-add_executable(client main.cpp
-        classes/chat/chat_client.cpp classes/chat/chat_client.h)
+add_executable(client main.cpp classes/client/kk_client.cpp classes/client/kk_client.h)
 
 add_subdirectory(../../libs kklib)
 target_link_libraries(client kklib)
