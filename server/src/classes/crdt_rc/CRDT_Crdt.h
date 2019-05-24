@@ -30,7 +30,7 @@ int base;
 
 
 public:
-    CRDT_Crdt(string siteid,int boundary,strategy strategy,int base); //costruttore
+    CRDT_Crdt(string siteid,strategy strategy); //costruttore
     void local_insert(char val,CRDT_pos pos );
     CRDT_Char generate_Char(char val, CRDT_pos pos);
     vector<CRDT_identifier> find_position_before(CRDT_pos pos);

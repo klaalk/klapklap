@@ -26,6 +26,5 @@
             acceptor_.async_accept(new_session->socket(),
                                    boost::bind(&chat_server::handle_accept, this, new_session,
                                                boost::asio::placeholders::error));
-            clients.push_front(new_session);
         }
     }

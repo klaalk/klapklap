@@ -10,7 +10,7 @@
 #include "./room/chat_room.h"
 
 using boost::asio::ip::tcp;
-typedef std::list<chat_session_ptr> chat_client_list;
+
 class chat_server
 {
 public:
@@ -21,7 +21,6 @@ private:
     boost::asio::io_service& io_service_;
     tcp::acceptor acceptor_;
     chat_room room_;
-    chat_client_list clients;
 };
 
 typedef boost::shared_ptr<chat_server> chat_server_ptr;

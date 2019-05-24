@@ -15,7 +15,7 @@ using std::string;
 
 
 
-CRDT_Crdt::CRDT_Crdt(string siteid,int boundary,strategy strategy,int base):siteid(siteid),boundary(10),_strategy(casuale),base(32){};
+CRDT_Crdt::CRDT_Crdt(string siteid,strategy strategy):siteid(siteid),boundary(10),_strategy(casuale),base(32){};
 
 void CRDT_Crdt::local_insert(char val,CRDT_pos pos ){
     CRDT_Char* new_Char = new CRDT_Char(val, this->siteid);
@@ -80,7 +80,7 @@ vector<CRDT_identifier> CRDT_Crdt::generate_position_between(vector<CRDT_identif
     base = pow(2, level) * this->base;
     _strategy = this->find_strategy(level);
     CRDT_identifier *id1, *id2;
-    vector <CRDT_identifier> vuoto;
+
 
     if (position1.size() == 0) {
         id1 = new CRDT_identifier(0, this->siteid);
@@ -99,7 +99,7 @@ vector<CRDT_identifier> CRDT_Crdt::generate_position_between(vector<CRDT_identif
         int new_digit;
         CRDT_identifier *new_id;
 
-        new_digit = this->generate_identifier_between(id1->get_digit(), *id2->get_digit(), _strategy);
+        new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit(), _strategy);
         new_id = new CRDT_identifier(new_digit, this->siteid);
         new_position->insert(new_position->end(), *new_id);
         return *new_position;
@@ -107,19 +107,20 @@ vector<CRDT_identifier> CRDT_Crdt::generate_position_between(vector<CRDT_identif
     } else if (id2->get_digit() - id1->get_digit() == 1) {
 
         new_position->insert(new_position->end(), *id1);
-        return this->generate_position_between(position1.slice(1),vuoto,&new_position,level+1);
+        return this->generate_position_between(position1.slice(1),vector<CRDT_identifier>(),&new_position,level+1);
 
     } else if(id1->get_digit()==id2->get_digit()){
         if(id1->get_siteid()<id2->get_siteid()){
             new_position->insert(new_position->end(), *id1);
-            return this->generate_position_between(position1.slice(1),vuoto,&new_position,level+1);
+            return this->generate_position_between(position1.slice(1),vector<CRDT_identifier>(),&new_position,level+1);
 
         }else if(id1->get_siteid()==id2->get_siteid()){
             new_position->insert(new_position->end(), *id1);
             return this->generate_position_between(position1.slice(1),position2.slice(1),&new_position,level+1);
 
         }else{
-            //gestire errore
+           std::cout<<"ERRORE IN GETPOSITION"<<std::endl;//gestire errore
+           return vector<CRDT_identifier>();
         }
 
     }
@@ -130,7 +131,7 @@ strategy CRDT_Crdt::find_strategy(int level){
         return strategy_cache[level];
     }
     strategy _local_strategy;
-    switch (_strategy) {
+    switch (this->_strategy) {
         case plus:
             _local_strategy = plus;
         case minus:
@@ -148,7 +149,7 @@ int CRDT_Crdt::generate_identifier_between(int min, int max, strategy _strategy)
     if((max-min<this->boundary)){
         min=min+1;
     }else{
-        if(_strategy== '-') {
+        if(_strategy== minus) {
             min = max - this->boundary;
         }else{
             min=min+1;

@@ -11,11 +11,22 @@
 #include <boost/asio.hpp>
 
 #include "./classes/crdt/crdt_server.h"
+#include "./classes/crdt_rc/CRDT_Char.h"
+#include "./classes/crdt_rc/CRDT_identifier.h"
+#include <stdlib.h>
+#include <string>
+#include "./classes/crdt_rc/CRDT_Crdt.h"
 
 
 int main(int argc, char* argv[])
 {
-    try
+    CRDT_Crdt *crdt = new CRDT_Crdt("Canguro",casuale);
+    crdt->local_insert('c',CRDT_pos(0,0));
+    crdt->local_insert('a',CRDT_pos(0,1));
+    crdt->local_insert('o',CRDT_pos(0,2));
+    crdt->local_insert('i',CRDT_pos(0,1));
+
+   /* try
     {
         boost::asio::io_service io_service;
         // SOLO UNA PORTA APERTA
@@ -28,6 +39,7 @@ int main(int argc, char* argv[])
     {
         std::cerr << "Exception: " << e.what() << "\n";
     }
+    */
 
     return 0;
 }
