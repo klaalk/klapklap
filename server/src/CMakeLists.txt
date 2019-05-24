@@ -14,7 +14,7 @@ add_executable(server main.cpp
         classes/crdt/crdt_server.cpp classes/crdt/crdt_server.h
         classes/crdt/session/crdt_session.cpp classes/crdt/session/crdt_session.h
         classes/crdt/file/crdt_file.cpp classes/crdt/file/crdt_file.h
-        classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h)
+        classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h classes/utilities/Utility.cpp classes/utilities/Utility.h)
 
 
 add_subdirectory(../../libs kklib)

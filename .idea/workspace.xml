@@ -3,6 +3,7 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="server" targetName="server" />
+      <config projectName="server" targetName="kklib" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -12,7 +13,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ae30dcc6-cc66-4d6d-b311-92bec555cb8d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/server/src/classes/crdt_tmp/empty.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/classes/utilities/Utility.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/classes/utilities/Utility.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/CMakeLists.txt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/server/src/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -71,11 +76,59 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/src/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="345">
-              <caret line="23" column="50" lean-forward="true" selection-start-line="23" selection-start-column="50" selection-end-line="23" selection-end-column="50" />
+              <caret line="23" column="16" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/src/classes/utilities/Utility.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="253">
+              <caret line="21" column="1" lean-forward="true" selection-start-line="21" selection-start-column="1" selection-end-line="21" selection-end-column="1" />
+              <folding>
+                <element signature="e#72#84#0" expanded="true" />
+                <element signature="e#263#275#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/src/classes/utilities/Utility.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="357">
+              <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+              <folding>
+                <element signature="e#41#59#0" expanded="true" />
+                <element signature="e#234#246#0" expanded="true" />
+                <element signature="e#321#333#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="260">
+              <caret line="55" column="6" selection-start-line="55" selection-start-column="6" selection-end-line="55" selection-end-column="23" />
+              <folding>
+                <element signature="e#49#77#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="102">
+              <caret line="6" column="17" selection-start-line="4" selection-end-line="6" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -121,7 +174,6 @@
         <option value="$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.cpp" />
         <option value="$PROJECT_DIR$/server/src/classes/db_connector/db_connector.cpp" />
         <option value="$PROJECT_DIR$/server/src/classes/crdt_tmp/empty.c" />
-        <option value="$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.cpp" />
         <option value="$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.h" />
         <option value="$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Identifier.cpp" />
         <option value="$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Identifier.h" />
@@ -137,21 +189,29 @@
         <option value="$PROJECT_DIR$/server/src/main.cpp" />
         <option value="$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_main.cpp" />
         <option value="$PROJECT_DIR$/server/src/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_utility.h" />
+        <option value="$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.cpp" />
+        <option value="$PROJECT_DIR$/server/src/classes/utilities/Utility.cpp" />
+        <option value="$PROJECT_DIR$/server/src/classes/utilities/Utility.h" />
       </list>
     </option>
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="OCResolveContextSettings">
+    <option name="configuration" value="0-server" />
+  </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1280" />
-    <option name="y" value="31" />
-    <option name="width" value="1920" />
-    <option name="height" value="1105" />
+    <option name="x" value="240" />
+    <option name="y" value="128" />
+    <option name="width" value="1440" />
+    <option name="height" value="773" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -159,11 +219,55 @@
               <item name="server" type="b2602c69:ProjectViewProjectNode" />
               <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
+              <item name="doc" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
+              <item name="doc" type="462c0819:PsiDirectoryNode" />
+              <item name="conclave-master" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="classes" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="classes" type="462c0819:PsiDirectoryNode" />
+              <item name="crdt_rc" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="classes" type="462c0819:PsiDirectoryNode" />
+              <item name="utilities" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -178,6 +282,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Asus\Documents\progetto_malnati\server\src\classes\utilities" />
       <recent name="$PROJECT_DIR$/server/src" />
     </key>
   </component>
@@ -192,6 +297,13 @@
         </RuleState>
       </list>
     </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="kklib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="server" TARGET_NAME="kklib" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -214,11 +326,12 @@
       <workItem from="1558099327891" duration="18382000" />
       <workItem from="1558269055605" duration="6061000" />
       <workItem from="1558282211779" duration="1732000" />
+      <workItem from="1558719882248" duration="2184000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="77055000" />
+    <option name="totallyTimeSpent" value="79239000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -230,9 +343,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="31" width="1920" height="1105" extended-state="6" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1996805" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20268457" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -244,11 +358,11 @@
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3295688" />
       <window_info anchor="bottom" id="Database Console" order="7" weight="0.3295688" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" weight="0.3295688" />
-      <window_info anchor="bottom" id="Messages" order="9" visible="true" weight="0.32923076" />
+      <window_info active="true" anchor="bottom" id="Messages" order="9" visible="true" weight="0.3286119" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.3295688" />
       <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="12" weight="0.3295688" />
-      <window_info anchor="bottom" id="CMake" order="13" weight="0.32923076" />
+      <window_info anchor="bottom" id="CMake" order="13" weight="0.3286119" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -298,93 +412,18 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/server/src/classes/SMTP_client/SMTP_client.cpp" />
-    <entry file="file:///usr/include/c++/7/bits/char_traits.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="310" selection-start-line="310" selection-end-line="310" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/Crypto/CipherFactory.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-26">
-          <caret line="43" column="24" selection-start-line="43" selection-start-column="12" selection-end-line="43" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/AtomicCounter.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="314" selection-start-line="314" selection-end-line="314" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/RefCountedObject.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="87" selection-start-line="87" selection-end-line="87" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/Crypto/Cipher.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="93" column="8" selection-start-line="93" selection-start-column="8" selection-end-line="93" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/AtomicCounter.h" />
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/RefCountedObject.h" />
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/Crypto/Cipher.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/classes_include.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/db_connector/db_connector.h" />
-    <entry file="file:///usr/include/c++/7/ext/type_traits.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="152" selection-start-line="152" selection-end-line="152" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/c++/7/bits/stl_iterator_base_types.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="205" selection-start-line="205" selection-end-line="205" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/c++/7/bits/stl_iterator_base_funcs.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="142" selection-start-line="142" selection-end-line="142" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/c++/7/bits/basic_string.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="255" selection-start-line="255" selection-end-line="255" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/c++/7/ext/string_conversions.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="115" selection-start-line="115" selection-end-line="115" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/c++/7/bits/basic_string.tcc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="365">
-          <caret line="1168" selection-start-line="1168" selection-end-line="1168" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/cppconn/sqlstring.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="54" selection-start-line="54" selection-end-line="54" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file:///usr/include/c++/7/ext/type_traits.h" />
+    <entry file="file:///usr/include/c++/7/bits/stl_iterator_base_types.h" />
+    <entry file="file:///usr/include/c++/7/bits/stl_iterator_base_funcs.h" />
+    <entry file="file:///usr/include/c++/7/bits/basic_string.h" />
+    <entry file="file:///usr/include/c++/7/ext/string_conversions.h" />
+    <entry file="file:///usr/include/c++/7/bits/basic_string.tcc" />
+    <entry file="file:///usr/include/cppconn/sqlstring.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/SMTP_client/SMTP_client.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.cpp" />
@@ -399,23 +438,16 @@
     <entry file="file://$PROJECT_DIR$/server/src/classes/db_connector/db_connector.cpp" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt/crdt_server.cpp" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_tmp/empty.c" />
-    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_char.cpp" />
-    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_char.h" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.cpp" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_tmp/CRDT_Char.cpp" />
-    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="33" selection-end-line="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_tmp/CRDT_Char.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_tmp/CRDT_Crdt.cpp" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_tmp/CRDT_Crdt.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_tmp/CRDT_Identifier.cpp" />
-    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Identifier.cpp" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_identifier.cpp" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_tmp/CRDT_Identifier.h" />
-    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Identifier.h" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_identifier.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_tmp/CRDT_pos.cpp" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_pos.cpp">
       <provider selected="true" editor-type-id="text-editor">
@@ -434,8 +466,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/libs/src/classes/crdt/crdt_identifier/identifier.h" />
     <entry file="file://$PROJECT_DIR$/libs/src/classes/crdt/crdt_char/Char.h" />
-    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_crdt.h" />
-    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_crdt.cpp" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Crdt.h" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Crdt.cpp" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Crdt.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -445,13 +477,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CMakeLists.txt" />
     <entry file="file://$PROJECT_DIR$/libs/src/classes/crdt/crdt_char/Char.cpp" />
-    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/src/classes/chat/chat_server.h" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/chat/chat_server.cpp" />
     <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_main.cpp">
@@ -468,10 +493,57 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="17" selection-start-line="4" selection-end-line="6" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/MinGW/include/c++/8.2.0/bits/stl_vector.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="148">
+          <caret line="338" column="10" selection-start-line="338" selection-start-column="10" selection-end-line="338" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/server/src/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
-          <caret line="23" column="50" lean-forward="true" selection-start-line="23" selection-start-column="50" selection-end-line="23" selection-end-column="50" />
+          <caret line="23" column="16" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt_rc/CRDT_Char.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="55" column="6" selection-start-line="55" selection-start-column="6" selection-end-line="55" selection-end-column="23" />
+          <folding>
+            <element signature="e#49#77#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/utilities/Utility.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+          <folding>
+            <element signature="e#41#59#0" expanded="true" />
+            <element signature="e#234#246#0" expanded="true" />
+            <element signature="e#321#333#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/utilities/Utility.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="21" column="1" lean-forward="true" selection-start-line="21" selection-start-column="1" selection-end-line="21" selection-end-column="1" />
+          <folding>
+            <element signature="e#72#84#0" expanded="true" />
+            <element signature="e#263#275#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
