@@ -105,6 +105,7 @@ void kk_client::send_message(const char *line, kk_payload_type _type) {
     msg.body_length(strlen(line));
     memcpy(msg.body(), line, msg.body_length());
     msg.encode_header(_type, OK);
+    std::cout <<"Sto inviando " << msg.data() << std::endl;
     write(msg);
 }
 
@@ -116,7 +117,7 @@ void kk_client::receive_message(){
         case login: {
             if( read_msg_.result_type() == OK) {
                 std::cout<<"Inserisci il nome del file che vuoi aprire:"<<std::endl;
-                std::cin.getline(line, message::max_body_length +1);
+                std::cin.getline(line, message::max_body_length);
                 send_message(line, openfile);
             } else {
                 std::cout<<"Il login non è andato a buon fine. Vuoi registrarti? y/n"<<std::endl;
@@ -129,9 +130,10 @@ void kk_client::receive_message(){
                 menu();
             } else {
                 std::cout<<"Inserisci il nome del file che vuoi aprire:"<<std::endl;
-                std::cin.getline(line, message::max_body_length + 1);
+                std::cin.getline(line, message::max_body_length);
                 send_message(line, openfile);
             }
+            break;
         }
         case crdt:
         case chat: {
@@ -150,21 +152,21 @@ void kk_client::menu() {
     std::cout<<"<crdt> per mandare un carattere;"<<std::endl;
     std::cout<<"<logout> per uscire;"<<std::endl;
     char line[message::max_body_length + 1];
-    std::cin.getline(line, message::max_body_length + 1);
+    std::cin.getline(line, message::max_body_length);
     if(strcmp(line, "openfile") == 0){
         char _line[message::max_body_length + 1];
         std::cout<<"Inserisci il nome del file che vuoi aprire:"<<std::endl;
-        std::cin.getline(_line, message::max_body_length + 1);
+        std::cin.getline(_line, message::max_body_length);
         send_message(_line, openfile);
     } else if(strcmp(line, "chat") == 0){
         char _line[message::max_body_length + 1];
         std::cout<<"Inserisci il corpo del messaggio:"<<std::endl;
-        std::cin.getline(_line, message::max_body_length + 1);
+        std::cin.getline(_line, message::max_body_length);
         send_message(_line, chat);
     } else if (strcmp(line, "crdt") == 0) {
         char _line[message::max_body_length + 1];
         std::cout<<"Inserisci <char> e <pos>:"<<std::endl;
-        std::cin.getline(_line, message::max_body_length + 1);
+        std::cin.getline(_line, message::max_body_length);
         send_message(_line, crdt);
     } else if (strcmp(line, "logout") == 0) {
         char logoutmsg[] = "logout";

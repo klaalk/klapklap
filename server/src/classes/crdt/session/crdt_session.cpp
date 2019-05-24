@@ -107,7 +107,7 @@ void crdt_session::handle_request(){
             response.copy(cstr, response.size() + 1);
             cstr[response.size()] = '\0';
 
-            handle_response(cstr, chat, KO);
+            handle_response(cstr, chat, OK);
             break;
         }
     }
