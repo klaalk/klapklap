@@ -5,6 +5,8 @@
 #include "CRDT_identifier.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+
 #include "CRDT_Char.h"
 #include <vector>
 #include "CRDT_pos.h"
@@ -15,7 +17,7 @@
 using std::vector;
 using std::string;
 
-enum strategy {casuale,minus, plus};
+enum strategy {casuale, minus, plus};
 
 class CRDT_Crdt {
 

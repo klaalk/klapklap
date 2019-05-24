@@ -126,7 +126,22 @@ vector<CRDT_identifier> CRDT_Crdt::generate_position_between(vector<CRDT_identif
 }
 
 strategy CRDT_Crdt::find_strategy(int level){
-
+    if (strategy_cache[level]) {
+        return strategy_cache[level];
+    }
+    strategy _local_strategy;
+    switch (_strategy) {
+        case plus:
+            _local_strategy = plus;
+        case minus:
+            _local_strategy = minus;
+        case casuale:
+            _local_strategy = round(rand()) == 0 ? plus : minus;
+        default:
+            _local_strategy = (level%2) == 0 ? plus : minus;
+    }
+    this->strategy_cache[level] = _local_strategy;
+    return _local_strategy;
 }
 
 int CRDT_Crdt::generate_identifier_between(int min, int max, strategy _strategy) {
@@ -140,7 +155,7 @@ int CRDT_Crdt::generate_identifier_between(int min, int max, strategy _strategy)
             max=min + this->boundary;
         }
     }
-return 0;
+return floor(rand() * (max - min)) + min;
 }
 
 void CRDT_Crdt::handle_remote_insert(CRDT_Char Char){
