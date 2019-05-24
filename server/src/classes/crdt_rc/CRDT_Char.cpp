@@ -22,7 +22,7 @@ void CRDT_Char::push_identifier(CRDT_identifier id) {
     return;
 }*/
 
-int CRDT_Char::compareTo(const CRDT_Char& other){
+int CRDT_Char::compare_to(const CRDT_Char& other){
     int min,comp;
 
     if(this->position.size()<other.position.size()){
@@ -33,7 +33,7 @@ int CRDT_Char::compareTo(const CRDT_Char& other){
 
     for(int i=0;i<min;i++){
 
-        comp = this->position[i].compareTo(other.position[i]);
+        comp = this->position[i].compare_to(other.position[i]);
 
         if (comp!=0){
             return comp;

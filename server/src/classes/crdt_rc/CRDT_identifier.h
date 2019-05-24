@@ -21,7 +21,7 @@ class CRDT_identifier{
 
 public:
     CRDT_identifier(int digit, string siteid); //costruttore
-    int compareTo(const CRDT_identifier& other); // torna -1 se questo < l'altro, 1 se questo > l'altro e lo fa confrontando prima il digit e poi se il digit è uguale, il siteId
+    int compare_to(const CRDT_identifier& other); // torna -1 se questo < l'altro, 1 se questo > l'altro e lo fa confrontando prima il digit e poi se il digit è uguale, il siteId
     int get_digit();
     void set_digit(int digit);
     string get_siteid();

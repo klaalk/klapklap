@@ -18,7 +18,7 @@
 //    B->push_identifier(*b);
 //
 //
-//    i=A->compareTo(*B);
+//    i=A->compare_to(*B);
 //    std::cout<<i;
 //*/
 //

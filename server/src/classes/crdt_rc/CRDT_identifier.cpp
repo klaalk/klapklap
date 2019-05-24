@@ -13,7 +13,7 @@ using std::string;
 
 CRDT_identifier::CRDT_identifier(int digit, string siteid):digit(digit),siteid(siteid){};
 
-int CRDT_identifier::compareTo(const CRDT_identifier &other)
+int CRDT_identifier::compare_to(const CRDT_identifier &other)
 {
     if(this->digit<other.digit){
         return -1;
