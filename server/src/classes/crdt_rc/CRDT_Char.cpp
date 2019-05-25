@@ -2,12 +2,8 @@
 // Created by Alberto Bruno on 2019-05-15.
 //
 #include "CRDT_identifier.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include "CRDT_Char.h"
-#include <vector>
 
-using std::vector;
 using std::string;
 
 CRDT_Char::CRDT_Char(char value, string siteId):value(value), siteId(siteId) {};

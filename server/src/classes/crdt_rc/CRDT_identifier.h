@@ -3,7 +3,6 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
-#include <vector>
 #include <math.h>
 #include <iostream>
 
@@ -11,9 +10,7 @@
 #ifndef SERVER_IDENTIFIER_H
 #define SERVER_IDENTIFIER_H
 
-using std::vector;
 using std::string;
-
 
 class CRDT_identifier{
     int digit; // cifra della posizione

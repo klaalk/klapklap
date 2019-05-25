@@ -21,7 +21,7 @@
 int main(int argc, char* argv[])
 {
 
-    CRDT_Crdt *crdt = new CRDT_Crdt("Canguro",casuale);
+    CRDT_Crdt *crdt = new CRDT_Crdt("Canguro",plus);
     crdt->local_insert('c',CRDT_pos(0,0));
     crdt->local_insert('a',CRDT_pos(0,1));
     crdt->local_insert('o',CRDT_pos(0,2));
@@ -41,6 +41,6 @@ int main(int argc, char* argv[])
         std::cerr << "Exception: " << e.what() << "\n";
     }
     */
-
+    crdt->print();
     return 0;
 }

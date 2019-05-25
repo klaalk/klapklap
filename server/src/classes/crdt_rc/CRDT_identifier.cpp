@@ -2,13 +2,7 @@
 // Created by Alberto Bruno on 2019-05-15.
 //
 #include "CRDT_identifier.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-#include <math.h>
-#include <iostream>
 
-using std::vector;
 using std::string;
 
 CRDT_identifier::CRDT_identifier(int digit, string siteid):digit(digit),siteid(siteid){};
