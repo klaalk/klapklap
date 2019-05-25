@@ -24,9 +24,9 @@ int main(int argc, char* argv[])
     crdt->local_insert('c',CRDT_pos(0,0));
     crdt->local_insert('a',CRDT_pos(0,1));
     crdt->local_insert('o',CRDT_pos(0,2));
-    crdt->local_insert('i',CRDT_pos(0,1));
-    crdt->local_insert('a',CRDT_pos(0,1));
-    crdt->local_insert('a',CRDT_pos(0,1));
+    crdt->local_insert('i',CRDT_pos(0,3));
+    crdt->local_insert('a',CRDT_pos(0,4));
+    crdt->local_insert('a',CRDT_pos(0,5));
     crdt->local_insert('a',CRDT_pos(0,1));
 
    /* try

@@ -63,7 +63,7 @@ vector<CRDT_identifier> CRDT_Crdt::find_position_after(CRDT_pos pos){
     }else if(pos.get_line() == num_lines - 1 && pos.get_ch() == num_chars){ //sei all'ultima riga e all'ultimo char
         return vuoto;
     }else if(pos.get_line() < num_lines - 1 && pos.get_ch() == num_chars) { // sei a fine riga ma non nell'ultima riga
-        return text[pos.get_line()].front().get_position();
+        return text[pos.get_line()+1].front().get_position();
     }
     return std::next(text[pos.get_line()].begin(),pos.get_ch())->get_position(); // se non sei in nessun caso particolare DA RIVEDERE
 }
