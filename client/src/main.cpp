@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <pthread.h>
-#include "../../libs/src/classes/message/message.h"
+#include "../../libs/src/classes/payload/kk_payload.h"
 #include "classes/client/kk_client.h"
 
 

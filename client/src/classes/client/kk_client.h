@@ -11,19 +11,19 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include "../../../../libs/src/classes/message/message.h"
+#include "../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../libs/src/constants/kk_constants.h"
 
 using boost::asio::ip::tcp;
 
-typedef std::deque<message> message_queue;
+typedef std::deque<kk_payload> kk_payload_queue;
 
 class kk_client
 {
 public:
     kk_client(boost::asio::io_service& io_service,
                 tcp::resolver::iterator endpoint_iterator);
-    void write(const message& msg);
+    void write(const kk_payload& msg);
     void close();
 private:
     void handle_connect(const boost::system::error_code& error,
@@ -31,26 +31,26 @@ private:
 
     void handle_read_header(const boost::system::error_code& error);
 
-    void handle_read_body(const boost::system::error_code& error);
+void handle_read_body(const boost::system::error_code& error);
 
     void handle_write(const boost::system::error_code& error);
 
-    void send_message(const char *line, kk_payload_type _type);
+    void send_kk_payload(const char *line, kk_payload_type _type);
 
-    void receive_message();
+    void receive_kk_payload();
 
     void menu();
 
     void do_login();
 
-    void do_write(message msg);
+    void do_write(kk_payload msg);
 
     void do_close();
 private:
     boost::asio::io_service& io_service_;
     tcp::socket socket_;
-    message read_msg_;
-    message_queue write_msgs_;
+    kk_payload read_msg_;
+    kk_payload_queue write_msgs_;
 };
 
 
