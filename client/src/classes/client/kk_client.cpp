@@ -16,7 +16,7 @@ kk_client::kk_client(boost::asio::io_service& io_service,
                                       boost::asio::placeholders::error, ++endpoint_iterator));
 }
 
-void kk_client::write(const message& msg)
+void kk_client::write(const kk_payload& msg)
 {
     io_service_.post(boost::bind(&kk_client::do_write, this, msg));
 }
@@ -32,7 +32,7 @@ void kk_client::handle_connect(const boost::system::error_code& error,
     if (!error)
     {
         boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.data(), message::header_length),
+                                boost::asio::buffer(read_msg_.data(), kk_payload::header_length),
                                 boost::bind(&kk_client::handle_read_header, this,
                                             boost::asio::placeholders::error));
         // Effettuo il login
@@ -69,10 +69,10 @@ void kk_client::handle_read_body(const boost::system::error_code& error)
     if (!error)
     {
         boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.data(), message::header_length),
+                                boost::asio::buffer(read_msg_.data(), kk_payload::header_length),
                                 boost::bind(&kk_client::handle_read_header, this,
                                             boost::asio::placeholders::error));
-        receive_message();
+        receive_kk_payload();
     }
     else
     {
@@ -100,8 +100,8 @@ void kk_client::handle_write(const boost::system::error_code& error)
     }
 }
 
-void kk_client::send_message(const char *line, kk_payload_type _type) {
-    message msg;
+void kk_client::send_kk_payload(const char *line, kk_payload_type _type) {
+    kk_payload msg;
     msg.body_length(strlen(line));
     memcpy(msg.body(), line, msg.body_length());
     msg.encode_header(_type, OK);
@@ -109,16 +109,16 @@ void kk_client::send_message(const char *line, kk_payload_type _type) {
     write(msg);
 }
 
-void kk_client::receive_message(){
-    char line[message::max_body_length + 1];
+void kk_client::receive_kk_payload(){
+    char line[kk_payload::max_body_length + 1];
 
     std::cout <<"Ho ricevuto: " << read_msg_.data() << std::endl;
     switch (read_msg_.type()) {
         case login: {
             if( read_msg_.result_type() == OK) {
                 std::cout<<"Inserisci il nome del file che vuoi aprire:"<<std::endl;
-                std::cin.getline(line, message::max_body_length);
-                send_message(line, openfile);
+                std::cin.getline(line, kk_payload::max_body_length);
+                send_kk_payload(line, openfile);
             } else {
                 std::cout<<"Il login non è andato a buon fine. Vuoi registrarti? y/n"<<std::endl;
                 std::cout<<"WIP"<<std::endl;
@@ -130,8 +130,8 @@ void kk_client::receive_message(){
                 menu();
             } else {
                 std::cout<<"Inserisci il nome del file che vuoi aprire:"<<std::endl;
-                std::cin.getline(line, message::max_body_length);
-                send_message(line, openfile);
+                std::cin.getline(line, kk_payload::max_body_length);
+                send_kk_payload(line, openfile);
             }
             break;
         }
@@ -151,37 +151,37 @@ void kk_client::menu() {
     std::cout<<"<chat> per mandare una messaggio;"<<std::endl;
     std::cout<<"<crdt> per mandare un carattere;"<<std::endl;
     std::cout<<"<logout> per uscire;"<<std::endl;
-    char line[message::max_body_length + 1];
-    std::cin.getline(line, message::max_body_length);
+    char line[kk_payload::max_body_length + 1];
+    std::cin.getline(line, kk_payload::max_body_length);
     if(strcmp(line, "openfile") == 0){
-        char _line[message::max_body_length + 1];
+        char _line[kk_payload::max_body_length + 1];
         std::cout<<"Inserisci il nome del file che vuoi aprire:"<<std::endl;
-        std::cin.getline(_line, message::max_body_length);
-        send_message(_line, openfile);
+        std::cin.getline(_line, kk_payload::max_body_length);
+        send_kk_payload(_line, openfile);
     } else if(strcmp(line, "chat") == 0){
-        char _line[message::max_body_length + 1];
+        char _line[kk_payload::max_body_length + 1];
         std::cout<<"Inserisci il corpo del messaggio:"<<std::endl;
-        std::cin.getline(_line, message::max_body_length);
-        send_message(_line, chat);
+        std::cin.getline(_line, kk_payload::max_body_length);
+        send_kk_payload(_line, chat);
     } else if (strcmp(line, "crdt") == 0) {
-        char _line[message::max_body_length + 1];
+        char _line[kk_payload::max_body_length + 1];
         std::cout<<"Inserisci <char> e <pos>:"<<std::endl;
-        std::cin.getline(_line, message::max_body_length);
-        send_message(_line, crdt);
+        std::cin.getline(_line, kk_payload::max_body_length);
+        send_kk_payload(_line, crdt);
     } else if (strcmp(line, "logout") == 0) {
         char logoutmsg[] = "logout";
-        send_message(logoutmsg, logout);
+        send_kk_payload(logoutmsg, logout);
     }
 }
 
 void kk_client::do_login() {
-    char line[message::max_body_length + 1];
+    char line[kk_payload::max_body_length + 1];
     std::cout<<"Inserisci username/email e password: <username/email> <password>"<<std::endl;
-    std::cin.getline(line, message::max_body_length);
-    send_message(line, login);
+    std::cin.getline(line, kk_payload::max_body_length);
+    send_kk_payload(line, login);
 }
 
-void kk_client::do_write(message msg)
+void kk_client::do_write(kk_payload msg)
 {
     bool write_in_progress = !write_msgs_.empty();
     write_msgs_.push_back(msg);
