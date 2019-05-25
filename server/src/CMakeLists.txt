@@ -19,11 +19,20 @@ add_executable(server main.cpp
         classes/crdt/session/crdt_session.cpp classes/crdt/session/crdt_session.h
         classes/crdt/file/crdt_file.cpp classes/crdt/file/crdt_file.h
         classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h
+
         classes/classes_include.h
+
         classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h
-        classes/db_interface/db_interface.cpp classes/db_interface/db_interface.h
-        classes/classes_include.h classes/db_interface/HTTP_listener/HTTP_listener.cpp
-        classes/db_interface/HTTP_listener/HTTP_listener.h classes/db_interface/HTTP_session/HTTP_session.cpp)
+
+        classes/crdt_rc/CRDT_Char.cpp
+        classes/crdt_rc/CRDT_Char.h
+        classes/crdt_rc/CRDT_identifier.cpp
+        classes/crdt_rc/CRDT_identifier.h
+        classes/crdt_rc/CRDT_Crdt.cpp
+        classes/crdt_rc/CRDT_Crdt.h
+        classes/crdt_rc/CRDT_pos.cpp
+        classes/crdt_rc/CRDT_pos.h
+        )
 
 add_subdirectory(../../libs kklib)
 target_link_libraries(server kklib)

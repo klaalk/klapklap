@@ -7,17 +7,19 @@
 #include <boost/asio.hpp>
 #include <deque>
 
-#include "../../../../../libs/src/classes/chat/message/chat_message.h"
+#include "../../../../../libs/src/classes/message/message.h"
 
 class crdt_participant
 {
+protected:
+    std::string name;
 public:
     virtual ~crdt_participant() {}
-    virtual void deliver(const chat_message& msg) = 0;
+    virtual void deliver(const message& msg) = 0;
 };
 
 typedef boost::shared_ptr<crdt_participant> crdt_participant_ptr;
-typedef std::deque<chat_message> crdt_message_queue;
+typedef std::deque<message> crdt_message_queue;
 
 
 #endif //SERVER_CRDT_PARTECIPANT_H

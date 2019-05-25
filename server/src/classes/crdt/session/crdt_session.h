@@ -5,9 +5,15 @@
 #ifndef SERVER_CHAT_SESSION_H
 #define SERVER_CHAT_SESSION_H
 
-#include "../../../../../libs/src/classes/chat/message/chat_message.h"
+#include "../../../../../libs/src/classes/message/message.h"
+#include "../../../../../libs/src/constants/kk_constants.h"
 
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string.h>
+
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -30,11 +36,15 @@ public:
 
     void start();
 
-    void deliver(const chat_message& msg);
+    void deliver(const message& msg);
 
     void handle_read_header(const boost::system::error_code& error);
 
     void handle_read_body(const boost::system::error_code& error);
+
+    void handle_request();
+
+    void handle_response(const char *body, kk_payload_type _type, kk_payload_result_type _result);
 
     void handle_write(const boost::system::error_code& error);
 
@@ -42,9 +52,8 @@ private:
     tcp::socket socket_;
     crdt_room& room_;
     crdt_file actual_file_;
-    
-    bool isInWriteMode_ = false;
-    chat_message read_msg_;
+
+    message read_msg_;
     crdt_message_queue write_msgs_;
 };
 

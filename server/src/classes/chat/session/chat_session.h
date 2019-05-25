@@ -5,7 +5,7 @@
 #ifndef SERVER_CHAT_SESSION_H
 #define SERVER_CHAT_SESSION_H
 
-#include "../../../../../libs/src/classes/chat/message/chat_message.h"
+#include "../../../../../libs/src/classes/message/message.h"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -26,7 +26,7 @@ public:
 
     void start();
 
-    void deliver(const chat_message& msg);
+    void deliver(const message& msg);
 
     void handle_read_header(const boost::system::error_code& error);
 
@@ -37,8 +37,8 @@ public:
 private:
     tcp::socket socket_;
     chat_room& room_;
-    chat_message read_msg_;
-    chat_message_queue write_msgs_;
+    message read_msg_;
+    message_queue write_msgs_;
 };
 
 typedef boost::shared_ptr<chat_session> chat_session_ptr;
