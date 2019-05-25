@@ -12,3 +12,5 @@
 /server/libs/asio-1.12.2/doc/**
 !/server/libs/asio-1.12.2/doc/examples
 \.idea/
+
+libs/src/cmake-build-debug/
