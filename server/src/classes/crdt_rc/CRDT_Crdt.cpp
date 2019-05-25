@@ -2,6 +2,7 @@
 // Created by Alberto Bruno on 2019-05-15.
 //
 
+#include <sys/time.h>
 #include "CRDT_Crdt.h"
 #include "CRDT_identifier.h"
 
@@ -49,7 +50,7 @@ vector<CRDT_identifier> CRDT_Crdt::find_position_after(CRDT_pos pos){
     int num_lines, num_chars;
     vector<CRDT_identifier> vuoto;
 
-    num_lines = text.size();
+    num_lines = text.size()-1;
 
     if(text.empty() || text[pos.get_line()].empty()){
         num_chars=0;
@@ -151,6 +152,7 @@ int CRDT_Crdt::generate_identifier_between(int min, int max, strategy _strategy)
             max=min + this->boundary;
         }
     }
+    srand(time(NULL));
     double _rand = ((double) rand() / RAND_MAX);
 return floor( _rand * (max - min)) + min;
 }
