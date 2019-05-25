@@ -5,25 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 
 add_executable(server main.cpp
-        classes/chat/chat_server.cpp classes/chat/chat_server.h
-        classes/chat/session/chat_session.cpp classes/chat/session/chat_session.h
-        classes/chat/room/chat_room.cpp classes/chat/room/chat_room.h
-        classes/chat/partecipant/chat_partecipant.cpp classes/chat/partecipant/chat_partecipant.h
-
-        classes/crdt/room/crdt_room.cpp classes/crdt/room/crdt_room.h
-        classes/crdt/crdt_server.cpp classes/crdt/crdt_server.h
-        classes/crdt/session/crdt_session.cpp classes/crdt/session/crdt_session.h
-        classes/crdt/file/crdt_file.cpp classes/crdt/file/crdt_file.h
-        classes/crdt/partecipant/crdt_partecipant.cpp classes/crdt/partecipant/crdt_partecipant.h
-
-        classes/crdt_rc/CRDT_Char.cpp
-        classes/crdt_rc/CRDT_Char.h
-        classes/crdt_rc/CRDT_identifier.cpp
-        classes/crdt_rc/CRDT_identifier.h
-        classes/crdt_rc/CRDT_Crdt.cpp
-        classes/crdt_rc/CRDT_Crdt.h
-        classes/crdt_rc/CRDT_pos.cpp
-        classes/crdt_rc/CRDT_pos.h
+        classes/server/room/kk_room.cpp classes/server/room/kk_room.h
+        classes/server/kk_server.cpp classes/server/kk_server.h
+        classes/server/session/kk_session.cpp classes/server/session/kk_session.h
+        classes/server/file/kk_file.cpp classes/server/file/kk_file.h
+        classes/server/partecipant/kk_partecipant.cpp classes/server/partecipant/kk_partecipant.h
         )
 
 
