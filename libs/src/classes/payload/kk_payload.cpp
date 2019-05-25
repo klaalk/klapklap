@@ -77,7 +77,7 @@ kk_payload_type kk_payload::decode_header() {
 
 void kk_payload::encode_header(kk_payload_type type, kk_payload_result_type result) {
     using namespace std; // For sprintf and memcpy.
-    char header[header_length + 1] = "";
+    char header[header_length + 1] = "0";
     sprintf(header, MESSAGE_CODE,(int)type, (int)result, (int)body_length_);
     memcpy(data_, header, header_length);
 }

@@ -3,7 +3,7 @@
 //
 
 #include "kk_session.h"
-std::map<std::string, kk_file> files_;
+std::map<std::string, std::shared_ptr<kk_file>> files_;
 
 kk_session::kk_session(boost::asio::io_service& io_service, kk_room& room)
         : socket_(io_service), room_(room)
@@ -55,7 +55,7 @@ void kk_session::handle_read_body(const boost::system::error_code& error)
     }
     else
     {
-        actual_file_.leave(shared_from_this());
+        actual_file_->leave(shared_from_this());
         room_.leave(shared_from_this());
     }
 }
@@ -80,12 +80,13 @@ void kk_session::handle_request(){
             if(search != files_.end()) {
                 // il file era già aperto ed è nella mappa globale
                 actual_file_ = files_.at(filename);
-                actual_file_.join(shared_from_this());
+                actual_file_->join(shared_from_this());
                 handle_response("file esistente, sei stato aggiunto correttamente", openfile, OK);
             } else {
                 // Apro il file. Con i dovuti controlli
                 // TODO: fare query per inserire file
-                actual_file_.join(shared_from_this());
+                actual_file_ = std::shared_ptr<kk_file>(new kk_file());
+                actual_file_->join(shared_from_this());
                 files_.insert(make_pair(filename, actual_file_));
 
                 auto search = files_.find(filename);
@@ -100,7 +101,6 @@ void kk_session::handle_request(){
             break;
         }
         case chat: {
-            std::cout << name << ": " << read_msg_.body() << std::endl;
             std::string response = name + ": " + read_msg_.body();
             char cstr[response.size() + 1];
 
@@ -120,7 +120,14 @@ void kk_session::handle_response(const char *body, kk_payload_type _type, kk_pay
     msg.body_length(strlen(body));
     memcpy(msg.body(), body, msg.body_length());
     msg.encode_header(_type, _result);
-    deliver(msg);
+    if(_type == chat || _type == crdt) {
+        // mando a tutti quelli registrati al file
+        actual_file_->deliver(msg);
+
+    } else {
+        // mando al client di questa sessione
+        deliver(msg);
+    }
 }
 
 void kk_session::deliver(const kk_payload& msg)
