@@ -4,6 +4,20 @@
 
 #ifndef SERVER_KK_CONSTANTS_H
 #define SERVER_KK_CONSTANTS_H
+enum kk_client_connection_state {
+    waiting,
+    connected,
+    not_connected,
+    connection_failed,
+    authentication_succed,
+    authentication_failed,
+};
+
+enum kk_client_state {
+    file_closed,
+    file_opened
+};
+
 enum kk_payload_type {
     error,
     login,

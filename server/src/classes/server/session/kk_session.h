@@ -51,7 +51,7 @@ public:
 private:
     tcp::socket socket_;
     kk_room& room_;
-    kk_file actual_file_;
+    std::shared_ptr<kk_file> actual_file_;
 
     kk_payload read_msg_;
     kk_kk_payload_queue write_msgs_;

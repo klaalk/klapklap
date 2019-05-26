@@ -10,6 +10,8 @@
 
 boost::asio::io_service io_service;
 using boost::asio::ip::tcp;
+
+
 int main(int argc, char* argv[])
 {
     try
@@ -19,8 +21,12 @@ int main(int argc, char* argv[])
         tcp::resolver::iterator iterator = resolver.resolve(query);
 
         kk_client c(io_service, iterator);
-        io_service.run();
-        c.close();
+
+        std::thread t_socket([&] { io_service.run(); c.close();});
+        std::thread t_sender([&] { while(c.get_connection_state() != connection_failed ){c.menu();};});
+
+        t_socket.join();
+        t_sender.join();
     }
     catch (std::exception& e)
     {
