@@ -51,6 +51,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     target_link_libraries(server wsock32)
 endif ()
 
+find_package(Qt5Core REQUIRED )
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Gui REQUIRED )
+
+
 
 #Serve per impostare conan come sorgente librerie
 if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
