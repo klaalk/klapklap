@@ -54,8 +54,9 @@ endif ()
 find_package(Qt5Core REQUIRED )
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui REQUIRED )
+find_package(Qt5Sql REQUIRED)
 
-
+qt5_use_modules(server Core Gui Widgets Sql)
 
 #Serve per impostare conan come sorgente librerie
 if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
