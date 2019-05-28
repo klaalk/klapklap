@@ -6,6 +6,15 @@ project(server LANGUAGES CXX C VERSION 0.1.0)
 # DEBUG conan install . -s build_type=Debug --install-folder=cmake-build-debug
 # RELASE conan install . -s build_type=Release --install-folder=cmake-build-release
 
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed
+set(CMAKE_AUTOMOC ON)
+# Create code from a list of Qt designer ui files
+set(CMAKE_AUTOUIC ON)
+
+
+
 set(CMAKE_CXX_STANDARD 14)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #    Non supportato in MacOS (da controllare su linux)
@@ -31,6 +40,21 @@ add_executable(server main.cpp
         classes/SMTP_client/SMTP_client.cpp classes/SMTP_client/SMTP_client.h
 #        classes/db_connector/db_crypto.cpp classes/db_connector/db_crypto.h
         ../../libs/src/classes/crypto/crypto.cpp ../../libs/src/classes/crypto/crypto.h
+#
+        classes/QSMTP_service/src/SmtpMime
+        classes/QSMTP_service/src/emailaddress.cpp classes/QSMTP_service/src/emailaddress.h
+        classes/QSMTP_service/src/mimeattachment.cpp classes/QSMTP_service/src/mimeattachment.h
+        classes/QSMTP_service/src/mimecontentformatter.cpp classes/QSMTP_service/src/mimecontentformatter.h
+        classes/QSMTP_service/src/mimefile.cpp classes/QSMTP_service/src/mimefile.h
+        classes/QSMTP_service/src/mimehtml.cpp classes/QSMTP_service/src/mimehtml.h
+        classes/QSMTP_service/src/mimeinlinefile.cpp classes/QSMTP_service/src/mimeinlinefile.h
+        classes/QSMTP_service/src/mimemessage.cpp classes/QSMTP_service/src/mimemessage.h
+        classes/QSMTP_service/src/mimemultipart.cpp classes/QSMTP_service/src/mimemultipart.h
+        classes/QSMTP_service/src/mimepart.cpp classes/QSMTP_service/src/mimepart.h
+        classes/QSMTP_service/src/mimetext.cpp classes/QSMTP_service/src/mimetext.h
+        classes/QSMTP_service/src/quotedprintable.cpp classes/QSMTP_service/src/quotedprintable.h
+        classes/QSMTP_service/src/smtpclient.cpp classes/QSMTP_service/src/smtpclient.h
+        classes/QSMTP_service/src/smtpexports.h
         )
 
 
@@ -51,12 +75,19 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     target_link_libraries(server wsock32)
 endif ()
 
-find_package(Qt5Core REQUIRED )
+
+
+find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui REQUIRED )
+find_package(Qt5Network REQUIRED)
 find_package(Qt5Sql REQUIRED)
 
-qt5_use_modules(server Core Gui Widgets Sql)
+qt5_use_modules(server Core Gui Widgets Network Sql)
+#
+#target_link_libraries(server Qt5::Widgets)
+#target_link_libraries(server Qt5::Network)
+#target_link_libraries(server Qt5::Sql)
 
 #Serve per impostare conan come sorgente librerie
 if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)

@@ -47,6 +47,7 @@ public:
     user_info *db_getUserInfo(std::string username);
 
     bool db_login(std::string username, std::string password, int psw_len);
+
     ///reset password ask. Invia una main con hash key dell'user. Ritorna 0 successo,
 //    int db_reset_psw_ask(std::string username);
 
