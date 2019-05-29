@@ -4,12 +4,13 @@
 
 #include "kk_server.h"
 
-kk_server::kk_server(boost::asio::io_service &io_service,
-                     const tcp::endpoint &endpoint)
+kk_server::kk_server(boost::asio::io_service &io_service, const tcp::endpoint &endpoint,sql::Driver *driver)
         : io_service_(io_service),
           acceptor_(io_service, endpoint) {
 
-    kk_session_ptr new_session(new kk_session(io_service_, room_));
+    db = std::shared_ptr<kk_db>(new kk_db(driver));
+
+    kk_session_ptr new_session(new kk_session(io_service_, room_,db));
     acceptor_.async_accept(new_session->socket(),
                            boost::bind(&kk_server::handle_accept, this, new_session,
                                        boost::asio::placeholders::error));
@@ -20,7 +21,7 @@ void kk_server::handle_accept(kk_session_ptr session,
     if (!error) {
         std::cout << "handle_accept" << std::endl;
         session->start();
-        kk_session_ptr new_session(new kk_session(io_service_, room_));
+        kk_session_ptr new_session(new kk_session(io_service_, room_, db));
         acceptor_.async_accept(new_session->socket(),
                                boost::bind(&kk_server::handle_accept, this, new_session,
                                            boost::asio::placeholders::error));

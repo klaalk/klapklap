@@ -24,12 +24,13 @@
 #include "../partecipant/kk_partecipant.h"
 #include "../file/kk_file.h"
 #include "../room/kk_room.h"
+#include "../../db/kk_db.h"
 
 using boost::asio::ip::tcp;
 
 class kk_session : public kk_participant, public boost::enable_shared_from_this<kk_session> {
 public:
-    kk_session(boost::asio::io_service &io_service, kk_room &room_);
+    kk_session(boost::asio::io_service &io_service, kk_room &room_,std::shared_ptr<kk_db> db_);
 
     tcp::socket &socket();
 
@@ -50,6 +51,7 @@ public:
 private:
     tcp::socket socket_;
     kk_room &room_;
+    std::shared_ptr<kk_db> db_;
     std::shared_ptr<kk_file> actual_file_;
 
     kk_payload read_msg_;

@@ -27,7 +27,7 @@
 int main(int argc, char *argv[]) {
 //    Queste instaze sono valide per tutto il porgramma e devono essere dichiarate nel main
     sql::Driver *driver = get_driver_instance();
-    kk_db my_conn(driver);
+//    kk_db my_conn(driver);
     crypto my_crypto;
 
 
@@ -94,24 +94,24 @@ int main(int argc, char *argv[]) {
     QString text = mail.QSMTP_message_builder("Prova", "Michele6000", "Messaggio di prova", "Testo bottone",
                                               "http://www.facebook.it");
 
-    mail.QSMTP_send_message(text, "Michele Luigi Greco", "grecomichele96@gmail.com", "Test1_QTMAIL_service");
+    mail.QSMTP_send_message(text, "Michele Luigi Greco", "grecomichele96@gmmail.com", "Test1_QTMAIL_service");
 
 
-    kk_crdt *crdt = new kk_crdt("Canguro", casuale);
-    crdt->local_insert('c', kk_pos(0, 0));
-    crdt->local_insert('a', kk_pos(0, 1));
-    crdt->local_insert('o', kk_pos(0, 2));
-    crdt->local_insert('i', kk_pos(0, 3));
-    crdt->local_insert('a', kk_pos(0, 4));
-    crdt->local_insert('a', kk_pos(0, 5));
-    crdt->local_insert('a', kk_pos(0, 1));
-    crdt->print();
+//    kk_crdt *crdt = new kk_crdt("Canguro", casuale);
+//    crdt->local_insert('c', kk_pos(0, 0));
+//    crdt->local_insert('a', kk_pos(0, 1));
+//    crdt->local_insert('o', kk_pos(0, 2));
+//    crdt->local_insert('i', kk_pos(0, 3));
+//    crdt->local_insert('a', kk_pos(0, 4));
+//    crdt->local_insert('a', kk_pos(0, 5));
+//    crdt->local_insert('a', kk_pos(0, 1));
+//    crdt->print();
     try {
         boost::asio::io_service io_service;
         // SOLO UNA PORTA APERTA
-        int port = 3310;
+        int port = 4040;
         tcp::endpoint endpoint(tcp::v4(), port);
-        kk_server_ptr server(new kk_server(io_service, endpoint));
+        kk_server_ptr server(new kk_server(io_service, endpoint, driver));
         io_service.run();
     }
     catch (std::exception &e) {

@@ -4,10 +4,11 @@
 
 #include "kk_session.h"
 
+
 std::map<std::string, std::shared_ptr<kk_file>> files_;
 
-kk_session::kk_session(boost::asio::io_service &io_service, kk_room &room)
-        : socket_(io_service), room_(room) {
+kk_session::kk_session(boost::asio::io_service &io_service, kk_room &room, std::shared_ptr<kk_db> db)
+        : socket_(io_service), room_(room), db_(db) {
 
 }
 
@@ -57,8 +58,12 @@ void kk_session::handle_request() {
             char usr[128];
             char psw[128];
             sscanf(read_msg_.body(), "%s %s", usr, psw);
+            std::cout << usr << " "<< psw << std::endl;
             name = std::string(usr);
-            //TODO: fare query e controllare se esiste.
+            db_->db_login(name, psw, strlen(psw));
+
+
+
             handle_response("Login effettuato", login, OK);
             break;
         }
