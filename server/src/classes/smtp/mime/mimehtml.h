@@ -23,14 +23,14 @@
 
 #include "smtpexports.h"
 
-class SMTP_EXPORT MimeHtml : public MimeText
-{
-    Q_OBJECT
+class SMTP_EXPORT MimeHtml : public MimeText {
+Q_OBJECT
 public:
 
     /* [1] Constructors and Destructors */
 
     MimeHtml(const QString &html = "");
+
     ~MimeHtml();
 
     /* [1] --- */
@@ -38,9 +38,9 @@ public:
 
     /* [2] Getters and Setters */
 
-    void setHtml(const QString & html);
+    void setHtml(const QString &html);
 
-    const QString& getHtml() const;
+    const QString &getHtml() const;
 
     /* [2] --- */
 

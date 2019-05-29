@@ -24,13 +24,13 @@
 
 #include "smtpexports.h"
 
-class SMTP_EXPORT MimeContentFormatter : public QObject
-{
-    Q_OBJECT
+class SMTP_EXPORT MimeContentFormatter : public QObject {
+Q_OBJECT
 public:
-    MimeContentFormatter (int max_length = 76);
+    MimeContentFormatter(int max_length = 76);
 
     void setMaxLength(int l);
+
     int getMaxLength() const;
 
     QString format(const QString &content, bool quotedPrintable = false) const;

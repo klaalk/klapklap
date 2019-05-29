@@ -21,17 +21,16 @@
 #include <QCryptographicHash>
 
 const QString MULTI_PART_NAMES[] = {
-    "multipart/mixed",         //    Mixed
-    "multipart/digest",        //    Digest
-    "multipart/alternative",   //    Alternative
-    "multipart/related",       //    Related
-    "multipart/report",        //    Report
-    "multipart/signed",        //    Signed
-    "multipart/encrypted"      //    Encrypted
+        "multipart/mixed",         //    Mixed
+        "multipart/digest",        //    Digest
+        "multipart/alternative",   //    Alternative
+        "multipart/related",       //    Related
+        "multipart/report",        //    Report
+        "multipart/signed",        //    Signed
+        "multipart/encrypted"      //    Encrypted
 };
 
-MimeMultiPart::MimeMultiPart(MultiPartType type)
-{
+MimeMultiPart::MimeMultiPart(MultiPartType type) {
     this->type = type;
     this->cType = MULTI_PART_NAMES[this->type];
     this->cEncoding = _8Bit;
@@ -49,12 +48,12 @@ void MimeMultiPart::addPart(MimePart *part) {
     parts.append(part);
 }
 
-const QList<MimePart*> & MimeMultiPart::getParts() const {
+const QList<MimePart *> &MimeMultiPart::getParts() const {
     return parts;
 }
 
 void MimeMultiPart::prepare() {
-    QList<MimePart*>::iterator it;
+    QList<MimePart *>::iterator it;
 
     content = "";
     for (it = parts.begin(); it != parts.end(); it++) {

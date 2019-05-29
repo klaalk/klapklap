@@ -23,15 +23,15 @@
 
 #include "smtpexports.h"
 
-class SMTP_EXPORT EmailAddress : public QObject
-{
-    Q_OBJECT
+class SMTP_EXPORT EmailAddress : public QObject {
+Q_OBJECT
 public:
 
     /* [1] Constructors and Destructors */
 
     EmailAddress();
-    EmailAddress(const QString & address, const QString & name="");
+
+    EmailAddress(const QString &address, const QString &name = "");
 
     ~EmailAddress();
 
@@ -39,11 +39,13 @@ public:
 
 
     /* [2] Getters and Setters */
-    void setName(const QString & name);
-    void setAddress(const QString & address);
+    void setName(const QString &name);
 
-    const QString & getName() const;
-    const QString & getAddress() const;
+    void setAddress(const QString &address);
+
+    const QString &getName() const;
+
+    const QString &getAddress() const;
 
     /* [2] --- */
 
