@@ -16,47 +16,46 @@
   See the LICENSE file for more details.
 */
 
+#ifndef MIMEHTML_H
+#define MIMEHTML_H
+
 #include "mimetext.h"
 
-/* [1] Constructors and Destructors */
+#include "smtpexports.h"
 
-MimeText::MimeText(const QString &txt)
-{
-    this->text = txt;
-    this->cType = "text/plain";
-    this->cCharset = "utf-8";
-    this->cEncoding = _8Bit;
-}
+class SMTP_EXPORT MimeHtml : public MimeText {
+Q_OBJECT
+public:
 
-MimeText::~MimeText() { }
+    /* [1] Constructors and Destructors */
 
-/* [1] --- */
+    MimeHtml(const QString &html = "");
 
+    ~MimeHtml();
 
-/* [2] Getters and Setters */
-
-void MimeText::setText(const QString & text)
-{
-    this->text = text;
-}
-
-const QString & MimeText::getText() const
-{
-    return text;
-}
-
-/* [2] --- */
+    /* [1] --- */
 
 
-/* [3] Protected Methods */
+    /* [2] Getters and Setters */
 
-void MimeText::prepare()
-{
-    this->content.clear();
-    this->content.append(text);
+    void setHtml(const QString &html);
 
-    /* !!! IMPORTANT !!! */
-    MimePart::prepare();
-}
+    const QString &getHtml() const;
 
-/* [3] --- */
+    /* [2] --- */
+
+protected:
+
+    /* [3] Protected members */
+
+    /* [3] --- */
+
+
+    /* [4] Protected methods */
+
+    virtual void prepare();
+
+    /* [4] --- */
+};
+
+#endif // MIMEHTML_H

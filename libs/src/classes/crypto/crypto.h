@@ -28,11 +28,11 @@ private:
 public:
     explicit crypto(void);
 
-    std::string _encrypt(std::string password,int *cifred_len);
+    std::string _encrypt(std::string password, int *cifred_len);
 
-    std::string _decrypt(std::string password,int *cifred_len);
+    std::string _decrypt(std::string password, int *cifred_len);
 
-    bool _isEqual(std::string key1,std::string key2, int lKey1,int lKey2);
+    bool _isEqual(std::string key1, std::string key2, int lKey1, int lKey2);
 
 };
 

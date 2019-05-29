@@ -82,16 +82,46 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/chat/message/chat_message.cpp">
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crdt/char/kk_char.cpp">
 			<Option target="kklib"/>
 		</Unit>
-		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/chat/message/chat_message.h">
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crdt/char/kk_char.h">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crdt/identifier/kk_identifier.cpp">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crdt/identifier/kk_identifier.h">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crdt/kk_crdt.cpp">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crdt/kk_crdt.h">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crdt/pos/kk_pos.cpp">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crdt/pos/kk_pos.h">
 			<Option target="kklib"/>
 		</Unit>
 		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crypto/crypto.cpp">
 			<Option target="kklib"/>
 		</Unit>
 		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/crypto/crypto.h">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/payload/kk_payload.cpp">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes/payload/kk_payload.h">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/classes_include.h">
+			<Option target="kklib"/>
+		</Unit>
+		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/src/constants/kk_constants.h">
 			<Option target="kklib"/>
 		</Unit>
 		<Unit filename="/Users/micheleluigigreco/progetto_malnati/libs/CMakeLists.txt">

@@ -1,2 +1,2 @@
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libkklib.a  CMakeFiles/kklib.dir/src/classes/chat/message/chat_message.cpp.o CMakeFiles/kklib.dir/src/classes/crypto/crypto.cpp.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libkklib.a  CMakeFiles/kklib.dir/src/classes/crypto/crypto.cpp.o CMakeFiles/kklib.dir/src/classes/payload/kk_payload.cpp.o CMakeFiles/kklib.dir/src/classes/crdt/char/kk_char.cpp.o CMakeFiles/kklib.dir/src/classes/crdt/identifier/kk_identifier.cpp.o CMakeFiles/kklib.dir/src/classes/crdt/kk_crdt.cpp.o CMakeFiles/kklib.dir/src/classes/crdt/pos/kk_pos.cpp.o
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libkklib.a

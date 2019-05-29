@@ -12,10 +12,11 @@ std::vector<T> slice(std::vector<T> const &v, int i) {
     std::vector<T> vec(first, last);
     return vec;
 }
+
 template<typename T>
 std::vector<T> slice(std::vector<T> const &v, int start, int end) {
     auto first = v.cbegin() + start;
-    auto last = v.cbegin()+ end;
+    auto last = v.cbegin() + end;
 
     std::vector<T> vec(first, last);
     return vec;
@@ -24,16 +25,16 @@ std::vector<T> slice(std::vector<T> const &v, int start, int end) {
 template<typename T>
 std::vector<T> splice(std::vector<T> const &v, int i) {
     auto first = v.cbegin();
-    auto last = v.cbegin()+ i;
+    auto last = v.cbegin() + i;
 
     std::vector<T> vec(first, last);
     return vec;
 }
 
 template<typename T>
-std::vector<T> splice(std::vector<T> const &v, int rm, T params... ) {
+std::vector<T> splice(std::vector<T> const &v, int rm, T params...) {
     auto first = v.cbegin();
-    auto last = v.cbegin()+rm;
+    auto last = v.cbegin() + rm;
 
     std::vector<T> vec(first, last);
 

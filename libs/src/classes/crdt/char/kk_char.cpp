@@ -6,10 +6,10 @@
 
 using std::string;
 
-kk_char::kk_char(char value, string siteId):value(value), siteId(siteId) {};
+kk_char::kk_char(char value, string siteId) : value(value), siteId(siteId) {};
 
 void kk_char::push_identifier(kk_identifier id) {
-    this->position.insert(this->position.end(),id);
+    this->position.insert(this->position.end(), id);
     return;
 }
 
@@ -18,26 +18,26 @@ void kk_char::push_identifier(kk_identifier id) {
     return;
 }*/
 
-int kk_char::compare_to(const kk_char& other){
-    int min,comp;
+int kk_char::compare_to(const kk_char &other) {
+    int min, comp;
 
-    if(this->position.size()<other.position.size()){
-        min=this->position.size();
-    }else{
-        min=other.position.size();
+    if (this->position.size() < other.position.size()) {
+        min = this->position.size();
+    } else {
+        min = other.position.size();
     }
 
-    for(int i=0;i<min;i++){
+    for (int i = 0; i < min; i++) {
 
         comp = this->position[i].compare_to(other.position[i]);
 
-        if (comp!=0){
+        if (comp != 0) {
             return comp;
         }
     }
-    if(this->position.size()<other.position.size()){
+    if (this->position.size() < other.position.size()) {
         return -1;
-    } else if(this->position.size()>other.position.size()){
+    } else if (this->position.size() > other.position.size()) {
         return 1;
     } else {
         return 0;
@@ -53,6 +53,6 @@ void kk_char::insert_position(vector<kk_identifier> position) {
     return;
 }
 
-vector<kk_identifier> kk_char::get_position(){
+vector<kk_identifier> kk_char::get_position() {
     return this->position;
 }

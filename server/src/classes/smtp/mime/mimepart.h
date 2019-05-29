@@ -24,13 +24,12 @@
 
 #include "smtpexports.h"
 
-class SMTP_EXPORT MimePart : public QObject
-{
-    Q_OBJECT
+class SMTP_EXPORT MimePart : public QObject {
+Q_OBJECT
 public:
 
     /* [0] Enumerations */
-    enum Encoding {        
+    enum Encoding {
         _7Bit,
         _8Bit,
         Base64,
@@ -44,6 +43,7 @@ public:
     /* [1] Constructors and Destructors */
 
     MimePart();
+
     ~MimePart();
 
     /* [1] --- */
@@ -51,30 +51,37 @@ public:
 
     /* [2] Getters and Setters */
 
-    const QString& getHeader() const;
-    const QByteArray& getContent() const;
+    const QString &getHeader() const;
 
-    void setContent(const QByteArray & content);
-    void setHeader(const QString & header);
+    const QByteArray &getContent() const;
 
-    void addHeaderLine(const QString & line);
+    void setContent(const QByteArray &content);
 
-    void setContentId(const QString & cId);
-    const QString & getContentId() const;
+    void setHeader(const QString &header);
 
-    void setContentName(const QString & cName);
-    const QString & getContentName() const;
+    void addHeaderLine(const QString &line);
 
-    void setContentType(const QString & cType);
-    const QString & getContentType() const;
+    void setContentId(const QString &cId);
 
-    void setCharset(const QString & charset);
-    const QString & getCharset() const;
+    const QString &getContentId() const;
+
+    void setContentName(const QString &cName);
+
+    const QString &getContentName() const;
+
+    void setContentType(const QString &cType);
+
+    const QString &getContentType() const;
+
+    void setCharset(const QString &charset);
+
+    const QString &getCharset() const;
 
     void setEncoding(Encoding enc);
+
     Encoding getEncoding() const;
 
-    MimeContentFormatter& getContentFormatter();
+    MimeContentFormatter &getContentFormatter();
 
     /* [2] --- */
 
