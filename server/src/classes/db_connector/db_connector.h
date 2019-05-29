@@ -7,7 +7,7 @@
 
 #include "../../../../libs/src/classes_include.h"
 #include "../../../../libs/src/classes/crypto/crypto.h"
-#include "../SMTP_client/SMTP_client.h"
+#include "../QSMTP_service/QSMTP_service.h"
 
 
 typedef struct var user_info;
