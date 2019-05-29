@@ -97,10 +97,6 @@ int main(int argc, char *argv[]) {
     mail.QSMTP_send_message(text, "Michele Luigi Greco" ,"grecomichele96@gmail.com", "Test1_QTMAIL_service");
 
 
-int main(int argc, char* argv[])
-{
-
-
     kk_crdt *crdt = new kk_crdt("Canguro",casuale);
     crdt->local_insert('c',kk_pos(0,0));
     crdt->local_insert('a',kk_pos(0,1));

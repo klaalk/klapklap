@@ -1,4 +1,10 @@
 /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/micheleluigigreco/progetto_malnati/libs
--- Configuring done
--- Generating done
--- Build files have been written to: /Users/micheleluigigreco/progetto_malnati/libs/cmake-build-debug
+CMake Error at CMakeLists.txt:19 (add_library):
+  add_library cannot create target "kklib" because another target with the
+  same name already exists.  The existing target is a static library created
+  in source directory "/Users/micheleluigigreco/progetto_malnati/libs".  See
+  documentation for policy CMP0002 for more details.
+
+
+-- Configuring incomplete, errors occurred!
+See also "/Users/micheleluigigreco/progetto_malnati/libs/cmake-build-debug/CMakeFiles/CMakeOutput.log".
