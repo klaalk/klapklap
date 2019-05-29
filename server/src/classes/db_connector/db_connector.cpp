@@ -9,6 +9,8 @@
 #define  USR  "server"
 #define  PSW  "password" //TODO:change
 
+
+
 struct var {
     std::string id;
     std::string name;
@@ -89,8 +91,9 @@ int db_connector::db_insert_user(std::string username, std::string password,int 
     std::ostringstream _string;
     sql::ResultSet *res;
     sql::Statement *stmt = connect();
-    SMTP_client sender;
-    std::string mex,_psw_len=to_string(pass_len);
+    QSMTP_service sender;
+    QString mex,dest_name=QString::fromStdString(name) + " " + QString::fromStdString(surname);
+    std::string _psw_len=std::to_string(pass_len);
 
     _string << "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`PSWLEN`,`EMAIL`,`NAME`,`SURNAME`) "
             << "VALUES('" + username + "','" + password + "','" + _psw_len + "','" + email + "','" + name + "','" + surname +
@@ -98,10 +101,10 @@ int db_connector::db_insert_user(std::string username, std::string password,int 
     try {
         stmt->execute(_string.str());
         _string.str("");
-        mex = sender.SMTP_message_builder("Welcome in KlapKlap Soft :)", name + " " + surname,
-                                          username + " complete your registration now!", "Activate Now",
+        mex = sender.QSMTP_message_builder("Welcome in KlapKlap Soft :)", dest_name,
+                                           QString::fromStdString(username) + " complete your registration now!", "Activate Now",
                                           "http://www.facebook.it");
-        sender.SMPT_sendmail(mex, email, "KlapKlap Registration");
+        sender.QSMTP_send_message(mex,dest_name ,QString::fromStdString(email), "KlapKlap Registration");
         close();
     } catch (sql::SQLException &e) {
         std::string str(e.what());
@@ -115,8 +118,8 @@ int db_connector::db_insert_user(std::string username, std::string password,int 
 }
 
 int db_connector::db_insert_file(std::string username, std::string filename, std::string path) {
-    SMTP_client sender;
-    std::string mex, name, surname, email;
+    QSMTP_service sender;
+    std::string name, surname, email;
     std::ostringstream _string;
 
     sql::Statement *stmt = connect();
@@ -130,13 +133,16 @@ int db_connector::db_insert_file(std::string username, std::string filename, std
     name = res->getString(2);
     surname = res->getString(3);
     email = res->getString(4);
-    mex = sender.SMTP_message_builder("New File added: " + filename, "Owner: " + name + " " + surname, username + "",
+
+    QString mex,dest_name=QString::fromStdString(name) + " " + QString::fromStdString(surname);
+
+    mex = sender.QSMTP_message_builder("New File added: " + QString::fromStdString(filename), "Owner: " + dest_name, QString::fromStdString(username) + "",
                                       "Share now!", "http://www.facebook.it");
 
     try {
         stmt->execute(_string.str());
         close();
-        sender.SMPT_sendmail(mex, email, "KlapKlap File_Add");
+        sender.QSMTP_send_message(mex,dest_name, QString::fromStdString(email), "KlapKlap File_Add");
     } catch (sql::SQLException &e) {
         close();
         cout << e.what() << endl;
@@ -148,8 +154,8 @@ int db_connector::db_insert_file(std::string username, std::string filename, std
 int db_connector::db_share_file(std::string username_from, std::string username_to, std::string filename) {
 
 
-    SMTP_client sender;
-    std::string mex;
+    QSMTP_service sender;
+    QString mex;
     sql::ResultSet *res;
     std::ostringstream _string;
     auto user1 = new user_info;
@@ -171,14 +177,14 @@ int db_connector::db_share_file(std::string username_from, std::string username_
             << "VALUES('" + user2->id + "','" + filename + "','./" + filename + "');";
 
 
-    mex = sender.SMTP_message_builder("New file shared: " + filename, "",
-                                      "Sender: " + user1->name + " " + user1->surname, "Open now!",
+    mex = sender.QSMTP_message_builder("New file shared: " + QString::fromStdString(filename), "",
+                                      "Sender: " + QString::fromStdString(user1->name + " " + user1->surname), "Open now!",
                                       "http://www.facebook.it");
 
     try {
         stmt->execute(_string.str());
         close();
-        sender.SMPT_sendmail(mex, user2->email, "KlapKlap Invite");
+        sender.QSMTP_send_message(mex,QString::fromStdString(user2->name + " " + user2->surname) ,QString::fromStdString(user2->email), "KlapKlap Invite");
     } catch (sql::SQLException &e) {
         close();
         cout << e.what() << endl;
