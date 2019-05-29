@@ -1,17 +1,37 @@
 cmake_minimum_required(VERSION 3.13)
 project(client LANGUAGES CXX C VERSION 0.1.0)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_CXX_STANDARD 14)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #    Non supportato in MacOS (da controllare su linux)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 endif ()
 
+find_package(Qt5Core REQUIRED )
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Gui REQUIRED )
 
-add_executable(client main.cpp
-        classes/chat/chat_client.cpp classes/chat/chat_client.h
-        ../src/classes/auth_service/auth.cpp ../src/classes/auth_service/auth.h
+set(RESOURCES
+        assets/textedit.qrc
         )
+
+set(SOURCES
+        main.cpp
+#        classes/textedit/textedit.cpp
+        classes/client/kk_client.cpp
+        )
+
+set(HEADERS
+#        classes/textedit/textedit.h
+        classes/client/kk_client.h
+        )
+
+# This will create you executable
+add_executable(client ${SOURCES} ${HEADERS} ${RESOURCES})
+# This will link necessary Qt5 libraries to your project
+qt5_use_modules(client Core Gui Widgets)
+
 
 add_subdirectory(../../libs kklib)
 target_link_libraries(client kklib)

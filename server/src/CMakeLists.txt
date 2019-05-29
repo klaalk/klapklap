@@ -16,6 +16,13 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif ()
 
 add_executable(server main.cpp
+        classes/server/room/kk_room.cpp classes/server/room/kk_room.h
+        classes/server/kk_server.cpp classes/server/kk_server.h
+        classes/server/session/kk_session.cpp classes/server/session/kk_session.h
+        classes/server/file/kk_file.cpp classes/server/file/kk_file.h
+        classes/server/partecipant/kk_partecipant.cpp classes/server/partecipant/kk_partecipant.h
+        classes/classes_include.h
+
         classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h
         classes/QSMTP_service/src/SmtpMime
         classes/QSMTP_service/src/emailaddress.cpp classes/QSMTP_service/src/emailaddress.h

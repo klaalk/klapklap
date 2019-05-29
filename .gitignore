@@ -14,3 +14,7 @@
 /server/libs/asio-1.12.2/doc/**
 !/server/libs/asio-1.12.2/doc/examples
 \.idea/
+libs/src/cmake-build-debug/
+
+libs/src/cmake-build-debug/
+/doc/.vscode/ipch/6ad81b5708390f51/mmap_address.bin
