@@ -10,9 +10,6 @@ set(CMAKE_CXX_STANDARD 14)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #    Non supportato in MacOS
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
-    #   SOCK
-    target_link_libraries(server ws2_32)
-    target_link_libraries(server wsock32)
 endif ()
 
 add_executable(server main.cpp
@@ -63,3 +60,9 @@ qt5_use_modules(server Core Gui Widgets Network Sql)
 add_subdirectory(../../libs kklib)
 target_link_libraries(server kklib)
 #END_KKLIB
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    #   SOCK
+    target_link_libraries(server ws2_32)
+    target_link_libraries(server wsock32)
+endif ()
