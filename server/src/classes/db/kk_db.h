@@ -2,18 +2,18 @@
 // Created by jsnow on 11/05/19.
 //
 
-#ifndef SERVER_DB_CONNECTOR_H
-#define SERVER_DB_CONNECTOR_H
+#ifndef SERVER_KK_DB_H
+#define SERVER_KK_DB_H
 
 #include "../../../../libs/src/classes_include.h"
 #include "../../../../libs/src/classes/crypto/crypto.h"
-#include "../QSMTP_service/QSMTP_service.h"
+#include "../smtp/kk_smtp.h"
 
 
 typedef struct var user_info;
 
 
-class db_connector {
+class kk_db {
 
 
 private:
@@ -27,7 +27,7 @@ private:
 
 public:
     ///Costruttore
-    explicit db_connector(sql::Driver *driver);
+    explicit kk_db(sql::Driver *driver);
 
     ///Generic query exec
     bool db_query(std::string query, int col_n);
@@ -35,7 +35,7 @@ public:
     sql::ResultSet *db_query(std::string query);
 
     ///inserimento utente. Ritorna 0 successo, -1 username fault, -2 email fault.
-    int db_insert_user(std::string username, std::string password,int pass_len, std::string email, std::string name,
+    int db_insert_user(std::string username, std::string password, int pass_len, std::string email, std::string name,
                        std::string surname);
 
     ///inserimento utente. Ritorna 0 successo,
@@ -62,4 +62,4 @@ public:
 };
 
 
-#endif //SERVER_DB_CONNECTOR_H
+#endif //SERVER_KK_DB_H

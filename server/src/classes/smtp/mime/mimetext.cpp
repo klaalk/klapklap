@@ -16,35 +16,43 @@
   See the LICENSE file for more details.
 */
 
-#include "mimeattachment.h"
-#include <QFileInfo>
+#include "mimetext.h"
 
 /* [1] Constructors and Destructors */
 
-MimeAttachment::MimeAttachment(QFile *file)
-    : MimeFile(file)
-{
-}
-MimeAttachment::MimeAttachment(const QByteArray& stream, const QString& fileName): MimeFile(stream, fileName)
-{
-
+MimeText::MimeText(const QString &txt) {
+    this->text = txt;
+    this->cType = "text/plain";
+    this->cCharset = "utf-8";
+    this->cEncoding = _8Bit;
 }
 
-MimeAttachment::~MimeAttachment()
-{
-}
+MimeText::~MimeText() {}
 
 /* [1] --- */
 
 
-/* [2] Protected methods */
+/* [2] Getters and Setters */
 
-void MimeAttachment::prepare()
-{
-    this->header += "Content-disposition: attachment\r\n";
+void MimeText::setText(const QString &text) {
+    this->text = text;
+}
 
-    /* !!! IMPORTANT !!! */
-    MimeFile::prepare();
+const QString &MimeText::getText() const {
+    return text;
 }
 
 /* [2] --- */
+
+
+/* [3] Protected Methods */
+
+void MimeText::prepare() {
+    this->content.clear();
+    this->content.append(text);
+
+    /* !!! IMPORTANT !!! */
+    MimePart::prepare();
+}
+
+/* [3] --- */

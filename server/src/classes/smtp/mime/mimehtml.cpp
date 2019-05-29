@@ -20,8 +20,7 @@
 
 /* [1] Constructors and Destructors */
 
-MimeHtml::MimeHtml(const QString &html) : MimeText(html)
-{
+MimeHtml::MimeHtml(const QString &html) : MimeText(html) {
     this->cType = "text/html";
 }
 
@@ -32,13 +31,11 @@ MimeHtml::~MimeHtml() {}
 
 /* [2] Getters and Setters */
 
-void MimeHtml::setHtml(const QString & html)
-{
+void MimeHtml::setHtml(const QString &html) {
     this->text = html;
 }
 
-const QString & MimeHtml::getHtml() const
-{
+const QString &MimeHtml::getHtml() const {
     return text;
 }
 
@@ -48,8 +45,7 @@ const QString & MimeHtml::getHtml() const
 
 /* [3] Protected methods */
 
-void MimeHtml::prepare()
-{
+void MimeHtml::prepare() {
     /* !!! IMPORTANT !!! */
     MimeText::prepare();
 }

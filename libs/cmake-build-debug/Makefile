@@ -123,32 +123,113 @@ kklib/fast:
 	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/build
 .PHONY : kklib/fast
 
-src/classes/chat/message/chat_message.o: src/classes/chat/message/chat_message.cpp.o
+src/classes/crdt/char/kk_char.o: src/classes/crdt/char/kk_char.cpp.o
 
-.PHONY : src/classes/chat/message/chat_message.o
+.PHONY : src/classes/crdt/char/kk_char.o
 
 # target to build an object file
-src/classes/chat/message/chat_message.cpp.o:
-	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/chat/message/chat_message.cpp.o
-.PHONY : src/classes/chat/message/chat_message.cpp.o
+src/classes/crdt/char/kk_char.cpp.o:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/char/kk_char.cpp.o
+.PHONY : src/classes/crdt/char/kk_char.cpp.o
 
-src/classes/chat/message/chat_message.i: src/classes/chat/message/chat_message.cpp.i
+src/classes/crdt/char/kk_char.i: src/classes/crdt/char/kk_char.cpp.i
 
-.PHONY : src/classes/chat/message/chat_message.i
+.PHONY : src/classes/crdt/char/kk_char.i
 
 # target to preprocess a source file
-src/classes/chat/message/chat_message.cpp.i:
-	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/chat/message/chat_message.cpp.i
-.PHONY : src/classes/chat/message/chat_message.cpp.i
+src/classes/crdt/char/kk_char.cpp.i:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/char/kk_char.cpp.i
+.PHONY : src/classes/crdt/char/kk_char.cpp.i
 
-src/classes/chat/message/chat_message.s: src/classes/chat/message/chat_message.cpp.s
+src/classes/crdt/char/kk_char.s: src/classes/crdt/char/kk_char.cpp.s
 
-.PHONY : src/classes/chat/message/chat_message.s
+.PHONY : src/classes/crdt/char/kk_char.s
 
 # target to generate assembly for a file
-src/classes/chat/message/chat_message.cpp.s:
-	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/chat/message/chat_message.cpp.s
-.PHONY : src/classes/chat/message/chat_message.cpp.s
+src/classes/crdt/char/kk_char.cpp.s:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/char/kk_char.cpp.s
+.PHONY : src/classes/crdt/char/kk_char.cpp.s
+
+src/classes/crdt/identifier/kk_identifier.o: src/classes/crdt/identifier/kk_identifier.cpp.o
+
+.PHONY : src/classes/crdt/identifier/kk_identifier.o
+
+# target to build an object file
+src/classes/crdt/identifier/kk_identifier.cpp.o:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/identifier/kk_identifier.cpp.o
+.PHONY : src/classes/crdt/identifier/kk_identifier.cpp.o
+
+src/classes/crdt/identifier/kk_identifier.i: src/classes/crdt/identifier/kk_identifier.cpp.i
+
+.PHONY : src/classes/crdt/identifier/kk_identifier.i
+
+# target to preprocess a source file
+src/classes/crdt/identifier/kk_identifier.cpp.i:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/identifier/kk_identifier.cpp.i
+.PHONY : src/classes/crdt/identifier/kk_identifier.cpp.i
+
+src/classes/crdt/identifier/kk_identifier.s: src/classes/crdt/identifier/kk_identifier.cpp.s
+
+.PHONY : src/classes/crdt/identifier/kk_identifier.s
+
+# target to generate assembly for a file
+src/classes/crdt/identifier/kk_identifier.cpp.s:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/identifier/kk_identifier.cpp.s
+.PHONY : src/classes/crdt/identifier/kk_identifier.cpp.s
+
+src/classes/crdt/kk_crdt.o: src/classes/crdt/kk_crdt.cpp.o
+
+.PHONY : src/classes/crdt/kk_crdt.o
+
+# target to build an object file
+src/classes/crdt/kk_crdt.cpp.o:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/kk_crdt.cpp.o
+.PHONY : src/classes/crdt/kk_crdt.cpp.o
+
+src/classes/crdt/kk_crdt.i: src/classes/crdt/kk_crdt.cpp.i
+
+.PHONY : src/classes/crdt/kk_crdt.i
+
+# target to preprocess a source file
+src/classes/crdt/kk_crdt.cpp.i:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/kk_crdt.cpp.i
+.PHONY : src/classes/crdt/kk_crdt.cpp.i
+
+src/classes/crdt/kk_crdt.s: src/classes/crdt/kk_crdt.cpp.s
+
+.PHONY : src/classes/crdt/kk_crdt.s
+
+# target to generate assembly for a file
+src/classes/crdt/kk_crdt.cpp.s:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/kk_crdt.cpp.s
+.PHONY : src/classes/crdt/kk_crdt.cpp.s
+
+src/classes/crdt/pos/kk_pos.o: src/classes/crdt/pos/kk_pos.cpp.o
+
+.PHONY : src/classes/crdt/pos/kk_pos.o
+
+# target to build an object file
+src/classes/crdt/pos/kk_pos.cpp.o:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/pos/kk_pos.cpp.o
+.PHONY : src/classes/crdt/pos/kk_pos.cpp.o
+
+src/classes/crdt/pos/kk_pos.i: src/classes/crdt/pos/kk_pos.cpp.i
+
+.PHONY : src/classes/crdt/pos/kk_pos.i
+
+# target to preprocess a source file
+src/classes/crdt/pos/kk_pos.cpp.i:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/pos/kk_pos.cpp.i
+.PHONY : src/classes/crdt/pos/kk_pos.cpp.i
+
+src/classes/crdt/pos/kk_pos.s: src/classes/crdt/pos/kk_pos.cpp.s
+
+.PHONY : src/classes/crdt/pos/kk_pos.s
+
+# target to generate assembly for a file
+src/classes/crdt/pos/kk_pos.cpp.s:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crdt/pos/kk_pos.cpp.s
+.PHONY : src/classes/crdt/pos/kk_pos.cpp.s
 
 src/classes/crypto/crypto.o: src/classes/crypto/crypto.cpp.o
 
@@ -177,6 +258,33 @@ src/classes/crypto/crypto.cpp.s:
 	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/crypto/crypto.cpp.s
 .PHONY : src/classes/crypto/crypto.cpp.s
 
+src/classes/payload/kk_payload.o: src/classes/payload/kk_payload.cpp.o
+
+.PHONY : src/classes/payload/kk_payload.o
+
+# target to build an object file
+src/classes/payload/kk_payload.cpp.o:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/payload/kk_payload.cpp.o
+.PHONY : src/classes/payload/kk_payload.cpp.o
+
+src/classes/payload/kk_payload.i: src/classes/payload/kk_payload.cpp.i
+
+.PHONY : src/classes/payload/kk_payload.i
+
+# target to preprocess a source file
+src/classes/payload/kk_payload.cpp.i:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/payload/kk_payload.cpp.i
+.PHONY : src/classes/payload/kk_payload.cpp.i
+
+src/classes/payload/kk_payload.s: src/classes/payload/kk_payload.cpp.s
+
+.PHONY : src/classes/payload/kk_payload.s
+
+# target to generate assembly for a file
+src/classes/payload/kk_payload.cpp.s:
+	$(MAKE) -f CMakeFiles/kklib.dir/build.make CMakeFiles/kklib.dir/src/classes/payload/kk_payload.cpp.s
+.PHONY : src/classes/payload/kk_payload.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -186,12 +294,24 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... kklib"
-	@echo "... src/classes/chat/message/chat_message.o"
-	@echo "... src/classes/chat/message/chat_message.i"
-	@echo "... src/classes/chat/message/chat_message.s"
+	@echo "... src/classes/crdt/char/kk_char.o"
+	@echo "... src/classes/crdt/char/kk_char.i"
+	@echo "... src/classes/crdt/char/kk_char.s"
+	@echo "... src/classes/crdt/identifier/kk_identifier.o"
+	@echo "... src/classes/crdt/identifier/kk_identifier.i"
+	@echo "... src/classes/crdt/identifier/kk_identifier.s"
+	@echo "... src/classes/crdt/kk_crdt.o"
+	@echo "... src/classes/crdt/kk_crdt.i"
+	@echo "... src/classes/crdt/kk_crdt.s"
+	@echo "... src/classes/crdt/pos/kk_pos.o"
+	@echo "... src/classes/crdt/pos/kk_pos.i"
+	@echo "... src/classes/crdt/pos/kk_pos.s"
 	@echo "... src/classes/crypto/crypto.o"
 	@echo "... src/classes/crypto/crypto.i"
 	@echo "... src/classes/crypto/crypto.s"
+	@echo "... src/classes/payload/kk_payload.o"
+	@echo "... src/classes/payload/kk_payload.i"
+	@echo "... src/classes/payload/kk_payload.s"
 .PHONY : help
 
 

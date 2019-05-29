@@ -16,37 +16,13 @@
   See the LICENSE file for more details.
 */
 
-#include "mimeinlinefile.h"
+#ifndef SMTPMIME_H
+#define SMTPMIME_H
 
-/* [1] Constructors and Destructors */
+#include "smtpclient.h"
+#include "mimepart.h"
+#include "mimehtml.h"
+#include "mimemessage.h"
+#include "mimetext.h"
 
-MimeInlineFile::MimeInlineFile(QFile *f)
-    : MimeFile(f)
-{
-}
-
-MimeInlineFile::~MimeInlineFile()
-{}
-
-/* [1] --- */
-
-
-/* [2] Getters and Setters */
-
-/* [2] --- */
-
-
-/* [3] Protected methods */
-
-void MimeInlineFile::prepare()
-{       
-    this->header += "Content-Disposition: inline\r\n";
-
-    /* !!! IMPORTANT !!! */
-    MimeFile::prepare();
-}
-
-/* [3] --- */
-
-
-
+#endif // SMTPMIME_H

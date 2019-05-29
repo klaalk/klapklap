@@ -3,12 +3,11 @@
 //
 //
 
-#include "db_connector.h"
+#include "kk_db.h"
 
 #define  HOST "tcp://130.192.163.109:3000"
 #define  USR  "server"
 #define  PSW  "password" //TODO:change
-
 
 
 struct var {
@@ -24,21 +23,21 @@ struct var {
 
 };
 
-db_connector::db_connector(sql::Driver *driver) : driver(driver) {
+kk_db::kk_db(sql::Driver *driver) : driver(driver) {
 }
 
-sql::Statement *db_connector::connect(void) {
+sql::Statement *kk_db::connect(void) {
     con = driver->connect(HOST, USR, PSW);
     con->setSchema("KLAPKLAP_DB");
     return con->createStatement();
 }
 
-void db_connector::close(void) {
+void kk_db::close(void) {
     con->close();
 }
 
 ///DEPRECATED
-bool db_connector::db_query(std::string query, int n_col) {
+bool kk_db::db_query(std::string query, int n_col) {
     sql::Statement *stmt = connect();
     sql::ResultSet *res = stmt->executeQuery(query);
 
@@ -53,7 +52,7 @@ bool db_connector::db_query(std::string query, int n_col) {
 }
 
 ///DEPRECATED
-sql::ResultSet *db_connector::db_query(std::string query) {
+sql::ResultSet *kk_db::db_query(std::string query) {
     sql::Statement *stmt = connect();
     sql::ResultSet *res = stmt->executeQuery(query);
     close();
@@ -65,7 +64,7 @@ sql::ResultSet *db_connector::db_query(std::string query) {
 ////
 
 
-user_info *db_connector::db_getUserInfo(std::string username) {
+user_info *kk_db::db_getUserInfo(std::string username) {
 
     sql::Statement *stmt = connect();
     auto userInfo = new user_info;
@@ -85,26 +84,28 @@ user_info *db_connector::db_getUserInfo(std::string username) {
     return userInfo;
 }
 
-int db_connector::db_insert_user(std::string username, std::string password,int pass_len, std::string email, std::string name,
-                                 std::string surname) {
+int kk_db::db_insert_user(std::string username, std::string password, int pass_len, std::string email, std::string name,
+                          std::string surname) {
     int errCode = 0;
     std::ostringstream _string;
     sql::ResultSet *res;
     sql::Statement *stmt = connect();
-    QSMTP_service sender;
-    QString mex,dest_name=QString::fromStdString(name) + " " + QString::fromStdString(surname);
-    std::string _psw_len=std::to_string(pass_len);
+    kk_smtp sender;
+    QString mex, dest_name = QString::fromStdString(name) + " " + QString::fromStdString(surname);
+    std::string _psw_len = std::to_string(pass_len);
 
     _string << "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`PSWLEN`,`EMAIL`,`NAME`,`SURNAME`) "
-            << "VALUES('" + username + "','" + password + "','" + _psw_len + "','" + email + "','" + name + "','" + surname +
+            << "VALUES('" + username + "','" + password + "','" + _psw_len + "','" + email + "','" + name + "','" +
+               surname +
                "');";
     try {
         stmt->execute(_string.str());
         _string.str("");
         mex = sender.QSMTP_message_builder("Welcome in KlapKlap Soft :)", dest_name,
-                                           QString::fromStdString(username) + " complete your registration now!", "Activate Now",
-                                          "http://www.facebook.it");
-        sender.QSMTP_send_message(mex,dest_name ,QString::fromStdString(email), "KlapKlap Registration");
+                                           QString::fromStdString(username) + " complete your registration now!",
+                                           "Activate Now",
+                                           "http://www.facebook.it");
+        sender.QSMTP_send_message(mex, dest_name, QString::fromStdString(email), "KlapKlap Registration");
         close();
     } catch (sql::SQLException &e) {
         std::string str(e.what());
@@ -117,8 +118,8 @@ int db_connector::db_insert_user(std::string username, std::string password,int 
     return errCode;
 }
 
-int db_connector::db_insert_file(std::string username, std::string filename, std::string path) {
-    QSMTP_service sender;
+int kk_db::db_insert_file(std::string username, std::string filename, std::string path) {
+    kk_smtp sender;
     std::string name, surname, email;
     std::ostringstream _string;
 
@@ -134,15 +135,16 @@ int db_connector::db_insert_file(std::string username, std::string filename, std
     surname = res->getString(3);
     email = res->getString(4);
 
-    QString mex,dest_name=QString::fromStdString(name) + " " + QString::fromStdString(surname);
+    QString mex, dest_name = QString::fromStdString(name) + " " + QString::fromStdString(surname);
 
-    mex = sender.QSMTP_message_builder("New File added: " + QString::fromStdString(filename), "Owner: " + dest_name, QString::fromStdString(username) + "",
-                                      "Share now!", "http://www.facebook.it");
+    mex = sender.QSMTP_message_builder("New File added: " + QString::fromStdString(filename), "Owner: " + dest_name,
+                                       QString::fromStdString(username) + "",
+                                       "Share now!", "http://www.facebook.it");
 
     try {
         stmt->execute(_string.str());
         close();
-        sender.QSMTP_send_message(mex,dest_name, QString::fromStdString(email), "KlapKlap File_Add");
+        sender.QSMTP_send_message(mex, dest_name, QString::fromStdString(email), "KlapKlap File_Add");
     } catch (sql::SQLException &e) {
         close();
         cout << e.what() << endl;
@@ -151,10 +153,10 @@ int db_connector::db_insert_file(std::string username, std::string filename, std
     return 0;
 }
 
-int db_connector::db_share_file(std::string username_from, std::string username_to, std::string filename) {
+int kk_db::db_share_file(std::string username_from, std::string username_to, std::string filename) {
 
 
-    QSMTP_service sender;
+    kk_smtp sender;
     QString mex;
     sql::ResultSet *res;
     std::ostringstream _string;
@@ -178,13 +180,15 @@ int db_connector::db_share_file(std::string username_from, std::string username_
 
 
     mex = sender.QSMTP_message_builder("New file shared: " + QString::fromStdString(filename), "",
-                                      "Sender: " + QString::fromStdString(user1->name + " " + user1->surname), "Open now!",
-                                      "http://www.facebook.it");
+                                       "Sender: " + QString::fromStdString(user1->name + " " + user1->surname),
+                                       "Open now!",
+                                       "http://www.facebook.it");
 
     try {
         stmt->execute(_string.str());
         close();
-        sender.QSMTP_send_message(mex,QString::fromStdString(user2->name + " " + user2->surname) ,QString::fromStdString(user2->email), "KlapKlap Invite");
+        sender.QSMTP_send_message(mex, QString::fromStdString(user2->name + " " + user2->surname),
+                                  QString::fromStdString(user2->email), "KlapKlap Invite");
     } catch (sql::SQLException &e) {
         close();
         cout << e.what() << endl;
@@ -197,20 +201,20 @@ int db_connector::db_share_file(std::string username_from, std::string username_
 
 
 
-bool db_connector::db_login(std::string username, std::string password, int psw_len) {
+bool kk_db::db_login(std::string username, std::string password, int psw_len) {
     user_info *user;
     user = db_getUserInfo(username);
     crypto solver;
 
-    std::string key1=password;
-    std::string key2=user->password;
-    int lKey1=psw_len;
-    int lkey2=user->psw_len;
+    std::string key1 = password;
+    std::string key2 = user->password;
+    int lKey1 = psw_len;
+    int lkey2 = user->psw_len;
 
-    if(lKey1!=lkey2)
+    if (lKey1 != lkey2)
         return false;
 
-    return solver._isEqual(key1,key2,lKey1,lkey2);
+    return solver._isEqual(key1, key2, lKey1, lkey2);
 }
 
 //TODO: delete user

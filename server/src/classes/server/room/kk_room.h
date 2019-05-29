@@ -11,11 +11,12 @@
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../partecipant/kk_partecipant.h"
 
-class kk_room
-{
+class kk_room {
 public:
     void join(kk_participant_ptr participant);
+
     void leave(kk_participant_ptr participant);
+
 private:
     std::set<kk_participant_ptr> participants_;
 };

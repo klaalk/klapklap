@@ -28,26 +28,25 @@
 
 using boost::asio::ip::tcp;
 
-class kk_session : public kk_participant, public boost::enable_shared_from_this<kk_session>
-{
+class kk_session : public kk_participant, public boost::enable_shared_from_this<kk_session> {
 public:
     kk_session(boost::asio::io_service &io_service, kk_room &room_,std::shared_ptr<kk_db> db_);
 
-    tcp::socket& socket();
+    tcp::socket &socket();
 
     void start();
 
-    void deliver(const kk_payload& msg);
+    void deliver(const kk_payload &msg);
 
-    void handle_read_header(const boost::system::error_code& error);
+    void handle_read_header(const boost::system::error_code &error);
 
-    void handle_read_body(const boost::system::error_code& error);
+    void handle_read_body(const boost::system::error_code &error);
 
     void handle_request();
 
     void handle_response(const char *body, kk_payload_type _type, kk_payload_result_type _result);
 
-    void handle_write(const boost::system::error_code& error);
+    void handle_write(const boost::system::error_code &error);
 
 private:
     tcp::socket socket_;

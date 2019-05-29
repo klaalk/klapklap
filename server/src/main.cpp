@@ -7,14 +7,14 @@
 //
 
 #include <iostream>
-#include "./classes/db_connector/db_connector.h"
+#include "classes/db/kk_db.h"
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
 #include <stdlib.h>
 #include <string>
 
 //#include <QtSql>
-#include "./classes/QSMTP_service/QSMTP_service.h"
+#include "./classes/smtp/kk_smtp.h"
 #include "classes/server/kk_server.h"
 #include "../../libs/src/classes/crdt/kk_crdt.h"
 #include "../../libs/src/classes/crdt/pos/kk_pos.h"
@@ -90,9 +90,9 @@ int main(int argc, char *argv[]) {
 //    smtp.sendMail(message);
 //    smtp.quit();
 
-    QSMTP_service mail;
+    kk_smtp mail;
     QString text = mail.QSMTP_message_builder("Prova", "Michele6000", "Messaggio di prova", "Testo bottone",
-            "http://www.facebook.it");
+                                              "http://www.facebook.it");
 
     mail.QSMTP_send_message(text, "Michele Luigi Greco", "grecomichele96@gmmail.com", "Test1_QTMAIL_service");
 
@@ -114,8 +114,7 @@ int main(int argc, char *argv[]) {
         kk_server_ptr server(new kk_server(io_service, endpoint, driver));
         io_service.run();
     }
-    catch (std::exception& e)
-    {
+    catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }
     return 0;

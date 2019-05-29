@@ -11,8 +11,11 @@ class kk_pos {
     int line;
 public:
     kk_pos();
-    kk_pos(int line,int ch);
+
+    kk_pos(int line, int ch);
+
     int get_line();
+
     int get_ch();
 };
 
