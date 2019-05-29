@@ -5,7 +5,6 @@
 #include "crypto.h"
 
 
-
 void crypto::handleErrors(void) {
     unsigned long errCode;
 
@@ -18,8 +17,8 @@ void crypto::handleErrors(void) {
 }
 
 int crypto::encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *aad,
-                       int aad_len, unsigned char *key, unsigned char *iv,
-                       unsigned char *ciphertext, unsigned char *tag) {
+                    int aad_len, unsigned char *key, unsigned char *iv,
+                    unsigned char *ciphertext, unsigned char *tag) {
     EVP_CIPHER_CTX *ctx = NULL;
     int len = 0, ciphertext_len = 0;
 
@@ -72,8 +71,8 @@ int crypto::encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *
 }
 
 int crypto::decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *aad,
-                       int aad_len, unsigned char *tag, unsigned char *key, unsigned char *iv,
-                       unsigned char *plaintext) {
+                    int aad_len, unsigned char *tag, unsigned char *key, unsigned char *iv,
+                    unsigned char *plaintext) {
     EVP_CIPHER_CTX *ctx = NULL;
     int len = 0, plaintext_len = 0, ret;
 
@@ -136,7 +135,7 @@ crypto::crypto(void) {
 //    ERR_load_crypto_strings();
 }
 
-std::string crypto::_encrypt(std::string password,int *cifred_len) {
+std::string crypto::_encrypt(std::string password, int *cifred_len) {
 
 
 
@@ -153,7 +152,7 @@ std::string crypto::_encrypt(std::string password,int *cifred_len) {
     int len = *cifred_len;
     unsigned char ciphertext[128];
     unsigned char tag2[len];
-    std::strcpy((char*)tag2,"");
+    std::strcpy((char *) tag2, "");
 
 //    unsigned char tag[16];
     unsigned char plaintext[password.length()];
@@ -167,7 +166,8 @@ std::string crypto::_encrypt(std::string password,int *cifred_len) {
     return c_password;
 
 }
-std::string crypto::_decrypt(std::string password,int *cifred_len) {
+
+std::string crypto::_decrypt(std::string password, int *cifred_len) {
 
 //std::string db_crypto::db_decrypt(std::string password, unsigned char *tag, int *cifred_len) {
 
@@ -184,7 +184,7 @@ std::string crypto::_decrypt(std::string password,int *cifred_len) {
     int len = *cifred_len;
     unsigned char decryptedtext[128];
     unsigned char tag2[len];
-    std::strcpy((char*)tag2,"");
+    std::strcpy((char *) tag2, "");
 
 //    unsigned char tag[16];
     unsigned char plaintext[password.length()];
@@ -201,7 +201,7 @@ std::string crypto::_decrypt(std::string password,int *cifred_len) {
 }
 
 
-bool crypto::_isEqual(std::string key1,std::string key2, int lKey1,int lKey2){
-    int _lKey1=lKey1,_lKye2=lKey2;
-    return _encrypt(key1,&lKey1) == _encrypt(key2,&lKey2);
+bool crypto::_isEqual(std::string key1, std::string key2, int lKey1, int lKey2) {
+    int _lKey1 = lKey1, _lKye2 = lKey2;
+    return _encrypt(key1, &lKey1) == _encrypt(key2, &lKey2);
 }

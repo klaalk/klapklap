@@ -3,7 +3,7 @@
 //
 //
 
-#include "db_connector.h"
+#include "kk_db.h"
 
 #define  HOST "tcp://130.192.163.109:3000"
 #define  USR  "server"
@@ -24,21 +24,21 @@ struct var {
 
 };
 
-db_connector::db_connector(sql::Driver *driver) : driver(driver) {
+kk_db::kk_db(sql::Driver *driver) : driver(driver) {
 }
 
-sql::Statement *db_connector::connect(void) {
+sql::Statement *kk_db::connect(void) {
     con = driver->connect(HOST, USR, PSW);
     con->setSchema("KLAPKLAP_DB");
     return con->createStatement();
 }
 
-void db_connector::close(void) {
+void kk_db::close(void) {
     con->close();
 }
 
 ///DEPRECATED
-bool db_connector::db_query(std::string query, int n_col) {
+bool kk_db::db_query(std::string query, int n_col) {
     sql::Statement *stmt = connect();
     sql::ResultSet *res = stmt->executeQuery(query);
 
@@ -53,7 +53,7 @@ bool db_connector::db_query(std::string query, int n_col) {
 }
 
 ///DEPRECATED
-sql::ResultSet *db_connector::db_query(std::string query) {
+sql::ResultSet *kk_db::db_query(std::string query) {
     sql::Statement *stmt = connect();
     sql::ResultSet *res = stmt->executeQuery(query);
     close();
@@ -65,7 +65,7 @@ sql::ResultSet *db_connector::db_query(std::string query) {
 ////
 
 
-user_info *db_connector::db_getUserInfo(std::string username) {
+user_info *kk_db::db_getUserInfo(std::string username) {
 
     sql::Statement *stmt = connect();
     auto userInfo = new user_info;
@@ -85,13 +85,13 @@ user_info *db_connector::db_getUserInfo(std::string username) {
     return userInfo;
 }
 
-int db_connector::db_insert_user(std::string username, std::string password,int pass_len, std::string email, std::string name,
+int kk_db::db_insert_user(std::string username, std::string password,int pass_len, std::string email, std::string name,
                                  std::string surname) {
     int errCode = 0;
     std::ostringstream _string;
     sql::ResultSet *res;
     sql::Statement *stmt = connect();
-    QSMTP_service sender;
+    kk_smtp sender;
     QString mex,dest_name=QString::fromStdString(name) + " " + QString::fromStdString(surname);
     std::string _psw_len=std::to_string(pass_len);
 
@@ -117,8 +117,8 @@ int db_connector::db_insert_user(std::string username, std::string password,int 
     return errCode;
 }
 
-int db_connector::db_insert_file(std::string username, std::string filename, std::string path) {
-    QSMTP_service sender;
+int kk_db::db_insert_file(std::string username, std::string filename, std::string path) {
+    kk_smtp sender;
     std::string name, surname, email;
     std::ostringstream _string;
 
@@ -151,10 +151,10 @@ int db_connector::db_insert_file(std::string username, std::string filename, std
     return 0;
 }
 
-int db_connector::db_share_file(std::string username_from, std::string username_to, std::string filename) {
+int kk_db::db_share_file(std::string username_from, std::string username_to, std::string filename) {
 
 
-    QSMTP_service sender;
+    kk_smtp sender;
     QString mex;
     sql::ResultSet *res;
     std::ostringstream _string;
@@ -197,7 +197,7 @@ int db_connector::db_share_file(std::string username_from, std::string username_
 
 
 
-bool db_connector::db_login(std::string username, std::string password, int psw_len) {
+bool kk_db::db_login(std::string username, std::string password, int psw_len) {
     user_info *user;
     user = db_getUserInfo(username);
     crypto solver;

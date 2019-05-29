@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 14)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     #    Non supportato in MacOS
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
-#   SOCK
+    #   SOCK
     target_link_libraries(server ws2_32)
     target_link_libraries(server wsock32)
 endif ()
@@ -22,22 +22,19 @@ add_executable(server main.cpp
         classes/server/file/kk_file.cpp classes/server/file/kk_file.h
         classes/server/partecipant/kk_partecipant.cpp classes/server/partecipant/kk_partecipant.h
 
-        classes/db_connector/db_connector.cpp classes/db_connector/db_connector.h
-        classes/QSMTP_service/src/SmtpMime
-        classes/QSMTP_service/src/emailaddress.cpp classes/QSMTP_service/src/emailaddress.h
-        classes/QSMTP_service/src/mimeattachment.cpp classes/QSMTP_service/src/mimeattachment.h
-        classes/QSMTP_service/src/mimecontentformatter.cpp classes/QSMTP_service/src/mimecontentformatter.h
-        classes/QSMTP_service/src/mimefile.cpp classes/QSMTP_service/src/mimefile.h
-        classes/QSMTP_service/src/mimehtml.cpp classes/QSMTP_service/src/mimehtml.h
-        classes/QSMTP_service/src/mimeinlinefile.cpp classes/QSMTP_service/src/mimeinlinefile.h
-        classes/QSMTP_service/src/mimemessage.cpp classes/QSMTP_service/src/mimemessage.h
-        classes/QSMTP_service/src/mimemultipart.cpp classes/QSMTP_service/src/mimemultipart.h
-        classes/QSMTP_service/src/mimepart.cpp classes/QSMTP_service/src/mimepart.h
-        classes/QSMTP_service/src/mimetext.cpp classes/QSMTP_service/src/mimetext.h
-        classes/QSMTP_service/src/quotedprintable.cpp classes/QSMTP_service/src/quotedprintable.h
-        classes/QSMTP_service/src/smtpclient.cpp classes/QSMTP_service/src/smtpclient.h
-        classes/QSMTP_service/src/smtpexports.h
-        classes/QSMTP_service/QSMTP_service.cpp classes/QSMTP_service/QSMTP_service.h
+        classes/db/kk_db.cpp classes/db/kk_db.h
+        classes/smtp/mime/SmtpMime
+        classes/smtp/mime/emailaddress.cpp classes/smtp/mime/emailaddress.h
+        classes/smtp/mime/mimecontentformatter.cpp classes/smtp/mime/mimecontentformatter.h
+        classes/smtp/mime/mimehtml.cpp classes/smtp/mime/mimehtml.h
+        classes/smtp/mime/mimemessage.cpp classes/smtp/mime/mimemessage.h
+        classes/smtp/mime/mimemultipart.cpp classes/smtp/mime/mimemultipart.h
+        classes/smtp/mime/mimepart.cpp classes/smtp/mime/mimepart.h
+        classes/smtp/mime/mimetext.cpp classes/smtp/mime/mimetext.h
+        classes/smtp/mime/quotedprintable.cpp classes/smtp/mime/quotedprintable.h
+        classes/smtp/mime/smtpclient.cpp classes/smtp/mime/smtpclient.h
+        classes/smtp/mime/smtpexports.h
+        classes/smtp/kk_smtp.cpp classes/smtp/kk_smtp.h
         )
 
 
@@ -56,7 +53,7 @@ target_link_libraries(server mysqlcppconn)
 #QT
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Gui REQUIRED )
+find_package(Qt5Gui REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5Sql REQUIRED)
 qt5_use_modules(server Core Gui Widgets Network Sql)
