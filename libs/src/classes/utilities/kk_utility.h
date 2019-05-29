@@ -17,8 +17,10 @@ class Utility {
 public:
     template<typename T>
     std::vector<T> slice(std::vector<T> const &v, int i);
+
     template<typename T>
     std::vector<T> slice(std::vector<T> const &v, int start, int end);
+
     template<typename T>
     std::vector<T> splice(std::vector<T> const &v, int i);
 

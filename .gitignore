@@ -7,6 +7,8 @@
 /server/src/cmake-build-debug
 /client/.idea
 /client/src/cmake-build-debug
+/libs/.idea
+/libs/src/cmake-build-debug
 
 #Ignore asio doc files
 /server/libs/asio-1.12.2/doc/**
@@ -15,3 +17,4 @@
 libs/src/cmake-build-debug/
 
 libs/src/cmake-build-debug/
+/doc/.vscode/ipch/6ad81b5708390f51/mmap_address.bin

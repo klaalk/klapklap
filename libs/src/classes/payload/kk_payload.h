@@ -45,12 +45,15 @@ public:
     void body_length(size_t length);
 
     kk_payload_type type();
+
     kk_payload_result_type result_type();
 
     kk_payload_type decode_header();
+
     void encode_header(kk_payload_type type, kk_payload_result_type result);
 
     void delete_data();
+
 private:
     char data_[header_length + max_body_length];
     kk_payload_type type_;

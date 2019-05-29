@@ -13,15 +13,19 @@
 #include "../partecipant/kk_partecipant.h"
 
 
-class kk_file
-{
+class kk_file {
 public:
     void join(kk_participant_ptr participant);
+
     void leave(kk_participant_ptr participant);
-    void deliver(const kk_payload& msg);
+
+    void deliver(const kk_payload &msg);
+
 private:
     std::set<kk_participant_ptr> participants_;
-    enum { max_recent_msgs = 100 };
+    enum {
+        max_recent_msgs = 100
+    };
     kk_kk_payload_queue recent_msgs_;
 };
 
