@@ -1,5 +1,10 @@
+
+cmake_minimum_required(VERSION 3.13)
 project(kklib LANGUAGES CXX C VERSION 0.1.0)
 add_library(kklib STATIC
+        src/classes_include.h
+        src/classes/crypto/crypto.cpp src/classes/crypto/crypto.h
+
         src/classes/payload/kk_payload.cpp
         src/classes/payload/kk_payload.h
         src/constants/kk_constants.h
@@ -13,3 +18,8 @@ add_library(kklib STATIC
         src/classes/crdt/pos/kk_pos.cpp
         src/classes/crdt/pos/kk_pos.h
         )
+
+#SLL
+find_package(OpenSSL REQUIRED)
+target_link_libraries(kklib OpenSSL::SSL)
+#END_SSL

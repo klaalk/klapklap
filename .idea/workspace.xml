@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
+      <config projectName="server" targetName="kklib" />
       <config projectName="server" targetName="server" />
     </generated>
   </component>
@@ -12,7 +13,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ae30dcc6-cc66-4d6d-b311-92bec555cb8d" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/client/src/classes/auth_service/auth.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/classes/auth_service/auth.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/src/classes/crypto/crypto.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/src/classes_include.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/libs/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/SMTP_client/SMTP_client.h" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/classes/SMTP_client/SMTP_client.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/classes_include.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/db_connector/db_connector.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/classes/db_connector/db_connector.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/db_connector/db_connector.h" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/classes/db_connector/db_connector.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libs/src/classes/crypto/crypto.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_listener/HTTP_listener.h" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_listener/HTTP_listener.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_session/HTTP_session.h" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_session/HTTP_session.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/classes/db_interface/db_interface.h" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/classes/db_interface/db_interface.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main.cpp" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/server/src/cmake-build-debug/" />
@@ -57,45 +74,50 @@
         <item name="MySQL - KLAPKLAP_DB@130.192.163.109" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
         <item name="KLAPKLAP_DB: schema" type="76f4a085:MysqlImplModel$Schema" />
+        <item name="FILES_OWNERS: table" type="285a2a93:MysqlImplModel$Table" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="MySQL - KLAPKLAP_DB@130.192.163.109" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="KLAPKLAP_DB: schema" type="76f4a085:MysqlImplModel$Schema" />
         <item name="USERS: table" type="285a2a93:MysqlImplModel$Table" />
       </path>
     </expand>
     <select />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FavoritesManager">
+    <favorites_list name="server" />
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server/src/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="20" lean-forward="true" selection-start-line="19" selection-end-line="21" selection-end-column="43" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/server/src/main.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="406">
-              <caret line="75" column="215" selection-start-line="75" selection-start-column="215" selection-end-line="75" selection-end-column="215" />
-              <folding>
-                <element signature="e#153#172#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/c1ac36d9-3f13-41b0-995a-3d7d90801365/console.sql">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="10" selection-start-column="10" selection-end-column="10" />
+            <state relative-caret-position="796">
+              <caret line="64" selection-start-line="64" selection-end-line="68" />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CMakeLists.txt" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>session</find>
+      <find>void</find>
+      <find>fail</find>
+      <find>cout</find>
+      <find>rel</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -104,27 +126,46 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$APPLICATION_CONFIG_DIR$/consoles/db/c1ac36d9-3f13-41b0-995a-3d7d90801365/console.sql" />
-        <option value="$PROJECT_DIR$/server/src/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_request_handler/HTTP_request_handler.h" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_listener/HTTP_listener.cpp" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_session/HTTP_session.cpp" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_session/HTTP_session.h" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_interface/HTTP_listener/HTTP_listener.h" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_interface/db_interface.cpp" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_interface/db_interface.h" />
+        <option value="$PROJECT_DIR$/server/conanfile.txt" />
+        <option value="$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/Net/SocketAddressImpl.h" />
+        <option value="$PROJECT_DIR$/libs/src/classes/chat/message/chat_message.cpp" />
+        <option value="$PROJECT_DIR$/server/src/classes/SMTP_client/SMTP_client.cpp" />
+        <option value="$PROJECT_DIR$/server/src/conanfile.txt" />
+        <option value="$PROJECT_DIR$/server/src/classes/classes_include.h" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.h" />
         <option value="$PROJECT_DIR$/server/src/main.cpp" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.cpp" />
+        <option value="$PROJECT_DIR$/libs/src/classes_include.h" />
+        <option value="$PROJECT_DIR$/server/src/classes/SMTP_client/SMTP_client.h" />
+        <option value="$PROJECT_DIR$/client/src/classes/auth_service/auth.h" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_connector/db_connector.h" />
+        <option value="$PROJECT_DIR$/libs/src/classes/crypto/crypto.h" />
+        <option value="$PROJECT_DIR$/libs/src/classes/crypto/crypto.cpp" />
+        <option value="$PROJECT_DIR$/server/src/classes/db_connector/db_connector.cpp" />
+        <option value="$PROJECT_DIR$/client/src/classes/auth_service/auth.cpp" />
+        <option value="$PROJECT_DIR$/libs/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/server/src/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/client/src/CMakeLists.txt" />
       </list>
     </option>
   </component>
-  <component name="ProjectConfigurationFiles">
-    <option name="files">
-      <list>
-        <option value="$PROJECT_DIR$/.idea/progetto_malnati.iml" />
-        <option value="$PROJECT_DIR$/.idea/misc.xml" />
-        <option value="$PROJECT_DIR$/.idea/modules.xml" />
-        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
-        <option value="$PROJECT_DIR$/.idea/dataSources.xml" />
-      </list>
-    </option>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="OCResolveContextSettings">
+    <option name="configuration" value="0-kklib" />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1531" />
-    <option name="y" value="32" />
-    <option name="width" value="1400" />
-    <option name="height" value="1000" />
+    <option name="x" value="1280" />
+    <option name="y" value="31" />
+    <option name="width" value="1920" />
+    <option name="height" value="1105" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -132,47 +173,25 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="server" type="b2602c69:ProjectViewProjectNode" />
-              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="server" type="b2602c69:ProjectViewProjectNode" />
-              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="server" type="b2602c69:ProjectViewProjectNode" />
-              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="server" type="b2602c69:ProjectViewProjectNode" />
-              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
-              <item name="server" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="server" type="b2602c69:ProjectViewProjectNode" />
-              <item name="progetto_malnati" type="462c0819:PsiDirectoryNode" />
-              <item name="server" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
+      <pane id="ProjectPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="DatabaseDriversLRU" value="mysql" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="database.console.LAST_STATE" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.language" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/server" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="language.cpp.clangd" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/libs/src" />
+      <recent name="$PROJECT_DIR$/server/src" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -186,12 +205,21 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="CMake Application.server">
+    <configuration name="kklib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="server" TARGET_NAME="kklib" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="server" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="server" TARGET_NAME="server" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="server" RUN_TARGET_NAME="server">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="CMake Application.server" />
+      <item itemvalue="CMake Application.kklib" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -205,27 +233,67 @@
       <updated>1557507224888</updated>
       <workItem from="1557507230986" duration="6485000" />
       <workItem from="1557514366163" duration="1056000" />
-      <workItem from="1557515733257" duration="7080000" />
+      <workItem from="1557515733257" duration="7412000" />
+      <workItem from="1557581582701" duration="3236000" />
+      <workItem from="1557668385933" duration="10796000" />
+      <workItem from="1557941778688" duration="6058000" />
+      <workItem from="1557998142263" duration="12016000" />
+      <workItem from="1558093610459" duration="1777000" />
+      <workItem from="1558099327891" duration="18382000" />
+      <workItem from="1558269055605" duration="6061000" />
+      <workItem from="1558613862166" duration="4221000" />
+      <workItem from="1558618169229" duration="35000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="14621000" />
+    <option name="totallyTimeSpent" value="78545000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="31" width="1920" height="1105" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18370607" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4989733" visible="true" weight="0.20181043" />
+      <window_info id="Structure" order="1" sideWeight="0.5010267" side_tool="true" weight="0.20181043" />
+      <window_info active="true" id="Favorites" order="2" sideWeight="0.5010267" side_tool="true" visible="true" weight="0.20181043" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3295688" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.36550307" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.399384" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3295688" />
+      <window_info anchor="bottom" id="Database Console" order="7" weight="0.3295688" />
+      <window_info anchor="bottom" id="Database Changes" order="8" weight="0.3295688" />
+      <window_info active="true" anchor="bottom" id="Messages" order="9" visible="true" weight="0.3295688" />
+      <window_info anchor="bottom" id="Terminal" order="10" weight="0.3295688" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="12" weight="0.3295688" />
+      <window_info anchor="bottom" id="CMake" order="13" weight="0.3295688" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" weight="0.26677316" />
+    </layout>
+    <layout-to-restore>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19755058" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3295688" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.36550307" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.399384" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3295688" />
       <window_info anchor="bottom" id="Database Console" order="7" weight="0.3295688" />
       <window_info anchor="bottom" id="Database Changes" order="8" weight="0.3295688" />
       <window_info anchor="bottom" id="Messages" order="9" weight="0.3295688" />
@@ -236,8 +304,8 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Database" order="3" visible="true" weight="0.32960597" />
-    </layout>
+      <window_info anchor="right" id="Database" order="3" weight="0.26677316" />
+    </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
@@ -246,61 +314,382 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/server/src/main.cpp</url>
-          <line>68</line>
-          <option name="timeStamp" value="1" />
+          <url>file://$PROJECT_DIR$/server/src/classes/db_interface/HTTP_listener/HTTP_listener.h</url>
+          <line>7</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/server/src/classes/db_connector/db_connector.cpp</url>
+          <line>99</line>
+          <option name="timeStamp" value="18" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/include/cppconn/variant.h" />
-    <entry file="file:///usr/include/cppconn/exception.h" />
-    <entry file="file:///usr/local/include/boost/asio/detail/impl/posix_thread.ipp">
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_interface/HTTP_request_handler/HTTP_request_handler.h" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_interface/HTTP_session/HTTP_session.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="335">
+          <caret line="184" selection-start-line="184" selection-end-line="187" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/7/bits/unique_ptr.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="208">
-          <caret line="34" column="17" selection-start-line="34" selection-start-column="17" selection-end-line="34" selection-end-column="17" />
+          <caret line="187" column="14" selection-start-line="187" selection-start-column="14" selection-end-line="187" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_interface/HTTP_listener/HTTP_listener.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="15" selection-start-line="6" selection-start-column="15" selection-end-line="6" selection-end-column="15" />
+          <folding>
+            <element signature="e#0#2#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_interface/HTTP_session/HTTP_session.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" selection-start-line="7" selection-end-line="7" selection-end-column="34" />
+          <folding>
+            <element signature="e#514#556#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/x86_64-linux-gnu/sys/socket.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="125" column="11" selection-start-line="125" selection-start-column="11" selection-end-line="125" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/cmake-build-debug/conaninfo.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/cmake-build-debug/conanbuildinfo.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="4" selection-start-line="1" selection-end-line="1" selection-end-column="103" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/cmake-build-debug/conanbuildinfo.cmake">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4275" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/cmake-build-debug/cmake_install.cmake">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-291" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libs/src/classes/chat/message/chat_message.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="49" column="5" lean-forward="true" selection-start-line="49" selection-start-column="5" selection-end-line="49" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/Net/SocketAddressImpl.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="140" selection-start-line="140" selection-end-line="144" />
+          <folding>
+            <element signature="e#367#392#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/Poco/Net/SocketAddressImpl.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="80" selection-start-line="80" selection-end-line="80" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/Net/SMTPClientSession.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="120" column="9" selection-start-line="120" selection-start-column="9" selection-end-line="120" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/conanfile.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/SMTP_client/SMTP_client.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="235">
+          <caret line="488" selection-start-line="488" selection-end-line="488" />
+          <folding>
+            <element signature="e#66#27521#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/7/bits/char_traits.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="310" selection-start-line="310" selection-end-line="310" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/Crypto/CipherFactory.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-26">
+          <caret line="43" column="24" selection-start-line="43" selection-start-column="12" selection-end-line="43" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/AtomicCounter.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="314" selection-start-line="314" selection-end-line="314" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/RefCountedObject.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="87" selection-start-line="87" selection-end-line="87" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.conan/data/Poco/1.9.0/pocoproject/stable/package/28816af51af39782180b85bf4e495319f3c52d84/include/Poco/Crypto/Cipher.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="93" column="8" selection-start-line="93" selection-start-column="8" selection-end-line="93" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/7/ext/type_traits.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="152" selection-start-line="152" selection-end-line="152" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/7/bits/stl_iterator_base_types.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="205" selection-start-line="205" selection-end-line="205" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/7/bits/stl_iterator_base_funcs.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="168">
+          <caret line="142" selection-start-line="142" selection-end-line="142" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/7/bits/basic_string.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="168">
+          <caret line="255" selection-start-line="255" selection-end-line="255" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/7/ext/string_conversions.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="440">
+          <caret line="115" selection-start-line="115" selection-end-line="115" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/c++/7/bits/basic_string.tcc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="365">
+          <caret line="1168" selection-start-line="1168" selection-end-line="1168" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/cppconn/sqlstring.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="258">
+          <caret line="54" selection-start-line="54" selection-end-line="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/crdt/session/crdt_session.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="750">
+          <caret line="50" column="19" selection-start-line="50" selection-start-column="19" selection-end-line="50" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/doc/conclave-master/lib/crdt.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="163">
+          <caret line="88" column="7" selection-start-line="88" selection-start-column="7" selection-end-line="88" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.conan/data/OpenSSL/1.0.2o/conan/stable/package/7ee2b9bfcba105a6bcb3e1d60e3a0b24323ef7e1/include/openssl/err.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="321" column="14" selection-start-line="321" selection-start-column="14" selection-end-line="321" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.h" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_connector/db_crypto.cpp" />
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_interface/db_interface.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_interface/db_interface.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="43" selection-start-line="7" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/SMTP_client/SMTP_client.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libs/src/classes_include.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="48" column="31" selection-start-line="48" selection-start-column="31" selection-end-line="48" selection-end-column="31" />
+          <folding>
+            <element signature="e#125#152#0" expanded="true" />
+            <element signature="e#271#302#0" expanded="true" />
+            <element signature="e#390#429#0" expanded="true" />
+            <element signature="e#636#669#0" expanded="true" />
+            <element signature="e#633#650#0" expanded="true" />
+            <element signature="e#835#968#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_interface/HTTP_listener/HTTP_listener.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_connector/db_connector.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="54" selection-start-line="8" selection-start-column="54" selection-end-line="8" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libs/src/classes/crypto/crypto.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="206" column="1" selection-start-line="206" selection-start-column="1" selection-end-line="206" selection-end-column="1" />
+          <folding>
+            <element signature="e#63#304#0" />
+            <element signature="e#306#2125#0" />
+            <element signature="e#2127#4077#0" />
+            <element signature="e#4174#5218#0" />
+            <element signature="e#5219#6362#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libs/src/classes/crypto/crypto.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="444">
+          <caret line="31" column="20" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
+          <folding>
+            <element signature="e#89#108#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/classes/db_connector/db_connector.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="555">
+          <caret line="211" selection-start-line="211" selection-end-line="211" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/src/classes/auth_service/auth.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
+          <folding>
+            <element signature="e#84#133#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/src/classes/auth_service/auth.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" column="40" selection-start-line="22" selection-start-column="40" selection-end-line="22" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libs/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/client/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="5" column="14" selection-start-line="5" selection-start-column="14" selection-end-line="5" selection-end-column="14" />
+        <state relative-caret-position="-103">
+          <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
           <folding>
-            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/include/boost/asio/detail/impl/posix_thread.ipp">
+    <entry file="file://$PROJECT_DIR$/client/src/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="41" column="10" lean-forward="true" selection-start-line="41" selection-start-column="10" selection-end-line="41" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/c1ac36d9-3f13-41b0-995a-3d7d90801365/console.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="10" selection-start-column="10" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" lean-forward="true" selection-start-line="19" selection-end-line="21" selection-end-column="43" />
+        <state relative-caret-position="270">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="406">
-          <caret line="75" column="215" selection-start-line="75" selection-start-column="215" selection-end-line="75" selection-end-column="215" />
+        <state relative-caret-position="330">
+          <caret line="28" selection-start-line="28" selection-end-line="28" />
           <folding>
             <element signature="e#153#172#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="796">
+          <caret line="64" selection-start-line="64" selection-end-line="68" />
         </state>
       </provider>
     </entry>
