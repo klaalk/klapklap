@@ -18,8 +18,8 @@
 #include "classes/server/kk_server.h"
 #include "../../libs/src/classes/crdt/kk_crdt.h"
 #include "../../libs/src/classes/crdt/pos/kk_pos.h"
-
 #include "../../libs/src/classes/crypto/crypto.h"
+#include "classes/q_crypt/simplecrypt.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -29,6 +29,18 @@ int main(int argc, char *argv[]) {
     sql::Driver *driver = get_driver_instance();
 //    kk_db my_conn(driver);
     crypto my_crypto;
+
+
+    SimpleCrypt crypto(Q_UINT64_C(0x0c2ad4a4acb9f023)); //some random number
+
+    QString testString("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
+
+    //Encryption
+    QString result = crypto.encryptToString(testString);
+
+    //Decryption
+    QString decrypted = crypto.decryptToString(result);
+    qDebug() << testString << endl << result << endl << decrypted;
 
 
 //    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
@@ -90,11 +102,11 @@ int main(int argc, char *argv[]) {
 //    smtp.sendMail(message);
 //    smtp.quit();
 
-    kk_smtp mail;
-    QString text = mail.QSMTP_message_builder("Prova", "Michele6000", "Messaggio di prova", "Testo bottone",
-                                              "http://www.facebook.it");
-
-    mail.QSMTP_send_message(text, "Michele Luigi Greco", "grecomichele96@gmmail.com", "Test1_QTMAIL_service");
+//    kk_smtp mail;
+//    QString text = mail.QSMTP_message_builder("Prova", "Michele6000", "Messaggio di prova", "Testo bottone",
+//                                              "http://www.facebook.it");
+//
+//    mail.QSMTP_send_message(text, "Michele Luigi Greco", "grecomichele96@gmmail.com", "Test1_QTMAIL_service");
 
 
 //    kk_crdt *crdt = new kk_crdt("Canguro", casuale);
@@ -106,18 +118,18 @@ int main(int argc, char *argv[]) {
 //    crdt->local_insert('a', kk_pos(0, 5));
 //    crdt->local_insert('a', kk_pos(0, 1));
 //    crdt->print();
-    try {
-        boost::asio::io_service io_service;
-        // SOLO UNA PORTA APERTA
-        int port = 4040;
-        tcp::endpoint endpoint(tcp::v4(), port);
-        kk_server_ptr server(new kk_server(io_service, endpoint, driver));
-        io_service.run();
-    }
-    catch (std::exception &e) {
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
-    return 0;
+//    try {
+//        boost::asio::io_service io_service;
+//        // SOLO UNA PORTA APERTA
+//        int port = 4040;
+//        tcp::endpoint endpoint(tcp::v4(), port);
+//        kk_server_ptr server(new kk_server(io_service, endpoint, driver));
+//        io_service.run();
+//    }
+//    catch (std::exception &e) {
+//        std::cerr << "Exception: " << e.what() << "\n";
+//    }
+//    return 0;
 
 
 }
