@@ -233,10 +233,10 @@ QByteArray SimpleCrypt::decryptToByteArray(QByteArray cypher)
     return ba;
 }
 
-QString SimpleCrypt::random_psw(){
+QString SimpleCrypt::random_psw(QString s){
 
     int len=20;
-    QString s;
+//    QString s;
     static const char alphanum[] =
             "0123456789"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

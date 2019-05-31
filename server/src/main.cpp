@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     sql::Driver *driver = get_driver_instance();
     kk_db my_conn(driver);
 
-    my_conn.db_reset_psw("paola");
+    my_conn.db_reset_psw("michele6000");
 
 
 //    kk_crdt *crdt = new kk_crdt("Canguro", casuale);

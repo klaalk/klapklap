@@ -71,7 +71,7 @@ user_info *kk_db::db_getUserInfo(std::string username) {
 
     try {
         sql::ResultSet *res = stmt->executeQuery(
-                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD`,FROM `USERS` WHERE `USERNAME`='" +
+                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD`FROM `USERS` WHERE `USERNAME`='" +
                 username + "';");
         res->next();
         userInfo->id = res->getString(1);
@@ -86,6 +86,7 @@ user_info *kk_db::db_getUserInfo(std::string username) {
 
     } catch (sql::SQLException &e) {
         std::string str(e.what());
+        cout << str << endl;
         close();
         return nullptr;
     }
@@ -220,13 +221,16 @@ bool kk_db::db_login(std::string username, QString password) {
         QString mex;
         kk_smtp sender;
         SimpleCrypt casual_psw(Q_UINT64_C(0x1c3ad5a6acb0f134));
+        QString cos;
 
-        mex = sender.QSMTP_message_builder("Reset Password fou user: " + STD_Q(username), "",
+        mex = sender.QSMTP_message_builder("Reset password for user: " + STD_Q(username), "",
                                            "Your temporary password is:",
-                                           casual_psw.random_psw(),
+                                           casual_psw.random_psw(cos),
                                            "null");
         sender.QSMTP_send_message(mex, STD_Q(user1->name + " " + user1->surname),
                                   STD_Q(user1->email), "KlapKlap Reset Password");
+
+        //update with temporary password
 
     }
 
