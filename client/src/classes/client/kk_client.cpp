@@ -24,11 +24,12 @@ kk_client::kk_client(const QUrl &url, QObject *parent): QObject(parent)
 //! [onConnected]
 void kk_client::onConnected()
 {
+    std::cout <<"ci sono" << std::endl;
     qDebug() << "WebSocket connected";
     // Gestisco la lettura dei messaggi.
     connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &kk_client::onMessageReceived);
 
-    m_webSocket.sendTextMessage(QStringLiteral("Hello, world!"));
+    m_webSocket.sendTextMessage(QStringLiteral("1-200-0001A"));
 }
 //! [onConnected]
 

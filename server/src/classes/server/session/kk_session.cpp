@@ -8,31 +8,58 @@
 
 std::map<std::string, std::shared_ptr<kk_file>> files_;
 
-kk_session::kk_session(boost::asio::io_service &io_service, kk_room &room, std::shared_ptr<kk_db> db)
-        : socket_(io_service), room_(room), db_(db) {
+kk_session::kk_session(boost::asio::io_service &io_service,  boost::asio::ssl::context& context, kk_room &room, std::shared_ptr<kk_db> db)
+        : socket_(io_service, context), room_(room), db_(db) {
 
 }
 
-tcp::socket &kk_session::socket() {
-    return socket_;
+
+ssl_socket::lowest_layer_type& kk_session::socket()
+{
+    return socket_.lowest_layer();
 }
 
 void kk_session::start() {
     // mi aggiungo a tutti i partecipanti del server
     room_.join(shared_from_this());
-    boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.data(), kk_payload::header_length),
-                            boost::bind(
-                                    &kk_session::handle_read_header, shared_from_this(),
-                                    boost::asio::placeholders::error));
+    socket_.async_handshake(boost::asio::ssl::stream_base::server,
+                            boost::bind(&kk_session::handle_handshake, this,
+                                        boost::asio::placeholders::error));
+
 }
 
-void kk_session::handle_read_header(const boost::system::error_code &_error) {
-    if (!_error && read_msg_.decode_header() != error) {
-        boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
-                                boost::bind(&kk_session::handle_read_body, shared_from_this(),
-                                            boost::asio::placeholders::error));
+
+void kk_session::handle_handshake(const boost::system::error_code& error)
+{
+    if (!error)
+    {
+        socket_.async_read_some(boost::asio::buffer(data_, max_length),
+                                boost::bind(&kk_session::handle_read_header, this,
+                                            boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+//        boost::asio::async_read(socket_,
+//                                boost::asio::buffer(read_msg_.data(), kk_payload::header_length),
+//                                boost::bind(
+//                                        &kk_session::handle_read_header, shared_from_this(),
+//                                        boost::asio::placeholders::error));
+    }
+    else
+    {
+        delete this;
+    }
+}
+
+
+void kk_session::handle_read_header(const boost::system::error_code &_error, size_t bytes_transferred) {
+    if (!_error) {
+        std::cout << "Ho ricevuto: " << data_ << std::endl;
+//        boost::asio::async_read(socket_,
+//                                boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+//                                boost::bind(&kk_session::handle_read_body, shared_from_this(),
+//                                            boost::asio::placeholders::error));
+        boost::asio::async_write(socket_,
+                                 boost::asio::buffer(data_, bytes_transferred),
+                                 boost::bind(&kk_session::handle_write, this,
+                                             boost::asio::placeholders::error));
     } else {
         room_.leave(shared_from_this());
     }
@@ -40,10 +67,10 @@ void kk_session::handle_read_header(const boost::system::error_code &_error) {
 
 void kk_session::handle_read_body(const boost::system::error_code &error) {
     if (!error) {
-        boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.data(), kk_payload::header_length),
-                                boost::bind(&kk_session::handle_read_header, shared_from_this(),
-                                            boost::asio::placeholders::error));
+//        boost::asio::async_read(socket_,
+//                                boost::asio::buffer(read_msg_.data(), kk_payload::header_length),
+//                                boost::bind(&kk_session::handle_read_header, shared_from_this(),
+//                                            boost::asio::placeholders::error));
         handle_request();
 
     } else {
@@ -54,7 +81,7 @@ void kk_session::handle_read_body(const boost::system::error_code &error) {
 
 void kk_session::handle_request() {
 #ifdef DEBUG
-    std::cout << "Ho ricevuto: " << read_msg_.data() << std::endl;
+    std::cout << "Ho ricevuto: " << data_ << std::endl;
 #endif
     switch (read_msg_.type()) {
         case login: {
@@ -143,14 +170,14 @@ void kk_session::deliver(const kk_payload &msg) {
 void kk_session::handle_write(const boost::system::error_code &error) {
     if (!error) {
         std::cout << "handle_write" << std::endl;
-        write_msgs_.pop_front();
-        if (!write_msgs_.empty()) {
-            boost::asio::async_write(socket_,
-                                     boost::asio::buffer(write_msgs_.front().data(),
-                                                         write_msgs_.front().length()),
-                                     boost::bind(&kk_session::handle_write, shared_from_this(),
-                                                 boost::asio::placeholders::error));
-        }
+//        write_msgs_.pop_front();
+//        if (!write_msgs_.empty()) {
+//            boost::asio::async_write(socket_,
+//                                     boost::asio::buffer(write_msgs_.front().data(),
+//                                                         write_msgs_.front().length()),
+//                                     boost::bind(&kk_session::handle_write, shared_from_this(),
+//                                                 boost::asio::placeholders::error));
+//        }
     } else {
         room_.leave(shared_from_this());
     }

@@ -23,6 +23,7 @@
 
 #include <QApplication>
 #include <QDebug>
+
 #define STD_Q(x) QString::fromStdString(x)
 
 int main(int argc, char *argv[]) {
@@ -51,7 +52,7 @@ int main(int argc, char *argv[]) {
         // SOLO UNA PORTA APERTA
         int port = 3002;
         tcp::endpoint endpoint(tcp::v4(), port);
-        kk_server_ptr server(new kk_server(io_service, endpoint, driver));
+        kk_server_ptr server(new kk_server(io_service, port, driver));
         io_service.run();
     }
     catch (std::exception &e) {
