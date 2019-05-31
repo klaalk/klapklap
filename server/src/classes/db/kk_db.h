@@ -53,7 +53,7 @@ public:
     int db_reset_psw(std::string username);
 
     ///reset password ask. cambia password
-//    int db_reset_psw(std::string username, QString old_psw, QString new_psw);
+    int db_update_psw(std::string username, QString new_psw);
 
 
 

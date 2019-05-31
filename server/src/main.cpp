@@ -28,10 +28,11 @@
 int main(int argc, char *argv[]) {
 //    Queste instaze sono valide per tutto il porgramma e devono essere dichiarate nel main
     sql::Driver *driver = get_driver_instance();
-    kk_db my_conn(driver);
-
-    my_conn.db_reset_psw("michele6000");
-
+//    kk_db my_conn(driver);
+//
+//    SimpleCrypt test(Q_UINT64_C(0x0c2ad4a4acb9f023));
+//    QString mammt = "passwordsicura";
+//    my_conn.db_update_psw("michele6000",test.encryptToString(mammt));
 
 //    kk_crdt *crdt = new kk_crdt("Canguro", casuale);
 //    crdt->local_insert('c', kk_pos(0, 0));
@@ -45,18 +46,18 @@ int main(int argc, char *argv[]) {
 
 
 
-//    try {
-//        boost::asio::io_service io_service;
-//        // SOLO UNA PORTA APERTA
-//        int port = 4040;
-//        tcp::endpoint endpoint(tcp::v4(), port);
-//        kk_server_ptr server(new kk_server(io_service, endpoint, driver));
-//        io_service.run();
-//    }
-//    catch (std::exception &e) {
-//        std::cerr << "Exception: " << e.what() << "\n";
-//    }
-//    return 0;
+    try {
+        boost::asio::io_service io_service;
+        // SOLO UNA PORTA APERTA
+        int port = 3002;
+        tcp::endpoint endpoint(tcp::v4(), port);
+        kk_server_ptr server(new kk_server(io_service, endpoint, driver));
+        io_service.run();
+    }
+    catch (std::exception &e) {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
+    return 0;
 
 
 }

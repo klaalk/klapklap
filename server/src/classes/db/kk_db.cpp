@@ -207,14 +207,16 @@ int kk_db::db_share_file(std::string username_from, std::string username_to, std
 bool kk_db::db_login(std::string username, QString password) {
     user_info *user;
     user = db_getUserInfo(username);
+    if(user== nullptr)
+        return false;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
 
-    return solver.encryptToString(password) == solver.encryptToString(STD_Q(user->password));
+    return solver.decryptToString(password) == solver.decryptToString(STD_Q(user->password));
 }
 
 //TODO: delete user
 
-    int  kk_db::db_reset_psw(std::string username){
+int  kk_db::db_reset_psw(std::string username){
 
         auto user1 = new user_info;
         user1 = db_getUserInfo(username);
@@ -232,6 +234,22 @@ bool kk_db::db_login(std::string username, QString password) {
 
         //update with temporary password
 
+        db_update_psw(username,cos);
+        return 0;
     }
 
-//    int db_reset_psw(std::string username, QString old_psw, QString new_psw){}
+int kk_db::db_update_psw(std::string username, QString new_psw){
+        try {
+            sql::ResultSet *res;
+            sql::Statement *stmt = connect();
+            res = stmt->executeQuery(
+                    "UPDATE `USERS` SET `PASSWORD`='"+new_psw.toStdString()+"' WHERE `USERNAME`='" + username + "';"
+            );
+            close();
+        } catch (sql::SQLException &e) {
+            close();
+            cout << e.what() << endl;
+            return -1;
+        }
+
+}
