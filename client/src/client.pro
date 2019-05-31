@@ -7,10 +7,18 @@ TEMPLATE        = app
 
 TARGET          = klapklap
 
-HEADERS         = classes/textedit/textedit.h \
+HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
+                  ../../libs/src/classes/crdt/char/kk_char.h \
+                  ../../libs/src/classes/crdt/pos/kk_pos.h \
+                  ../../libs/src/classes/crdt/identifier/kk_identifier.h \
+                  classes/textedit/textedit.h \
                   classes/client/kk_client.h
 
-SOURCES         = classes/textedit/textedit.cpp \
+SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
+                  ../../libs/src/classes/crdt/char/kk_char.cpp \
+                  ../../libs/src/classes/crdt/pos/kk_pos.cpp \
+                  ../../libs/src/classes/crdt/identifier/kk_identifier.cpp \
+                  classes/textedit/textedit.cpp \
                   classes/client/kk_client.cpp \
                   main.cpp
 

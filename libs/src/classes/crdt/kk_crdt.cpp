@@ -155,9 +155,15 @@ int kk_crdt::generate_identifier_between(int min, int max, strategy _strategy) {
             max = min + this->boundary;
         }
     }
-    srand(time(NULL));
-    double _rand = ((double) rand() / RAND_MAX);
-    return floor(_rand * (max - min)) + min;
+//    srand((unsigned int) time(0));
+//    double _rand = ((double) rand() / RAND_MAX);
+//    return floor((float)(_rand * (max - min)) + min);
+        double _rand;
+        srand(time(NULL));
+        _rand = rand()%100;
+        _rand=_rand/100;
+        std::cerr<<_rand<<std::endl;
+        return floor(_rand*(max- min) + min);
 }
 //
 //void kk_crdt::handle_remote_insert(kk_char _char){
