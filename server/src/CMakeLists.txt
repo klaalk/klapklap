@@ -32,7 +32,7 @@ add_executable(server main.cpp
         classes/smtp/mime/smtpclient.cpp classes/smtp/mime/smtpclient.h
         classes/smtp/mime/smtpexports.h
         classes/smtp/kk_smtp.cpp classes/smtp/kk_smtp.h
-        )
+        ../../libs/src/classes/crypt/kk_crypt.cpp ../../libs/src/classes/crypt/kk_crypt.h)
 
 
 find_package(Boost)

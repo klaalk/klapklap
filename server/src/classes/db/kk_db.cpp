@@ -8,6 +8,7 @@
 #define  HOST "tcp://130.192.163.109:3000"
 #define  USR  "server"
 #define  PSW  "password" //TODO:change
+#define STD_Q(x) QString::fromStdString(x)
 
 
 struct var {
@@ -19,7 +20,6 @@ struct var {
     std::string image; //cosa è questo? quanto fa questo?
     std::string reg_date;
     std::string password;
-    int psw_len;
 
 };
 
@@ -68,44 +68,51 @@ user_info *kk_db::db_getUserInfo(std::string username) {
 
     sql::Statement *stmt = connect();
     auto userInfo = new user_info;
-    sql::ResultSet *res = stmt->executeQuery(
-            "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD`,`PSWLEN` FROM `USERS` WHERE `USERNAME`='" +
-            username + "';");
-    res->next();
-    userInfo->id = res->getString(1);
-    userInfo->name = res->getString(2);
-    userInfo->surname = res->getString(3);
-    userInfo->email = res->getString(4);
-    userInfo->image = res->getString(5);
-    userInfo->reg_date = res->getString(6);
-    userInfo->password = res->getString(7);
-    userInfo->psw_len = res->getInt(8);
-    close();
-    return userInfo;
+
+    try {
+        sql::ResultSet *res = stmt->executeQuery(
+                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD`FROM `USERS` WHERE `USERNAME`='" +
+                username + "';");
+        res->next();
+        userInfo->id = res->getString(1);
+        userInfo->name = res->getString(2);
+        userInfo->surname = res->getString(3);
+        userInfo->email = res->getString(4);
+        userInfo->image = res->getString(5);
+        userInfo->reg_date = res->getString(6);
+        userInfo->password = res->getString(7);
+        close();
+        return userInfo;
+
+    } catch (sql::SQLException &e) {
+        std::string str(e.what());
+        cout << str << endl;
+        close();
+        return nullptr;
+    }
 }
 
-int kk_db::db_insert_user(std::string username, std::string password, int pass_len, std::string email, std::string name,
+int kk_db::db_insert_user(std::string username, std::string password ,std::string email, std::string name,
                           std::string surname) {
     int errCode = 0;
     std::ostringstream _string;
     sql::ResultSet *res;
     sql::Statement *stmt = connect();
     kk_smtp sender;
-    QString mex, dest_name = QString::fromStdString(name) + " " + QString::fromStdString(surname);
-    std::string _psw_len = std::to_string(pass_len);
+    QString mex, dest_name = STD_Q(name) + " " + STD_Q(surname);
 
-    _string << "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`PSWLEN`,`EMAIL`,`NAME`,`SURNAME`) "
-            << "VALUES('" + username + "','" + password + "','" + _psw_len + "','" + email + "','" + name + "','" +
+    _string << "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) "
+            << "VALUES('" + username + "','" + password + "','" + email + "','" + name + "','" +
                surname +
                "');";
     try {
         stmt->execute(_string.str());
         _string.str("");
         mex = sender.QSMTP_message_builder("Welcome in KlapKlap Soft :)", dest_name,
-                                           QString::fromStdString(username) + " complete your registration now!",
+                                           STD_Q(username) + " complete your registration now!",
                                            "Activate Now",
                                            "http://www.facebook.it");
-        sender.QSMTP_send_message(mex, dest_name, QString::fromStdString(email), "KlapKlap Registration");
+        sender.QSMTP_send_message(mex, dest_name, STD_Q(email), "KlapKlap Registration");
         close();
     } catch (sql::SQLException &e) {
         std::string str(e.what());
@@ -135,16 +142,16 @@ int kk_db::db_insert_file(std::string username, std::string filename, std::strin
     surname = res->getString(3);
     email = res->getString(4);
 
-    QString mex, dest_name = QString::fromStdString(name) + " " + QString::fromStdString(surname);
+    QString mex, dest_name = STD_Q(name) + " " + STD_Q(surname);
 
-    mex = sender.QSMTP_message_builder("New File added: " + QString::fromStdString(filename), "Owner: " + dest_name,
-                                       QString::fromStdString(username) + "",
+    mex = sender.QSMTP_message_builder("New File added: " + STD_Q(filename), "Owner: " + dest_name,
+                                       STD_Q(username) + "",
                                        "Share now!", "http://www.facebook.it");
 
     try {
         stmt->execute(_string.str());
         close();
-        sender.QSMTP_send_message(mex, dest_name, QString::fromStdString(email), "KlapKlap File_Add");
+        sender.QSMTP_send_message(mex, dest_name, STD_Q(email), "KlapKlap File_Add");
     } catch (sql::SQLException &e) {
         close();
         cout << e.what() << endl;
@@ -179,16 +186,16 @@ int kk_db::db_share_file(std::string username_from, std::string username_to, std
             << "VALUES('" + user2->id + "','" + filename + "','./" + filename + "');";
 
 
-    mex = sender.QSMTP_message_builder("New file shared: " + QString::fromStdString(filename), "",
-                                       "Sender: " + QString::fromStdString(user1->name + " " + user1->surname),
+    mex = sender.QSMTP_message_builder("New file shared: " + STD_Q(filename), "",
+                                       "Sender: " + STD_Q(user1->name + " " + user1->surname),
                                        "Open now!",
                                        "http://www.facebook.it");
 
     try {
         stmt->execute(_string.str());
         close();
-        sender.QSMTP_send_message(mex, QString::fromStdString(user2->name + " " + user2->surname),
-                                  QString::fromStdString(user2->email), "KlapKlap Invite");
+        sender.QSMTP_send_message(mex, STD_Q(user2->name + " " + user2->surname),
+                                  STD_Q(user2->email), "KlapKlap Invite");
     } catch (sql::SQLException &e) {
         close();
         cout << e.what() << endl;
@@ -197,25 +204,52 @@ int kk_db::db_share_file(std::string username_from, std::string username_to, std
     return 0;
 }
 
-//int db_reset_psw_ask(std::string username){}
-
-
-
-bool kk_db::db_login(std::string username, std::string password, int psw_len) {
+bool kk_db::db_login(std::string username, QString password) {
     user_info *user;
     user = db_getUserInfo(username);
-    crypto solver;
-
-    std::string key1 = password;
-    std::string key2 = user->password;
-    int lKey1 = psw_len;
-    int lkey2 = user->psw_len;
-
-    if (lKey1 != lkey2)
+    if(user== nullptr)
         return false;
+    SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
 
-    return solver._isEqual(key1, key2, lKey1, lkey2);
+    return solver.decryptToString(password) == solver.decryptToString(STD_Q(user->password));
 }
 
 //TODO: delete user
 
+int  kk_db::db_reset_psw(std::string username){
+
+        auto user1 = new user_info;
+        user1 = db_getUserInfo(username);
+        QString mex;
+        kk_smtp sender;
+        SimpleCrypt casual_psw(Q_UINT64_C(0x1c3ad5a6acb0f134));
+        QString cos;
+
+        mex = sender.QSMTP_message_builder("Reset password for user: " + STD_Q(username), "",
+                                           "Your temporary password is:",
+                                           casual_psw.random_psw(cos),
+                                           "null");
+        sender.QSMTP_send_message(mex, STD_Q(user1->name + " " + user1->surname),
+                                  STD_Q(user1->email), "KlapKlap Reset Password");
+
+        //update with temporary password
+
+        db_update_psw(username,cos);
+        return 0;
+    }
+
+int kk_db::db_update_psw(std::string username, QString new_psw){
+        try {
+            sql::ResultSet *res;
+            sql::Statement *stmt = connect();
+            res = stmt->executeQuery(
+                    "UPDATE `USERS` SET `PASSWORD`='"+new_psw.toStdString()+"' WHERE `USERNAME`='" + username + "';"
+            );
+            close();
+        } catch (sql::SQLException &e) {
+            close();
+            cout << e.what() << endl;
+            return -1;
+        }
+
+}
