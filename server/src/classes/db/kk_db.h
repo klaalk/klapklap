@@ -6,8 +6,9 @@
 #define SERVER_KK_DB_H
 
 #include "../../../../libs/src/classes_include.h"
-#include "../../../../libs/src/classes/crypto/crypto.h"
+#include "../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../smtp/kk_smtp.h"
+
 
 
 typedef struct var user_info;
@@ -35,7 +36,7 @@ public:
     sql::ResultSet *db_query(std::string query);
 
     ///inserimento utente. Ritorna 0 successo, -1 username fault, -2 email fault.
-    int db_insert_user(std::string username, std::string password, int pass_len, std::string email, std::string name,
+    int db_insert_user(std::string username, std::string password, std::string email, std::string name,
                        std::string surname);
 
     ///inserimento utente. Ritorna 0 successo,
@@ -46,7 +47,7 @@ public:
 
     user_info *db_getUserInfo(std::string username);
 
-    bool db_login(std::string username, std::string password, int psw_len);
+    bool db_login(std::string username, QString password);
 
     ///reset password ask. Invia una main con hash key dell'user. Ritorna 0 successo,
 //    int db_reset_psw_ask(std::string username);

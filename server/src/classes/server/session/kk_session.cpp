@@ -60,7 +60,7 @@ void kk_session::handle_request() {
             sscanf(read_msg_.body(), "%s %s", usr, psw);
             std::cout << usr << " "<< psw << std::endl;
             name = std::string(usr);
-            db_->db_login(name, psw, strlen(psw));
+            db_->db_login(name, psw);
 
 
 

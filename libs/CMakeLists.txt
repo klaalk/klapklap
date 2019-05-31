@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 project(kklib LANGUAGES CXX C VERSION 0.1.0)
 add_library(kklib STATIC
         src/classes_include.h
-        src/classes/crypto/crypto.cpp src/classes/crypto/crypto.h
+        src/classes/crypt/kk_crypt.cpp src/classes/crypt/kk_crypt.h
 
         src/classes/payload/kk_payload.cpp
         src/classes/payload/kk_payload.h
@@ -23,3 +23,12 @@ add_library(kklib STATIC
 find_package(OpenSSL REQUIRED)
 target_link_libraries(kklib OpenSSL::SSL)
 #END_SSL
+
+#QT
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5Sql REQUIRED)
+qt5_use_modules(kklib Core Gui Widgets Network Sql)
+#END_QT

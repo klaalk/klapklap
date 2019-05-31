@@ -6,7 +6,7 @@
 //  Copyright © 2019 Michele Luigi Greco. All rights reserved.
 //
 
-#include "simplecrypt.h"
+#include "kk_crypt.h"
 #include <QByteArray>
 #include <QtDebug>
 #include <QtGlobal>
