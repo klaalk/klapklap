@@ -49,11 +49,14 @@ public:
 
     bool db_login(std::string username, QString password);
 
-    ///reset password ask. Invia una main con hash key dell'user. Ritorna 0 successo,
-//    int db_reset_psw_ask(std::string username);
+    ///reset password ask. invia una mail con password temporanea
+    int db_reset_psw(std::string username);
 
-//    ///reset password do. data la hash key permette il reset della password. Ritorna 0 successo, -1 se hash_key errata
-//    int db_reset_psw(std::string username, std::string hash_key, std::string new_psw);
+    ///reset password ask. cambia password
+//    int db_reset_psw(std::string username, QString old_psw, QString new_psw);
+
+
+
 
 
 

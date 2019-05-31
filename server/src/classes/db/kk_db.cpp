@@ -68,19 +68,27 @@ user_info *kk_db::db_getUserInfo(std::string username) {
 
     sql::Statement *stmt = connect();
     auto userInfo = new user_info;
-    sql::ResultSet *res = stmt->executeQuery(
-            "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD`,FROM `USERS` WHERE `USERNAME`='" +
-            username + "';");
-    res->next();
-    userInfo->id = res->getString(1);
-    userInfo->name = res->getString(2);
-    userInfo->surname = res->getString(3);
-    userInfo->email = res->getString(4);
-    userInfo->image = res->getString(5);
-    userInfo->reg_date = res->getString(6);
-    userInfo->password = res->getString(7);
-    close();
-    return userInfo;
+
+    try {
+        sql::ResultSet *res = stmt->executeQuery(
+                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD`,FROM `USERS` WHERE `USERNAME`='" +
+                username + "';");
+        res->next();
+        userInfo->id = res->getString(1);
+        userInfo->name = res->getString(2);
+        userInfo->surname = res->getString(3);
+        userInfo->email = res->getString(4);
+        userInfo->image = res->getString(5);
+        userInfo->reg_date = res->getString(6);
+        userInfo->password = res->getString(7);
+        close();
+        return userInfo;
+
+    } catch (sql::SQLException &e) {
+        std::string str(e.what());
+        close();
+        return nullptr;
+    }
 }
 
 int kk_db::db_insert_user(std::string username, std::string password ,std::string email, std::string name,
@@ -195,10 +203,6 @@ int kk_db::db_share_file(std::string username_from, std::string username_to, std
     return 0;
 }
 
-//int db_reset_psw_ask(std::string username){}
-
-
-
 bool kk_db::db_login(std::string username, QString password) {
     user_info *user;
     user = db_getUserInfo(username);
@@ -209,3 +213,21 @@ bool kk_db::db_login(std::string username, QString password) {
 
 //TODO: delete user
 
+    int  kk_db::db_reset_psw(std::string username){
+
+        auto user1 = new user_info;
+        user1 = db_getUserInfo(username);
+        QString mex;
+        kk_smtp sender;
+        SimpleCrypt casual_psw(Q_UINT64_C(0x1c3ad5a6acb0f134));
+
+        mex = sender.QSMTP_message_builder("Reset Password fou user: " + STD_Q(username), "",
+                                           "Your temporary password is:",
+                                           casual_psw.random_psw(),
+                                           "null");
+        sender.QSMTP_send_message(mex, STD_Q(user1->name + " " + user1->surname),
+                                  STD_Q(user1->email), "KlapKlap Reset Password");
+
+    }
+
+//    int db_reset_psw(std::string username, QString old_psw, QString new_psw){}

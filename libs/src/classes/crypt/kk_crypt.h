@@ -75,6 +75,8 @@ public:
 
     QByteArray decryptToByteArray(QByteArray cypher) ;
 
+    QString random_psw();
+
 
     enum CryptoFlag{CryptoFlagNone = 0,
         CryptoFlagCompression = 0x01,

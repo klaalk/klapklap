@@ -16,6 +16,7 @@
 //#include <QtSql>
 #include "./classes/smtp/kk_smtp.h"
 #include "classes/server/kk_server.h"
+#include "classes/db/kk_db.h"
 #include "../../libs/src/classes/crdt/kk_crdt.h"
 #include "../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../libs/src/classes/crypt/kk_crypt.h"
@@ -26,8 +27,11 @@
 
 int main(int argc, char *argv[]) {
 //    Queste instaze sono valide per tutto il porgramma e devono essere dichiarate nel main
-//    sql::Driver *driver = get_driver_instance();
-//    kk_db my_conn(driver);
+    sql::Driver *driver = get_driver_instance();
+    kk_db my_conn(driver);
+
+    my_conn.db_reset_psw("paola");
+
 
 //    kk_crdt *crdt = new kk_crdt("Canguro", casuale);
 //    crdt->local_insert('c', kk_pos(0, 0));
@@ -38,6 +42,7 @@ int main(int argc, char *argv[]) {
 //    crdt->local_insert('a', kk_pos(0, 5));
 //    crdt->local_insert('a', kk_pos(0, 1));
 //    crdt->print();
+
 
 
 //    try {
