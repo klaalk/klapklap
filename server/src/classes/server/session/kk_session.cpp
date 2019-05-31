@@ -3,6 +3,7 @@
 //
 
 #include "kk_session.h"
+#define DEBUG
 
 
 std::map<std::string, std::shared_ptr<kk_file>> files_;
@@ -52,19 +53,21 @@ void kk_session::handle_read_body(const boost::system::error_code &error) {
 }
 
 void kk_session::handle_request() {
+#ifdef DEBUG
     std::cout << "Ho ricevuto: " << read_msg_.data() << std::endl;
+#endif
     switch (read_msg_.type()) {
         case login: {
             char usr[128];
             char psw[128];
             sscanf(read_msg_.body(), "%s %s", usr, psw);
+#ifdef DEBUG
             std::cout << usr << " "<< psw << std::endl;
+#endif
             name = std::string(usr);
-            db_->db_login(name, psw);
-
-
-
-            handle_response("Login effettuato", login, OK);
+            db_->db_login(name, psw) ?
+            handle_response("Login effettuato", login, OK) :
+            handle_response("Password errata!", login, KO);
             break;
         }
         case openfile: {
