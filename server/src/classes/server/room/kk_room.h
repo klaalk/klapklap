@@ -7,18 +7,18 @@
 
 #include <set>
 #include <algorithm>
-#include <boost/bind.hpp>
+#include <memory>
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../partecipant/kk_partecipant.h"
 
 class kk_room {
 public:
-    void join(kk_participant_ptr participant);
+    void join(std::shared_ptr<kk_participant> participant);
 
-    void leave(kk_participant_ptr participant);
+    void leave(std::shared_ptr<kk_participant> participant);
 
 private:
-    std::set<kk_participant_ptr> participants_;
+    std::set<std::shared_ptr<kk_participant>> participants_;
 };
 
 #endif //KK_ROOM_H

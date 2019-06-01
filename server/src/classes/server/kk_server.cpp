@@ -3,27 +3,88 @@
 //
 
 #include "kk_server.h"
+#include "QtWebSockets/QWebSocketServer"
+#include "QtWebSockets/QWebSocket"
+#include <QtCore/QDebug>
+#include <QtCore/QFile>
+#include <QtNetwork/QSslCertificate>
+#include <QtNetwork/QSslKey>
 
-kk_server::kk_server(boost::asio::io_service &io_service, const tcp::endpoint &endpoint,sql::Driver *driver)
-        : io_service_(io_service),
-          acceptor_(io_service, endpoint) {
+QT_USE_NAMESPACE
 
-    db = std::shared_ptr<kk_db>(new kk_db(driver));
+kk_server::kk_server(quint16 port, QObject *parent):
+    QObject(parent), m_pWebSocketServer(nullptr) {
+    m_pWebSocketServer = new QWebSocketServer(QStringLiteral("SSL Echo Server"),
+                                              QWebSocketServer::SecureMode,
+                                              this);
+    QSslConfiguration sslConfiguration;
+    QFile certFile(QStringLiteral(":/localhost.cert"));
+    QFile keyFile(QStringLiteral(":/localhost.key"));
+    certFile.open(QIODevice::ReadOnly);
+    keyFile.open(QIODevice::ReadOnly);
+    QSslCertificate certificate(&certFile, QSsl::Pem);
+    QSslKey sslKey(&keyFile, QSsl::Rsa, QSsl::Pem);
+    certFile.close();
+    keyFile.close();
+    sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
+    sslConfiguration.setLocalCertificate(certificate);
+    sslConfiguration.setPrivateKey(sslKey);
+    sslConfiguration.setProtocol(QSsl::TlsV1SslV3);
+    m_pWebSocketServer->setSslConfiguration(sslConfiguration);
 
-    kk_session_ptr new_session(new kk_session(io_service_, room_,db));
-    acceptor_.async_accept(new_session->socket(),
-                           boost::bind(&kk_server::handle_accept, this, new_session,
-                                       boost::asio::placeholders::error));
+    if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
+        qDebug() << "SSL Echo Server listening on port" << port;
+        connect(m_pWebSocketServer, &QWebSocketServer::newConnection, this,&kk_server::onNewConnection);
+        connect(m_pWebSocketServer, &QWebSocketServer::sslErrors, this, &kk_server::onSslErrors);
+    }
+}
+kk_server::~kk_server()
+{
+    m_pWebSocketServer->close();
+    qDeleteAll(m_clients.begin(), m_clients.end());
 }
 
-void kk_server::handle_accept(kk_session_ptr session,
-                              const boost::system::error_code &error) {
-    if (!error) {
-        std::cout << "handle_accept" << std::endl;
-        session->start();
-        kk_session_ptr new_session(new kk_session(io_service_, room_, db));
-        acceptor_.async_accept(new_session->socket(),
-                               boost::bind(&kk_server::handle_accept, this, new_session,
-                                           boost::asio::placeholders::error));
+void kk_server::onNewConnection() {
+    QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
+    qDebug() << "Client connected:" << pSocket->peerName() << pSocket->origin();
+
+    connect(pSocket, &QWebSocket::textMessageReceived, this, &kk_server::processTextMessage);
+    connect(pSocket, &QWebSocket::binaryMessageReceived, this, &kk_server::processBinaryMessage);
+    connect(pSocket, &QWebSocket::disconnected, this, &kk_server::socketDisconnected);
+    m_clients << pSocket;
+}
+
+void kk_server::processTextMessage(QString message)
+{
+    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
+    if (pClient)
+    {
+        qDebug() << "Client send:" << message;
+        pClient->sendTextMessage(message);
     }
+}
+
+void kk_server::processBinaryMessage(QByteArray message)
+{
+    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
+    if (pClient)
+    {
+        pClient->sendBinaryMessage(message);
+    }
+}
+
+void kk_server::socketDisconnected()
+{
+    qDebug() << "Client disconnected";
+    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
+    if (pClient)
+    {
+//        m_clients.removeAll(pClient);
+        pClient->deleteLater();
+    }
+}
+
+void kk_server::onSslErrors(const QList<QSslError> &)
+{
+    qDebug() << "Ssl errors occurred";
 }

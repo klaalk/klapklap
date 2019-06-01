@@ -8,21 +8,21 @@
 #include <set>
 #include <iostream>
 #include <algorithm>
-#include <boost/bind.hpp>
+#include <memory>
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../partecipant/kk_partecipant.h"
 
 
 class kk_file {
 public:
-    void join(kk_participant_ptr participant);
+    void join(std::shared_ptr<kk_participant> participant);
 
-    void leave(kk_participant_ptr participant);
+    void leave(std::shared_ptr<kk_participant> participant);
 
     void deliver(const kk_payload &msg);
 
 private:
-    std::set<kk_participant_ptr> participants_;
+    std::set<std::shared_ptr<kk_participant>> participants_;
     enum {
         max_recent_msgs = 100
     };

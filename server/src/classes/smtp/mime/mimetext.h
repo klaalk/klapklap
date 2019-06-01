@@ -21,9 +21,9 @@
 
 #include "mimepart.h"
 
-#include "smtpexports.h"
 
-class SMTP_EXPORT MimeText : public MimePart {
+
+class  MimeText : public MimePart {
 public:
 
     /* [1] Constructors and Destructors */

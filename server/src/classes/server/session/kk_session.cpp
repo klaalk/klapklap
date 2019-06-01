@@ -3,56 +3,26 @@
 //
 
 #include "kk_session.h"
+
+#include "QtWebSockets/QWebSocketServer"
+#include "QtWebSockets/QWebSocket"
+#include <QtCore/QDebug>
+#include <QtCore/QFile>
+
+
 #define DEBUG
 
 
 std::map<std::string, std::shared_ptr<kk_file>> files_;
 
-kk_session::kk_session(boost::asio::io_service &io_service, kk_room &room, std::shared_ptr<kk_db> db)
-        : socket_(io_service), room_(room), db_(db) {
+kk_session::kk_session(std::shared_ptr<kk_db> db, QWebSocket*  pSocket)
+        : pSocket(pSocket), db_(db) {
 
-}
-
-tcp::socket &kk_session::socket() {
-    return socket_;
-}
-
-void kk_session::start() {
-    // mi aggiungo a tutti i partecipanti del server
-    room_.join(shared_from_this());
-    boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.data(), kk_payload::header_length),
-                            boost::bind(
-                                    &kk_session::handle_read_header, shared_from_this(),
-                                    boost::asio::placeholders::error));
-}
-
-void kk_session::handle_read_header(const boost::system::error_code &_error) {
-    if (!_error && read_msg_.decode_header() != error) {
-        boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
-                                boost::bind(&kk_session::handle_read_body, shared_from_this(),
-                                            boost::asio::placeholders::error));
-    } else {
-        room_.leave(shared_from_this());
-    }
-}
-
-void kk_session::handle_read_body(const boost::system::error_code &error) {
-    if (!error) {
-        boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.data(), kk_payload::header_length),
-                                boost::bind(&kk_session::handle_read_header, shared_from_this(),
-                                            boost::asio::placeholders::error));
-        handle_request();
-
-    } else {
-        actual_file_->leave(shared_from_this());
-        room_.leave(shared_from_this());
-    }
 }
 
 void kk_session::handle_request() {
+
+/*
 #ifdef DEBUG
     std::cout << "Ho ricevuto: " << read_msg_.data() << std::endl;
 #endif
@@ -65,7 +35,7 @@ void kk_session::handle_request() {
             std::cout << usr << " "<< psw << std::endl;
 #endif
             name = std::string(usr);
-            db_->db_login(name, psw) ?
+            db_->db_login(QString::fromStdString(name),QString::fromStdString(psw)) ?
             handle_response("Login effettuato", login, OK) :
             handle_response("Password errata!", login, KO);
             break;
@@ -111,47 +81,5 @@ void kk_session::handle_request() {
     }
 
     read_msg_.delete_data();
-}
-
-void kk_session::handle_response(const char *body, kk_payload_type _type, kk_payload_result_type _result) {
-    kk_payload msg;
-    msg.body_length(strlen(body));
-    memcpy(msg.body(), body, msg.body_length());
-    msg.encode_header(_type, _result);
-    if (_type == chat || _type == crdt) {
-        // mando a tutti quelli registrati al file
-        actual_file_->deliver(msg);
-
-    } else {
-        // mando al client di questa sessione
-        deliver(msg);
-    }
-}
-
-void kk_session::deliver(const kk_payload &msg) {
-    bool write_in_progress = !write_msgs_.empty();
-    write_msgs_.push_back(msg);
-    if (!write_in_progress) {
-        boost::asio::async_write(socket_,
-                                 boost::asio::buffer(write_msgs_.front().data(),
-                                                     write_msgs_.front().length()),
-                                 boost::bind(&kk_session::handle_write, shared_from_this(),
-                                             boost::asio::placeholders::error));
-    }
-}
-
-void kk_session::handle_write(const boost::system::error_code &error) {
-    if (!error) {
-        std::cout << "handle_write" << std::endl;
-        write_msgs_.pop_front();
-        if (!write_msgs_.empty()) {
-            boost::asio::async_write(socket_,
-                                     boost::asio::buffer(write_msgs_.front().data(),
-                                                         write_msgs_.front().length()),
-                                     boost::bind(&kk_session::handle_write, shared_from_this(),
-                                                 boost::asio::placeholders::error));
-        }
-    } else {
-        room_.leave(shared_from_this());
-    }
+*/
 }
