@@ -4,6 +4,7 @@
 
 #ifndef SERVER_KK_CONSTANTS_H
 #define SERVER_KK_CONSTANTS_H
+
 enum kk_client_connection_state {
     waiting,
     connected,

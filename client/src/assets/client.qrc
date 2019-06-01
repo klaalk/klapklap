@@ -39,5 +39,6 @@
         <file>images/win/textunder.png</file>
         <file>images/win/zoomin.png</file>
         <file>images/win/zoomout.png</file>
+		<file>bg/MainPic.jpg</file>
     </qresource>
 </RCC>

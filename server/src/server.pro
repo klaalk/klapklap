@@ -5,8 +5,7 @@ QT +=   core \
         xml \
         sql
 
-CONFIG   += console \
-            staticlib
+CONFIG   += staticlib c++11
 
 requires(qtConfig(filedialog))
 qtHaveModule(printsupport): QT += printsupport

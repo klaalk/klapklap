@@ -30,6 +30,7 @@ class kk_client : public QObject
     Q_OBJECT
 public:
     explicit kk_client(const QUrl &url, QObject *parent = nullptr);
+    void sendLoginRequest(QString email, QString password);
 
 private Q_SLOTS:
     void onConnected();

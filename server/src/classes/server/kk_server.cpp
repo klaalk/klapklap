@@ -46,7 +46,7 @@ kk_server::~kk_server()
 
 void kk_server::onNewConnection() {
     QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
-    qDebug() << "Client connected:" << pSocket->peerName() << pSocket->origin();
+    qDebug() << "Client connected";
 
     connect(pSocket, &QWebSocket::textMessageReceived, this, &kk_server::processTextMessage);
     connect(pSocket, &QWebSocket::binaryMessageReceived, this, &kk_server::processBinaryMessage);

@@ -13,8 +13,7 @@
 
 #include "classes/client/kk_client.h"
 #include "classes/textedit/textedit.h"
-
-
+#include "classes/mainwindow.h"
 
 int main(int argc, char* argv[])
 {
@@ -22,6 +21,10 @@ int main(int argc, char* argv[])
     QApplication a(argc, argv);
     kk_client client(QUrl(QStringLiteral("wss://localhost:3310")));
 
+    Q_UNUSED(client);
+//    MainWindow w;
+//    w.setStyleSheet("MainWindow {background-image:url(:/bg/MainPic.jpg)}");
+//    w.show();
 
 //    QCoreApplication::setOrganizationName("KlapKlapTeam");
 //    QCoreApplication::setApplicationName("KlapKlap");
@@ -44,6 +47,6 @@ int main(int argc, char* argv[])
 //        mw.fileNew();
 
 //    mw.show();
-    Q_UNUSED(client);
+
     return a.exec();
 }

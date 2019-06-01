@@ -18,23 +18,22 @@ kk_client::kk_client(const QUrl &url, QObject *parent): QObject(parent)
     m_webSocket.open(QUrl(url));
 }
 
+void kk_client::sendLoginRequest(QString email, QString password) {
+    kk_payload payload("login", "ok", email + "_" + password);
+    m_webSocket.sendTextMessage(payload.encode_header());
+}
+
 void kk_client::onConnected()
 {
     qDebug() << "WebSocket connected";
     // Gestisco la lettura dei messaggi.
     connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &kk_client::onMessageReceived);
-
-    m_webSocket.sendTextMessage(QStringLiteral("Hello, world!"));
 }
 
 void kk_client::onMessageReceived(QString message)
 {
     qDebug() << "Message received:" << message;
-    QStringList splits = message.split('-');
-    foreach (QString s, splits) {
-        qDebug() << s;
-    }
-
+    kk_payload response(message);
 }
 
 void kk_client::onSslErrors(const QList<QSslError> &errors)
