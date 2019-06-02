@@ -7,8 +7,6 @@
 
 #include <QString>
 #include <QStringList>
-
-
 #include "../../constants/kk_constants.h"
 
 class kk_payload {
@@ -20,6 +18,8 @@ public:
     /// Costruttuore.
     kk_payload(QString data);
     kk_payload(QString type, QString result, QString message);
+
+    QString body();
 
     QString type();
 

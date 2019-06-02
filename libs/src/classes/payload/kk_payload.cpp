@@ -13,6 +13,10 @@ kk_payload::kk_payload(QString type, QString result, QString message)
         : type_(type), result_(result), msg_(message), body_length_(message.size()) {
 }
 
+QString kk_payload::body(){
+    return msg_;
+}
+
 QString kk_payload::type() {
     return type_;
 }
@@ -22,7 +26,7 @@ QString kk_payload::result_type() {
 }
 
 QString kk_payload::decode_header() {
-    QStringList list = msg_.split("-");
+    QStringList list = data_.split("-");
 
     type_ = list.at(0);
     result_ = list.at(1);

@@ -31,7 +31,7 @@ kk_server::kk_server(quint16 port, QObject *parent):
     sslConfiguration.setPrivateKey(sslKey);
     sslConfiguration.setProtocol(QSsl::TlsV1SslV3);
     m_pWebSocketServer->setSslConfiguration(sslConfiguration);
-
+    db_ = std::shared_ptr<kk_db>(new kk_db());
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
         qDebug() << "SSL Echo Server listening on port" << port;
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection, this,&kk_server::onNewConnection);
@@ -60,7 +60,17 @@ void kk_server::processTextMessage(QString message)
     if (pClient)
     {
         qDebug() << "Client send:" << message;
-        pClient->sendTextMessage(message);
+        kk_payload req(message);
+        req.decode_header();
+        QStringList body = req.body().split("_");
+        bool result = db_->db_login(body.at(0), body.at(1));
+
+        QString resultType = result ? "ok" : "ko";
+        QString message = result ? "Account loggato" : "Account non loggato";
+
+        kk_payload res("login",resultType, message);
+        pClient->sendTextMessage(res.encode_header());
+
     }
 }
 

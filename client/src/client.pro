@@ -30,7 +30,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/constants/kk_constants.h \
                 classes/textedit/textedit.h \
                 classes/client/kk_client.h \
-                classes/mainwindow.h\
+                classes/view/mainwindow.h\
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/crdt/char/kk_char.cpp \
@@ -40,7 +40,7 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/payload/kk_payload.cpp \
                 classes/textedit/textedit.cpp \
                 classes/client/kk_client.cpp \
-                classes/mainwindow.cpp\
+                classes/view/mainwindow.cpp\
                 main.cpp
 
 RESOURCES += assets/client.qrc

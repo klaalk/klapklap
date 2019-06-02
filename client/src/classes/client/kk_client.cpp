@@ -4,14 +4,14 @@
 
 #include "kk_client.h"
 
+#include "../../../../libs/src/classes/crypt/kk_crypt.h"
 #include <QtCore/QDebug>
 #include <QtWebSockets/QWebSocket>
 #include <QCoreApplication>
 
-kk_client::kk_client(const QUrl &url, QObject *parent): QObject(parent)
+kk_client::kk_client(const QUrl &url, QObject *parent)
+    : QObject(parent)
 {
-//  connection_state = not_connected;
-//  state = file_closed;
     connect(&m_webSocket, &QWebSocket::connected, this, &kk_client::onConnected);
     connect(&m_webSocket, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors),
             this, &kk_client::onSslErrors);
@@ -19,6 +19,8 @@ kk_client::kk_client(const QUrl &url, QObject *parent): QObject(parent)
 }
 
 void kk_client::sendLoginRequest(QString email, QString password) {
+    SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+    QString psw = solver.encryptToString(password);
     kk_payload payload("login", "ok", email + "_" + password);
     m_webSocket.sendTextMessage(payload.encode_header());
 }
@@ -28,12 +30,17 @@ void kk_client::onConnected()
     qDebug() << "WebSocket connected";
     // Gestisco la lettura dei messaggi.
     connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &kk_client::onMessageReceived);
+    emit connectionSucceed();
 }
 
 void kk_client::onMessageReceived(QString message)
 {
     qDebug() << "Message received:" << message;
-    kk_payload response(message);
+    kk_payload res(message);
+    res.decode_header();
+    if(res.result_type() == "ok") {
+        emit loginSucceed();
+    }
 }
 
 void kk_client::onSslErrors(const QList<QSslError> &errors)
