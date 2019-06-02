@@ -56,11 +56,8 @@ user_info *kk_db::db_getUserInfo(QString username) {
             userInfo->image = res.value(5).toString();
             userInfo->reg_date = res.value(6).toString();
             userInfo->password = res.value(7).toString();
-            QString s = res.value(2).toString();
-            qDebug("DB opened " + s.toLatin1());
         }
         db.close();
-
         return userInfo;
 
     } catch (QException e) {
@@ -83,6 +80,7 @@ int kk_db::db_insert_user(QString username, QString password ,QString email, QSt
 
     if(!db.open()) {
         qDebug("DB not opened");
+        return -1;
     }
 
     try {
@@ -111,7 +109,9 @@ int kk_db::db_insert_file(QString username, QString filename, QString path) {
 
     if(!db.open()) {
         qDebug("DB not opened");
+        return -1;
     }
+
     QSqlQuery res = db.exec("SELECT `ID`,`NAME`,`SURNAME`,`EMAIL` FROM `USERS` WHERE `USERNAME`='" + username + "';");
 
     res.next();
@@ -135,7 +135,7 @@ int kk_db::db_insert_file(QString username, QString filename, QString path) {
         sender.QSMTP_send_message(mex, dest_name, email, "KlapKlap File_Add");
     } catch (QException &e) {
         db.close();
-        qDebug(e.what());
+        qDebug() << e.what();
         return -1;
     }
     return 0;
@@ -180,7 +180,7 @@ int kk_db::db_share_file(QString username_from, QString username_to, QString fil
                                   user2->email, "KlapKlap Invite");
     } catch (QException &e) {
         db.close();
-        qDebug(e.what());
+        qDebug() << e.what();
         return -1;
     }
     return 0;
@@ -193,7 +193,7 @@ bool kk_db::db_login(QString username, QString password) {
         return false;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
 
-    return solver.decryptToString(password) == solver.decryptToString(user->password);
+    return password == solver.decryptToString(user->password);
 }
 
 //TODO: delete user
@@ -222,14 +222,15 @@ int  kk_db::db_reset_psw(QString username){
 int kk_db::db_update_psw(QString username, QString new_psw){
     if(!db.open()) {
         qDebug("DB not opened");
+        return -1;
     }
     try {
         QSqlQuery res = db.exec("UPDATE `USERS` SET `PASSWORD`='"+new_psw+"' WHERE `USERNAME`='" + username + "';");
         db.close();
+        return 0;
     } catch (QException &e) {
         db.close();
-        qDebug(e.what());
+        qDebug() << e.what();
         return -1;
     }
-
 }
