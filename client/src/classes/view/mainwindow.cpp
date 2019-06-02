@@ -6,34 +6,30 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow){
-    ui->setupUi(this);
+    ui_(new Ui::MainWindow), editor_(new TextEdit){
+
+    ui_->setupUi(this);
+
+    //Editor setup
+    const QRect availableGeometry = QApplication::desktop()->availableGeometry(editor_);
+    editor_->resize(availableGeometry.width() / 2, (availableGeometry.height() * 2) / 3);
+    editor_->move((availableGeometry.width() - editor_->width()) / 2,
+            (availableGeometry.height() - editor_->height()) / 2);
+    // Main Window setup
     setStyleSheet("MainWindow {background-image:url(:/bg/MainPic.jpg)}");
 }
 
 MainWindow::~MainWindow(){
-    delete ui;
-}
-
-void MainWindow::openWindow() {
-    show();
+    delete editor_;
+    delete ui_;
 }
 
 void MainWindow::openEditor() {
-    hide();
-
-//    editor = new TextEdit();
-
-//    const QRect availableGeometry = QApplication::desktop()->availableGeometry(editor);
-//    editor->resize(availableGeometry.width() / 2, (availableGeometry.height() * 2) / 3);
-//    editor->move((availableGeometry.width() - editor->width()) / 2,
-//            (availableGeometry.height() - editor->height()) / 2);
-
-//    editor->show();
+    editor_->show();
 }
 
 void MainWindow::on_loginBtn_clicked(){
-    QString username = ui->login_email_input->text();
-    QString password = ui->login_password_input->text();
-    emit tryLogin(username, password);
+    QString username = ui_->login_email_input->text();
+    QString password = ui_->login_password_input->text();
+    emit loginBtnClicked(username, password);
 }

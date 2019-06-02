@@ -1,5 +1,5 @@
 //
-// Created by Augens on 21/05/2019.
+// Created by Klaus on 21/05/2019.
 //
 
 #ifndef SERVER_KK_CONSTANTS_H

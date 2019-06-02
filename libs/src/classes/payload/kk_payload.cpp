@@ -36,5 +36,5 @@ QString kk_payload::decode_header() {
 }
 
 QString kk_payload::encode_header() {
-    return data_ = type_ + "-" + result_ + "-" + msg_;
+    return data_= type_ + "-" + result_ + "-" + msg_;
 }

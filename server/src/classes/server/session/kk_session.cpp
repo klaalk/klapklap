@@ -16,8 +16,61 @@
 std::map<std::string, std::shared_ptr<kk_file>> files_;
 
 kk_session::kk_session(std::shared_ptr<kk_db> db, QWebSocket*  pSocket)
-        : pSocket(pSocket), db_(db) {
+        : pSocket_(pSocket), db_(db) {
+    connect(pSocket_, &QWebSocket::textMessageReceived, this, &kk_session::handleRequests);
+    connect(pSocket_, &QWebSocket::binaryMessageReceived, this, &kk_session::handleBinaryRequests);
+    connect(pSocket_, &QWebSocket::disconnected, this, &kk_session::socketDisconnected);
+}
 
+
+void kk_session::handleRequests(QString message){
+    qDebug() << "Client send:" << message;
+    if (pSocket_){
+        kk_payload req(message);
+        req.decode_header();
+
+        if(req.type() == "login") {
+
+            QStringList body = req.body().split("_");
+//            bool result = db_->db_login(body.at(0), body.at(1));
+            QString resultType = true ? "ok" : "ko";
+            QString message = true ? "Account loggato" : "Account non loggato";
+            kk_payload res("login", resultType, message);
+            pSocket_->sendTextMessage(res.encode_header());
+
+        } else if(req.type() == "signup") {
+
+        } else if(req.type() == "openfile") {
+            QString fileName = req.body();
+            kk_payload res("login", "ok", message);
+            pSocket_->sendTextMessage(res.encode_header());
+        } else if(req.type() == "sharefile") {
+
+        } else if(req.type() == "crdt") {
+
+        } else if(req.type() == "chat") {
+
+        }
+    }
+}
+
+void kk_session::handleBinaryRequests(QByteArray message)
+{
+    if (pSocket_)
+    {
+        qDebug() << "Client send binary:" << message;
+//        pSocket_->sendBinaryMessage(message);
+    }
+}
+
+void kk_session::socketDisconnected()
+{
+    qDebug() << "Client disconnected";
+    if (pSocket_)
+    {
+//        m_clients.removeAll(pClient);
+        pSocket_->deleteLater();
+    }
 }
 
 void kk_session::handle_request() {

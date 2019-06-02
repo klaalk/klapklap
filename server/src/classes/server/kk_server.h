@@ -22,12 +22,11 @@ Q_OBJECT
 public:
     kk_server(quint16 port, QObject *parent = nullptr);
     ~kk_server() override;
-private Q_SLOTS:
+
+private slots:
     void onNewConnection();
-
-    void processTextMessage(QString message);
-    void processBinaryMessage(QByteArray message);
-
+    void handleRequests(QString message);
+    void handleBinaryRequests(QByteArray message);
     void socketDisconnected();
     void onSslErrors(const QList<QSslError> &errors);
 private:

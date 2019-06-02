@@ -8,12 +8,6 @@
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../../libs/src/constants/kk_constants.h"
 
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <string.h>
-
 #include <QtCore/QObject>
 #include <QtCore/QByteArray>
 
@@ -30,14 +24,16 @@ class kk_session : public QObject  {
 public:
     kk_session(std::shared_ptr<kk_db> db, QWebSocket*  pSocket);
 
+private slots:
+    void handleRequests(QString message);
+    void handleBinaryRequests(QByteArray message);
+    void socketDisconnected();
+
 private:
     void handle_request();
-    QWebSocket*  pSocket;
+    QWebSocket*  pSocket_;
     std::shared_ptr<kk_db> db_;
     std::shared_ptr<kk_file> actual_file_;
-
-//    kk_payload read_msg_;
-//    kk_kk_payload_queue write_msgs_;
 };
 
 typedef std::shared_ptr<kk_session> kk_session_ptr;

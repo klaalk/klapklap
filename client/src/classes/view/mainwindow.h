@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "classes/client/kk_client.h"
+#include "classes/textedit/textedit.h"
 
 namespace Ui {
 class MainWindow;
@@ -15,17 +15,17 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 signals:
-    void tryLogin(QString username, QString password);
+    void loginBtnClicked(QString username, QString password);
 
 public slots:
-    void openWindow();
     void openEditor();
 
 private slots:
     void on_loginBtn_clicked();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui_ = nullptr;
+    TextEdit *editor_ = nullptr;
 };
 
 #endif // MAINWINDOW_H

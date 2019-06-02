@@ -16,7 +16,7 @@ QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
 #include "../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../libs/src/constants/kk_constants.h"
-//#include "../mainwindow.h"
+#include "../view/mainwindow.h"
 
 class kk_client : public QObject
 {
@@ -24,13 +24,9 @@ class kk_client : public QObject
 public:
     explicit kk_client(const QUrl &url, QObject *parent = nullptr);
 
-
-signals:
-    void connectionSucceed();
-    void loginSucceed();
-
 public slots:
     void sendLoginRequest(QString email, QString password);
+    void sendOpenFileRequest(QString fileName);
 
 private slots:
     void onConnected();
@@ -38,7 +34,7 @@ private slots:
     void onSslErrors(const QList<QSslError> &errors);
     void closeConnection();
 private:
-    QWebSocket m_webSocket;
-//    MainWindow* mainWindow;
+    QWebSocket socket_;
+    MainWindow view_;
 };
 #endif //CLIENT_CHAT_CLIENT_H

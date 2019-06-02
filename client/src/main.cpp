@@ -7,8 +7,7 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QtWidgets/QMainWindow>
-
-#include "classes/view/mainwindow.h"
+#include "classes/client/kk_client.h"
 
 int main(int argc, char* argv[])
 {
@@ -26,17 +25,6 @@ int main(int argc, char* argv[])
     parser.process(a);
 
     kk_client client(QUrl(QStringLiteral("wss://localhost:3310")));
-    MainWindow view;
-
-    // CONNECTION RESPONSE
-    QObject::connect(&client, &kk_client::connectionSucceed, &view, &MainWindow::openWindow);
-
-    // LOGIN REQUEST
-    QObject::connect(&view, &MainWindow::tryLogin, &client, &kk_client::sendLoginRequest);
-
-    // LOGIN RESPONSE
-    QObject::connect(&client, &kk_client::loginSucceed, &view, &MainWindow::openEditor);
-
 
     Q_UNUSED(client);
     return a.exec();

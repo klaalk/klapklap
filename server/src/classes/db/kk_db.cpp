@@ -36,18 +36,15 @@ kk_db::kk_db(){
 
 
 user_info *kk_db::db_getUserInfo(QString username) {
-    auto userInfo = new user_info;
     if(!db.open()) {
         qDebug("DB not opened");
-        return userInfo;
+        return nullptr;
     }
-
+    auto userInfo = new user_info;
     try {
         QSqlQuery res = db.exec(
-                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD`FROM `USERS` WHERE `USERNAME`='" +
+                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`='" +
                 username + "';");
-
-
         while(res.next()) {
             userInfo->id = res.value(1).toString();
             userInfo->name = res.value(2).toString();
@@ -59,7 +56,6 @@ user_info *kk_db::db_getUserInfo(QString username) {
         }
         db.close();
         return userInfo;
-
     } catch (QException e) {
         db.close();
         return nullptr;
@@ -192,7 +188,6 @@ bool kk_db::db_login(QString username, QString password) {
     if(user== nullptr)
         return false;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
-
     return password == solver.decryptToString(user->password);
 }
 

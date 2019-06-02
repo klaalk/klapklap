@@ -20,23 +20,29 @@ kk_server::kk_server(quint16 port, QObject *parent):
     QSslConfiguration sslConfiguration;
     QFile certFile(QStringLiteral(":/localhost.cert"));
     QFile keyFile(QStringLiteral(":/localhost.key"));
+
     certFile.open(QIODevice::ReadOnly);
     keyFile.open(QIODevice::ReadOnly);
+
     QSslCertificate certificate(&certFile, QSsl::Pem);
     QSslKey sslKey(&keyFile, QSsl::Rsa, QSsl::Pem);
     certFile.close();
     keyFile.close();
+
     sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
     sslConfiguration.setLocalCertificate(certificate);
     sslConfiguration.setPrivateKey(sslKey);
     sslConfiguration.setProtocol(QSsl::TlsV1SslV3);
+
     m_pWebSocketServer->setSslConfiguration(sslConfiguration);
     db_ = std::shared_ptr<kk_db>(new kk_db());
+
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
         qDebug() << "SSL Echo Server listening on port" << port;
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection, this,&kk_server::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::sslErrors, this, &kk_server::onSslErrors);
     }
+
 }
 kk_server::~kk_server()
 {
@@ -48,13 +54,13 @@ void kk_server::onNewConnection() {
     QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
     qDebug() << "Client connected";
 
-    connect(pSocket, &QWebSocket::textMessageReceived, this, &kk_server::processTextMessage);
-    connect(pSocket, &QWebSocket::binaryMessageReceived, this, &kk_server::processBinaryMessage);
+    connect(pSocket, &QWebSocket::textMessageReceived, this, &kk_server::handleRequests);
+    connect(pSocket, &QWebSocket::binaryMessageReceived, this, &kk_server::handleBinaryRequests);
     connect(pSocket, &QWebSocket::disconnected, this, &kk_server::socketDisconnected);
     m_clients << pSocket;
 }
 
-void kk_server::processTextMessage(QString message)
+void kk_server::handleRequests(QString message)
 {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (pClient)
@@ -62,24 +68,35 @@ void kk_server::processTextMessage(QString message)
         qDebug() << "Client send:" << message;
         kk_payload req(message);
         req.decode_header();
-        QStringList body = req.body().split("_");
-        bool result = db_->db_login(body.at(0), body.at(1));
+        if(req.type() == "login") {
+            QStringList body = req.body().split("_");
+            bool result = db_->db_login(body.at(0), body.at(1));
+            QString resultType = result ? "ok" : "ko";
+            QString message = result ? "Account loggato" : "Account non loggato";
+            kk_payload res("login", resultType, message);
+            pClient->sendTextMessage(res.encode_header());
+        } else if(req.type() == "signup") {
 
-        QString resultType = result ? "ok" : "ko";
-        QString message = result ? "Account loggato" : "Account non loggato";
+        } else if(req.type() == "openfile") {
 
-        kk_payload res("login",resultType, message);
-        pClient->sendTextMessage(res.encode_header());
+        } else if(req.type() == "sharefile") {
+
+        } else if(req.type() == "crdt") {
+
+        } else if(req.type() == "chat") {
+
+        }
 
     }
 }
 
-void kk_server::processBinaryMessage(QByteArray message)
+void kk_server::handleBinaryRequests(QByteArray message)
 {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (pClient)
     {
-        pClient->sendBinaryMessage(message);
+        qDebug() << "Client send binary:" << message;
+//        pClient->sendBinaryMessage(message);
     }
 }
 
