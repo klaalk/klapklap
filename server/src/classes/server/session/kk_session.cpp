@@ -12,38 +12,88 @@
 
 #define DEBUG
 
+kk_session::kk_session(kk_db_ptr db, map_files_ptr files_, QObject*  parent)
+        : kk_participant(parent), db_(db), files_(files_) {
+    QThreadPool::globalInstance()->setMaxThreadCount(5);
+}
 
-std::map<std::string, std::shared_ptr<kk_file>> files_;
-
-kk_session::kk_session(std::shared_ptr<kk_db> db, QWebSocket*  pSocket)
-        : pSocket_(pSocket), db_(db) {
-    connect(pSocket_, &QWebSocket::textMessageReceived, this, &kk_session::handleRequests);
-    connect(pSocket_, &QWebSocket::binaryMessageReceived, this, &kk_session::handleBinaryRequests);
-    connect(pSocket_, &QWebSocket::disconnected, this, &kk_session::socketDisconnected);
+void kk_session::setSocket(QWebSocket* descriptor) {
+    // make a new socket
+    session_socket_ = descriptor;
+    connect(session_socket_, &QWebSocket::textMessageReceived, this, &kk_session::handleRequest);
+    connect(session_socket_, &QWebSocket::binaryMessageReceived, this, &kk_session::handleBinaryRequests);
+    connect(session_socket_, &QWebSocket::disconnected, this, &kk_session::handleDisconnection);
+    qDebug() << "Client connected at " << descriptor;
 }
 
 
-void kk_session::handleRequests(QString message){
+void kk_session::sendResponse(QString type, QString result, QString body) {
+    kk_payload res(type, result, body);
+    qDebug() << "Server send: " << res.encode_header();
+    session_socket_->sendTextMessage(res.encode_header());
+}
+
+// After a task performed a time consuming task,
+// we grab the result here, and send it to client
+void kk_session::TaskResult(bool result) {
+    QString resultType = result ? "ok" : "ko";
+    QString message = result ? "Account loggato" : "Account non loggato";
+    sendResponse("login", resultType, message);
+}
+
+
+void kk_session::handleRequest(QString message) {
     qDebug() << "Client send:" << message;
-    if (pSocket_){
+    if (session_socket_){
         kk_payload req(message);
         req.decode_header();
 
         if(req.type() == "login") {
+//            kk_task *mytask = new kk_task([&](){
+//                QStringList body = req.body().split("_");
+//                return db_->db_login(body.at(0), body.at(1));;
+//            });
+//            mytask->setAutoDelete(true);
 
+//            // using queued connection
+//            connect(mytask, &kk_task::Result, this, &kk_session::TaskResult, Qt::QueuedConnection);
+//            qDebug() << "Starting a new task using a thread from the QThreadPool";
+//            QThreadPool::globalInstance()->start(mytask);
             QStringList body = req.body().split("_");
-//            bool result = db_->db_login(body.at(0), body.at(1));
-            QString resultType = true ? "ok" : "ko";
-            QString message = true ? "Account loggato" : "Account non loggato";
-            kk_payload res("login", resultType, message);
-            pSocket_->sendTextMessage(res.encode_header());
-
+            bool result = db_->db_login(body.at(0), body.at(1));
+            QString resultType = result ? "ok" : "ko";
+            QString message = result ? "Account loggato" : "Account non loggato";
+            sendResponse("login", resultType, message);
         } else if(req.type() == "signup") {
 
         } else if(req.type() == "openfile") {
             QString fileName = req.body();
-            kk_payload res("login", "ok", message);
-            pSocket_->sendTextMessage(res.encode_header());
+            QString message;
+            QString result = "ok";
+
+            auto search = files_.get()->find(fileName);
+            if (search != files_.get()->end()) {
+                // il file era già aperto ed è nella mappa globale
+                actual_file_ = files_.get()->take(fileName);
+                actual_file_->join(std::make_shared<kk_participant>(this));
+                message = "file esistente, sei stato aggiunto correttamente";
+            } else {
+                // Apro il file. Con i dovuti controlli
+                // TODO: fare query per inserire file
+                actual_file_ = std::shared_ptr<kk_file>(new kk_file());
+                actual_file_->join(std::make_shared<kk_participant>(this));
+                files_.get()->insert(fileName, actual_file_);
+
+                auto search = files_.get()->find(fileName);
+                if (search != files_.get()->end()) {
+                    qDebug() << "file creato, sei stato aggiunto correttamente";
+                    message = "file creato, sei stato aggiunto correttamente";
+                } else {
+                     message = "non è stato possibile creare il file";
+                     result = "ko";
+                }
+            }
+            sendResponse("openfile", "ok", message);
         } else if(req.type() == "sharefile") {
 
         } else if(req.type() == "crdt") {
@@ -56,83 +106,19 @@ void kk_session::handleRequests(QString message){
 
 void kk_session::handleBinaryRequests(QByteArray message)
 {
-    if (pSocket_)
+    if (session_socket_)
     {
         qDebug() << "Client send binary:" << message;
-//        pSocket_->sendBinaryMessage(message);
+//        session_socket_->sendBinaryMessage(message);
     }
 }
 
-void kk_session::socketDisconnected()
+void kk_session::handleDisconnection()
 {
     qDebug() << "Client disconnected";
-    if (pSocket_)
+    if (session_socket_)
     {
-//        m_clients.removeAll(pClient);
-        pSocket_->deleteLater();
+//        clients_.removeAll(pClient);
+        session_socket_->deleteLater();
     }
-}
-
-void kk_session::handle_request() {
-
-/*
-#ifdef DEBUG
-    std::cout << "Ho ricevuto: " << read_msg_.data() << std::endl;
-#endif
-    switch (read_msg_.type()) {
-        case login: {
-            char usr[128];
-            char psw[128];
-            sscanf(read_msg_.body(), "%s %s", usr, psw);
-#ifdef DEBUG
-            std::cout << usr << " "<< psw << std::endl;
-#endif
-            name = std::string(usr);
-            db_->db_login(QString::fromStdString(name),QString::fromStdString(psw)) ?
-            handle_response("Login effettuato", login, OK) :
-            handle_response("Password errata!", login, KO);
-            break;
-        }
-        case openfile: {
-            std::string filename = std::string(read_msg_.body());
-            std::cout << "richiesta di apertura file: " << filename << std::endl;
-            //TODO: fare query e controllare se esiste.
-            auto search = files_.find(filename);
-            if (search != files_.end()) {
-                // il file era già aperto ed è nella mappa globale
-                actual_file_ = files_.at(filename);
-                actual_file_->join(shared_from_this());
-                handle_response("file esistente, sei stato aggiunto correttamente", openfile, OK);
-            } else {
-                // Apro il file. Con i dovuti controlli
-                // TODO: fare query per inserire file
-                actual_file_ = std::shared_ptr<kk_file>(new kk_file());
-                actual_file_->join(shared_from_this());
-                files_.insert(make_pair(filename, actual_file_));
-
-                auto search = files_.find(filename);
-                if (search != files_.end()) {
-                    std::cout << "file creato correttamente" << std::endl;
-                    handle_response("file creato correttamente", openfile, OK);
-                } else {
-                    handle_response("non è stato possibile aprire il file", openfile, KO);
-                }
-            }
-
-            break;
-        }
-        case chat: {
-            std::string response = name + ": " + read_msg_.body();
-            char cstr[response.size() + 1];
-
-            response.copy(cstr, response.size() + 1);
-            cstr[response.size()] = '\0';
-
-            handle_response(cstr, chat, OK);
-            break;
-        }
-    }
-
-    read_msg_.delete_data();
-*/
 }

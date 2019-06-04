@@ -19,7 +19,6 @@ void kk_file::deliver(const kk_payload &msg) {
     recent_msgs_.push_back(msg);
     while (recent_msgs_.size() > max_recent_msgs)
         recent_msgs_.pop_front();
-
 //    std::for_each(participants_.begin(), participants_.end(),
 //                  boost::bind(&kk_participant::deliver, _1, boost::ref(msg)));
 }

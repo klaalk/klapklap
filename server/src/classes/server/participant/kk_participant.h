@@ -7,20 +7,19 @@
 
 #include <iostream>
 #include <deque>
-#include<QString>
-
+#include <QString>
+#include <QObject>
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 
-class kk_participant {
+class kk_participant : public QObject {
+    Q_OBJECT
 protected:
     QString name;
 public:
-    virtual ~kk_participant() {}
-
-    virtual void deliver(const kk_payload &msg) = 0;
+    kk_participant(QObject *parent = 0);
+    ~kk_participant() {}
+    void deliver(const kk_payload &msg);
 };
 
-typedef std::deque<kk_payload> kk_kk_payload_queue;
-
-
+typedef std::deque<kk_payload> kk_payload_queue;
 #endif //KK_PARTECIPANT_H

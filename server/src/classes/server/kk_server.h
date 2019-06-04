@@ -10,6 +10,10 @@
 #include <QtCore/QByteArray>
 #include <QtNetwork/QSslError>
 
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QAbstractSocket>
+
 #include "session/kk_session.h"
 #include "file/kk_file.h"
 
@@ -22,19 +26,15 @@ Q_OBJECT
 public:
     kk_server(quint16 port, QObject *parent = nullptr);
     ~kk_server() override;
-
 private slots:
     void onNewConnection();
-    void handleRequests(QString message);
-    void handleBinaryRequests(QByteArray message);
-    void socketDisconnected();
     void onSslErrors(const QList<QSslError> &errors);
 private:
-    QWebSocketServer *m_pWebSocketServer;
-    QList<QWebSocket *> m_clients;
+    QWebSocketServer* server_socket_;
+    QList<QWebSocket*> clients_;
 
-    std::shared_ptr<kk_db> db_;
+    map_files_ptr files_;
+    kk_db_ptr db_;
 };
 
-typedef std::shared_ptr<kk_server> kk_server_ptr;
 #endif //KK_SERVER_H

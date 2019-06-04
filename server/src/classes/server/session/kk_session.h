@@ -7,33 +7,40 @@
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../../libs/src/constants/kk_constants.h"
-
-#include <QtCore/QObject>
+#include <QObject>
+#include <QTcpSocket>
+#include <QWebSocket>
+#include <QDebug>
+#include <QThreadPool>
 #include <QtCore/QByteArray>
 
-#include "../partecipant/kk_partecipant.h"
+#include "../participant/kk_participant.h"
 #include "../file/kk_file.h"
+#include "../task/kk_task.h"
 #include "../room/kk_room.h"
 #include "../../db/kk_db.h"
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
-class kk_session : public QObject  {
+class kk_session : public kk_participant  {
         Q_OBJECT
 public:
-    kk_session(std::shared_ptr<kk_db> db, QWebSocket*  pSocket);
-
-private slots:
-    void handleRequests(QString message);
+    kk_session(kk_db_ptr db, map_files_ptr files_, QObject *parent = 0);
+    void setSocket(QWebSocket* Descriptor);
+public slots:
+    void sendResponse(QString type, QString result, QString body);
+    void handleRequest(QString message);
     void handleBinaryRequests(QByteArray message);
-    void socketDisconnected();
-
+    void handleDisconnection();
+    // make the server fully ascynchronous
+    // by doing time consuming task
+    void TaskResult(bool result);
 private:
-    void handle_request();
-    QWebSocket*  pSocket_;
-    std::shared_ptr<kk_db> db_;
-    std::shared_ptr<kk_file> actual_file_;
+    QWebSocket*  session_socket_;
+    kk_db_ptr db_;
+    map_files_ptr files_;
+    kk_file_ptr actual_file_;
 };
 
 typedef std::shared_ptr<kk_session> kk_session_ptr;

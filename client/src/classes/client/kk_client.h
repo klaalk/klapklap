@@ -29,9 +29,12 @@ public slots:
     void sendOpenFileRequest(QString fileName);
 
 private slots:
-    void onConnected();
-    void onMessageReceived(QString message);
-    void onSslErrors(const QList<QSslError> &errors);
+    void sendRequest(QString type, QString result, QString body);
+
+    void handleConnection();
+    void handleResponse(QString message);
+    void handleSslErrors(const QList<QSslError> &errors);
+
     void closeConnection();
 private:
     QWebSocket socket_;

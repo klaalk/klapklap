@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <memory>
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
-#include "../partecipant/kk_partecipant.h"
+#include "../participant/kk_participant.h"
 
 
 class kk_file {
@@ -26,7 +26,9 @@ private:
     enum {
         max_recent_msgs = 100
     };
-    kk_kk_payload_queue recent_msgs_;
+    kk_payload_queue recent_msgs_;
 };
 
+typedef std::shared_ptr<kk_file> kk_file_ptr;
+typedef std::shared_ptr<QMap<QString, kk_file_ptr>> map_files_ptr;
 #endif //KK_FILE_H

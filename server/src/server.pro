@@ -21,6 +21,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/classes/crypt/kk_crypt.h \
                 ../../libs/src/classes/payload/kk_payload.h \
                 ../../libs/src/constants/kk_constants.h \
+                classes/server/participant/kk_participant.h \
                 classes/smtp/mime/SmtpMime.h \
                 classes/smtp/mime/emailaddress.h\
                 classes/smtp/mime/mimecontentformatter.h\
@@ -35,7 +36,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/db/kk_db.h \
                 classes/server/kk_server.h \
                 classes/server/file/kk_file.h \
-                classes/server/partecipant/kk_partecipant.h \
+                classes/server/task/kk_task.h \
                 classes/server/room/kk_room.h \
                 classes/server/session/kk_session.h \
 
@@ -56,9 +57,10 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 classes/smtp/mime/smtpclient.cpp \
                 classes/smtp/kk_smtp.cpp\
                 classes/db/kk_db.cpp \
+                classes/server/participant/kk_participant.cpp \
                 classes/server/kk_server.cpp \
                 classes/server/file/kk_file.cpp \
-                classes/server/partecipant/kk_partecipant.cpp \
+                classes/server/task/kk_task.cpp \
                 classes/server/room/kk_room.cpp \
                 classes/server/session/kk_session.cpp \
                 main.cpp
