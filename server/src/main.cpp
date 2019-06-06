@@ -12,6 +12,8 @@
 #include "classes/server/kk_server.h"
 
 int main(int argc, char *argv[]) {
+
+
     QApplication a(argc, argv);
     kk_server server(3310);
     Q_UNUSED(server);
