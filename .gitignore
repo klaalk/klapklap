@@ -21,3 +21,5 @@ libs/src/cmake-build-debug/
 /client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/
 /server/build-server-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/
 libs/cmake-build-debug/
+
+server/build-server-Desktop_Qt_5_12_3_clang_64bit-Debug/

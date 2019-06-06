@@ -8,6 +8,7 @@
 #include <QDebug>
 #define  HOST "tcp://130.192.163.109:3000"
 #define  USR  "server"
+#define  DBN  "KLAPKLAP_DB"
 #define  PSW  "password" //TODO:change
 
 #define STD_Q(x) QString::fromStdString(x)
@@ -28,9 +29,9 @@ kk_db::kk_db(){
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("130.192.163.109");
     db.setPort(3000);
-    db.setUserName("jamie");
-    db.setPassword("lannister");
-    db.setDatabaseName("KLAPKLAP_DB");
+    db.setUserName(USR);
+    db.setPassword(PSW);
+    db.setDatabaseName(DBN);
 }
 
 
@@ -69,8 +70,7 @@ int kk_db::db_insert_user(QString username, QString password ,QString email, QSt
     kk_smtp sender;
     QString mex, dest_name = name + " " + surname;
 
-    _queryStr + "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) "
-           + "VALUES('" + username + "','" + password + "','" + email + "','" + name + "','" +
+    _queryStr = "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) VALUES('" + username + "','" + password + "','" + email + "','" + name + "','" +
                surname +
                "');";
 
@@ -112,8 +112,7 @@ int kk_db::db_insert_file(QString username, QString filename, QString path) {
 
     res.next();
 
-    _queryStr + "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) "
-            + "VALUES('" + res.value(1).toString() + "','" + filename + "','" + path + "');";
+    _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) VALUES('" + res.value(1).toString() + "','" + filename + "','" + path + "');";
 
     name = res.value(2).toString();
     surname = res.value(3).toString();
@@ -160,8 +159,7 @@ int kk_db::db_share_file(QString username_from, QString username_to, QString fil
     if (res.value(1).toInt() > 0)
         return -1;
 
-    _queryStr + "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) "
-            + "VALUES('" + user2->id + "','" + filename + "','./" + filename + "');";
+    _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) VALUES('" + user2->id + "','" + filename + "','./" + filename + "');";
 
 
     mex = sender.QSMTP_message_builder("New file shared: " + filename, "",
