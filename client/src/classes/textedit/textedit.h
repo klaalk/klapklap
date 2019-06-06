@@ -55,7 +55,7 @@ private slots:
     void clipboardDataChanged();
     void about();
     void printPreview(QPrinter *);
-
+    void onTextChange();
 private:
     void setupFileActions();
     void setupEditActions();
@@ -88,7 +88,8 @@ private:
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
-
+    int lastLength = 0, curLinePos = 0, curColPos = 0;
+    QString lastText="";
     QToolBar *tb;
     QString fileName;
     QTextEdit *textEdit;
