@@ -9,7 +9,7 @@
 #define  HOST "tcp://130.192.163.109:3000"
 #define  USR  "server"
 #define  DBN  "KLAPKLAP_DB"
-#define  PSW  "password" //TODO:change
+#define  PSW  "passord" //TODO:change
 
 #define STD_Q(x) QString::fromStdString(x)
 

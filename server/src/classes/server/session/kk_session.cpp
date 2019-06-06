@@ -48,22 +48,25 @@ void kk_session::handleRequest(QString message) {
         kk_payload req(message);
         req.decode_header();
 
-        if(req.type() == "login") {
-//            kk_task *mytask = new kk_task([&](){
-//                QStringList body = req.body().split("_");
-//                return db_->db_login(body.at(0), body.at(1));;
-//            });
-//            mytask->setAutoDelete(true);
+        qDebug() << req.body() << "body";
 
-//            // using queued connection
-//            connect(mytask, &kk_task::Result, this, &kk_session::TaskResult, Qt::QueuedConnection);
-//            qDebug() << "Starting a new task using a thread from the QThreadPool";
-//            QThreadPool::globalInstance()->start(mytask);
-            QStringList body = req.body().split("_");
-            bool result = db_->db_login(body.at(0), body.at(1));
-            QString resultType = result ? "ok" : "ko";
-            QString message = result ? "Account loggato" : "Account non loggato";
-            sendResponse("login", resultType, message);
+        if(req.type() == "login") {
+            QStringList _body = req.body().split("_");
+            kk_task *mytask = new kk_task([=]() {
+                return db_->db_login(_body.at(0), _body.at(1));
+            });
+            mytask->setAutoDelete(true);
+
+            // using queued connection
+            connect(mytask, &kk_task::Result, this, &kk_session::TaskResult, Qt::QueuedConnection);
+            qDebug() << "Starting a new task using a thread from the QThreadPool";
+            QThreadPool::globalInstance()->start(mytask);
+
+//            QStringList body = req.body().split("_");
+//            bool result = db_->db_login(body.at(0), body.at(1));
+//            QString resultType = result ? "ok" : "ko";
+//            QString message = result ? "Account loggato" : "Account non loggato";
+//            sendResponse("login", resultType, message);
         } else if(req.type() == "signup") {
 
         } else if(req.type() == "openfile") {
