@@ -5,65 +5,47 @@
 #ifndef SERVER_KK_DB_H
 #define SERVER_KK_DB_H
 
-#include "../../../../libs/src/classes_include.h"
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../smtp/kk_smtp.h"
-
-
+#include <QtSql>
+#include <QSqlDatabase>
 
 typedef struct var user_info;
 
 
 class kk_db {
-
-
 private:
-    sql::Driver *driver;
-    sql::Connection *con;
-
-    ///Open connection. Private.
-    sql::Statement *connect(void);
-
-    void close(void);
-
+    QSqlDatabase db;
 public:
+
     ///Costruttore
-    explicit kk_db(sql::Driver *driver);
+    explicit kk_db();
 
     ///Generic query exec
-    bool db_query(std::string query, int col_n);
+    bool db_query(QString query);
 
-    sql::ResultSet *db_query(std::string query);
 
     ///inserimento utente. Ritorna 0 successo, -1 username fault, -2 email fault.
-    int db_insert_user(std::string username, std::string password, std::string email, std::string name,
-                       std::string surname);
+    int db_insert_user(QString username, QString password, QString email, QString name,
+                       QString surname);
 
     ///inserimento utente. Ritorna 0 successo,
-    int db_insert_file(std::string username, std::string filename, std::string path);
+    int db_insert_file(QString username, QString filename, QString path);
 
     ///inserimento permessi (share file). Ritorna 0 successo,
-    int db_share_file(std::string username_from, std::string username_to, std::string filename);
+    int db_share_file(QString username_from, QString username_to, QString filename);
 
-    user_info *db_getUserInfo(std::string username);
+    user_info *db_getUserInfo(QString username);
 
-    bool db_login(std::string username, QString password);
+    bool db_login(QString username, QString password);
 
     ///reset password ask. invia una mail con password temporanea
-    int db_reset_psw(std::string username);
+    int db_reset_psw(QString username);
 
     ///reset password ask. cambia password
-    int db_update_psw(std::string username, QString new_psw);
-
-
-
-
-
-
-
-
+    int db_update_psw(QString username, QString new_psw);
 
 };
 
-
+typedef std::shared_ptr<kk_db> kk_db_ptr;
 #endif //SERVER_KK_DB_H

@@ -3,44 +3,64 @@
 //
 
 #include "kk_server.h"
+#include "QtWebSockets/QWebSocketServer"
+#include "QtWebSockets/QWebSocket"
+#include <QtCore/QDebug>
+#include <QtCore/QFile>
+#include <QtNetwork/QSslCertificate>
+#include <QtNetwork/QSslKey>
 
-kk_server::kk_server(boost::asio::io_service& io_service, unsigned short port,sql::Driver *driver)
-        : io_service_(io_service),
-        acceptor_(io_service,
-        boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
-context_(boost::asio::ssl::context::sslv23) {
+QT_USE_NAMESPACE
 
-    context_.set_options(
-            boost::asio::ssl::context::default_workarounds
-            | boost::asio::ssl::context::no_sslv2
-            | boost::asio::ssl::context::single_dh_use);
-    context_.set_password_callback(boost::bind(&kk_server::get_password, this));
+kk_server::kk_server(quint16 port, QObject *parent):
+    QObject(parent), server_socket_(nullptr) {
+    server_socket_ = new QWebSocketServer(QStringLiteral("SSL Echo Server"),
+                                              QWebSocketServer::SecureMode,
+                                              this);
+    QSslConfiguration sslConfiguration;
+    QFile certFile(QStringLiteral(":/localhost.cert"));
+    QFile keyFile(QStringLiteral(":/localhost.key"));
 
-    context_.use_certificate_chain_file(":/localhost.cert");
-    context_.use_private_key_file(":/localhost.key", boost::asio::ssl::context::pem);
-//    context_.use_tmp_dh_file("/home/jsnow/Documenti/progetto_malnati/server/src/certificates/dh512.pem");
+    certFile.open(QIODevice::ReadOnly);
+    keyFile.open(QIODevice::ReadOnly);
 
-    db = std::shared_ptr<kk_db>(new kk_db(driver));
-    start_accept();
-}
+    QSslCertificate certificate(&certFile, QSsl::Pem);
+    QSslKey sslKey(&keyFile, QSsl::Rsa, QSsl::Pem);
+    certFile.close();
+    keyFile.close();
 
-std::string kk_server::get_password() const {
-    return "winteriscoming";
-}
+    sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
+    sslConfiguration.setLocalCertificate(certificate);
+    sslConfiguration.setPrivateKey(sslKey);
+    sslConfiguration.setProtocol(QSsl::TlsV1SslV3);
 
-void kk_server::start_accept() {
-    kk_session_ptr new_session(new kk_session(io_service_, context_, room_, db));
-    acceptor_.async_accept(new_session->socket(),
-            boost::bind(&kk_server::handle_accept, this, new_session, boost::asio::placeholders::error));
-}
+    server_socket_->setSslConfiguration(sslConfiguration);
 
-void kk_server::handle_accept(kk_session_ptr new_session, const boost::system::error_code& error) {
-    if (!error) {
-        std::cout << "handle_accept" << std::endl;
-        new_session->start();
+    files_ = std::shared_ptr<QMap<QString, kk_file_ptr>>(new QMap<QString, kk_file_ptr>());
+    db_ = std::shared_ptr<kk_db>(new kk_db());
+
+    if (server_socket_->listen(QHostAddress::Any, port)) {
+        qDebug() << "SSL Server listening on port" << port;
+        connect(server_socket_, &QWebSocketServer::newConnection, this,&kk_server::onNewConnection);
+        connect(server_socket_, &QWebSocketServer::sslErrors, this, &kk_server::onSslErrors);
     }
-    else {
-        delete &new_session;
-    }
-    start_accept();
+
+}
+kk_server::~kk_server()
+{
+    server_socket_->close();
+    qDeleteAll(clients_.begin(), clients_.end());
+}
+
+void kk_server::onNewConnection() {
+    QWebSocket *pSocket = server_socket_->nextPendingConnection();
+    qDebug() << "Client connected";
+    kk_session *client = new kk_session(db_, files_, this);
+    client->setSocket(pSocket);
+    clients_ << pSocket;
+}
+
+void kk_server::onSslErrors(const QList<QSslError> &)
+{
+    qDebug() << "Ssl errors occurred";
 }

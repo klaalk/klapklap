@@ -22,9 +22,9 @@
 #include <QObject>
 #include <QByteArray>
 
-#include "smtpexports.h"
 
-class SMTP_EXPORT MimeContentFormatter : public QObject {
+
+class  MimeContentFormatter : public QObject {
 Q_OBJECT
 public:
     MimeContentFormatter(int max_length = 76);

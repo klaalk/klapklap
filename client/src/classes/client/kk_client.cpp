@@ -4,58 +4,65 @@
 
 #include "kk_client.h"
 
+#include "../../../../libs/src/classes/crypt/kk_crypt.h"
 #include <QtCore/QDebug>
 #include <QtWebSockets/QWebSocket>
 #include <QCoreApplication>
 
-kk_client::kk_client(const QUrl &url, QObject *parent): QObject(parent)
-{
-//    connection_state = not_connected;
-//    state = file_closed;
-
-    connect(&m_webSocket, &QWebSocket::connected, this, &kk_client::onConnected);
-    connect(&m_webSocket, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors),
-            this, &kk_client::onSslErrors);
-    m_webSocket.open(QUrl(url));
+kk_client::kk_client(const QUrl &url, QObject *parent)
+    : QObject(parent) {
+    connect(&socket_, &QWebSocket::connected, this, &kk_client::handleConnection);
+    connect(&socket_, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors),
+            this, &kk_client::handleSslErrors);
+    socket_.open(QUrl(url));
 }
 
+void kk_client::sendLoginRequest(QString email, QString password) {
+    SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+    QString psw = solver.encryptToString(password);
+    sendRequest("login", "ok", email + "_" + password);
+}
 
+void kk_client::sendOpenFileRequest(QString fileName) {
+    sendRequest("openfile", "ok", fileName);
+}
 
-//! [onConnected]
-void kk_client::onConnected()
-{
-    std::cout <<"ci sono" << std::endl;
+void kk_client::sendRequest(QString type, QString result, QString body) {
+    kk_payload req(type, result, body);
+    qDebug() << "Send: " << req.encode_header();
+    socket_.sendTextMessage(req.encode_header());
+}
+
+void kk_client::handleConnection() {
     qDebug() << "WebSocket connected";
     // Gestisco la lettura dei messaggi.
-    connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &kk_client::onMessageReceived);
-
-    m_webSocket.sendTextMessage(QStringLiteral("1-200-0001A"));
+    connect(&socket_, &QWebSocket::textMessageReceived, this, &kk_client::handleResponse);
+    connect(&view_, &MainWindow::loginBtnClicked, this, &kk_client::sendLoginRequest);
+    view_.show();
 }
-//! [onConnected]
 
-//! [onTextMessageReceived]
-void kk_client::onMessageReceived(QString message)
-{
+void kk_client::handleResponse(QString message) {
     qDebug() << "Message received:" << message;
-    QStringList splits = message.split('-');
-    foreach (QString s, splits) {
-        qDebug() << s;
+    kk_payload res(message);
+    res.decode_header();
+    if(res.type() == "login" && res.result_type() == "ok") {
+       view_.hide();
+       //TODO: aprire la window che gestisce i file.
+       // ma per il momento faccio l'apertura automatica del file.
+       sendOpenFileRequest("file1");
+    } else if(res.type() == "openfile" && res.result_type() == "ok") {
+       view_.openEditor();
     }
-
 }
 
-void kk_client::onSslErrors(const QList<QSslError> &errors)
-{
+void kk_client::handleSslErrors(const QList<QSslError> &errors) {
     Q_UNUSED(errors);
-
     // WARNING: Never ignore SSL errors in production code.
     // The proper way to handle self-signed certificates is to add a custom root
     // to the CA store.
-
-    m_webSocket.ignoreSslErrors();
+    socket_.ignoreSslErrors();
 }
-//! [onTextMessageReceived]
 
-void kk_client::closeConnection(){
+void kk_client::closeConnection() {
     qApp->quit();
 }

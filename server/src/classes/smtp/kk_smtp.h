@@ -5,7 +5,7 @@
 #ifndef SERVER_KK_SMTP_H
 #define SERVER_KK_SMTP_H
 
-#include "./classes/smtp/mime/SmtpMime"
+#include "./classes/smtp/mime/SmtpMime.h"
 
 
 class kk_smtp {

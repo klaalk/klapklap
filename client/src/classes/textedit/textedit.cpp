@@ -63,6 +63,7 @@ TextEdit::TextEdit(QWidget *parent)
             this, &TextEdit::cursorPositionChanged);
     setCentralWidget(textEdit);
 
+    connect(textEdit, &QTextEdit::textChanged, this, &TextEdit::onTextChange);
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setupFileActions();
     setupEditActions();
@@ -727,4 +728,38 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignRight->setChecked(true);
     else if (a & Qt::AlignJustify)
         actionAlignJustify->setChecked(true);
+}
+
+void TextEdit::onTextChange() {
+    QString s = textEdit->toPlainText();
+     QChar c = s.at(s.length()-1);
+
+    if(lastLength - s.length() == 1) {
+        //cancellato 1
+        qDebug() << lastText;
+        lastText = s;
+    } else if(lastLength - s.length() > 1) { //TODO: manca un carattere
+        //cancellato più di 1
+        qDebug() << lastText;
+        lastText = s;
+
+    } else if(s.length() - lastLength == 1) {
+        //inserito 1
+        lastText = s.mid(lastLength);
+        qDebug() << lastText;
+
+
+        if(c =='\xa') {
+            qDebug() << "ACCAPPOPOOOPOOPO";
+            curLinePos++;
+        }
+
+    } else if(s.length() - lastLength > 1) {
+        //inserito più di 1
+        lastText = s.mid(lastLength);
+        qDebug() << lastText;
+    }
+    qDebug() << (s.length() - lastLength);
+
+    lastLength = s.length();
 }

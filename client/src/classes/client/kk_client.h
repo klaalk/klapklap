@@ -5,14 +5,6 @@
 #ifndef CLIENT_CHAT_CLIENT_H
 #define CLIENT_CHAT_CLIENT_H
 
-
-#include <cstdlib>
-#include <deque>
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
 #include <QtCore/QObject>
 #include <QtWebSockets/QWebSocket>
 #include <QtNetwork/QSslError>
@@ -20,10 +12,11 @@
 #include <QtCore/QString>
 #include <QtCore/QUrl>
 
+QT_FORWARD_DECLARE_CLASS(QWebSocket)
+
 #include "../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../libs/src/constants/kk_constants.h"
-
-QT_FORWARD_DECLARE_CLASS(QWebSocket)
+#include "../view/mainwindow.h"
 
 class kk_client : public QObject
 {
@@ -31,14 +24,20 @@ class kk_client : public QObject
 public:
     explicit kk_client(const QUrl &url, QObject *parent = nullptr);
 
-private Q_SLOTS:
-    void onConnected();
-    void onMessageReceived(QString message);
-    void onSslErrors(const QList<QSslError> &errors);
+public slots:
+    void sendLoginRequest(QString email, QString password);
+    void sendOpenFileRequest(QString fileName);
+
+private slots:
+    void sendRequest(QString type, QString result, QString body);
+
+    void handleConnection();
+    void handleResponse(QString message);
+    void handleSslErrors(const QList<QSslError> &errors);
+
     void closeConnection();
 private:
-    QWebSocket m_webSocket;
+    QWebSocket socket_;
+    MainWindow view_;
 };
-
-
 #endif //CLIENT_CHAT_CLIENT_H

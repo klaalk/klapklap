@@ -1,0 +1,11 @@
+
+#ifndef KKLIBEXPORT_H
+#define KKLIBEXPORT_H
+
+#ifdef KKLIB_BUILD
+#define KKLIB_EXPORT Q_DECL_EXPORT
+#else
+#define KKLIB_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // KKLIBEXPORT_H
