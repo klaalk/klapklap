@@ -5,6 +5,7 @@
 #ifndef KK_POS_H
 #define KK_POS_H
 
+#include "../../../kklibexport.h"
 
 class kk_pos {
     int ch;

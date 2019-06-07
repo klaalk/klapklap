@@ -18,23 +18,16 @@ libs/src/cmake-build-debug/
 
 libs/src/cmake-build-debug/
 /doc/.vscode/ipch/6ad81b5708390f51/mmap_address.bin
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/.qmake.stash
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/Makefile
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/Makefile.Debug
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/Makefile.Release
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/kk_client.o
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/klapklap.exe
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/main.o
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/moc_kk_client.cpp
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/moc_kk_client.o
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/moc_predefs.h
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/moc_textedit.cpp
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/moc_textedit.o
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/qrc_client.cpp
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/qrc_client.o
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/qrc_textedit.cpp
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/qrc_textedit.o
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/textedit.exe
-/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/debug/textedit.o
+/client/build-client-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/
+/server/build-server-Desktop_Qt_5_12_2_MinGW_64_bit-Debug/
+libs/cmake-build-debug/
+
+server/build-server-Desktop_Qt_5_12_3_clang_64bit-Debug/
+
+client/build-client-Desktop_Qt_5_12_3_clang_64bit-Debug/
+
+client/build-client-Desktop_Qt_5_12_3_MinGW_64_bit-Debug/
+
+server/build-server-Desktop_Qt_5_12_3_MinGW_64_bit-Debug/
 
 client/build-client-Desktop_Qt_5_12_3_clang_64bit-Debug/

@@ -1,8 +1,10 @@
 //
 // Created by Alberto Bruno on 2019-05-15.
 //
+#ifndef KK_CRDT_H
+#define KK_CRDT_H
 
-#include "identifier/kk_identifier.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -11,9 +13,9 @@
 
 #include "char/kk_char.h"
 #include "pos/kk_pos.h"
+#include "identifier/kk_identifier.h"
 
-#ifndef KK_CRDT_H
-#define KK_CRDT_H
+#include "../../kklibexport.h"
 
 using std::list;
 using std::vector;
@@ -24,6 +26,7 @@ enum strategy {
 };
 
 class kk_crdt {
+public:
     vector<list<kk_char>> text;
     string siteid;
     int boundary;
@@ -33,7 +36,6 @@ class kk_crdt {
 
     vector<kk_identifier> slice(vector<kk_identifier> const &v, int i);
 
-public:
     kk_crdt(string siteid, strategy strategy); //costruttore
     void local_insert(char val, kk_pos pos);
 
