@@ -35,10 +35,6 @@ public slots:
     void handleRequest(QString message);
     void handleBinaryRequests(QByteArray message);
     void handleDisconnection();
-    // make the server fully ascynchronous
-    // by doing time consuming task
-//    template<class T>
-//    void TaskResult(T result, std::function<void(T param)> f);
 private:
     QWebSocket*  session_socket_;
     kk_db_ptr db_;
