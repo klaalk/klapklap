@@ -36,8 +36,8 @@ kk_server::kk_server(quint16 port, QObject *parent):
 
     server_socket_->setSslConfiguration(sslConfiguration);
 
-    files_ = std::shared_ptr<QMap<QString, kk_file_ptr>>(new QMap<QString, kk_file_ptr>());
-    db_ = std::shared_ptr<kk_db>(new kk_db());
+    files_ = QSharedPointer<QMap<QString, kk_file_ptr>>(new QMap<QString, kk_file_ptr>());
+    db_ = QSharedPointer<kk_db>(new kk_db());
 
     if (server_socket_->listen(QHostAddress::Any, port)) {
         qDebug() << "SSL Server listening on port" << port;
@@ -50,13 +50,26 @@ kk_server::~kk_server()
 {
     server_socket_->close();
     qDeleteAll(clients_.begin(), clients_.end());
+
+    delete db_.get();
+
+//    std::for_each(files_->begin(), files_->end(),[](kk_file_ptr e){
+//        delete e.get();
+//    });
+
+//    delete files_.get();
+
+    std::for_each(sessions_.begin(), sessions_.end(), [](kk_session_ptr p){
+        delete p.get();
+    });
 }
 
 void kk_server::onNewConnection() {
     QWebSocket *pSocket = server_socket_->nextPendingConnection();
     qDebug() << "Client connected";
-    kk_session *client = new kk_session(db_, files_, this);
+    kk_session_ptr client = QSharedPointer<kk_session>(new kk_session(db_, files_, this));
     client->setSocket(pSocket);
+    sessions_ << client;
     clients_ << pSocket;
 }
 

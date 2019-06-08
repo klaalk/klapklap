@@ -10,15 +10,15 @@
 #include <memory>
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../participant/kk_participant.h"
-
+#include <QSharedPointer>
 class kk_room {
 public:
-    void join(std::shared_ptr<kk_participant> participant);
+    void join(QSharedPointer<kk_participant> participant);
 
-    void leave(std::shared_ptr<kk_participant> participant);
+    void leave(QSharedPointer<kk_participant> participant);
 
 private:
-    std::set<std::shared_ptr<kk_participant>> participants_;
+    std::set<QSharedPointer<kk_participant>> participants_;
 };
 
 #endif //KK_ROOM_H
