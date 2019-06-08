@@ -152,7 +152,9 @@ void kk_session::handleDisconnection()
     if (session_socket_)
     {
 //        clients_.removeAll(pClient);
-        actual_file_->deliver("removedpartecipant", "ok", nick_);
+        if(actual_file_.get() != nullptr) {
+            actual_file_->deliver("removedpartecipant", "ok", nick_);
+        }
         session_socket_->deleteLater();
     }
 }
