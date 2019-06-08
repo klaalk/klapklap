@@ -42,6 +42,7 @@
 
 #include "textedit.h"
 
+
 #ifdef Q_OS_MAC
 const QString rsrcPath = ":/images/mac";
 #else
@@ -642,6 +643,11 @@ void TextEdit::cursorPositionChanged()
 {
     alignmentChanged(textEdit->alignment());
     QTextList *list = textEdit->textCursor().currentList();
+
+    QTextCursor  cursor = textEdit->textCursor();
+    lastPos=pos;
+    pos=cursor.position();
+
     if (list) {
         switch (list->format().style()) {
             case QTextListFormat::ListDisc:
@@ -730,36 +736,31 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
-void TextEdit::onTextChange() {
+void TextEdit::onTextChange() {  // PROBLEMA: si spacca se cancello il primo carattere (l'ultimo rimasto)
     QString s = textEdit->toPlainText();
-     QChar c = s.at(s.length()-1);
 
-    if(lastLength - s.length() == 1) {
-        //cancellato 1
-        qDebug() << lastText;
-        lastText = s;
-    } else if(lastLength - s.length() > 1) { //TODO: manca un carattere
-        //cancellato più di 1
-        qDebug() << lastText;
-        lastText = s;
+    if(lastLength - s.length() >= 1) {
+        //cancellato 1 o più
+        diffText=lastText.mid(pos,lastLength - s.length());
+        qDebug() << diffText;
 
-    } else if(s.length() - lastLength == 1) {
-        //inserito 1
-        lastText = s.mid(lastLength);
-        qDebug() << lastText;
+        for(int i=0;i<diffText.length();i++)
+            if(diffText[i]=='\n')
+               curLinePos--;
 
 
-        if(c =='\xa') {
-            qDebug() << "ACCAPPOPOOOPOOPO";
-            curLinePos++;
-        }
+    } else if(s.length() - lastLength >= 1) {
+        //inserito 1 o più
+       diffText=s.mid(lastPos, s.length()-lastLength);
+       qDebug() << diffText;
 
-    } else if(s.length() - lastLength > 1) {
-        //inserito più di 1
-        lastText = s.mid(lastLength);
-        qDebug() << lastText;
+       for(int i=0;i<diffText.length();i++)
+           if(diffText[i]=='\n')
+              curLinePos++;
     }
     qDebug() << (s.length() - lastLength);
 
     lastLength = s.length();
+    lastText = s;
+    lastPos=pos;
 }
