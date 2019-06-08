@@ -37,7 +37,8 @@ public slots:
     void handleDisconnection();
     // make the server fully ascynchronous
     // by doing time consuming task
-    void TaskResult(bool result);
+//    template<class T>
+//    void TaskResult(T result, std::function<void(T param)> f);
 private:
     QWebSocket*  session_socket_;
     kk_db_ptr db_;

@@ -5,8 +5,7 @@
 #include "kk_task.h"
 #include <QDebug>
 
-
-kk_task::kk_task(std::function<bool()> f): taskFunc(f)
+kk_task::kk_task(std::function<void()> f): taskFunc_(f)
 {
     qDebug() << "kk_task()";
 }
@@ -17,14 +16,13 @@ kk_task::kk_task(std::function<bool()> f): taskFunc(f)
 // This runs in the separate thread, and we do not have any control over this thread,
 // but Qt does.
 // This may just stay in the queue for several ms depending on how busy the server is.
-
 void kk_task::run()
 {
     // time consumer
     qDebug() << "Task started";
 
-    bool result = taskFunc();
+    taskFunc_();
 
     qDebug() << "Task done";
-    emit Result(result);
+
 }

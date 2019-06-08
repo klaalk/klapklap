@@ -39,15 +39,6 @@ void kk_session::sendResponse(QString type, QString result, QString body) {
     session_socket_->sendTextMessage(res.encode_header());
 }
 
-// After a task performed a time consuming task,
-// we grab the result here, and send it to client
-void kk_session::TaskResult(bool result) {
-    QString resultType = true ? "ok" : "ko";
-    QString message = true ? "Account loggato" : "Account non loggato";
-    sendResponse("login", resultType, message);
-}
-
-
 void kk_session::handleRequest(QString message) {
     qDebug() << "Client send:" << message;
     if (session_socket_){
@@ -55,17 +46,48 @@ void kk_session::handleRequest(QString message) {
         req.decode_header();
         if(req.type() == "login") {
             QStringList _body = req.body().split("_");
-            nick_ = _body[0];
             kk_task *mytask = new kk_task([=]() {
-                return db_->db_login(_body.at(0), _body.at(1));
+                bool result = db_->db_login(_body[0],_body[1]);
+                if(result) {
+                    //TODO: db_->getUserFiles();
+                    QStringList q;
+                    QString message;
+                    q.push_back("ciao");
+                    q.push_back("prova");
+                    std::for_each(q.begin(), q.end(), [&](QString msg){
+                        message += msg + "_";
+                    });
+                    this->sendResponse("login","ok", message);
+
+                } else {
+                    this->sendResponse("login","ko","Invalid credentials");
+                }
             });
+
             mytask->setAutoDelete(true);
             // using queued connection
-            connect(mytask, &kk_task::Result, this, &kk_session::TaskResult, Qt::QueuedConnection);
             qDebug() << "Starting a new task using a thread from the QThreadPool";
             QThreadPool::globalInstance()->start(mytask);
-        } else if(req.type() == "signup") {
 
+        } else if(req.type() == "signup") {
+            QStringList _body = req.body().split("_");
+            nick_ = _body[0];
+
+            kk_task *mytask = new kk_task([=]() {
+
+                bool result = db_->db_insert_user(_body[0],_body[1],_body[0],_body[2], _body[3]);
+                if(result) {
+                    this->sendResponse("signup","ok", "Succes");
+                } else {
+                    this->sendResponse("signup","ko","Invalid Parameters");
+                }
+
+            });
+
+            mytask->setAutoDelete(true);
+            // using queued connection
+            qDebug() << "Starting a new task using a thread from the QThreadPool";
+            QThreadPool::globalInstance()->start(mytask);
         } else if(req.type() == "openfile") {
             QString fileName = req.body();
             QString message;

@@ -9,7 +9,7 @@
 #define  HOST "tcp://130.192.163.109:3000"
 #define  USR  "server"
 #define  DBN  "KLAPKLAP_DB"
-#define  PSW  "passord" //TODO:change
+#define  PSW  "password" //TODO:change
 
 #define STD_Q(x) QString::fromStdString(x)
 
@@ -44,16 +44,16 @@ user_info *kk_db::db_getUserInfo(QString username) {
     auto userInfo = new user_info;
     try {
         QSqlQuery res = db.exec(
-                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`='" +
+                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`='" +
                 username + "';");
         while(res.next()) {
-            userInfo->id = res.value(1).toString();
-            userInfo->name = res.value(2).toString();
-            userInfo->surname = res.value(3).toString();
-            userInfo->email = res.value(4).toString();
-            userInfo->image = res.value(5).toString();
-            userInfo->reg_date = res.value(6).toString();
-            userInfo->password = res.value(7).toString();
+            userInfo->id = res.value(0).toString();
+            userInfo->name = res.value(1).toString();
+            userInfo->surname = res.value(2).toString();
+            userInfo->email = res.value(3).toString();
+//            userInfo->image = res.value(5).toString();
+            userInfo->reg_date = res.value(4).toString();
+            userInfo->password = res.value(5).toString();
         }
         db.close();
         return userInfo;
@@ -87,6 +87,7 @@ int kk_db::db_insert_user(QString username, QString password ,QString email, QSt
                                            "http://www.facebook.it");
         sender.QSMTP_send_message(mex, dest_name, email, "KlapKlap Registration");
         db.close();
+        return true;
     } catch (QException &e) {
         QString _str(e.what());
         db.close();
@@ -186,7 +187,7 @@ bool kk_db::db_login(QString username, QString password) {
     if(user== nullptr)
         return false;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
-    return password == solver.decryptToString(user->password);
+    return solver.decryptToString(password) == solver.decryptToString(user->password);
 }
 
 //TODO: delete user
@@ -227,3 +228,5 @@ int kk_db::db_update_psw(QString username, QString new_psw){
         return -1;
     }
 }
+
+//TODO: get user files. Return: void list, list files name.

@@ -16,12 +16,15 @@ public:
     ~MainWindow();
 signals:
     void loginBtnClicked(QString username, QString password);
+    void signupBtnClicked(QString username, QString password,QString name, QString surname);
 
 public slots:
     void openEditor();
 
 private slots:
     void on_loginBtn_clicked();
+
+    void on_signupBtn_clicked();
 
 private:
     Ui::MainWindow *ui_ = nullptr;
