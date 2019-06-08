@@ -27,18 +27,18 @@ class kk_client : public QObject
 public:
     explicit kk_client(const QUrl &url, QObject *parent = nullptr);
 
-public slots:
-    void sendLoginRequest(QString email, QString password);
-    void sendOpenFileRequest(QString fileName);
-    void sendMessageRequest(QString message);
-
 private slots:
     void handleConnection();
     void handleResponse(QString message);
     void handleSslErrors(const QList<QSslError> &errors);
+
+    void sendLoginRequest(QString email, QString password);
+    void sendOpenFileRequest(QString fileName);
+    void sendMessageRequest(QString message);
     void closeConnection();
 private:
     void sendRequest(QString type, QString result, QString body);
+
     QString email_;
     QWebSocket socket_;
     MainWindow view_;

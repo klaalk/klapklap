@@ -53,11 +53,11 @@ kk_server::~kk_server()
 
     delete db_.get();
 
-//    std::for_each(files_->begin(), files_->end(),[](kk_file_ptr e){
-//        delete e.get();
-//    });
+    std::for_each(files_->begin(), files_->end(),[](kk_file_ptr e){
+        delete e.get();
+    });
 
-//    delete files_.get();
+    delete files_.get();
 
     std::for_each(sessions_.begin(), sessions_.end(), [](kk_session_ptr p){
         delete p.get();
