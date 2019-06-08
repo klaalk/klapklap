@@ -31,7 +31,7 @@ private slots:
     void handleConnection();
     void handleResponse(QString message);
     void handleSslErrors(const QList<QSslError> &errors);
-
+    void sendSignupRequest(QString email, QString password, QString name, QString surname);
     void sendLoginRequest(QString email, QString password);
     void sendOpenFileRequest(QString fileName);
     void sendMessageRequest(QString message);

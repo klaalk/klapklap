@@ -21,7 +21,14 @@ void kk_client::sendLoginRequest(QString email, QString password) {
     email_ = email;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
-    sendRequest("login", "ok", email + "_" + password);
+    sendRequest("login", "ok", email + "_" + psw);
+}
+
+void kk_client::sendSignupRequest(QString email, QString password, QString name, QString surname) {
+    email_ = email;
+    SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+    QString psw = solver.encryptToString(password);
+    sendRequest("signup", "ok", email + "_" + psw + "_" + name + "_" + surname);
 }
 
 void kk_client::sendOpenFileRequest(QString fileName) {
@@ -43,6 +50,7 @@ void kk_client::handleConnection() {
     // Gestisco la lettura dei messaggi.
     connect(&socket_, &QWebSocket::textMessageReceived, this, &kk_client::handleResponse);
     connect(&view_, &MainWindow::loginBtnClicked, this, &kk_client::sendLoginRequest);
+    connect(&view_, &MainWindow::signupBtnClicked, this, &kk_client::sendSignupRequest);
     view_.show();
 }
 
