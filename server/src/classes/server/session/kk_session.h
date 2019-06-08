@@ -23,13 +23,15 @@
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
-class kk_session : public kk_participant  {
+class kk_session : public QObject, public kk_participant, public QEnableSharedFromThis<kk_session> {
         Q_OBJECT
 public:
     kk_session(kk_db_ptr db, map_files_ptr files_, QObject *parent = 0);
+    ~kk_session();
+    void deliver(kk_payload_ptr msg);
+    void sendResponse(QString type, QString result, QString body);
     void setSocket(QWebSocket* Descriptor);
 public slots:
-    void sendResponse(QString type, QString result, QString body);
     void handleRequest(QString message);
     void handleBinaryRequests(QByteArray message);
     void handleDisconnection();
@@ -43,6 +45,6 @@ private:
     kk_file_ptr actual_file_;
 };
 
-typedef std::shared_ptr<kk_session> kk_session_ptr;
+typedef QSharedPointer<kk_session> kk_session_ptr;
 
 #endif //KK_SESSION_H

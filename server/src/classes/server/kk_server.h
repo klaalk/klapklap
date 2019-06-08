@@ -32,7 +32,7 @@ private slots:
 private:
     QWebSocketServer* server_socket_;
     QList<QWebSocket*> clients_;
-
+    QList<kk_session_ptr> sessions_;
     map_files_ptr files_;
     kk_db_ptr db_;
 };

@@ -1,5 +1,5 @@
 //
-// Created by Augens on 06/05/2019.
+// Created by Klaus on 06/05/2019.
 //
 
 #include "kk_client.h"
@@ -18,6 +18,7 @@ kk_client::kk_client(const QUrl &url, QObject *parent)
 }
 
 void kk_client::sendLoginRequest(QString email, QString password) {
+    email_ = email;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
     sendRequest("login", "ok", email + "_" + password);
@@ -25,6 +26,10 @@ void kk_client::sendLoginRequest(QString email, QString password) {
 
 void kk_client::sendOpenFileRequest(QString fileName) {
     sendRequest("openfile", "ok", fileName);
+}
+
+void kk_client::sendMessageRequest(QString message) {
+    sendRequest("chat", "ok", message);
 }
 
 void kk_client::sendRequest(QString type, QString result, QString body) {
@@ -52,7 +57,17 @@ void kk_client::handleResponse(QString message) {
        sendOpenFileRequest("file1");
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
        view_.openEditor();
-    }
+       chat_.show();
+       chat_.setNickName(email_);
+       connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);
+    } else if(res.type() == "chat" && res.result_type() == "ok") {
+        QStringList res_ = res.body().split('_');
+        chat_.appendMessage(res_[0], res_[1]);
+     } else if(res.type() == "addedpartecipant" && res.result_type() == "ok") {
+        chat_.newParticipant(res.body());
+     } else if(res.type() == "removedpartecipant" && res.result_type() == "ok") {
+        chat_.participantLeft(res.body());
+     }
 }
 
 void kk_client::handleSslErrors(const QList<QSslError> &errors) {

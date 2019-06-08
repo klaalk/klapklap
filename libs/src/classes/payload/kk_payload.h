@@ -4,9 +4,11 @@
 
 #ifndef CLIENT_CHAT_MESSAGE_H
 #define CLIENT_CHAT_MESSAGE_H
-
+#include <deque>
 #include <QString>
+#include <QSharedPointer>
 #include <QStringList>
+#include <QVector>
 #include "../../constants/kk_constants.h"
 
 class kk_payload {
@@ -38,4 +40,6 @@ private:
     size_t body_length_;
 };
 
+typedef QSharedPointer<kk_payload> kk_payload_ptr;
+typedef QSharedPointer<QVector<kk_payload_ptr>> queue_payload_ptr;
 #endif //CLIENT_CHAT_MESSAGE_H

@@ -1,5 +1,5 @@
 //
-// Created by Augens on 26/05/2019.
+// Created by Klaus on 26/05/2019.
 //
 
 #ifndef TEXTEDIT_H
