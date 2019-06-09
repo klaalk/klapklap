@@ -28,7 +28,7 @@ kk_char_ptr kk_crdt::generate_Char(char val, kk_pos pos) {
 
     vector<kk_identifier_ptr> position_before, position_after, new_position;
 
-    kk_char_ptr new_Char = std::shared_ptr<kk_char>(new kk_char(val, this->siteid));
+    kk_char_ptr new_Char = kk_char_ptr(new kk_char(val, this->siteid));
 
     position_before = this->find_position_before(pos);
     position_after = this->find_position_after(pos);
@@ -209,17 +209,24 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
 
     // if inserting a newline, split line into two lines
     if (_char->get_value() == '\n') {
-//        list<kk_char> pos_line = text[pos.get_line()];
-//        list<kk_char> new_pos_line = Utility::splice<kk_char>(pos_line, pos.get_ch());
-//        text[pos.get_line()] = new_pos_line;
-//
-//        if (new_pos_line.size() == 0) {
-//            list<kk_char> pos_line = text[pos.get_line()];
-//            text[pos.get_line()].insert(_char);
-//        } else {
-//            const lineBefore = this.struct[pos.get_line()].concat(char);
-//            this.struct.splice(pos.get_line(), 1, lineBefore, lineAfter);
-//        }
+
+
+        list<kk_char_ptr> line_after={};
+        line_after.splice(line_after.begin(), line_after, std::next(text[pos.get_line()].begin(), 2), text[pos.get_line()].end());
+
+           if (line_after.size() == 0) {
+               list<kk_char_ptr> _list_char = {_char};
+               text[pos.get_line()].splice(std::next(text[pos.get_line()].begin(), static_cast<long>(pos.get_ch())), _list_char);
+           } else {
+               text[pos.get_line()].insert(text[pos.get_line()].end(),_char);
+               list<kk_char_ptr> line_before(text[pos.get_line()]);
+               text.erase(std::next(text.begin(),pos.get_line()));
+               text.insert(std::next(text.begin(),pos.get_line()),line_before);
+               text.insert(std::next(text.begin(),pos.get_line()+1),line_after);
+
+           }
+
+
     } else {
         if (text.at(pos.get_line()).empty()) {
             text.insert(text.begin() + static_cast<long>(pos.get_line()), list<kk_char_ptr>());
