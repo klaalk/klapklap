@@ -10,7 +10,7 @@ kk_payload::kk_payload(QString data)
 
 
 kk_payload::kk_payload(QString type, QString result, QString message)
-        : type_(type), result_(result), msg_(message), body_length_(message.size()) {
+        : msg_(message), type_(type), result_(result), body_length_(message.size()) {
 }
 
 QString kk_payload::body(){

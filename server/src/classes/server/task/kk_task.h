@@ -16,22 +16,19 @@
 // with no inheritance in the class wizard
 // We do not have this. So, we cannot use signal/slot
 // But we need them.
-// Thus, we should use multiple inheritance: QObject inserted here
 
+// Thus, we should use multiple inheritance: QObject inserted here
 class kk_task : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    kk_task(std::function<bool()> f);
-
+    kk_task(std::function<void ()> f_taks);
 signals:
-    // notify to the main thread when we're done
-    void Result(bool result);
 
 protected:
     void run();
 private:
-    std::function<bool()> taskFunc;
+    std::function<void()> taskFunc_;
 };
 
 #endif // KKTASK_H

@@ -47,5 +47,5 @@ public:
 
 };
 
-typedef std::shared_ptr<kk_db> kk_db_ptr;
+typedef QSharedPointer<kk_db> kk_db_ptr;
 #endif //SERVER_KK_DB_H

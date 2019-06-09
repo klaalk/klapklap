@@ -1,5 +1,5 @@
 //
-// Created by Augens on 26/05/2019.
+// Created by Klaus on 26/05/2019.
 //
 
 #ifndef TEXTEDIT_H
@@ -88,10 +88,9 @@ private:
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
-    int lastLength = 0, curLinePos = 0, curColPos = 0;
-    QString lastText="";
+    int lastLength = 0, curLinePos = 0, pos=0, lastPos=0;
+    QString lastText="",diffText="",fileName;
     QToolBar *tb;
-    QString fileName;
     QTextEdit *textEdit;
 };
 
