@@ -46,6 +46,7 @@ void kk_session::handleRequest(QString message) {
         req.decode_header();
         if(req.type() == "login") {
             QStringList _body = req.body().split("_");
+            nick_ = _body[0];
             kk_task *mytask = new kk_task([=]() {
                 bool result = db_->db_login(_body[0],_body[1]);
                 if(result) {
@@ -72,7 +73,6 @@ void kk_session::handleRequest(QString message) {
         } else if(req.type() == "signup") {
             QStringList _body = req.body().split("_");
             nick_ = _body[0];
-
             kk_task *mytask = new kk_task([=]() {
 
                 bool result = db_->db_insert_user(_body[0],_body[1],_body[0],_body[2], _body[3]);
@@ -92,7 +92,6 @@ void kk_session::handleRequest(QString message) {
             QString fileName = req.body();
             QString message;
             QString result = "ok";
-
             auto search = files_.get()->find(fileName);
             if (search != files_.get()->end()) {
                 // il file era già aperto ed è nella mappa globale
@@ -153,7 +152,10 @@ void kk_session::handleDisconnection()
     if (session_socket_)
     {
 //        clients_.removeAll(pClient);
-        actual_file_->deliver("removedpartecipant", "ok", nick_);
+        if(actual_file_.get() != nullptr) {
+            actual_file_->deliver("removedpartecipant", "ok", nick_);
+            actual_file_->leave(sharedFromThis());
+        }
         session_socket_->deleteLater();
     }
 }
