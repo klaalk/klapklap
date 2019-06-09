@@ -28,10 +28,10 @@ public:
     vector<list<kk_char_ptr>> text;
 
     string siteid;
+    unsigned long boundary;
     strategy _strategy;
     vector<strategy> strategy_cache;
-
-    int base;
+    unsigned long base;
     int boundary;
     //costruttore
     kk_crdt(string siteid, strategy strategy);
@@ -46,11 +46,12 @@ private:
     vector<kk_identifier_ptr> find_position_after(kk_pos pos);
     //partendo dalle position di due Char(adiacenti) genera la posizione della Char
     vector<kk_identifier_ptr> generate_position_between(vector<kk_identifier_ptr> position_1, vector<kk_identifier_ptr> position_2,
-                                                    vector<kk_identifier_ptr> *new_position, int livello);
-    //trova la strategia migliore per assegnare un identifier alla position della nuova Char
-    strategy find_strategy(int level);
+                                                    vector<kk_identifier_ptr> *new_position, unsigned long livello); //partendo dalle position di due Char(adiacenti) genera la posizione della Char
 
-    //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
+    strategy find_strategy(unsigned long level);//trova la strategia migliore per assegnare un identifier alla position della nuova Char
+
+    unsigned long generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
+
     int generate_identifier_between(int min, int max, strategy _strategy);
 
 //    void handle_remote_insert(kk_char _char);
