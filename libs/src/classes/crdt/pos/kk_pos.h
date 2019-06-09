@@ -9,13 +9,13 @@
 #include <memory>
 
 class kk_pos {
-    int ch;
-    int line;
+    unsigned long ch;
+    unsigned long line;
 public:
     kk_pos();
-    kk_pos(int line, int ch);
-    int get_line();
-    int get_ch();
+    kk_pos(unsigned long line, unsigned long ch);
+    unsigned long get_line();
+    unsigned long get_ch();
 };
 
 typedef std::shared_ptr<kk_pos> kk_pos_ptr;
