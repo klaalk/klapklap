@@ -3,7 +3,7 @@
 //
 
 #include "textedit.h"
-
+#include <QPlainTextEdit>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
@@ -40,8 +40,6 @@
 #endif
 #endif
 
-#include "textedit.h"
-
 
 #ifdef Q_OS_MAC
 const QString rsrcPath = ":/images/mac";
@@ -64,7 +62,6 @@ TextEdit::TextEdit(QWidget *parent)
     connect(textEdit, &QTextEdit::cursorPositionChanged,
             this, &TextEdit::cursorPositionChanged);
     setCentralWidget(textEdit);
-
     connect(textEdit, &QTextEdit::textChanged, this, &TextEdit::onTextChange);
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setupFileActions();
@@ -737,7 +734,56 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
-void TextEdit::onTextChange() {  // PROBLEMA: si spacca se cancello il primo carattere (l'ultimo rimasto)
+void TextEdit::moveMyCursor(int targetCol, int targetLine, int line, QTextCursor *curs){
+    if(targetLine > line) {
+        for(int i = line; i < targetLine-line; i++) {
+            curs->movePosition(QTextCursor::Down);
+        }
+    } else if (targetLine < line) {
+        for(int i = targetLine; i < line-targetLine; i++) {
+            curs->movePosition(QTextCursor::Up);
+        }
+    }
+    curs->setPosition(targetCol);
+}
+
+void TextEdit::myInsertText(QString name, QString text, int line, int position) {
+    myCursor* c=myCursors.value(name);
+    QTextCursor curs = textEdit->textCursor();
+    int y = curs.blockNumber();
+    int x = curs.columnNumber();
+    if(c!=nullptr) {
+        qDebug()<< "Before: " << name << " " << c->line << " " << c->col;
+        moveMyCursor(c->col, c->line, y, &curs);
+
+        curs.deleteChar();
+
+        moveMyCursor(position, line, y, &curs);
+
+        curs.insertText(text);
+        curs.insertText("|");
+        c->setCol(curs.columnNumber());
+        c->setLine(curs.blockNumber());
+
+
+    } else {
+        c = new myCursor(line, position);
+        myCursors.insert(name, c);
+        qDebug()<< "Before: " << name << " " << c->line << " " << c->col;
+        moveMyCursor(position, line, y, &curs);
+
+        curs.insertText(text);
+        curs.insertText("|");
+        c->setCol(curs.columnNumber());
+        c->setLine(curs.blockNumber());
+    }
+        moveMyCursor(x,y,c->line, &curs);
+    qDebug()<< "After: " << name << " " << c->line << " " << c->col;
+    pos=lastPos;
+    curs.setPosition(pos);
+}
+
+void TextEdit::onTextChange() {
     QString s = textEdit->toPlainText();
 
     if(lastLength - s.length() >= 1) {

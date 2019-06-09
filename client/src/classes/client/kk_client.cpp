@@ -67,9 +67,14 @@ void kk_client::handleResponse(QString message) {
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
        crdt_ = std::shared_ptr<kk_crdt>(new kk_crdt(email_.toStdString(), casuale));
        editor_.show();
+       editor_.myInsertText("tizio","ciao\n", 0,0);
+       editor_.myInsertText("caio",",come", 1,1);
+       editor_.myInsertText("tizio","va?", 0,0);
        chat_.show();
        chat_.setNickName(email_);
        connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);
+    } else if(res.type() == "crdt") {
+
     } else if(res.type() == "chat" && res.result_type() == "ok") {
         QStringList res_ = res.body().split('_');
         chat_.appendMessage(res_[0], res_[1]);
