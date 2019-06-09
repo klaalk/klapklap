@@ -21,22 +21,22 @@ public:
     kk_filesys();
     ~kk_filesys();
 
-    void filesysOpenFile(QString username, QString filename, QString path){
-        QString command="touch "+ path ;
-        QFile file(filename);
-        QStringList list;
+//    void filesysOpenFile(QString username, QString filename, QString path){
+//        QString command="touch "+ path ;
+//        QFile file(filename);
+//        QStringList list;
 
-        if(files_tree.find(file)==files_tree.end()){
-            system(qPrintable(command));
-            list.push_back(username);
-            files_tree.insert(file,list);
+//        if(files_tree.find(file)==files_tree.end()){
+//            system(qPrintable(command));
+//            list.push_back(username);
+//            files_tree.insert(file,list);
 
 
-        }else {
-            files_tree.find(file)->push_back(username);
-        }
+//        }else {
+//            files_tree.find(file)->push_back(username);
+//        }
 
-    }
+//    }
 
 
 
