@@ -19,11 +19,8 @@ void kk_crdt::local_insert(char val, kk_pos pos) {
 }
 
 kk_char_ptr kk_crdt::generate_Char(char val, kk_pos pos) {
-
     vector<kk_identifier_ptr> position_before, position_after, new_position;
-
     kk_char_ptr new_Char = std::shared_ptr<kk_char>(new kk_char(val, this->siteid));
-
     position_before = this->find_position_before(pos);
     position_after = this->find_position_after(pos);
     new_position = this->generate_position_between(position_before, position_after, &new_position, 0);
@@ -32,7 +29,6 @@ kk_char_ptr kk_crdt::generate_Char(char val, kk_pos pos) {
 }
 
 vector<kk_identifier_ptr> kk_crdt::find_position_before(kk_pos pos) {
-
     if (pos.get_ch() == 0 && pos.get_line() == 0) {
         vector<kk_identifier_ptr> vuoto;
         return vuoto;

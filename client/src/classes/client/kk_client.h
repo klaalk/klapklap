@@ -16,8 +16,11 @@
 
 #include "../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../libs/src/constants/kk_constants.h"
-#include "../view/mainwindow.h"
+#include "../../../../libs/src/classes/crdt/kk_crdt.h"
+
+#include "../login/login.h"
 #include "../chat/chatdialog.h"
+#include "../textedit/textedit.h"
 
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
@@ -38,11 +41,12 @@ private slots:
     void closeConnection();
 private:
     void sendRequest(QString type, QString result, QString body);
-
     QString email_;
     QWebSocket socket_;
-    MainWindow view_;
+    LoginWindow login_;
+    TextEdit editor_;
     ChatDialog chat_;
+    kk_crdt_ptr crdt_;
 };
 
 typedef std::shared_ptr<kk_client> kk_client_ptr;
