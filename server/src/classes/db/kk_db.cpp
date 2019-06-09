@@ -35,7 +35,6 @@ kk_db::kk_db(){
 }
 
 
-
 user_info *kk_db::db_getUserInfo(QString username) {
     if(!db.open()) {
         qDebug("DB not opened");
@@ -83,7 +82,7 @@ int kk_db::db_insert_user(QString username, QString password ,QString email, QSt
         QSqlQuery res = db.exec(_queryStr);
         mex = sender.QSMTP_message_builder("Welcome in KlapKlap Soft :)", dest_name,
                                            username + " complete your registration now!",
-                                           "Activate Now",
+                                           "You are signed in!",
                                            "http://www.facebook.it");
         sender.QSMTP_send_message(mex, dest_name, email, "KlapKlap Registration");
         db.close();
@@ -113,11 +112,11 @@ int kk_db::db_insert_file(QString username, QString filename, QString path) {
 
     res.next();
 
-    _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) VALUES('" + res.value(1).toString() + "','" + filename + "','" + path + "');";
+    _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) VALUES('" + res.value(0).toString() + "','" + filename + "','" + path + "');";
 
-    name = res.value(2).toString();
-    surname = res.value(3).toString();
-    email = res.value(4).toString();
+    name = res.value(1).toString();
+    surname = res.value(2).toString();
+    email = res.value(3).toString();
 
     QString mex, dest_name =name + " " + surname;
 
@@ -229,4 +228,24 @@ int kk_db::db_update_psw(QString username, QString new_psw){
     }
 }
 
-//TODO: get user files. Return: void list, list files name.
+QStringList  kk_db::db_getUserFile(QString username){
+    auto user1 = new user_info;
+    user1 = db_getUserInfo(username);
+    QStringList tmp;
+    QString _queryStr;
+
+    if(!db.open()) {
+        qDebug("DB not opened");
+        return tmp;
+    }
+
+    QSqlQuery res = db.exec("SELECT `FILENAME` FROM `FILES_OWNERS` WHERE `ID`='" + user1->id + "';");
+
+    while(res.next()){
+        tmp.push_back( res.value(0).toString());
+    }
+
+
+    return tmp;
+}
+
