@@ -7,47 +7,42 @@
 #include "identifier/kk_identifier.h"
 
 using std::string;
+using std::shared_ptr;
 
-
-kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(casuale), base(32) {
+kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(strategy), base(32) {
 };
 
 void kk_crdt::local_insert(char val, kk_pos pos) {
-    kk_char *new_Char = new kk_char(val, this->siteid);
-    *new_Char = this->generate_Char(val, pos);
-    this->insert_char(*new_Char, pos);
+    kk_char_ptr newChar = this->generate_Char(val, pos);
+    this->insert_char(newChar, pos);
     return;
-
 }
 
-kk_char kk_crdt::generate_Char(char val, kk_pos pos) {
-
-    vector<kk_identifier> position_before, position_after, new_position;
-    kk_char *new_Char = new kk_char(val, this->siteid);
-
+kk_char_ptr kk_crdt::generate_Char(char val, kk_pos pos) {
+    vector<kk_identifier_ptr> position_before, position_after, new_position;
+    kk_char_ptr new_Char = std::shared_ptr<kk_char>(new kk_char(val, this->siteid));
     position_before = this->find_position_before(pos);
     position_after = this->find_position_after(pos);
     new_position = this->generate_position_between(position_before, position_after, &new_position, 0);
     new_Char->insert_position(new_position);
-    return *new_Char;
+    return new_Char;
 }
 
-vector<kk_identifier> kk_crdt::find_position_before(kk_pos pos) {
-
+vector<kk_identifier_ptr> kk_crdt::find_position_before(kk_pos pos) {
     if (pos.get_ch() == 0 && pos.get_line() == 0) {
-        vector<kk_identifier> vuoto;
+        vector<kk_identifier_ptr> vuoto;
         return vuoto;
     } else if (pos.get_ch() == 0 && pos.get_line() != 0) {
         int line = pos.get_line() - 1;
         int ch = text[line].size();
-        return std::next(text[line].begin(), ch - 1)->get_position();
+        return std::next(text[line].begin(), ch - 1)->get()->get_position();
     }
-    return std::next(text[pos.get_line()].begin(), pos.get_ch() - 1)->get_position();
+    return std::next(text[pos.get_line()].begin(), pos.get_ch() - 1)->get()->get_position();
 }
 
-vector<kk_identifier> kk_crdt::find_position_after(kk_pos pos) {
+vector<kk_identifier_ptr> kk_crdt::find_position_after(kk_pos pos) {
     int num_lines, num_chars;
-    vector<kk_identifier> vuoto;
+    vector<kk_identifier_ptr> vuoto;
 
     num_lines = text.size() - 1;
 
@@ -62,67 +57,58 @@ vector<kk_identifier> kk_crdt::find_position_after(kk_pos pos) {
     } else if (pos.get_line() == num_lines - 1 && pos.get_ch() == num_chars) { //sei all'ultima riga e all'ultimo char
         return vuoto;
     } else if (pos.get_line() < num_lines - 1 && pos.get_ch() == num_chars) { // sei a fine riga ma non nell'ultima riga
-        return text[pos.get_line() + 1].front().get_position();
+        return text[pos.get_line() + 1].front()->get_position();
     }
     return std::next(text[pos.get_line()].begin(),
-                     pos.get_ch())->get_position(); // se non sei in nessun caso particolare DA RIVEDERE
+                     pos.get_ch())->get()->get_position(); // se non sei in nessun caso particolare DA RIVEDERE
 }
 
-vector<kk_identifier>
-kk_crdt::generate_position_between(vector<kk_identifier> position1, vector<kk_identifier> position2,
-                                   vector<kk_identifier> *new_position, int level) {
+vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifier_ptr> position1, vector<kk_identifier_ptr> position2,
+                                   vector<kk_identifier_ptr> *new_position, int level) {
 
     strategy _strategy;
-
-    base = pow(2, level) * this->base;
+    double _base = pow(2, level) * this->base;
     _strategy = this->find_strategy(level);
-    kk_identifier *id1, *id2;
+
+    kk_identifier_ptr id1, id2;
 
 
     if (position1.empty()) {
-        id1 = new kk_identifier(0, this->siteid);
+        id1 = shared_ptr<kk_identifier>(new kk_identifier(0, this->siteid));
     } else {
-        id1 = new kk_identifier(position1[0].get_digit(), position1[0].get_siteid());
+        id1 = shared_ptr<kk_identifier>(new kk_identifier(position1[0]->get_digit(), position1[0]->get_siteid()));
     }
 
     if (position2.empty()) {
-        id2 = new kk_identifier(base, this->siteid);
+        id2 = shared_ptr<kk_identifier>(new kk_identifier(_base, this->siteid));
     } else {
-        id2 = new kk_identifier(position2[0].get_digit(), position2[0].get_siteid());
+        id2 = shared_ptr<kk_identifier>(new kk_identifier(position2[0]->get_digit(), position2[0]->get_siteid()));
     }
 
     if (id2->get_digit() - id1->get_digit() > 1) {
-
         int new_digit;
-        kk_identifier *new_id;
-
+        kk_identifier_ptr new_id;
         new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit(), _strategy);
-        new_id = new kk_identifier(new_digit, this->siteid);
-        new_position->insert(new_position->end(), *new_id);
+        new_id = shared_ptr<kk_identifier>(new kk_identifier(new_digit, this->siteid));
+        new_position->insert(new_position->end(), new_id);
         return *new_position;
-
     } else if (id2->get_digit() - id1->get_digit() == 1) {
-
-        new_position->insert(new_position->end(), *id1);
-
-        return this->generate_position_between(slice(position1, 1), vector<kk_identifier>(), new_position, level + 1);
-
+        new_position->insert(new_position->end(), id1);
+        return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position, level + 1);
     } else if (id1->get_digit() == id2->get_digit()) {
         if (id1->get_siteid() < id2->get_siteid()) {
-            new_position->insert(new_position->end(), *id1);
-            return this->generate_position_between(slice(position1, 1), vector<kk_identifier>(), new_position,
-                                                   level + 1);
-
+            new_position->insert(new_position->end(), id1);
+            return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position, level + 1);
         } else if (id1->get_siteid() == id2->get_siteid()) {
-            new_position->insert(new_position->end(), *id1);
+            new_position->insert(new_position->end(), id1);
             return this->generate_position_between(slice(position1, 1), slice(position2, 1), new_position, level + 1);
-
         } else {
-            std::cout << "ERRORE IN GETPOSITION" << std::endl;//gestire errore
-            return vector<kk_identifier>();
+            std::cout << "ERRORE IN GETPOSITION" << std::endl;
+            //gestire errore
+            return vector<kk_identifier_ptr>();
         }
     }
-    return vector<kk_identifier>();
+    return vector<kk_identifier_ptr>();
 }
 
 strategy kk_crdt::find_strategy(int level) {
@@ -133,12 +119,19 @@ strategy kk_crdt::find_strategy(int level) {
     switch (this->_strategy) {
         case plus:
             _local_strategy = plus;
+        break;
         case minus:
             _local_strategy = minus;
-        case casuale:
-            _local_strategy = round(rand()) == 0 ? plus : minus;
+        break;
+        case casuale: {
+            srand((unsigned int) time(0));
+            double _rand = ((double) rand() / RAND_MAX);
+            _local_strategy = round(_rand) == 0 ? plus : minus;
+            break;
+        }
         default:
             _local_strategy = (level % 2) == 0 ? plus : minus;
+
     }
     this->strategy_cache.insert(strategy_cache.begin() + level, _local_strategy);
     return _local_strategy;
@@ -155,9 +148,9 @@ int kk_crdt::generate_identifier_between(int min, int max, strategy _strategy) {
             max = min + this->boundary;
         }
     }
-    srand(time(NULL));
+    srand((unsigned int) time(0));
     double _rand = ((double) rand() / RAND_MAX);
-    return floor(_rand * (max - min)) + min;
+    return floor((float)(_rand * (max - min)) + min);
 }
 //
 //void kk_crdt::handle_remote_insert(kk_char _char){
@@ -226,13 +219,14 @@ int kk_crdt::generate_identifier_between(int min, int max, strategy _strategy) {
 //
 //}
 
-void kk_crdt::insert_char(kk_char _char, kk_pos pos) {
+void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
+    // Inizializzo la prima riga.
     if (pos.get_line() == text.size()) {
-        text.insert(text.end(), list<kk_char>());
+        text.insert(text.end(), list<kk_char_ptr>());
     }
 
     // if inserting a newline, split line into two lines
-    if (_char.get_value() == '\n') {
+    if (_char->get_value() == '\n') {
 //        list<kk_char> pos_line = text[pos.get_line()];
 //        list<kk_char> new_pos_line = Utility::splice<kk_char>(pos_line, pos.get_ch());
 //        text[pos.get_line()] = new_pos_line;
@@ -246,9 +240,9 @@ void kk_crdt::insert_char(kk_char _char, kk_pos pos) {
 //        }
     } else {
         if (text.at(pos.get_line()).empty()) {
-            text.insert(text.begin() + pos.get_line(), list<kk_char>());
+            text.insert(text.begin() + pos.get_line(), list<kk_char_ptr>());
         }
-        list<kk_char> _list_char = {_char};
+        list<kk_char_ptr> _list_char = {_char};
         text[pos.get_line()].splice(std::next(text[pos.get_line()].begin(), pos.get_ch()), _list_char);
     }
 }
@@ -256,9 +250,9 @@ void kk_crdt::insert_char(kk_char _char, kk_pos pos) {
 void kk_crdt::print() {
     for (int i = 0; i < text.size(); i++) {
         for (auto x : text[i]) {
-            std::cout << x.get_value() << "[ ";
-            for (auto y: x.get_position()) {
-                std::cout << y.get_digit() << " ";
+            std::cout << x->get_value() << "[ ";
+            for (auto y: x->get_position()) {
+                std::cout << y->get_digit() << " ";
             }
             std::cout << "] ";
         }
@@ -266,10 +260,13 @@ void kk_crdt::print() {
     }
 }
 
-vector<kk_identifier> kk_crdt::slice(vector<kk_identifier> const &v, int i) {
+vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int i) {
+    if(v.cbegin() == v.cend()) {
+        return std::vector<kk_identifier_ptr>();
+    }
     auto first = v.cbegin() + 1;
     auto last = v.cend();
 
-    std::vector<kk_identifier> list(first, last);
+    std::vector<kk_identifier_ptr> list(first, last);
     return list;
 }
