@@ -33,3 +33,7 @@ server/build-server-Desktop_Qt_5_12_3_MinGW_64_bit-Debug/
 server/build-server-Desktop_Qt_5_12_2_GCC_64bit-Debug/
 
 client/build-client-Desktop_Qt_5_12_2_GCC_64bit-Debug/
+
+client/build-client-Qt_5_12_3_for_iOS-Debug/
+
+client/src/client\.pro\.user
