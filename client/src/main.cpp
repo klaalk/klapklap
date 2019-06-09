@@ -21,293 +21,294 @@ int main(int argc, char* argv[])
 {
     kk_crdt *crdt = new kk_crdt("Canguro", casuale);
     crdt->local_insert('c', kk_pos(0,0));
-   crdt->print();
+
     crdt->local_insert('i', kk_pos(0,1));
-   crdt->print();
+
     crdt->local_insert('e', kk_pos(0,1));
-   crdt->print();
+
     crdt->local_insert('o', kk_pos(0,2));
-   crdt->print();
+
     crdt->local_insert('a', kk_pos(0,2));
-   crdt->print();
+
     crdt->local_insert('a', kk_pos(0,2));
-   crdt->print();
+
     crdt->local_insert('c', kk_pos(0,0));
-   crdt->print();
+
     crdt->local_insert('i', kk_pos(0,1));
-   crdt->print();
+
     crdt->local_insert('e', kk_pos(0,1));
-   crdt->print();
+
     crdt->local_insert('o', kk_pos(0,2));
-   crdt->print();
+
     crdt->local_insert('a', kk_pos(0,2));
-   crdt->print();
+
     crdt->local_insert('a', kk_pos(0,2));
-   crdt->print();
+
     crdt->local_insert('c', kk_pos(0,0));
-   crdt->print();
+
     crdt->local_insert('i', kk_pos(0,1));
-   crdt->print();
+
     crdt->local_insert('e', kk_pos(0,1));
-   crdt->print();
+
     crdt->local_insert('o', kk_pos(0,2));
-   crdt->print();
+
     crdt->local_insert('a', kk_pos(0,2));
-   crdt->print();
+
     crdt->local_insert('a', kk_pos(0,2));
-   crdt->print();
-   crdt->local_insert('c', kk_pos(0,0));
-  crdt->print();
-   crdt->local_insert('i', kk_pos(0,1));
-  crdt->print();
-   crdt->local_insert('e', kk_pos(0,1));
-  crdt->print();
-   crdt->local_insert('o', kk_pos(0,2));
-  crdt->print();
-   crdt->local_insert('a', kk_pos(0,2));
-  crdt->print();
-   crdt->local_insert('a', kk_pos(0,2));
-  crdt->print();
-   crdt->local_insert('c', kk_pos(0,0));
-  crdt->print();
-   crdt->local_insert('i', kk_pos(0,1));
-  crdt->print();
-   crdt->local_insert('e', kk_pos(0,1));
-  crdt->print();
-   crdt->local_insert('o', kk_pos(0,2));
-  crdt->print();
-   crdt->local_insert('a', kk_pos(0,2));
-  crdt->print();
-   crdt->local_insert('a', kk_pos(0,2));
-  crdt->print();
-   crdt->local_insert('c', kk_pos(0,0));
-  crdt->print();
-   crdt->local_insert('i', kk_pos(0,1));
-  crdt->print();
-   crdt->local_insert('e', kk_pos(0,1));
-  crdt->print();
-   crdt->local_insert('o', kk_pos(0,2));
-  crdt->print();
-   crdt->local_insert('a', kk_pos(0,2));
-  crdt->print();
-   crdt->local_insert('a', kk_pos(0,2));
-      crdt->print();
-      crdt->local_insert('c', kk_pos(0,0));
-     crdt->print();
-      crdt->local_insert('i', kk_pos(0,1));
-     crdt->print();
-      crdt->local_insert('e', kk_pos(0,1));
-     crdt->print();
-      crdt->local_insert('o', kk_pos(0,2));
-     crdt->print();
-      crdt->local_insert('a', kk_pos(0,2));
-     crdt->print();
-      crdt->local_insert('a', kk_pos(0,2));
-     crdt->print();
-      crdt->local_insert('c', kk_pos(0,0));
-     crdt->print();
-      crdt->local_insert('i', kk_pos(0,1));
-     crdt->print();
-      crdt->local_insert('e', kk_pos(0,1));
-     crdt->print();
-      crdt->local_insert('o', kk_pos(0,2));
-     crdt->print();
-      crdt->local_insert('a', kk_pos(0,2));
-     crdt->print();
-      crdt->local_insert('a', kk_pos(0,2));
-     crdt->print();
-      crdt->local_insert('c', kk_pos(0,0));
-     crdt->print();
-      crdt->local_insert('i', kk_pos(0,1));
-     crdt->print();
-      crdt->local_insert('e', kk_pos(0,1));
-     crdt->print();
-      crdt->local_insert('o', kk_pos(0,2));
-     crdt->print();
-      crdt->local_insert('a', kk_pos(0,2));
-     crdt->print();
-      crdt->local_insert('a', kk_pos(0,2));
-     crdt->print();
-     crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('c', kk_pos(0,0));
+
+    crdt->local_insert('i', kk_pos(0,1));
+
+    crdt->local_insert('e', kk_pos(0,1));
+
+    crdt->local_insert('o', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
+
+    crdt->local_insert('a', kk_pos(0,2));
     crdt->print();
-     crdt->local_insert('i', kk_pos(0,1));
-    crdt->print();
-     crdt->local_insert('e', kk_pos(0,1));
-    crdt->print();
-     crdt->local_insert('o', kk_pos(0,2));
-    crdt->print();
-     crdt->local_insert('a', kk_pos(0,2));
-    crdt->print();
-     crdt->local_insert('a', kk_pos(0,2));
-    crdt->print();
-     crdt->local_insert('c', kk_pos(0,0));
-    crdt->print();
-     crdt->local_insert('i', kk_pos(0,1));
-    crdt->print();
-     crdt->local_insert('e', kk_pos(0,1));
-    crdt->print();
-     crdt->local_insert('o', kk_pos(0,2));
-    crdt->print();
-     crdt->local_insert('a', kk_pos(0,2));
-    crdt->print();
-     crdt->local_insert('a', kk_pos(0,2));
-    crdt->print();
-     crdt->local_insert('c', kk_pos(0,0));
-    crdt->print();
-     crdt->local_insert('i', kk_pos(0,1));
-    crdt->print();
-     crdt->local_insert('e', kk_pos(0,1));
-    crdt->print();
-     crdt->local_insert('o', kk_pos(0,2));
-    crdt->print();
-     crdt->local_insert('a', kk_pos(0,2));
-    crdt->print();
-     crdt->local_insert('a', kk_pos(0,2));
-        crdt->print();
-        crdt->local_insert('c', kk_pos(0,0));
-       crdt->print();
-        crdt->local_insert('i', kk_pos(0,1));
-       crdt->print();
-        crdt->local_insert('e', kk_pos(0,1));
-       crdt->print();
-        crdt->local_insert('o', kk_pos(0,2));
-       crdt->print();
-        crdt->local_insert('a', kk_pos(0,2));
-       crdt->print();
-        crdt->local_insert('a', kk_pos(0,2));
-       crdt->print();
-        crdt->local_insert('c', kk_pos(0,0));
-       crdt->print();
-        crdt->local_insert('i', kk_pos(0,1));
-       crdt->print();
-        crdt->local_insert('e', kk_pos(0,1));
-       crdt->print();
-        crdt->local_insert('o', kk_pos(0,2));
-       crdt->print();
-        crdt->local_insert('a', kk_pos(0,2));
-       crdt->print();
-        crdt->local_insert('a', kk_pos(0,2));
-       crdt->print();
-        crdt->local_insert('c', kk_pos(0,0));
-       crdt->print();
-        crdt->local_insert('i', kk_pos(0,1));
-       crdt->print();
-        crdt->local_insert('e', kk_pos(0,1));
-       crdt->print();
-        crdt->local_insert('o', kk_pos(0,2));
-       crdt->print();
-        crdt->local_insert('a', kk_pos(0,2));
-       crdt->print();
-        crdt->local_insert('a', kk_pos(0,2));
-       crdt->print();
-       crdt->local_insert('c', kk_pos(0,0));
-      crdt->print();
-       crdt->local_insert('i', kk_pos(0,1));
-      crdt->print();
-       crdt->local_insert('e', kk_pos(0,1));
-      crdt->print();
-       crdt->local_insert('o', kk_pos(0,2));
-      crdt->print();
-       crdt->local_insert('a', kk_pos(0,2));
-      crdt->print();
-       crdt->local_insert('a', kk_pos(0,2));
-      crdt->print();
-       crdt->local_insert('c', kk_pos(0,0));
-      crdt->print();
-       crdt->local_insert('i', kk_pos(0,1));
-      crdt->print();
-       crdt->local_insert('e', kk_pos(0,1));
-      crdt->print();
-       crdt->local_insert('o', kk_pos(0,2));
-      crdt->print();
-       crdt->local_insert('a', kk_pos(0,2));
-      crdt->print();
-       crdt->local_insert('a', kk_pos(0,2));
-      crdt->print();
-       crdt->local_insert('c', kk_pos(0,0));
-      crdt->print();
-       crdt->local_insert('i', kk_pos(0,1));
-      crdt->print();
-       crdt->local_insert('e', kk_pos(0,1));
-      crdt->print();
-       crdt->local_insert('o', kk_pos(0,2));
-      crdt->print();
-       crdt->local_insert('a', kk_pos(0,2));
-      crdt->print();
-       crdt->local_insert('a', kk_pos(0,2));
-          crdt->print();
-          crdt->local_insert('c', kk_pos(0,0));
-         crdt->print();
-          crdt->local_insert('i', kk_pos(0,1));
-         crdt->print();
-          crdt->local_insert('e', kk_pos(0,1));
-         crdt->print();
-          crdt->local_insert('o', kk_pos(0,2));
-         crdt->print();
-          crdt->local_insert('a', kk_pos(0,2));
-         crdt->print();
-          crdt->local_insert('a', kk_pos(0,2));
-         crdt->print();
-          crdt->local_insert('c', kk_pos(0,0));
-         crdt->print();
-          crdt->local_insert('i', kk_pos(0,1));
-         crdt->print();
-          crdt->local_insert('e', kk_pos(0,1));
-         crdt->print();
-          crdt->local_insert('o', kk_pos(0,2));
-         crdt->print();
-          crdt->local_insert('a', kk_pos(0,2));
-         crdt->print();
-          crdt->local_insert('a', kk_pos(0,2));
-         crdt->print();
-          crdt->local_insert('c', kk_pos(0,0));
-         crdt->print();
-          crdt->local_insert('i', kk_pos(0,1));
-         crdt->print();
-          crdt->local_insert('e', kk_pos(0,1));
-         crdt->print();
-          crdt->local_insert('o', kk_pos(0,2));
-         crdt->print();
-          crdt->local_insert('a', kk_pos(0,2));
-         crdt->print();
-          crdt->local_insert('a', kk_pos(0,2));
-         crdt->print();
-         crdt->local_insert('c', kk_pos(0,0));
-        crdt->print();
-         crdt->local_insert('i', kk_pos(0,1));
-        crdt->print();
-         crdt->local_insert('e', kk_pos(0,1));
-        crdt->print();
-         crdt->local_insert('o', kk_pos(0,2));
-        crdt->print();
-         crdt->local_insert('a', kk_pos(0,2));
-        crdt->print();
-         crdt->local_insert('a', kk_pos(0,2));
-        crdt->print();
-         crdt->local_insert('c', kk_pos(0,0));
-        crdt->print();
-         crdt->local_insert('i', kk_pos(0,1));
-        crdt->print();
-         crdt->local_insert('e', kk_pos(0,1));
-        crdt->print();
-         crdt->local_insert('o', kk_pos(0,2));
-        crdt->print();
-         crdt->local_insert('a', kk_pos(0,2));
-        crdt->print();
-         crdt->local_insert('a', kk_pos(0,2));
-        crdt->print();
-         crdt->local_insert('c', kk_pos(0,0));
-        crdt->print();
-         crdt->local_insert('i', kk_pos(0,1));
-        crdt->print();
-         crdt->local_insert('e', kk_pos(0,1));
-        crdt->print();
-         crdt->local_insert('o', kk_pos(0,2));
-        crdt->print();
-         crdt->local_insert('a', kk_pos(0,2));
-        crdt->print();
-         crdt->local_insert('a', kk_pos(0,2));
-            crdt->print();
+
 //    Q_INIT_RESOURCE(client);
 //    QApplication a(argc, argv);
 //    kk_client client(QUrl(QStringLiteral("wss://localhost:3310")));

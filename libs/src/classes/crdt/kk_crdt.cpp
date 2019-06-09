@@ -90,33 +90,25 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
     }
 
     if (id2->get_digit() - id1->get_digit() > 1) {
-
         int new_digit;
         kk_identifier_ptr new_id;
-
         new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit(), _strategy);
         new_id = shared_ptr<kk_identifier>(new kk_identifier(new_digit, this->siteid));
         new_position->insert(new_position->end(), new_id);
         return *new_position;
-
     } else if (id2->get_digit() - id1->get_digit() == 1) {
-
         new_position->insert(new_position->end(), id1);
-
         return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position, level + 1);
-
     } else if (id1->get_digit() == id2->get_digit()) {
         if (id1->get_siteid() < id2->get_siteid()) {
             new_position->insert(new_position->end(), id1);
-            return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position,
-                                                   level + 1);
-
+            return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position, level + 1);
         } else if (id1->get_siteid() == id2->get_siteid()) {
             new_position->insert(new_position->end(), id1);
             return this->generate_position_between(slice(position1, 1), slice(position2, 1), new_position, level + 1);
-
         } else {
-            std::cout << "ERRORE IN GETPOSITION" << std::endl;//gestire errore
+            std::cout << "ERRORE IN GETPOSITION" << std::endl;
+            //gestire errore
             return vector<kk_identifier_ptr>();
         }
     }
