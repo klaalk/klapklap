@@ -15,6 +15,7 @@ kk_client::kk_client(const QUrl &url, QObject *parent)
     connect(&socket_, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors),
             this, &kk_client::handleSslErrors);
     socket_.open(QUrl(url));
+    //Editor setup
 }
 
 void kk_client::sendLoginRequest(QString email, QString password) {
@@ -49,9 +50,9 @@ void kk_client::handleConnection() {
     qDebug() << "WebSocket connected";
     // Gestisco la lettura dei messaggi.
     connect(&socket_, &QWebSocket::textMessageReceived, this, &kk_client::handleResponse);
-    connect(&view_, &MainWindow::loginBtnClicked, this, &kk_client::sendLoginRequest);
-    connect(&view_, &MainWindow::signupBtnClicked, this, &kk_client::sendSignupRequest);
-    view_.show();
+    connect(&login_, &LoginWindow::loginBtnClicked, this, &kk_client::sendLoginRequest);
+    connect(&login_, &LoginWindow::signupBtnClicked, this, &kk_client::sendSignupRequest);
+    login_.show();
 }
 
 void kk_client::handleResponse(QString message) {
@@ -59,12 +60,13 @@ void kk_client::handleResponse(QString message) {
     kk_payload res(message);
     res.decode_header();
     if(res.type() == "login" && res.result_type() == "ok") {
-       view_.hide();
+       login_.hide();
        //TODO: aprire la window che gestisce i file.
        // ma per il momento faccio l'apertura automatica del file.
        sendOpenFileRequest("file1");
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
-       view_.openEditor();
+       crdt_ = std::shared_ptr<kk_crdt>(new kk_crdt(email_.toStdString(), casuale));
+       editor_.show();
        chat_.show();
        chat_.setNickName(email_);
        connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);

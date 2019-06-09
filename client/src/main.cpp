@@ -24,7 +24,8 @@ int main(int argc, char* argv[])
     parser.addPositionalArgument("file", "The file to open.");
     parser.process(a);
 
-    kk_client client(QUrl(QStringLiteral("wss://130.192.163.109:3002")));
+    kk_client client(QUrl(QStringLiteral("wss://localhost:3002")));
+//    kk_client client(QUrl(QStringLiteral("wss://130.192.163.109:3002")));
 
     Q_UNUSED(client);
     return a.exec();

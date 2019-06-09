@@ -30,8 +30,8 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/constants/kk_constants.h \
                 classes/textedit/textedit.h \
                 classes/client/kk_client.h \
-                classes/chat/chatdialog.h\
-                classes/view/mainwindow.h\
+                classes/chat/chatdialog.h\ \
+    classes/login/login.h
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/crdt/char/kk_char.cpp \
@@ -42,14 +42,14 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 classes/textedit/textedit.cpp \
                 classes/client/kk_client.cpp \
                 classes/chat/chatdialog.cpp\
-                classes/view/mainwindow.cpp\
+                classes/login/login.cpp \
                 main.cpp
 
 RESOURCES += assets/client.qrc
 
 FORMS += \
-        ui/mainwindow.ui\
-        ui/chatdialog.ui
+        ui/chatdialog.ui \
+        ui/loginwindow.ui
 
 build_all:!build_pass {
     CONFIG -= build_all

@@ -26,6 +26,9 @@ public:
 
     bool load(const QString &f);
 
+signals:
+    void textInserted(QString text, int startLine, int startCol, int endLine, int endCol);
+
 public slots:
     void fileNew();
 
@@ -93,5 +96,5 @@ private:
     QToolBar *tb;
     QTextEdit *textEdit;
 };
-
+typedef QSharedPointer<TextEdit> textedit_ptr;
 #endif // TEXTEDIT_H

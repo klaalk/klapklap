@@ -55,6 +55,7 @@ TextEdit::TextEdit(QWidget *parent)
 #ifdef Q_OS_OSX
     setUnifiedTitleAndToolBarOnMac(true);
 #endif
+    setWindowState(Qt::WindowMaximized);
     setWindowTitle(QCoreApplication::applicationName());
 
     textEdit = new QTextEdit(this);
