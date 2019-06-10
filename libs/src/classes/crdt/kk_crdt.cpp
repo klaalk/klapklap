@@ -15,7 +15,8 @@
 using std::string;
 using std::shared_ptr;
 
-kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(strategy), base(32) {
+
+kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(20), _strategy(strategy), base(32) {
 };
 
 void kk_crdt::local_insert(char val, kk_pos pos) {
@@ -192,9 +193,6 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
        }
 
     }
-
-
-
     std::cout<<min <<"  "<<random_number <<"  "<<max <<std::endl;
 
     return random_number;
@@ -211,14 +209,14 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
     if (_char->get_value() == '\n') {
 
 
-        list<kk_char_ptr> line_after={};
-        line_after.splice(line_after.begin(), line_after, std::next(text[pos.get_line()].begin(), 2), text[pos.get_line()].end());
+        list<kk_char_ptr> line_after=copy_and_remove(pos);
 
-           if (line_after.size() == 0) {
+          if (line_after.size() == 0) {
                list<kk_char_ptr> _list_char = {_char};
                text[pos.get_line()].splice(std::next(text[pos.get_line()].begin(), static_cast<long>(pos.get_ch())), _list_char);
            } else {
-               text[pos.get_line()].insert(text[pos.get_line()].end(),_char);
+
+               text[pos.get_line()].push_back(_char);
                list<kk_char_ptr> line_before(text[pos.get_line()]);
                text.erase(std::next(text.begin(),pos.get_line()));
                text.insert(std::next(text.begin(),pos.get_line()),line_before);
@@ -327,3 +325,26 @@ vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int
     std::vector<kk_identifier_ptr> list(first, last);
     return list;
 }
+
+
+list<kk_char_ptr> kk_crdt::copy_and_remove(kk_pos pos){
+
+    list<kk_char_ptr> removed(std::next(text[pos.get_line()].begin(),static_cast<long>(pos.get_ch())),text[pos.get_line()].end());
+
+    for(auto i=pos.get_ch();i<text[pos.get_line()].size()+1;i++){
+
+        text[pos.get_line()].erase(std::next(text[pos.get_line()].begin(),static_cast<long>(i)));
+
+    }
+
+
+    return removed;
+
+
+}
+
+
+
+
+
+

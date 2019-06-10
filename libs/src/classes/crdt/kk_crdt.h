@@ -51,14 +51,15 @@ public:
 
     unsigned long generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
 
-
+   void insert_char(kk_char_ptr _char, kk_pos pos);
+   list<kk_char_ptr> copy_and_remove(kk_pos pos);
 
 //    void handle_remote_insert(kk_char _char);
 //    kk_pos find_insert_position(kk_char _char);
 //    int is_empty();
 //    kk_pos find_end_position (kk_char last_char,  list<kk_char> last_line, int total_lines);
 //    int find_insert_index_in_line(kk_char _char, list<kk_char> line);
-    void insert_char(kk_char_ptr _char, kk_pos pos);
+
 //    void local_delete(kk_pos start_pos, kk_pos end_pos);
 //    list<kk_char> delete_multiple_lines(kk_pos start_pos, kk_pos end_pos);
 //    list<kk_char> delete_single_line(kk_pos start_pos, kk_pos end_pos);
@@ -67,7 +68,7 @@ public:
 //    void remote_delete(kk_char _Char);
 //    kk_pos find_pos (kk_char _Char);
 //    int find_index_in_line(kk_char _Char, int line);
-    vector<kk_identifier_ptr> slice(vector<kk_identifier_ptr> const &v, int i);
+    vector<kk_identifier_ptr> slice(vector<kk_identifier_ptr> const &v,int i);
     void print();
 };
 
