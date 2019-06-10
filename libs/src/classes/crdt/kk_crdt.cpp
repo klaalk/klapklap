@@ -331,9 +331,10 @@ list<kk_char_ptr> kk_crdt::copy_and_remove(kk_pos pos){
 
     list<kk_char_ptr> removed(std::next(text[pos.get_line()].begin(),static_cast<long>(pos.get_ch())),text[pos.get_line()].end());
 
-    for(auto i=pos.get_ch();i<text[pos.get_line()].size()+1;i++){
 
-        text[pos.get_line()].erase(std::next(text[pos.get_line()].begin(),static_cast<long>(i)));
+    for(auto i=text[pos.get_line()].size();i>pos.get_ch();i--){
+
+        text[pos.get_line()].pop_back();
 
     }
 
