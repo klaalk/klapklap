@@ -65,7 +65,7 @@ void kk_client::handleResponse(QString message) {
        // ma per il momento faccio l'apertura automatica del file.
        sendOpenFileRequest("file1");
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
-       crdt_ = new kk_crdt("email_.toStdString()", casuale);
+       crdt_ = new kk_crdt(email_.toStdString(), casuale);
        connect(&editor_, &TextEdit::diffTextChanged, this, &kk_client::onDiffTextChange);
        editor_.show();
        chat_.show();
@@ -96,11 +96,14 @@ void kk_client::handleClosedConnection() {
 }
 
 void kk_client::onDiffTextChange(QString diffText, int position) {
-    QByteArray ba = diffText.toLocal8Bit();
-    char *c_str = ba.data();
-
-    for(int i = 0; *c_str != '\0'; c_str++, i++) {
-        crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i) ));
-    }
-    crdt_->print();
+    std::thread t([=](){
+        QByteArray ba = diffText.toLocal8Bit();
+        char *c_str = ba.data();
+        mtxCrdt_.lock();
+        for(int i = 0; *c_str != '\0'; c_str++, i++) {
+            crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i) ));
+        }
+        mtxCrdt_.unlock();
+    });
+    t.detach();
 }

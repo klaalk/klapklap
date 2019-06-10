@@ -10,6 +10,8 @@
 #include <math.h>
 #include <vector>
 #include <list>
+#include <thread>
+
 #include <QRandomGenerator>
 
 #include "char/kk_char.h"

@@ -6,6 +6,7 @@
 #define CLIENT_CHAT_CLIENT_H
 
 #include <memory>
+#include <mutex>
 
 #include <QtCore/QObject>
 #include <QtWebSockets/QWebSocket>
@@ -51,6 +52,8 @@ private:
     TextEdit editor_;
     ChatDialog chat_;
     kk_crdt* crdt_;
+    QByteArray bufferCrdt_;
+    std::mutex mtxCrdt_;
 };
 
 typedef std::shared_ptr<kk_client> kk_client_ptr;

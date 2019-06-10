@@ -43,7 +43,6 @@ vector<kk_identifier_ptr> kk_crdt::find_position_before(kk_pos pos) {
 
 vector<kk_identifier_ptr> kk_crdt::find_position_after(kk_pos pos) {
     long num_lines, num_chars;
-    vector<kk_identifier_ptr> vuoto;
 
     num_lines = static_cast<long>(text.size()) - 1;
 
@@ -54,9 +53,9 @@ vector<kk_identifier_ptr> kk_crdt::find_position_after(kk_pos pos) {
     }
 
     if (static_cast<long>(pos.get_line()) > num_lines - 1 && pos.get_ch() == 0) { //non dovrebbe mai succedere
-        return vuoto;
+        return vector<kk_identifier_ptr>();
     } else if (static_cast<long>(pos.get_line()) == num_lines - 1 && static_cast<long>(pos.get_ch()) == num_chars) { //sei all'ultima riga e all'ultimo char
-        return vuoto;
+        return vector<kk_identifier_ptr>();
     } else if (static_cast<long>(pos.get_line()) < num_lines - 1 && static_cast<long>(pos.get_ch()) == num_chars) { // sei a fine riga ma non nell'ultima riga
         return text[pos.get_line() + 1].front()->get_position();
     }
@@ -68,10 +67,14 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
                                    vector<kk_identifier_ptr> *new_position, unsigned long level) {
 
     strategy _strategy;
+
     unsigned long elev = static_cast<unsigned long>(pow(2,level));
     unsigned long _base = elev * this->base;
+
     _strategy = this->find_strategy(level);
+
     kk_identifier_ptr id1, id2;
+
     if (position1.empty()) {
         id1 = shared_ptr<kk_identifier>(new kk_identifier(0, this->siteid));
     } else {
@@ -85,6 +88,7 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
     if (id2->get_digit() - id1->get_digit() > 1) {
         unsigned long new_digit;
         kk_identifier_ptr new_id;
+
         if(position2.empty()){
             new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit(), _strategy);}
         else{
@@ -93,6 +97,7 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
         new_id = shared_ptr<kk_identifier>(new kk_identifier(new_digit, this->siteid));
         new_position->insert(new_position->end(), new_id);
         return *new_position;
+
     } else if (id2->get_digit() - id1->get_digit() == 1) {
         new_position->insert(new_position->end(), id1);
         return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position, level + 1);
@@ -149,26 +154,21 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
     }
 
     unsigned long random_number;
-
-//    std::random_device rd; // obtain a random number from hardware
-//    std::mt19937 eng(rd()); // seed the generator
-//    std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
-//    random_number=static_cast<unsigned long>(distr(eng));
     double _rand = gen.bounded(32) / 32;
     random_number = static_cast<unsigned long>(floor(_rand*(max- min) + min));
 
-    if ((max - min < this->boundary)) {
-        std::cout<<"non importa"<<std::endl;
-    } else {
-       if(_strategy==minus) {
-             std::cout<<"minus"<<std::endl;
-       } else if (_strategy==plus) {
-            std::cout<<"plus"<<std::endl;
-       } else if (_strategy==casuale) {
-            std::cout<<"casuale"<<std::endl;
-       }
-    }
-    std::cout<<min <<"  "<<random_number <<"  "<<max <<std::endl;
+//    if ((max - min < this->boundary)) {
+//        std::cout<<"non importa"<<std::endl;
+//    } else {
+//       if(_strategy==minus) {
+//             std::cout<<"minus"<<std::endl;
+//       } else if (_strategy==plus) {
+//            std::cout<<"plus"<<std::endl;
+//       } else if (_strategy==casuale) {
+//            std::cout<<"casuale"<<std::endl;
+//       }
+//    }
+//    std::cout<<min <<"  "<<random_number <<"  "<<max <<std::endl;
     return random_number;
 }
 
