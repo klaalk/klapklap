@@ -17,6 +17,7 @@
 #include "../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../libs/src/constants/kk_constants.h"
 #include "../../../../libs/src/classes/crdt/kk_crdt.h"
+#include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 
 #include "../login/login.h"
 #include "../chat/chatdialog.h"
@@ -31,14 +32,17 @@ public:
     explicit kk_client(const QUrl &url, QObject *parent = nullptr);
 
 private slots:
-    void handleConnection();
+    void handleOpenedConnection();
     void handleResponse(QString message);
     void handleSslErrors(const QList<QSslError> &errors);
+    void handleClosedConnection();
+
     void sendSignupRequest(QString email, QString password, QString name, QString surname);
     void sendLoginRequest(QString email, QString password);
     void sendOpenFileRequest(QString fileName);
     void sendMessageRequest(QString message);
-    void closeConnection();
+    void onDiffTextChange(QString diffText, int position);
+
 private:
     void sendRequest(QString type, QString result, QString body);
     QString email_;
@@ -46,7 +50,7 @@ private:
     LoginWindow login_;
     TextEdit editor_;
     ChatDialog chat_;
-    kk_crdt_ptr crdt_;
+    kk_crdt* crdt_;
 };
 
 typedef std::shared_ptr<kk_client> kk_client_ptr;

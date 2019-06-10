@@ -10,6 +10,7 @@
 #include <math.h>
 #include <vector>
 #include <list>
+#include <random>
 
 #include "char/kk_char.h"
 #include "pos/kk_pos.h"
@@ -26,16 +27,14 @@ enum strategy {
 class kk_crdt {
 public:
     vector<list<kk_char_ptr>> text;
-
     string siteid;
     unsigned long boundary;
     strategy _strategy;
     vector<strategy> strategy_cache;
     unsigned long base;
-    int boundary;
     //costruttore
     kk_crdt(string siteid, strategy strategy);
-
+    void print();
     void local_insert(char val, kk_pos pos);
 private:
     ///genera la Char partendo dal valore e dalla posizione nel local text
@@ -69,7 +68,6 @@ private:
 //    kk_pos find_pos (kk_char _Char);
 //    int find_index_in_line(kk_char _Char, int line);
     vector<kk_identifier_ptr> slice(vector<kk_identifier_ptr> const &v, int i);
-    void print();
 };
 
 typedef std::shared_ptr<kk_crdt> kk_crdt_ptr;

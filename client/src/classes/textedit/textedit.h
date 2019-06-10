@@ -9,6 +9,7 @@
 #include <QMap>
 #include <QPointer>
 #include <QTextCursor>
+
 class QAction;
 class QComboBox;
 class QFontComboBox;
@@ -16,30 +17,28 @@ class QTextEdit;
 class QTextCharFormat;
 class QMenu;
 class QPrinter;
-class myCursor{
+
+class kk_cursor{
 public:
-    int line;
-    int col;
-    myCursor(int line, int col): line(line), col(col){}
-    void setCol(int col) {
-        this->col = col;
-    }
-    void setLine(int line) {
-        this->line = line;
+    int globalPositon;
+    kk_cursor(int position): globalPositon(position){}
+    void setGlobalPositon(int position) {
+        this->globalPositon = position;
     }
 };
+
 class TextEdit : public QMainWindow
 {
 Q_OBJECT
 
 public:
     TextEdit(QWidget *parent = 0);
-
+    QTextEdit *textEdit;
     bool load(const QString &f);
-    void myInsertText(QString text, QString name, int line, int position);
-    void moveMyCursor(int targetCol, int targetLine, int line, QTextCursor *curs);
+    void insertRemoteText(QString name, QString text, int position);
+    void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
 signals:
-    void textInserted(QString text, int startLine, int startCol, int endLine, int endCol);
+    void diffTextChanged(QString text, int position);
 
 public slots:
     void fileNew();
@@ -71,8 +70,8 @@ private slots:
     void about();
     void printPreview(QPrinter *);
     void onTextChange();
-private:
 
+private:
     void setupFileActions();
     void setupEditActions();
     void setupTextActions();
@@ -100,16 +99,15 @@ private:
     QAction *actionCopy;
     QAction *actionPaste;
 #endif
+    bool blockCursor = false;
+    int lastLength = 0, cursorPos=0, lastCursorPos=0;
+    QMap <QString,kk_cursor*> cursors_;
 
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
-    int lastLength = 0, curLinePos = 0, pos=0, lastPos=0;
     QString lastText="",diffText="",fileName;
     QToolBar *tb;
-    QTextEdit *textEdit;
-    QMap <QString,myCursor*> myCursors;
-
 };
 typedef QSharedPointer<TextEdit> textedit_ptr;
 #endif // TEXTEDIT_H

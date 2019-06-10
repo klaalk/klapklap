@@ -639,12 +639,16 @@ void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 
 void TextEdit::cursorPositionChanged()
 {
+    // IMPORTANTE per le modifiche da remoto.
+    if(blockCursor) return;
+
     alignmentChanged(textEdit->alignment());
     QTextList *list = textEdit->textCursor().currentList();
 
     QTextCursor  cursor = textEdit->textCursor();
-    lastPos=pos;
-    pos=cursor.position();
+
+    lastCursorPos = cursorPos;
+    cursorPos = cursor.position();
 
     if (list) {
         switch (list->format().style()) {
@@ -734,7 +738,7 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
-void TextEdit::moveMyCursor(int targetCol, int targetLine, int line, QTextCursor *curs){
+void TextEdit::movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs){
     if(targetLine > line) {
         for(int i = line; i < targetLine-line; i++) {
             curs->movePosition(QTextCursor::Down);
@@ -747,67 +751,52 @@ void TextEdit::moveMyCursor(int targetCol, int targetLine, int line, QTextCursor
     curs->setPosition(targetCol);
 }
 
-void TextEdit::myInsertText(QString name, QString text, int line, int position) {
-    myCursor* c=myCursors.value(name);
+void TextEdit::insertRemoteText(QString name, QString text, int position) {
+    //Blocco il cursore dell'editor.
+    blockCursor = true;
+    //Prelevo i cursori.
+    kk_cursor* c = cursors_.value(name);
     QTextCursor curs = textEdit->textCursor();
-    int y = curs.blockNumber();
-    int x = curs.columnNumber();
+    // Faccio dei controlli sulla fattibilità dell'operazione.
+    position = position > lastLength - 1 ? lastLength - 1 : position;
+    position = position < 0 ? 0 : position;
     if(c!=nullptr) {
-        qDebug()<< "Before: " << name << " " << c->line << " " << c->col;
-        moveMyCursor(c->col, c->line, y, &curs);
-
-        curs.deleteChar();
-
-        moveMyCursor(position, line, y, &curs);
-
-        curs.insertText(text);
-        curs.insertText("|");
-        c->setCol(curs.columnNumber());
-        c->setLine(curs.blockNumber());
-
-
+        //Se esiste, elimino il vecchio segnaposto del mio utente.
+        curs.setPosition(c->globalPositon);
+        curs.deletePreviousChar();
+        curs.deletePreviousChar();
     } else {
-        c = new myCursor(line, position);
-        myCursors.insert(name, c);
-        qDebug()<< "Before: " << name << " " << c->line << " " << c->col;
-        moveMyCursor(position, line, y, &curs);
-
-        curs.insertText(text);
-        curs.insertText("|");
-        c->setCol(curs.columnNumber());
-        c->setLine(curs.blockNumber());
+        //Creo il cursore per l'utente se non esiste.
+        c = new kk_cursor(position);
+        cursors_.insert(name, c);
     }
-        moveMyCursor(x,y,c->line, &curs);
-    qDebug()<< "After: " << name << " " << c->line << " " << c->col;
-    pos=lastPos;
-    curs.setPosition(pos);
+    // Scrivo
+    curs.setPosition(position);
+    curs.insertText(text);
+    curs.insertText('|'+name.at(0));
+    //Aggiorno il mio kk_cursor.
+    c->setGlobalPositon(curs.position());
+    //Riporto il cursor dell'editor alla posizone di partenza.
+    curs.setPosition(cursorPos);
+    //Aggiorno la length considerando il segnaposto e \0.
+    lastLength = lastLength + text.length() + 3;
+    //Sblocco il cursore dell'editor.
+    blockCursor = false;
 }
 
 void TextEdit::onTextChange() {
+    // IMPORTANTE per le modifiche da remoto.
+    if(blockCursor) return;
     QString s = textEdit->toPlainText();
-
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
-        diffText=lastText.mid(pos,lastLength - s.length());
+        diffText=lastText.mid(cursorPos, lastLength - s.length());
         qDebug() << diffText;
-
-        for(int i=0;i<diffText.length();i++)
-            if(diffText[i]=='\n')
-               curLinePos--;
-
-
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
-       diffText=s.mid(lastPos, s.length()-lastLength);
-       qDebug() << diffText;
-
-       for(int i=0;i<diffText.length();i++)
-           if(diffText[i]=='\n')
-              curLinePos++;
+       diffText=s.mid(lastCursorPos, s.length() - lastLength);
+       emit diffTextChanged(diffText, lastCursorPos);
     }
-    qDebug() << (s.length() - lastLength);
-
     lastLength = s.length();
     lastText = s;
-    lastPos=pos;
 }

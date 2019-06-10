@@ -11,7 +11,7 @@
 
 kk_client::kk_client(const QUrl &url, QObject *parent)
     : QObject(parent) {
-    connect(&socket_, &QWebSocket::connected, this, &kk_client::handleConnection);
+    connect(&socket_, &QWebSocket::connected, this, &kk_client::handleOpenedConnection);
     connect(&socket_, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors),
             this, &kk_client::handleSslErrors);
     socket_.open(QUrl(url));
@@ -46,7 +46,7 @@ void kk_client::sendRequest(QString type, QString result, QString body) {
     socket_.sendTextMessage(req.encode_header());
 }
 
-void kk_client::handleConnection() {
+void kk_client::handleOpenedConnection() {
     qDebug() << "WebSocket connected";
     // Gestisco la lettura dei messaggi.
     connect(&socket_, &QWebSocket::textMessageReceived, this, &kk_client::handleResponse);
@@ -65,11 +65,9 @@ void kk_client::handleResponse(QString message) {
        // ma per il momento faccio l'apertura automatica del file.
        sendOpenFileRequest("file1");
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
-       crdt_ = std::shared_ptr<kk_crdt>(new kk_crdt(email_.toStdString(), casuale));
+       crdt_ = new kk_crdt("email_.toStdString()", casuale);
+       connect(&editor_, &TextEdit::diffTextChanged, this, &kk_client::onDiffTextChange);
        editor_.show();
-       editor_.myInsertText("tizio","ciao\n", 0,0);
-       editor_.myInsertText("caio",",come", 1,1);
-       editor_.myInsertText("tizio","va?", 0,0);
        chat_.show();
        chat_.setNickName(email_);
        connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);
@@ -93,6 +91,16 @@ void kk_client::handleSslErrors(const QList<QSslError> &errors) {
     socket_.ignoreSslErrors();
 }
 
-void kk_client::closeConnection() {
+void kk_client::handleClosedConnection() {
     qApp->quit();
+}
+
+void kk_client::onDiffTextChange(QString diffText, int position) {
+    QByteArray ba = diffText.toLocal8Bit();
+    char *c_str = ba.data();
+
+    for(int i = 0; *c_str != '\0'; c_str++, i++) {
+        crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i) ));
+    }
+    crdt_->print();
 }

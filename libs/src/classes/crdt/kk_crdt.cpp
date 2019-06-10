@@ -8,9 +8,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <random>
-
-
-
+#include <qrandom.h>
 
 using std::string;
 using std::shared_ptr;
@@ -76,22 +74,17 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
     unsigned long elev = static_cast<unsigned long>(pow(2,level));
     unsigned long _base = elev * this->base;
     _strategy = this->find_strategy(level);
-
     kk_identifier_ptr id1, id2;
-
-
     if (position1.empty()) {
         id1 = shared_ptr<kk_identifier>(new kk_identifier(0, this->siteid));
     } else {
         id1 = shared_ptr<kk_identifier>(new kk_identifier(position1[0]->get_digit(), position1[0]->get_siteid()));
     }
-
     if (position2.empty()) {
         id2 = shared_ptr<kk_identifier>(new kk_identifier(_base, this->siteid));
     } else {
         id2 = shared_ptr<kk_identifier>(new kk_identifier(position2[0]->get_digit(), position2[0]->get_siteid()));
     }
-
     if (id2->get_digit() - id1->get_digit() > 1) {
         unsigned long new_digit;
         kk_identifier_ptr new_id;
@@ -100,7 +93,6 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
         else{
             new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit()-1, _strategy);
         };
-
         new_id = shared_ptr<kk_identifier>(new kk_identifier(new_digit, this->siteid));
         new_position->insert(new_position->end(), new_id);
         return *new_position;
@@ -137,8 +129,7 @@ strategy kk_crdt::find_strategy(unsigned long level) {
         break;
         case casuale: {
             double _rand;
-            _rand = rand()%100;
-            _rand=_rand/100;
+            _rand = rand()/(RAND_MAX/2);
             _local_strategy = round(_rand) == 0 ? plus : minus;
             break;
         }
@@ -163,30 +154,28 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
 
     unsigned long random_number;
 
-    std::random_device rd; // obtain a random number from hardware
-    std::mt19937 eng(rd()); // seed the generator
-    std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
-    random_number=static_cast<unsigned long>(distr(eng));
+//    std::random_device rd; // obtain a random number from hardware
+//    std::mt19937 eng(rd()); // seed the generator
+//    std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
+//    random_number=static_cast<unsigned long>(distr(eng));
+
+    double _rand;
+    _rand = rand()/RAND_MAX;
+    random_number=static_cast<unsigned long>(floor(_rand*(max- min) + min));
 
     if ((max - min < this->boundary)) {
         std::cout<<"non importa"<<std::endl;
-    }else{
-        if(_strategy==minus){
+    } else {
+       if(_strategy==minus) {
              std::cout<<"minus"<<std::endl;
-        }else if(_strategy==plus){
+       } else if (_strategy==plus) {
             std::cout<<"plus"<<std::endl;
-       } else if(_strategy==casuale){
+       } else if (_strategy==casuale) {
             std::cout<<"casuale"<<std::endl;
        }
-
     }
-
-
-
     std::cout<<min <<"  "<<random_number <<"  "<<max <<std::endl;
-
     return random_number;
-
 }
 
 void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
@@ -197,23 +186,18 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
 
     // if inserting a newline, split line into two lines
     if (_char->get_value() == '\n') {
-
-
-        list<kk_char_ptr> line_after={};
-        line_after.splice(line_after.begin(), line_after, std::next(text[pos.get_line()].begin(), 2), text[pos.get_line()].end());
-
-           if (line_after.size() == 0) {
-               list<kk_char_ptr> _list_char = {_char};
-               text[pos.get_line()].splice(std::next(text[pos.get_line()].begin(), static_cast<long>(pos.get_ch())), _list_char);
-           } else {
-               text[pos.get_line()].insert(text[pos.get_line()].end(),_char);
-               list<kk_char_ptr> line_before(text[pos.get_line()]);
-               text.erase(std::next(text.begin(),pos.get_line()));
-               text.insert(std::next(text.begin(),pos.get_line()),line_before);
-               text.insert(std::next(text.begin(),pos.get_line()+1),line_after);
-
-           }
-
+       list<kk_char_ptr> line_after={};
+       line_after.splice(line_after.begin(), line_after, std::next(text[pos.get_line()].begin(), 2), text[pos.get_line()].end());
+       if (line_after.size() == 0) {
+           list<kk_char_ptr> _list_char = {_char};
+           text[pos.get_line()].splice(std::next(text[pos.get_line()].begin(), static_cast<long>(pos.get_ch())), _list_char);
+       } else {
+           text[pos.get_line()].insert(text[pos.get_line()].end(),_char);
+           list<kk_char_ptr> line_before(text[pos.get_line()]);
+           text.erase(std::next(text.begin(),pos.get_line()));
+           text.insert(std::next(text.begin(),pos.get_line()),line_before);
+           text.insert(std::next(text.begin(),pos.get_line()+1),line_after);
+       }
 
     } else {
         if (text.at(pos.get_line()).empty()) {
@@ -303,12 +287,14 @@ void kk_crdt::print() {
         }
         std::cout << std::endl;
     }
+    std::cout << "FINE" <<std::endl;
 }
 
 vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int i) {
     if(v.cbegin() == v.cend()) {
         return std::vector<kk_identifier_ptr>();
     }
+
     auto first = v.cbegin() + i;
     auto last = v.cend();
 
