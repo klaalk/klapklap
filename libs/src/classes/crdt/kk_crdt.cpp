@@ -13,7 +13,8 @@
 using std::string;
 using std::shared_ptr;
 
-kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(strategy), base(32) {
+
+kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(20), _strategy(strategy), base(32) {
 };
 
 void kk_crdt::local_insert(char val, kk_pos pos) {
@@ -193,6 +194,7 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
            text[pos.get_line()].splice(std::next(text[pos.get_line()].begin(), static_cast<long>(pos.get_ch())), _list_char);
        } else {
            text[pos.get_line()].insert(text[pos.get_line()].end(),_char);
+               text[pos.get_line()].push_back(_char);
            list<kk_char_ptr> line_before(text[pos.get_line()]);
            text.erase(std::next(text.begin(),pos.get_line()));
            text.insert(std::next(text.begin(),pos.get_line()),line_before);
@@ -301,3 +303,11 @@ vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int
     std::vector<kk_identifier_ptr> list(first, last);
     return list;
 }
+
+
+
+
+
+
+
+
