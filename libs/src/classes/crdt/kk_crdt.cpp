@@ -2,13 +2,9 @@
 // Created by Alberto Bruno on 2019-05-15.
 //
 
-#include <sys/time.h>
 #include "kk_crdt.h"
 #include "identifier/kk_identifier.h"
-#include <cstdlib>
-#include <ctime>
-#include <random>
-#include <qrandom.h>
+
 
 using std::string;
 using std::shared_ptr;
@@ -129,10 +125,9 @@ strategy kk_crdt::find_strategy(unsigned long level) {
             _local_strategy = minus;
         break;
         case casuale: {
-            double _rand;
-            _rand = rand()/(RAND_MAX/2);
+            double _rand = gen.bounded(32) / 32;
             _local_strategy = round(_rand) == 0 ? plus : minus;
-            break;
+        break;
         }
     }
    //this->strategy_cache.insert(strategy_cache.begin() + static_cast<int>(level), _local_strategy);
@@ -159,10 +154,8 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
 //    std::mt19937 eng(rd()); // seed the generator
 //    std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
 //    random_number=static_cast<unsigned long>(distr(eng));
-
-    double _rand;
-    _rand = rand()/RAND_MAX;
-    random_number=static_cast<unsigned long>(floor(_rand*(max- min) + min));
+    double _rand = gen.bounded(32) / 32;
+    random_number = static_cast<unsigned long>(floor(_rand*(max- min) + min));
 
     if ((max - min < this->boundary)) {
         std::cout<<"non importa"<<std::endl;

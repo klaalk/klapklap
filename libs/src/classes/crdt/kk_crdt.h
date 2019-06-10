@@ -10,7 +10,7 @@
 #include <math.h>
 #include <vector>
 #include <list>
-#include <random>
+#include <QRandomGenerator>
 
 #include "char/kk_char.h"
 #include "pos/kk_pos.h"
@@ -37,6 +37,7 @@ public:
     void print();
     void local_insert(char val, kk_pos pos);
 private:
+    QRandomGenerator gen;
     ///genera la Char partendo dal valore e dalla posizione nel local text
     kk_char_ptr generate_Char(char val, kk_pos pos);
     ///trova la position della Char immediatamente prima di quella passata

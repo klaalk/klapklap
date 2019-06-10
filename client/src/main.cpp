@@ -1,14 +1,11 @@
 #include <cstdlib>
 #include <deque>
 #include <iostream>
-#include <pthread.h>
-
 
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QtWidgets/QMainWindow>
 #include "classes/client/kk_client.h"
-
 #include "classes/textedit/textedit.h"
 
 int main(int argc, char* argv[])
