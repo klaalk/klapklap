@@ -52,7 +52,7 @@ public:
     unsigned long generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
 
    void insert_char(kk_char_ptr _char, kk_pos pos);
-   list<kk_char_ptr> copy_and_remove(kk_pos pos);
+
 
 //    void handle_remote_insert(kk_char _char);
 //    kk_pos find_insert_position(kk_char _char);

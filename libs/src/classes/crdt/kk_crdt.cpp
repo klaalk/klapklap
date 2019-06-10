@@ -209,7 +209,8 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
     if (_char->get_value() == '\n') {
 
 
-        list<kk_char_ptr> line_after=copy_and_remove(pos);
+        list<kk_char_ptr> line_after(std::next(text[pos.get_line()].begin(),static_cast<long>(pos.get_ch())),text[pos.get_line()].end());
+        text[pos.get_line()].erase(std::next(text[pos.get_line()].begin(),static_cast<long>(pos.get_ch())),text[pos.get_line()].end());
 
           if (line_after.size() == 0) {
                list<kk_char_ptr> _list_char = {_char};
@@ -218,9 +219,9 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
 
                text[pos.get_line()].push_back(_char);
                list<kk_char_ptr> line_before(text[pos.get_line()]);
-               text.erase(std::next(text.begin(),pos.get_line()));
-               text.insert(std::next(text.begin(),pos.get_line()),line_before);
-               text.insert(std::next(text.begin(),pos.get_line()+1),line_after);
+               text.erase(std::next(text.begin(),static_cast<long>(pos.get_line())));
+               text.insert(std::next(text.begin(),static_cast<long>(pos.get_line())),line_before);
+               text.insert(std::next(text.begin(),static_cast<long>(pos.get_line()+1)),line_after);
 
            }
 
@@ -327,22 +328,6 @@ vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int
 }
 
 
-list<kk_char_ptr> kk_crdt::copy_and_remove(kk_pos pos){
-
-    list<kk_char_ptr> removed(std::next(text[pos.get_line()].begin(),static_cast<long>(pos.get_ch())),text[pos.get_line()].end());
-
-
-    for(auto i=text[pos.get_line()].size();i>pos.get_ch();i--){
-
-        text[pos.get_line()].pop_back();
-
-    }
-
-
-    return removed;
-
-
-}
 
 
 
