@@ -6,9 +6,9 @@
 
 using std::string;
 
-kk_char::kk_char(char value, string siteId) : value(value), siteId(siteId) {};
+kk_char::kk_char(char value, string siteId) : siteId(siteId), value(value) {};
 
-void kk_char::push_identifier(kk_identifier id) {
+void kk_char::push_identifier(kk_identifier_ptr id) {
     this->position.insert(this->position.end(), id);
     return;
 }
@@ -28,13 +28,12 @@ int kk_char::compare_to(const kk_char &other) {
     }
 
     for (int i = 0; i < min; i++) {
-
-        comp = this->position[i].compare_to(other.position[i]);
-
+        comp = this->position[i]->compare_to(*other.position[i].get());
         if (comp != 0) {
             return comp;
         }
     }
+
     if (this->position.size() < other.position.size()) {
         return -1;
     } else if (this->position.size() > other.position.size()) {
@@ -48,11 +47,11 @@ char kk_char::get_value() {
     return value;
 }
 
-void kk_char::insert_position(vector<kk_identifier> position) {
+void kk_char::insert_position(vector<kk_identifier_ptr> position) {
     this->position = position;
     return;
 }
 
-vector<kk_identifier> kk_char::get_position() {
+vector<kk_identifier_ptr> kk_char::get_position() {
     return this->position;
 }

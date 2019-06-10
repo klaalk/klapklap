@@ -4,7 +4,7 @@
 
 #include "kk_pos.h"
 
-kk_pos::kk_pos(int line, int ch) : line(line), ch(ch) {}
+kk_pos::kk_pos(int line, int ch) : ch(ch), line(line) {}
 
 int kk_pos::get_ch() {
     return this->ch;
