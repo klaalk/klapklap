@@ -50,11 +50,8 @@ void kk_session::handleRequest(QString message) {
             kk_task *mytask = new kk_task([=]() {
                 bool result = db_->db_login(_body[0],_body[1]);
                 if(result) {
-                    //TODO: db_->getUserFiles();
-                    QStringList q;
+                    QStringList q=db_->db_getUserFile(_body[0]);
                     QString message;
-                    q.push_back("ciao");
-                    q.push_back("prova");
                     std::for_each(q.begin(), q.end(), [&](QString msg){
                         message += msg + "_";
                     });

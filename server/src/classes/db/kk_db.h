@@ -45,6 +45,12 @@ public:
     ///reset password ask. cambia password
     int db_update_psw(QString username, QString new_psw);
 
+    ///retorna la lista dei file a cui user ha accesso
+    QStringList db_getUserFile(QString username);
+
+    ///controlla l'esistenza di un utente
+    bool db_exist_user(QString username);
+
 };
 
 typedef QSharedPointer<kk_db> kk_db_ptr;
