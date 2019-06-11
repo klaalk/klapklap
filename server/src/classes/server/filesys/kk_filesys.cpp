@@ -40,14 +40,8 @@ bool kk_filesys::kk_OpenFile(QString username, QString filename){
     if(username==_username)
         return true;
 
-    // Serve per garantire l'univocità del path.
-    QString jump;
-    jump=crypt.random_psw(jump);
-
-    QString _filename = jump+"_"+_username+"_"+filename;
-
     //    sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
-    return db->db_insert_file(username,_filename,"./"+_filename) == 0 ? true:false;
+    return db->db_insert_file(username,filename,"./"+filename) == 0 ? true:false;
 
 
 }
