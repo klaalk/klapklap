@@ -25,7 +25,6 @@ int main(int argc, char* argv[])
     crdt->local_insert('B', kk_pos(0,1));
     crdt->local_insert('\n', kk_pos(0,2));
    crdt->print();
-   crdt->print();
     crdt->local_insert('C', kk_pos(1,0));
     crdt->print();
     crdt->local_insert('\n', kk_pos(0,1));
