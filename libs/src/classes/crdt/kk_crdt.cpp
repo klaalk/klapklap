@@ -202,14 +202,71 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
         text[pos.get_line()].splice(std::next(text[pos.get_line()].begin(), static_cast<long>(pos.get_ch())), _list_char);
     }
 }
-//
-//void kk_crdt::handle_remote_insert(kk_char _char){
-//    kk_pos pos = find_insert_position(_char);
-//    insert_char(_char, pos);
-//    //    this.controller.insertIntoEditor(char.value, pos, char.siteId);
-//}
-//
-//kk_pos kk_crdt::find_insert_position(kk_char _char){
+
+void kk_crdt::handle_remote_insert(kk_char_ptr _char){
+    kk_pos pos = find_insert_position(_char);
+    insert_char(_char, pos);
+    // this.controller.insertIntoEditor(char.value, pos, char.siteId); //inserimento nel text edit di qt
+}
+
+kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
+       unsigned long min_line = 0;
+       unsigned long total_lines = text.size();
+       unsigned long max_line = total_lines - 1;
+       list<kk_char_ptr> last_line(text[max_line]);
+
+       //      let currentLine, midLine, charIdx, minCurrentLine, lastChar,
+       //            maxCurrentLine, minLastChar, maxLastChar;
+
+       if(text.empty() || _char.get()->compare_to(*text[0].front().get()) <= 0) {
+              return kk_pos(0,0);
+          }
+
+
+
+//      // check if struct is empty or char is less than first char
+//      if (this.isEmpty() || char.compareTo(this.struct[0][0]) <= 0) {
+//        return { line: 0, ch: 0 }
+//      }
+
+//      lastChar = lastLine[lastLine.length - 1];
+
+//      // char is greater than all existing chars (insert at end)
+//      if (char.compareTo(lastChar) > 0) {
+//        return this.findEndPosition(lastChar, lastLine, totalLines);
+//      }
+
+//      // binary search
+//      while (minLine + 1 < maxLine) {
+//        midLine = Math.floor(minLine + (maxLine - minLine) / 2);
+//        currentLine = this.struct[midLine];
+//        lastChar = currentLine[currentLine.length - 1];
+
+//        if (char.compareTo(lastChar) === 0) {
+//          return {line: midLine, ch: currentLine.length - 1}
+//        } else if (char.compareTo(lastChar) < 0) {
+//          maxLine = midLine;
+//        } else {
+//          minLine = midLine;
+//        }
+//      }
+
+//      // Check between min and max line.
+//      minCurrentLine = this.struct[minLine];
+//      minLastChar = minCurrentLine[minCurrentLine.length - 1];
+//      maxCurrentLine = this.struct[maxLine];
+//      maxLastChar = maxCurrentLine[maxCurrentLine.length - 1];
+
+//      if (char.compareTo(minLastChar) <= 0) {
+//        charIdx = this.findInsertIndexInLine(char, minCurrentLine);
+//        return { line: minLine, ch: charIdx };
+//      } else {
+//        charIdx = this.findInsertIndexInLine(char, maxCurrentLine);
+//        return { line: maxLine, ch: charIdx };
+//      }
+//    }
+}
+//kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
 //    int min_line = 0;
 //    int total_lines = text.size();
 //    int maxLine = total_lines - 1;

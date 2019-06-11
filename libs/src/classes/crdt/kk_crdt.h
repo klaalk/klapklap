@@ -57,8 +57,9 @@ private:
     int generate_identifier_between(int min, int max, strategy _strategy);
     void insert_char(kk_char_ptr _char, kk_pos pos);
 
-//    void handle_remote_insert(kk_char _char);
-//    kk_pos find_insert_position(kk_char _char);
+   void handle_remote_insert(kk_char_ptr _char);
+
+   kk_pos find_insert_position(kk_char_ptr _char);
 //    int is_empty();
 //    kk_pos find_end_position (kk_char last_char,  list<kk_char> last_line, int total_lines);
 //    int find_insert_index_in_line(kk_char _char, list<kk_char> line);
