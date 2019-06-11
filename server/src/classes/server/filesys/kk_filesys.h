@@ -14,35 +14,21 @@
 #include <QWebSocket>
 #include <QFile>
 #define FILE_PATH "./filefolder/"
-
+#include "../../../../../libs/src/classes/crypt/kk_crypt.h"
+#include "../../db/kk_db.h"
 
 class kk_filesys {
+
 public:
-    kk_filesys();
-    ~kk_filesys();
+    kk_filesys(){db=kk_db_ptr(new kk_db());}
+    bool kk_CreateFile(QString username, QString filename);
 
-//    void filesysOpenFile(QString username, QString filename, QString path){
-//        QString command="touch "+ path ;
-//        QFile file(filename);
-//        QStringList list;
-
-//        if(files_tree.find(file)==files_tree.end()){
-//            system(qPrintable(command));
-//            list.push_back(username);
-//            files_tree.insert(file,list);
-
-
-//        }else {
-//            files_tree.find(file)->push_back(username);
-//        }
-
-//    }
 
 
 
 private:
-    QMap <QFile,QStringList>files_tree; //chiave: puntatore al file, value: lista degli utenti conessi a quel file
+    kk_db_ptr db;
 
 };
-typedef QSharedPointer<kk_filesys> kk_filesys_ptr;
+
 #endif //KK_FILESYS_H

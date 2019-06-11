@@ -249,3 +249,10 @@ QString SimpleCrypt::random_psw(QString s){
 
     return s;
 }
+
+bool SimpleCrypt::containLetter(QChar letter, QString myString){
+    foreach(QChar c, myString)
+        if(letter==c)
+            return true;
+    return false;
+}

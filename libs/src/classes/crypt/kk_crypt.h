@@ -83,7 +83,9 @@ public:
         CryptoFlagChecksum = 0x02,
         CryptoFlagHash = 0x04
     };
-    Q_DECLARE_FLAGS(CryptoFlags, CryptoFlag);
+    Q_DECLARE_FLAGS(CryptoFlags, CryptoFlag)
+
+    bool containLetter(QChar letter, QString myString);
 private:
 
     void splitKey();
