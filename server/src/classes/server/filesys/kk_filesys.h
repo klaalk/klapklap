@@ -22,9 +22,8 @@ class kk_filesys {
 public:
     kk_filesys(){db=kk_db_ptr(new kk_db());}
     bool kk_CreateFile(QString username, QString filename);
-
-
-
+    bool kk_OpenFile(QString username, QString filename);
+    bool kk_SendFile(QString filename);
 
 private:
     kk_db_ptr db;

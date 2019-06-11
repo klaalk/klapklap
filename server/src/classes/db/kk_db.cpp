@@ -156,7 +156,7 @@ int kk_db::db_share_file(QString username_from, QString username_to, QString fil
     QSqlQuery res = db.exec("SELECT COUNT(`ID`) FROM `FILES_OWNERS` WHERE `ID`='" + user2->id + "' AND `FILENAME`='" + filename + "';");
     res.next();
 
-    if (res.value(1).toInt() > 0)
+    if (res.value(0).toInt() > 0)
         return -1;
 
     _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) VALUES('" + user2->id + "','" + filename + "','./" + filename + "');";
@@ -247,5 +247,30 @@ QStringList  kk_db::db_getUserFile(QString username){
 
 
     return tmp;
+}
+
+
+
+bool kk_db::db_exist_user(QString username) {
+    int errCode = 0;
+
+    if(!db.open()) {
+        qDebug("DB not opened");
+        return -1;
+    }
+
+    try {
+       QSqlQuery res = db.exec("SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`='" + username + "';");
+       db.close();
+       res.next();
+       if (res.value(0).toInt() > 0)
+           return true;
+       return false;
+    } catch (QException &e) {
+        QString _str(e.what());
+        db.close();
+        return false;
+    }
+    return errCode;
 }
 
