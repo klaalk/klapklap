@@ -4,12 +4,12 @@
 
 #include "kk_pos.h"
 
-kk_pos::kk_pos(int line, int ch) : ch(ch), line(line) {}
+kk_pos::kk_pos(unsigned long line, unsigned long ch) : ch(ch), line(line) {}
 
-int kk_pos::get_ch() {
+unsigned long kk_pos::get_ch() {
     return this->ch;
 }
 
-int kk_pos::get_line() {
+unsigned long kk_pos::get_line() {
     return this->line;
 }
