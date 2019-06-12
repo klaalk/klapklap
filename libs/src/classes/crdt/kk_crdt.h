@@ -37,7 +37,7 @@ public:
     //costruttore
     kk_crdt(string siteid, strategy strategy);
     void print();
-    void local_insert(char val, kk_pos pos);
+    kk_char_ptr local_insert(char val, kk_pos pos);
 private:
     QRandomGenerator gen;
     ///genera la Char partendo dal valore e dalla posizione nel local text
@@ -57,11 +57,12 @@ private:
     int generate_identifier_between(int min, int max, strategy _strategy);
     void insert_char(kk_char_ptr _char, kk_pos pos);
 
-//    void handle_remote_insert(kk_char _char);
-//    kk_pos find_insert_position(kk_char _char);
-//    int is_empty();
-//    kk_pos find_end_position (kk_char last_char,  list<kk_char> last_line, int total_lines);
-//    int find_insert_index_in_line(kk_char _char, list<kk_char> line);
+   void handle_remote_insert(kk_char_ptr _char);
+
+   kk_pos find_insert_position(kk_char_ptr _char);
+   int is_empty();
+  kk_pos find_end_position (kk_char last_char,  list<kk_char_ptr> last_line, unsigned long total_lines);
+   unsigned long find_insert_index_in_line(kk_char_ptr _char, list<kk_char_ptr> line);
 
 //    void local_delete(kk_pos start_pos, kk_pos end_pos);
 //    list<kk_char> delete_multiple_lines(kk_pos start_pos, kk_pos end_pos);

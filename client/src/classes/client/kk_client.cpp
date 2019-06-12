@@ -5,6 +5,7 @@
 #include "kk_client.h"
 
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
+
 #include <QtCore/QDebug>
 #include <QtWebSockets/QWebSocket>
 #include <QCoreApplication>
@@ -38,6 +39,10 @@ void kk_client::sendOpenFileRequest(QString fileName) {
 
 void kk_client::sendMessageRequest(QString message) {
     sendRequest("chat", "ok", message);
+}
+
+void kk_client::sendCrdtRequest(QString crdt) {
+    sendRequest("crdt", "ok", crdt);
 }
 
 void kk_client::sendRequest(QString type, QString result, QString body) {
@@ -75,7 +80,9 @@ void kk_client::handleResponse(QString message) {
        chat_.show();
        chat_.setNickName(email_);
        connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);
-    } else if(res.type() == "crdt") {
+    } else if(res.type() == "crdt" && res.result_type() == "ok") {
+        QStringList bodyList_ = res.body().split("_");
+
 
     } else if(res.type() == "chat" && res.result_type() == "ok") {
         QStringList res_ = res.body().split('_');
@@ -105,7 +112,8 @@ void kk_client::onDiffTextChange(QString diffText, int position) {
         char *c_str = ba.data();
         mtxCrdt_.lock();
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
-            crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i) ));
+            kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i)));
+            sendCrdtRequest(QString::fromStdString(char_->get_siteId()+ "_" + char_->get_value()+char_->get_identifiers_string()));
         }
         mtxCrdt_.unlock();
     });

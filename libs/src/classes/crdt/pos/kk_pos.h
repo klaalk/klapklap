@@ -9,8 +9,8 @@
 #include <memory>
 
 class kk_pos {
-    unsigned long ch;
     unsigned long line;
+    unsigned long ch;
 public:
     kk_pos();
     kk_pos(unsigned long line, unsigned long ch);

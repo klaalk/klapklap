@@ -41,6 +41,7 @@ private slots:
     void sendSignupRequest(QString email, QString password, QString name, QString surname);
     void sendLoginRequest(QString email, QString password);
     void sendOpenFileRequest(QString fileName);
+    void sendCrdtRequest(QString crdt);
     void sendMessageRequest(QString message);
     void onDiffTextChange(QString diffText, int position);
 
