@@ -22,13 +22,13 @@ int kk_char::compare_to(const kk_char &other) {
     int min, comp;
 
     if (this->position.size() < other.position.size()) {
-        min = this->position.size();
+        min = static_cast<int>(this->position.size());
     } else {
-        min = other.position.size();
+        min = static_cast<int>(other.position.size());
     }
 
     for (int i = 0; i < min; i++) {
-        comp = this->position[i]->compare_to(*other.position[i].get());
+        comp = this->position[static_cast<unsigned long>(i)]->compare_to(*other.position[static_cast<unsigned long>(i)].get());
         if (comp != 0) {
             return comp;
         }

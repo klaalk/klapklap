@@ -3,7 +3,7 @@
 //
 
 #include "textedit.h"
-
+#include <QPlainTextEdit>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
@@ -40,8 +40,6 @@
 #endif
 #endif
 
-#include "textedit.h"
-
 
 #ifdef Q_OS_MAC
 const QString rsrcPath = ":/images/mac";
@@ -64,7 +62,6 @@ TextEdit::TextEdit(QWidget *parent)
     connect(textEdit, &QTextEdit::cursorPositionChanged,
             this, &TextEdit::cursorPositionChanged);
     setCentralWidget(textEdit);
-
     connect(textEdit, &QTextEdit::textChanged, this, &TextEdit::onTextChange);
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setupFileActions();
@@ -642,12 +639,16 @@ void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 
 void TextEdit::cursorPositionChanged()
 {
+    // IMPORTANTE per le modifiche da remoto.
+    if(blockCursor) return;
+
     alignmentChanged(textEdit->alignment());
     QTextList *list = textEdit->textCursor().currentList();
 
     QTextCursor  cursor = textEdit->textCursor();
-    lastPos=pos;
-    pos=cursor.position();
+
+    lastCursorPos = cursorPos;
+    cursorPos = cursor.position();
 
     if (list) {
         switch (list->format().style()) {
@@ -737,31 +738,65 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
-void TextEdit::onTextChange() {  // PROBLEMA: si spacca se cancello il primo carattere (l'ultimo rimasto)
-    QString s = textEdit->toPlainText();
+void TextEdit::movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs){
+    if(targetLine > line) {
+        for(int i = line; i < targetLine-line; i++) {
+            curs->movePosition(QTextCursor::Down);
+        }
+    } else if (targetLine < line) {
+        for(int i = targetLine; i < line-targetLine; i++) {
+            curs->movePosition(QTextCursor::Up);
+        }
+    }
+    curs->setPosition(targetCol);
+}
 
+void TextEdit::insertRemoteText(QString name, QString text, int position) {
+    //Blocco il cursore dell'editor.
+    blockCursor = true;
+    //Prelevo i cursori.
+    kk_cursor* c = cursors_.value(name);
+    QTextCursor curs = textEdit->textCursor();
+    // Faccio dei controlli sulla fattibilità dell'operazione.
+    position = position > lastLength - 1 ? lastLength - 1 : position;
+    position = position < 0 ? 0 : position;
+    if(c!=nullptr) {
+        //Se esiste, elimino il vecchio segnaposto del mio utente.
+        curs.setPosition(c->globalPositon);
+        curs.deletePreviousChar();
+        curs.deletePreviousChar();
+    } else {
+        //Creo il cursore per l'utente se non esiste.
+        c = new kk_cursor(position);
+        cursors_.insert(name, c);
+    }
+    // Scrivo
+    curs.setPosition(position);
+    curs.insertText(text);
+    curs.insertText('|'+name.at(0));
+    //Aggiorno il mio kk_cursor.
+    c->setGlobalPositon(curs.position());
+    //Riporto il cursor dell'editor alla posizone di partenza.
+    curs.setPosition(cursorPos);
+    //Aggiorno la length considerando il segnaposto e \0.
+    lastLength = lastLength + text.length() + 3;
+    //Sblocco il cursore dell'editor.
+    blockCursor = false;
+}
+
+void TextEdit::onTextChange() {
+    // IMPORTANTE per le modifiche da remoto.
+    if(blockCursor) return;
+    QString s = textEdit->toPlainText();
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
-        diffText=lastText.mid(pos,lastLength - s.length());
+        diffText=lastText.mid(cursorPos, lastLength - s.length());
         qDebug() << diffText;
-
-        for(int i=0;i<diffText.length();i++)
-            if(diffText[i]=='\n')
-               curLinePos--;
-
-
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
-       diffText=s.mid(lastPos, s.length()-lastLength);
-       qDebug() << diffText;
-
-       for(int i=0;i<diffText.length();i++)
-           if(diffText[i]=='\n')
-              curLinePos++;
+       diffText=s.mid(lastCursorPos, s.length() - lastLength);
+       emit diffTextChanged(diffText, lastCursorPos);
     }
-    qDebug() << (s.length() - lastLength);
-
     lastLength = s.length();
     lastText = s;
-    lastPos=pos;
 }

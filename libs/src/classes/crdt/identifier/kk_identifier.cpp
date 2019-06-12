@@ -5,7 +5,7 @@
 
 using std::string;
 
-kk_identifier::kk_identifier(int digit, string siteid) : digit(digit), siteid(siteid) {};
+kk_identifier::kk_identifier(unsigned long digit, string siteid) : digit(digit), siteid(siteid) {};
 
 int kk_identifier::compare_to(const kk_identifier &other) {
     if (this->digit < other.digit) {
@@ -18,11 +18,11 @@ int kk_identifier::compare_to(const kk_identifier &other) {
     return 1;
 }
 
-int kk_identifier::get_digit() {
+unsigned long kk_identifier::get_digit() {
     return this->digit;
 }
 
-void kk_identifier::set_digit(int digit) {
+void kk_identifier::set_digit(unsigned long digit) {
     this->digit = digit;
     return;
 }
