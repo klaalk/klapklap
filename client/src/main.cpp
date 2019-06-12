@@ -16,20 +16,27 @@
 #include "classes/textedit/textedit.h"
 
 
-
 int main(int argc, char* argv[])
 {
     kk_crdt *crdt = new kk_crdt("Canguro", casuale);
+    kk_char_ptr uno = kk_char_ptr(new kk_char('1',"Elefante"));
+
+    uno->push_identifier(kk_identifier_ptr(new kk_identifier(12,"Elefante")));
+
     crdt->local_insert('A', kk_pos(0,0));
    crdt->print();
     crdt->local_insert('B', kk_pos(0,1));
+     crdt->print();
+     crdt->handle_remote_insert(uno);
+      crdt->print();
+
     crdt->local_insert('\n', kk_pos(0,2));
    crdt->print();
-    crdt->local_insert('C', kk_pos(1,0));
+    crdt->local_insert('C', kk_pos(0,2));
     crdt->print();
     crdt->local_insert('\n', kk_pos(0,1));
    crdt->print();
-    crdt->local_insert('D', kk_pos(0,2));
+    crdt->local_insert('D', kk_pos(0,1));
    crdt->print();
    crdt->local_insert('\n', kk_pos(0,1));
   crdt->print();
