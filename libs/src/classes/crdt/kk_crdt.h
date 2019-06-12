@@ -37,7 +37,7 @@ public:
     //costruttore
     kk_crdt(string siteid, strategy strategy);
     void print();
-    void local_insert(char val, kk_pos pos);
+    kk_char_ptr local_insert(char val, kk_pos pos);
 private:
     QRandomGenerator gen;
     ///genera la Char partendo dal valore e dalla posizione nel local text

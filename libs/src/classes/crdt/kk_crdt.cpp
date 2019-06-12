@@ -13,10 +13,10 @@ using std::shared_ptr;
 kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(20), _strategy(strategy), base(32) {
 };
 
-void kk_crdt::local_insert(char val, kk_pos pos) {
+kk_char_ptr kk_crdt::local_insert(char val, kk_pos pos) {
     kk_char_ptr newChar = this->generate_Char(val, pos);
     this->insert_char(newChar, pos);
-    return;
+    return newChar;
 }
 
 kk_char_ptr kk_crdt::generate_Char(char val, kk_pos pos) {
