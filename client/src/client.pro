@@ -30,8 +30,8 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/constants/kk_constants.h \
                 classes/textedit/textedit.h \
                 classes/client/kk_client.h \
-                classes/chat/chatdialog.h\ \
-    classes/login/login.h
+                classes/chat/chatdialog.h\
+                classes/login/login.h\
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/crdt/char/kk_char.cpp \

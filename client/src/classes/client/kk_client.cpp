@@ -5,6 +5,7 @@
 #include "kk_client.h"
 
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
+
 #include <QtCore/QDebug>
 #include <QtWebSockets/QWebSocket>
 #include <QCoreApplication>
