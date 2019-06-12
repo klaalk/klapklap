@@ -24,8 +24,7 @@ bool kk_filesys::kk_CreateFile(QString username, QString filename){
     system(qPrintable(command));
     system(qPrintable("ls -la | grep "+ _filename));
 
-    return true;
-//    return db->db_insert_file(username,_filename,"./"+_filename) == 0 ? true:false;
+    return db->db_insert_file(username,_filename,"./"+_filename) == 0 ? true:false;
 }
 
 bool kk_filesys::kk_OpenFile(QString username, QString filename){
@@ -42,9 +41,9 @@ bool kk_filesys::kk_OpenFile(QString username, QString filename){
         return true;
 
     //    sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
-    //    return db->db_insert_file(username,_filename,"./"+_filename) == 0 ? true:false;
+    return db->db_insert_file(username,filename,"./"+filename) == 0 ? true:false;
 
-    return true;
+
 }
 
 bool kk_filesys::kk_SendFile(QString filename){
