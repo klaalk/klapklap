@@ -67,6 +67,10 @@ void kk_client::handleResponse(QString message) {
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
        crdt_ = new kk_crdt(email_.toStdString(), casuale);
        connect(&editor_, &TextEdit::diffTextChanged, this, &kk_client::onDiffTextChange);
+       editor_.insertRemoteText("tizio","ciao\n",0);
+       editor_.insertRemoteText("caio","sto scrivendo",5);
+       editor_.insertRemoteText("tizio","come va",0);
+
        editor_.show();
        chat_.show();
        chat_.setNickName(email_);

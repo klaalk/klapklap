@@ -9,6 +9,7 @@
 #include <QMap>
 #include <QPointer>
 #include <QTextCursor>
+#include <QLabel>
 
 class QAction;
 class QComboBox;
@@ -20,7 +21,7 @@ class QPrinter;
 
 class kk_cursor{
 public:
-    int globalPositon;
+    int globalPositon=0;
     kk_cursor(int position): globalPositon(position){}
     void setGlobalPositon(int position) {
         this->globalPositon = position;
@@ -102,7 +103,7 @@ private:
     bool blockCursor = false;
     int lastLength = 0, cursorPos=0, lastCursorPos=0;
     QMap <QString,kk_cursor*> cursors_;
-
+    QMap <QString,QLabel*> labels_;
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
