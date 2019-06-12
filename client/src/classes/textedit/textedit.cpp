@@ -781,7 +781,7 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
     c->setGlobalPositon(curs.position());
 
     const QRect qRect = textEdit->cursorRect();
-    qDebug()<<name<<curs.position()<<qRect.left()<<qRect.top();
+    qDebug()<<name<<curs.positionInBlock()<<curs.position()<<qRect.left()<<qRect.top();
 
     qLbl->move(curs.position(),curs.positionInBlock());
     //Riporto il cursore dell'editor alla posizione di partenza.
