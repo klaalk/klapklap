@@ -1,3 +1,15 @@
+#Application version
+VERSION_MAJOR = 1
+VERSION_MINOR = 0
+VERSION_BUILD = 1
+
+DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
+       "VERSION_MINOR=$$VERSION_MINOR"\
+       "VERSION_BUILD=$$VERSION_BUILD"
+
+#Target version
+VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_BUILD}
+
 QT +=   core \
         widgets \
         websockets \
