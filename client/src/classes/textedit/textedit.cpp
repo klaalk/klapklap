@@ -28,7 +28,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QLabel>
-#include <QGridLayout>
+#include <QFontMetrics>
 
 #if defined(QT_PRINTSUPPORT_LIB)
 #include <QtPrintSupport/qtprintsupportglobal.h>
@@ -648,14 +648,7 @@ void TextEdit::cursorPositionChanged()
 
     alignmentChanged(textEdit->alignment());
     QTextList *list = textEdit->textCursor().currentList();
-
     QTextCursor  cursor = textEdit->textCursor();
-//    bool isOtherCursor = textEdit->toPlainText().at(cursor.position()-1) == "|";
-//    if(isOtherCursor){
-//        cursor.setPosition(cursor.position()-2);
-//        cursor.movePosition(QTextCursor::Left);
-//        qDebug() << "ciao";
-//    }
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
 
@@ -753,12 +746,8 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
     //Prelevo i cursori.
     kk_cursor* c = cursors_.value(name);
     QLabel* qLbl = labels_.value(name);
+    QLabel* qLbl2= labels2_.value(name);
     QTextCursor curs = textEdit->textCursor();
-    QLabel label(name,textEdit);
-    QLabel label_2("|",textEdit);
-
-    label.setAutoFillBackground(false);
-    label.setStyleSheet(QString::fromUtf8("background-color:rgb(203, 233, 255)"));
 
     // Faccio dei controlli sulla fattibilità dell'operazione.
     position = position > lastLength - 1 ? lastLength - 1 : position;
@@ -770,12 +759,15 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
         //Creo il cursore per l'utente se non esiste.
         c = new kk_cursor(position);
         qLbl = new QLabel(name, textEdit);
-        qLbl->show();
         qLbl->setStyleSheet(QString::fromUtf8("background-color: rgb(196, 232, 255);\n"
         "font: 75 8pt \"Calibri\";\n"
         "font: bold;"));
+        qLbl2 = new QLabel("|", textEdit);
+        qLbl->show();
+        qLbl2->show();
         cursors_.insert(name, c);
         labels_.insert(name, qLbl);
+        labels2_.insert(name,qLbl2);
     }
     // Scrivo
     curs.setPosition(position);
@@ -783,7 +775,10 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
     //Aggiorno il mio kk_cursor.
     c->setGlobalPositon(curs.position());
     const QRect qRect = textEdit->cursorRect(curs);
+    qDebug()<<name<<qRect.x()<<qRect.y();
     qLbl->move(qRect.x()+2,qRect.y()-10);
+    qLbl2->move(qRect.x(),qRect.y());
+
     //Riporto il cursore dell'editor alla posizione di partenza.
     curs.setPosition(cursorPos);
     //Aggiorno la length considerando il \0.

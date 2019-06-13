@@ -104,6 +104,7 @@ private:
     int lastLength = 0, cursorPos=0, lastCursorPos=0;
     QMap <QString,kk_cursor*> cursors_;
     QMap <QString,QLabel*> labels_;
+    QMap <QString,QLabel*> labels2_;
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
