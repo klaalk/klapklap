@@ -771,6 +771,9 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
         c = new kk_cursor(position);
         qLbl = new QLabel(name, textEdit);
         qLbl->show();
+        qLbl->setStyleSheet(QString::fromUtf8("background-color: rgb(196, 232, 255);\n"
+        "font: 75 8pt \"Calibri\";\n"
+        "font: bold;"));
         cursors_.insert(name, c);
         labels_.insert(name, qLbl);
     }
@@ -779,15 +782,12 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
     curs.insertText(text);
     //Aggiorno il mio kk_cursor.
     c->setGlobalPositon(curs.position());
-
-    const QRect qRect = textEdit->cursorRect();
-    qDebug()<<name<<curs.positionInBlock()<<curs.position()<<qRect.left()<<qRect.top();
-
-    qLbl->move(curs.position(),curs.positionInBlock());
+    const QRect qRect = textEdit->cursorRect(curs);
+    qLbl->move(qRect.x()+2,qRect.y()-10);
     //Riporto il cursore dell'editor alla posizione di partenza.
     curs.setPosition(cursorPos);
-    //Aggiorno la length considerando il segnaposto e \0.
-    lastLength = lastLength + text.length();
+    //Aggiorno la length considerando il \0.
+    lastLength = lastLength + text.length()+1;
     //Sblocco il cursore dell'editor.
     blockCursor = false;
 }
