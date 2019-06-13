@@ -23,7 +23,7 @@ void kk_file::leave(QSharedPointer<kk_participant> participant) {
     participants_.erase(participant);
 }
 
-void kk_file::deliver(QString type, QString result, QString message) {
+void kk_file::deliver(QString type, QString result, QString message, QString myNick) {
     kk_payload_ptr data = QSharedPointer<kk_payload>(new kk_payload(type,result, message));
     recent_msgs_->push_back(data);
 
@@ -31,7 +31,9 @@ void kk_file::deliver(QString type, QString result, QString message) {
         recent_msgs_->pop_front();
 
     std::for_each(participants_.begin(), participants_.end(),[&](QSharedPointer<kk_participant> p){
-        p->deliver(data);
+        if(p->nick_ != myNick && myNick != "All") {
+            p->deliver(data);
+        }
     });
 }
 

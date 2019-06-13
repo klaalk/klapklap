@@ -127,9 +127,9 @@ void kk_session::handleRequest(QString message) {
         } else if(req.type() == "sharefile") {
 
         } else if(req.type() == "crdt") {
-
+            actual_file_->deliver("crdt", "ok", req.body(), nick_);
         } else if(req.type() == "chat") {
-            actual_file_->deliver("chat", "ok", req.body());
+            actual_file_->deliver("chat", "ok", req.body(), "All");
         }
     }
 }

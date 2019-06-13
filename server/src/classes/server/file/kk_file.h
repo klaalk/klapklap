@@ -26,7 +26,7 @@ public:
 
     void leave(QSharedPointer<kk_participant> participant);
 
-    void deliver(QString type, QString result, QString message);
+    void deliver(QString type, QString result, QString message, QString myNick);
 
     queue_payload_ptr getRecentMessages();
 private:

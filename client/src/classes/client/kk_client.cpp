@@ -41,6 +41,10 @@ void kk_client::sendMessageRequest(QString message) {
     sendRequest("chat", "ok", message);
 }
 
+void kk_client::sendCrdtRequest(QString crdt) {
+    sendRequest("crdt", "ok", crdt);
+}
+
 void kk_client::sendRequest(QString type, QString result, QString body) {
     kk_payload req(type, result, body);
     qDebug() << "Send: " << req.encode_header();
@@ -68,11 +72,17 @@ void kk_client::handleResponse(QString message) {
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
        crdt_ = new kk_crdt(email_.toStdString(), casuale);
        connect(&editor_, &TextEdit::diffTextChanged, this, &kk_client::onDiffTextChange);
+       editor_.insertRemoteText("tizio","ciao\n",0);
+       editor_.insertRemoteText("caio","sto scrivendo",5);
+       editor_.insertRemoteText("tizio","come va",0);
+
        editor_.show();
        chat_.show();
        chat_.setNickName(email_);
        connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);
-    } else if(res.type() == "crdt") {
+    } else if(res.type() == "crdt" && res.result_type() == "ok") {
+        QStringList bodyList_ = res.body().split("_");
+
 
     } else if(res.type() == "chat" && res.result_type() == "ok") {
         QStringList res_ = res.body().split('_');
@@ -102,7 +112,8 @@ void kk_client::onDiffTextChange(QString diffText, int position) {
         char *c_str = ba.data();
         mtxCrdt_.lock();
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
-            crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i) ));
+            kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i)));
+            sendCrdtRequest(QString::fromStdString(char_->get_siteId()+ "_" + char_->get_value()+char_->get_identifiers_string()));
         }
         mtxCrdt_.unlock();
     });

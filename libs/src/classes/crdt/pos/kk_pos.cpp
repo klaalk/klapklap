@@ -4,7 +4,7 @@
 
 #include "kk_pos.h"
 
-kk_pos::kk_pos(unsigned long line, unsigned long ch) : ch(ch), line(line) {}
+kk_pos::kk_pos(unsigned long line, unsigned long ch) : line(line),ch(ch){}
 
 unsigned long kk_pos::get_ch() {
     return this->ch;

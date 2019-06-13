@@ -46,6 +46,9 @@ int kk_char::compare_to(const kk_char &other) {
 char kk_char::get_value() {
     return value;
 }
+string kk_char::get_siteId() {
+    return siteId;
+}
 
 void kk_char::insert_position(vector<kk_identifier_ptr> position) {
     this->position = position;
@@ -54,4 +57,12 @@ void kk_char::insert_position(vector<kk_identifier_ptr> position) {
 
 vector<kk_identifier_ptr> kk_char::get_position() {
     return this->position;
+}
+
+std::string kk_char::get_identifiers_string() {
+    std::string identifiers_ = "";
+    for(int i = 0; i < this->position.size(); i++) {
+        identifiers_+= "_" + this->position.at(i)->get_digit();
+    }
+    return identifiers_;
 }

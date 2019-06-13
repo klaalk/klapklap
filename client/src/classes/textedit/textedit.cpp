@@ -27,6 +27,9 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QLabel>
+#include <QFontMetrics>
+
 #if defined(QT_PRINTSUPPORT_LIB)
 #include <QtPrintSupport/qtprintsupportglobal.h>
 #if QT_CONFIG(printer)
@@ -57,6 +60,7 @@ TextEdit::TextEdit(QWidget *parent)
     setWindowTitle(QCoreApplication::applicationName());
 
     textEdit = new QTextEdit(this);
+
     connect(textEdit, &QTextEdit::currentCharFormatChanged,
             this, &TextEdit::currentCharFormatChanged);
     connect(textEdit, &QTextEdit::cursorPositionChanged,
@@ -644,9 +648,7 @@ void TextEdit::cursorPositionChanged()
 
     alignmentChanged(textEdit->alignment());
     QTextList *list = textEdit->textCursor().currentList();
-
     QTextCursor  cursor = textEdit->textCursor();
-
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
 
@@ -738,48 +740,49 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
-void TextEdit::movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs){
-    if(targetLine > line) {
-        for(int i = line; i < targetLine-line; i++) {
-            curs->movePosition(QTextCursor::Down);
-        }
-    } else if (targetLine < line) {
-        for(int i = targetLine; i < line-targetLine; i++) {
-            curs->movePosition(QTextCursor::Up);
-        }
-    }
-    curs->setPosition(targetCol);
-}
-
 void TextEdit::insertRemoteText(QString name, QString text, int position) {
     //Blocco il cursore dell'editor.
     blockCursor = true;
     //Prelevo i cursori.
     kk_cursor* c = cursors_.value(name);
+    QLabel* qLbl = labels_.value(name);
+    QLabel* qLbl2= labels2_.value(name);
     QTextCursor curs = textEdit->textCursor();
+
     // Faccio dei controlli sulla fattibilità dell'operazione.
     position = position > lastLength - 1 ? lastLength - 1 : position;
     position = position < 0 ? 0 : position;
     if(c!=nullptr) {
         //Se esiste, elimino il vecchio segnaposto del mio utente.
         curs.setPosition(c->globalPositon);
-        curs.deletePreviousChar();
-        curs.deletePreviousChar();
     } else {
         //Creo il cursore per l'utente se non esiste.
         c = new kk_cursor(position);
+        qLbl = new QLabel(name, textEdit);
+        qLbl->setStyleSheet(QString::fromUtf8("background-color: rgb(196, 232, 255);\n"
+        "font: 75 8pt \"Calibri\";\n"
+        "font: bold;"));
+        qLbl2 = new QLabel("|", textEdit);
+        qLbl->show();
+        qLbl2->show();
         cursors_.insert(name, c);
+        labels_.insert(name, qLbl);
+        labels2_.insert(name,qLbl2);
     }
     // Scrivo
     curs.setPosition(position);
     curs.insertText(text);
-    curs.insertText('|'+name.at(0));
     //Aggiorno il mio kk_cursor.
     c->setGlobalPositon(curs.position());
-    //Riporto il cursor dell'editor alla posizone di partenza.
+    const QRect qRect = textEdit->cursorRect(curs);
+    qDebug()<<name<<qRect.x()<<qRect.y();
+    qLbl->move(qRect.x()+2,qRect.y()-10);
+    qLbl2->move(qRect.x(),qRect.y());
+
+    //Riporto il cursore dell'editor alla posizione di partenza.
     curs.setPosition(cursorPos);
-    //Aggiorno la length considerando il segnaposto e \0.
-    lastLength = lastLength + text.length() + 3;
+    //Aggiorno la length considerando il \0.
+    lastLength = lastLength + text.length()+1;
     //Sblocco il cursore dell'editor.
     blockCursor = false;
 }
