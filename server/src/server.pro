@@ -10,6 +10,8 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 #Target version
 VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_BUILD}
 
+macx:ICON = $${PWD}/klapklap.icns
+
 QT +=   core \
         widgets \
         websockets \
@@ -24,7 +26,7 @@ qtHaveModule(printsupport): QT += printsupport
 
 TEMPLATE        = app
 
-TARGET          = klapklap_be
+TARGET          = KlapKlap_Server
 
 HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/classes/crdt/char/kk_char.h \

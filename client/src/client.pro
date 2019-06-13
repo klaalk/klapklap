@@ -1,3 +1,6 @@
+
+macx:ICON = $${PWD}/klapklap.icns
+
 QT += core \
       gui \
       widgets \
@@ -19,7 +22,7 @@ qtHaveModule(printsupport): QT += printsupport
 
 TEMPLATE        = app
 
-TARGET          = klapklap
+TARGET          = KlapKlap_Client
 
 HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/classes/crdt/char/kk_char.h \

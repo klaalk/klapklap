@@ -122,7 +122,7 @@ void kk_session::handleRequest(QString message) {
                     });
                 }
                 // Dico a tutti che c'è un nuovo partecipante.
-                actual_file_->deliver("addedpartecipant", "ok", nick_);
+                actual_file_->deliver("addedpartecipant", "ok","ok", nick_);
             }
         } else if(req.type() == "sharefile") {
 
@@ -150,7 +150,7 @@ void kk_session::handleDisconnection()
     {
 //        clients_.removeAll(pClient);
         if(actual_file_.get() != nullptr) {
-            actual_file_->deliver("removedpartecipant", "ok", nick_);
+            actual_file_->deliver("removedpartecipant", "ok","ok", nick_);
             actual_file_->leave(sharedFromThis());
         }
         session_socket_->deleteLater();
