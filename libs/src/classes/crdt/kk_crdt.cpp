@@ -64,15 +64,17 @@ vector<kk_identifier_ptr> kk_crdt::find_position_after(kk_pos pos) {
         num_chars = static_cast<long>(text[pos.get_line()].size());
     }
 
-    if (static_cast<long>(pos.get_line()) > num_lines - 1 && pos.get_ch() == 0) { //non dovrebbe mai succedere
+    if (static_cast<long>(pos.get_line()) > num_lines - 1 && pos.get_ch() == 0) {
         return vuoto;
     } else if (static_cast<long>(pos.get_line()) == num_lines - 1 && static_cast<long>(pos.get_ch()) == num_chars) { //sei all'ultima riga e all'ultimo char
         return vuoto;
     } else if (static_cast<long>(pos.get_line()) < num_lines - 1 && static_cast<long>(pos.get_ch()) == num_chars) { // sei a fine riga ma non nell'ultima riga
         return text[pos.get_line() + 1].front()->get_position();
     }
-    return std::next(text[pos.get_line()].begin(),
-                     static_cast<long>(pos.get_ch()))->get()->get_position(); // se non sei in nessun caso particolare DA RIVEDERE
+
+    vector<kk_identifier_ptr> positions_after(std::next(text[pos.get_line()].begin(),static_cast<long>(pos.get_ch()))->get()->get_position());
+
+    return positions_after; // se non sei in nessun caso particolare DA RIVEDERE
 }
 
 vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifier_ptr> position1, vector<kk_identifier_ptr> position2,
@@ -183,14 +185,10 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
     random_number=static_cast<unsigned long>(distr(eng));
 
     if ((max - min < this->boundary)) {
-        std::cout<<"non importa"<<std::endl;
     }else{
         if(_strategy==minus){
-             std::cout<<"minus"<<std::endl;
         }else if(_strategy==plus){
-            std::cout<<"plus"<<std::endl;
        } else if(_strategy==casuale){
-            std::cout<<"casuale"<<std::endl;
        }
 
     }
@@ -250,10 +248,6 @@ kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
 
        list<kk_char_ptr> last_line(text[max_line]);
 
-
-       //      let currentLine, midLine, charIdx, minCurrentLine, lastChar,
-       //            maxCurrentLine, minLastChar, maxLastChar;
-
      if(text.empty() || _char.get()->compare_to(*text[0].front().get()) <= 0) {
               return kk_pos(0,0);
           }
@@ -269,7 +263,8 @@ kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
          mid_line = static_cast<unsigned long>(floor(min_line + (max_line - min_line)/2));
 
          list<kk_char_ptr> current_line (text[mid_line]);
-         last_char = *std::next(current_line.begin(),static_cast<long>(last_line.size()-1))->get();
+         //AAAAA
+         last_char = *std::next(current_line.begin(),static_cast<long>(current_line.size()-1))->get();
 
          if(_char.get()->compare_to(last_char)==0){
              return kk_pos(mid_line,current_line.size()-1);
@@ -339,7 +334,9 @@ void kk_crdt::print() {
             std::cout << "] ";
         }
         std::cout << std::endl;
+
     }
+    std::cout << std::endl;
 }
 
 //forse da eliminare
@@ -464,6 +461,7 @@ void kk_crdt::remote_delete(kk_char_ptr _Char, string siteid){
     }
 
     remove_empty_lines();
+    text.push_back(list<kk_char_ptr>());
 
 //        this.controller.deleteFromEditor(char.value, pos, siteId);
 
@@ -536,7 +534,7 @@ int kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line, bool 
     unsigned long cnt=0;
 
     for (it = line.begin(); it!= line.end(); it++) {
-        if(_Char.get()->compare_to(*it->get())<0){
+        if(_Char.get()->compare_to(*it->get())==0){
             return cnt;
          };
         cnt++;
