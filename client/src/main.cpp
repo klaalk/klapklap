@@ -26,13 +26,15 @@ int main(int argc, char* argv[])
 
     due->push_identifier(kk_identifier_ptr(new kk_identifier(12,"Elefante")));
 
-    crdt->local_insert('A', kk_pos(0,0));
+   crdt->local_insert('A', kk_pos(0,0));
    crdt->print();
-    crdt->local_insert('B', kk_pos(0,1));
-     crdt->print();
-     std::cout<<"remote insert"<<std::endl;
-     crdt->remote_insert(uno);
-      crdt->print();
+   crdt->local_insert('B', kk_pos(0,1));
+   crdt->print();
+   std::cout<<"remote insert"<<std::endl;
+   crdt->remote_insert(uno);
+   crdt->print();
+   crdt->remote_delete(uno,"Elefante");
+   crdt->print();
 
    crdt->local_insert('\n', kk_pos(0,2));
    crdt->print();

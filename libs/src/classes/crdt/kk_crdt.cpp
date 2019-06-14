@@ -52,6 +52,7 @@ vector<kk_identifier_ptr> kk_crdt::find_position_before(kk_pos pos) {
 }
 
 vector<kk_identifier_ptr> kk_crdt::find_position_after(kk_pos pos) {
+
     long num_lines, num_chars;
     vector<kk_identifier_ptr> vuoto;
 
@@ -390,14 +391,11 @@ list<kk_char_ptr> kk_crdt::delete_multiple_lines(kk_pos start_pos, kk_pos end_po
 
     unsigned long line;
 
-//    vector<list<kk_char_ptr>>::iterator it;
-//    it=text.begin();
-//    advance(it,static_cast<long>(start_pos.get_line()+1));
 
     for(line=start_pos.get_line()+1;line<end_pos.get_line();line++){
         chars.splice(chars.end(),text[line]);
-        text[line].erase(text[line].begin(),std::next(text[line].begin(),text[line].size()));
-//        it++;
+        text[line].erase(text[line].begin(),std::next(text[line].begin(),static_cast<long>(text[line].size())));
+
         }
 
     if(!text[end_pos.get_line()].empty()){
@@ -450,6 +448,103 @@ void kk_crdt::merge_lines(unsigned long line){
     text.insert(it,merged_line);
     return;
 }
+
+void kk_crdt::remote_delete(kk_char_ptr _Char, string siteid){
+    bool flag = true;
+    kk_pos pos(find_pos(_Char,flag));
+
+    if(flag==false){
+        return;
+    }
+
+    text[pos.get_line()].erase(std::next(text[pos.get_line()].begin(),pos.get_ch()));
+
+    if(_Char->get_value()=='\n' && !text[pos.get_line()+1].empty()){
+        merge_lines(pos.get_line());
+    }
+
+    remove_empty_lines();
+
+//        this.controller.deleteFromEditor(char.value, pos, siteId);
+
+}
+
+kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool flag){
+    unsigned long min_line=0;
+    unsigned long total_lines = text.size();
+    unsigned long max_line = total_lines - 2;
+    unsigned long mid_line;
+    list<kk_char_ptr> last_line(text[max_line]);
+
+     if (text.empty() || _Char.get()->compare_to(*text[0].front().get()) < 0) {
+         flag=false;
+         return kk_pos(0,0);
+     }
+
+      kk_char last_char = *std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get();
+
+
+      if(_Char.get()->compare_to(last_char)>0){
+          flag=false;
+          return kk_pos(0,0);
+      }
+
+
+      while (min_line +1 < max_line) {
+          mid_line = static_cast<unsigned long>(floor(min_line + (max_line - min_line)/2));
+
+          list<kk_char_ptr> current_line (text[mid_line]);
+          last_char = *std::next(current_line.begin(),static_cast<long>(last_line.size()-1))->get();
+
+          if(_Char.get()->compare_to(last_char)==0){
+              return kk_pos(mid_line,current_line.size()-1);
+          }else if(_Char.get()->compare_to(last_char)<0) {
+              max_line=mid_line;
+          }else{
+              min_line=mid_line;
+          }
+      }
+
+      list<kk_char_ptr> min_current_line (text[min_line]);
+      kk_char min_last_char = *std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1))->get();
+      list<kk_char_ptr> max_current_line (text[max_line]);
+      kk_char max_last_char = *std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1))->get();
+
+      if(_Char.get()->compare_to(min_last_char)<=0){
+         unsigned long char_idx = find_index_in_line(_Char,min_current_line,flag);
+         return kk_pos(min_line,char_idx);
+      }else {
+          unsigned long char_idx = find_index_in_line(_Char,max_current_line,flag);
+         return kk_pos(max_line,char_idx);
+      }
+}
+
+int kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line, bool flag){
+
+    unsigned long left=0;
+    unsigned long right = line.size()-1;
+
+
+    if(line.size()==0 || _Char.get()->compare_to(*line.begin()->get())<0){
+        return left;
+    } else if ( _Char.get()->compare_to(*std::next(line.begin(),static_cast<long>(line.size()-1))->get())>0){
+        return right;
+    }
+
+    list<kk_char_ptr>::iterator it;
+    it=line.begin();
+    unsigned long cnt=0;
+
+    for (it = line.begin(); it!= line.end(); it++) {
+        if(_Char.get()->compare_to(*it->get())<0){
+            return cnt;
+         };
+        cnt++;
+    }
+    flag=false;
+    return 0;
+}
+
 
 
 
