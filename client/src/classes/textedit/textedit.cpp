@@ -779,20 +779,18 @@ void TextEdit::modifyLabels(){
     blockCursor = false;
 }
 
-void TextEdit::insertRemoteText(QString name, QString text, int position) {
+void TextEdit::insertRemoteText(QString name, QString text, int line, int col) {
     //Blocco il cursore dell'editor.
     blockCursor = true;
     //Prelevo i cursori.
     kk_cursor* remoteCurs = cursors_.value(name);
-    QTextCursor curs = textEdit->textCursor();
-
     QTextCursor curs = textEdit->textCursor();
     // Faccio dei controlli sulla fattibilità dell'operazione.
     col = col > lastLength ? lastLength : col;
     col = col < 0 ? 0 : col;
     if(remoteCurs == nullptr) {
         //Creo il cursore per l'utente se non esiste.
-        remoteCurs = new kk_cursor(position);
+        remoteCurs = new kk_cursor(col);
         QLabel* qLbl = new QLabel(name, textEdit);
         QLabel* qLbl2 = new QLabel("|", textEdit);
         remoteCurs->setLabels(qLbl, qLbl2);

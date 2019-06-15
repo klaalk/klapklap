@@ -123,7 +123,7 @@ void kk_session::handleRequest(QString message) {
                     });
                 }
                 // Dico a tutti che c'è un nuovo partecipante.
-                actual_file_->deliver("addedpartecipant", "ok", "", nick_);
+                actual_file_->deliver("addedpartecipant", "ok", "", "All");
             }
         } else if(req.type() == "sharefile") {
 
