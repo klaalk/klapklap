@@ -9,8 +9,7 @@ using std::string;
 kk_char::kk_char(char value, string siteId) : siteId(siteId), value(value) {};
 
 void kk_char::push_identifier(kk_identifier_ptr id) {
-    this->position.insert(this->position.end(), id);
-    return;
+    position.push_back(id);
 }
 
 /*void kk_char::insert_identifier(std::vector<identifier>::iterator it,identifier x) {

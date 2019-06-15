@@ -243,16 +243,17 @@ void kk_crdt::remote_insert(kk_char_ptr _char){
 kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
        unsigned long min_line=0;
        unsigned long total_lines = text.size();
-       unsigned long max_line = total_lines - 2;
        unsigned long mid_line;
+       unsigned long max_line = total_lines-2;
 
-       list<kk_char_ptr> last_line(text[max_line]);
+
+
 
 //controlla se la char va messa come primo carattere della prima riga
-     if(text.empty() || _char.get()->compare_to(*text[0].front().get()) <= 0) {
+     if(text.empty() || text.at(0).empty() ||_char.get()->compare_to(*text[0].front().get()) <= 0) {
               return kk_pos(0,0);
           }
-
+list<kk_char_ptr> last_line(text[max_line]);
 
      kk_char last_char = *std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get();
 //controlla se la char va messa come ultimo carattere dell'a prima'ultima riga

@@ -33,21 +33,20 @@ int main(int argc, char* argv[])
     kk_char_ptr quattro = kk_char_ptr(new kk_char('4',"Babbuino"));
     quattro->push_identifier(kk_identifier_ptr(new kk_identifier(30,"Babbuino")));
 
-   std::cout<<"remote delete 1[30]"<<std::endl;
-   crdt->remote_delete(uno,"Elefante");
-   crdt->print();
    std::cout<<"remote insert 1[30]"<<std::endl;
    crdt->remote_insert(uno);
    crdt->print();
-   crdt->local_insert('A', kk_pos(0,0));
+   std::cout<<"remote insert 2[30]"<<std::endl;
+   crdt->remote_insert(due);
+   crdt->print();
    std::cout<<"local insert A (0,0)"<<std::endl;
+   crdt->local_insert('A', kk_pos(0,0));
    crdt->print();
-   crdt->local_insert('B', kk_pos(0,1));
    std::cout<<"local insert B (0,1)"<<std::endl;
-   crdt->print();
    crdt->local_insert('B', kk_pos(0,1));
    crdt->print();
-   crdt->local_insert('B', kk_pos(0,1));
+   std::cout<<"remote delete 1[30]"<<std::endl;
+   crdt->remote_delete(uno,"Elefante");
    crdt->print();
    std::cout<<"remote insert 1[30]"<<std::endl;
    crdt->remote_insert(uno);
@@ -67,8 +66,8 @@ int main(int argc, char* argv[])
    std::cout<<"remote insert 4[30]"<<std::endl;
    crdt->remote_insert(quattro);
    crdt->print();
-   crdt->local_delete(kk_pos(0,2),kk_pos(1,0));
-   std::cout<<"local delete da (0,1) a (1,0)"<<std::endl;
+   crdt->local_delete(kk_pos(0,2),kk_pos(0,3));
+   std::cout<<"local delete da (0,1) a (0,2)"<<std::endl;
    crdt->print();
    std::cout<<"local insert C(0,2)"<<std::endl;
    crdt->local_insert('C', kk_pos(0,2));
@@ -88,8 +87,8 @@ int main(int argc, char* argv[])
    std::cout<<"remote insert due[16]"<<std::endl;
    crdt->remote_insert(due);
    crdt->print();
-   crdt->local_delete(kk_pos(0,1),kk_pos(1,1));
-   std::cout<<"local delete da (0,1) a (1,1)"<<std::endl;
+   crdt->local_delete(kk_pos(0,1),kk_pos(0,2));
+   std::cout<<"local delete da (0,1) a (0,2)"<<std::endl;
    crdt->print();
 
     crdt->local_insert('F', kk_pos(0,1));
