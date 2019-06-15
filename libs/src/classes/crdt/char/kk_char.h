@@ -10,6 +10,8 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include <algorithm>
+#include <string.h>
 #include <memory>
 
 using std::vector;
@@ -23,6 +25,7 @@ public:
     kk_char(char value, string siteId);//costruttore
 
     char get_value();
+    string get_siteId();
     int compare_to(const kk_char &other); //torna: 1 - questa > l'altra, -1 l'altra > questa, 0 se no
     void push_identifier(kk_identifier_ptr x); //mette l'identifier nuovo come ultimo elemento del vettore posizione(aggiunge una cifra)
     void insert_identifier(vector<kk_identifier_ptr>::iterator it, kk_identifier_ptr id);

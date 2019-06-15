@@ -38,6 +38,7 @@ public:
     kk_crdt(string siteid, strategy strategy);
     void print();
     kk_char_ptr local_insert(char val, kk_pos pos);
+    kk_pos handle_remote_insert(kk_char_ptr _char);
 private:
     QRandomGenerator gen;
     ///genera la Char partendo dal valore e dalla posizione nel local text
@@ -56,6 +57,7 @@ private:
 
     int generate_identifier_between(int min, int max, strategy _strategy);
     void insert_char(kk_char_ptr _char, kk_pos pos);
+
 
    void remote_insert(kk_char_ptr _char);
 

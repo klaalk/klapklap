@@ -750,7 +750,7 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
     QTextCursor curs = textEdit->textCursor();
 
     // Faccio dei controlli sulla fattibilità dell'operazione.
-    position = position > lastLength - 1 ? lastLength - 1 : position;
+    position = position > lastLength ? lastLength : position;
     position = position < 0 ? 0 : position;
     if(c!=nullptr) {
         //Se esiste, elimino il vecchio segnaposto del mio utente.
@@ -760,7 +760,7 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
         c = new kk_cursor(position);
         qLbl = new QLabel(name, textEdit);
         qLbl->setStyleSheet(QString::fromUtf8("background-color: rgb(196, 232, 255);\n"
-        "font: 75 8pt \"Calibri\";\n"
+        "font: 75 10pt \"Calibri\";\n"
         "font: bold;"));
         qLbl2 = new QLabel("|", textEdit);
         qLbl->show();
@@ -782,7 +782,7 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
     //Riporto il cursore dell'editor alla posizione di partenza.
     curs.setPosition(cursorPos);
     //Aggiorno la length considerando il \0.
-    lastLength = lastLength + text.length()+1;
+    lastLength = lastLength + text.length();
     //Sblocco il cursore dell'editor.
     blockCursor = false;
 }
@@ -794,7 +794,7 @@ void TextEdit::onTextChange() {
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
         diffText=lastText.mid(cursorPos, lastLength - s.length());
-        qDebug() << diffText;
+        emit diffTextChanged(diffText, lastCursorPos);
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
        diffText=s.mid(lastCursorPos, s.length() - lastLength);

@@ -72,17 +72,23 @@ void kk_client::handleResponse(QString message) {
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
        crdt_ = new kk_crdt(email_.toStdString(), casuale);
        connect(&editor_, &TextEdit::diffTextChanged, this, &kk_client::onDiffTextChange);
-       editor_.insertRemoteText("tizio","ciao\n",0);
-       editor_.insertRemoteText("caio","sto scrivendo",5);
-       editor_.insertRemoteText("tizio","come va",0);
-
        editor_.show();
        chat_.show();
        chat_.setNickName(email_);
        connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);
     } else if(res.type() == "crdt" && res.result_type() == "ok") {
-        QStringList bodyList_ = res.body().split("_");
 
+        QStringList bodyList_ = res.body().split("_");
+        kk_char_ptr char_ = kk_char_ptr(new kk_char(*bodyList_[1].toLatin1().data(), bodyList_[0].toStdString()));
+
+        for(int i = 2; i<bodyList_.size(); i++){
+            unsigned long digit = bodyList_[i].toULong();
+            kk_identifier_ptr ptr = kk_identifier_ptr(new kk_identifier(digit, bodyList_[0].toStdString()));
+            char_->push_identifier(ptr);
+        }
+
+        kk_pos p = crdt_->handle_remote_insert(char_);
+        editor_.insertRemoteText(bodyList_[0], bodyList_[1], p.get_ch());
 
     } else if(res.type() == "chat" && res.result_type() == "ok") {
         QStringList res_ = res.body().split('_');
@@ -113,7 +119,8 @@ void kk_client::onDiffTextChange(QString diffText, int position) {
         mtxCrdt_.lock();
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
             kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i)));
-            sendCrdtRequest(QString::fromStdString(char_->get_siteId()+ "_" + char_->get_value()+char_->get_identifiers_string()));
+            QString ids = QString::fromStdString(char_->get_identifiers_string());
+            sendCrdtRequest(QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
         }
         mtxCrdt_.unlock();
     });
