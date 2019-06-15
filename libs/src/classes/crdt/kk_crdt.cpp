@@ -206,7 +206,7 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
     }
 }
 
-kk_pos kk_crdt::handle_remote_insert(kk_char_ptr _char){
+kk_pos kk_crdt::remote_insert(kk_char_ptr _char){
     if (text.size() == 0) {
         text.insert(text.end(), list<kk_char_ptr>());
     }

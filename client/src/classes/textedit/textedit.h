@@ -36,10 +36,11 @@ public:
     TextEdit(QWidget *parent = 0);
     QTextEdit *textEdit;
     bool load(const QString &f);
-    void insertRemoteText(QString name, QString text, int position);
+    void insertRemoteText(QString name, QString text, int line, int col);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
 signals:
-    void diffTextChanged(QString text, int position);
+    void insertTextToCRDT(QString text, int line, int col);
+    void removeTextFromCRDT(QString text, int line, int col);
 
 public slots:
     void fileNew();

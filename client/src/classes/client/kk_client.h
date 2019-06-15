@@ -43,7 +43,9 @@ private slots:
     void sendOpenFileRequest(QString fileName);
     void sendCrdtRequest(QString crdt);
     void sendMessageRequest(QString message);
-    void onDiffTextChange(QString diffText, int position);
+
+    void onInsertTextCRDT(QString diffText, int line, int col);
+    void onRemoveTextCRDT(QString diffText, int line, int col);
 
 private:
     void sendRequest(QString type, QString result, QString body);

@@ -740,24 +740,25 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
-void TextEdit::insertRemoteText(QString name, QString text, int position) {
+void TextEdit::insertRemoteText(QString name, QString text, int line, int col) {
     //Blocco il cursore dell'editor.
     blockCursor = true;
     //Prelevo i cursori.
     kk_cursor* c = cursors_.value(name);
     QLabel* qLbl = labels_.value(name);
     QLabel* qLbl2= labels2_.value(name);
-    QTextCursor curs = textEdit->textCursor();
 
+    QTextCursor curs = textEdit->textCursor();
     // Faccio dei controlli sulla fattibilità dell'operazione.
-    position = position > lastLength ? lastLength : position;
-    position = position < 0 ? 0 : position;
+    col = col > lastLength ? lastLength : col;
+    col = col < 0 ? 0 : col;
+
     if(c!=nullptr) {
         //Se esiste, elimino il vecchio segnaposto del mio utente.
         curs.setPosition(c->globalPositon);
     } else {
         //Creo il cursore per l'utente se non esiste.
-        c = new kk_cursor(position);
+        c = new kk_cursor(col);
         qLbl = new QLabel(name, textEdit);
         qLbl->setStyleSheet(QString::fromUtf8("background-color: rgb(196, 232, 255);\n"
         "font: 75 10pt \"Calibri\";\n"
@@ -769,9 +770,11 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
         labels_.insert(name, qLbl);
         labels2_.insert(name,qLbl2);
     }
+
     // Scrivo
-    curs.setPosition(position);
+    curs.setPosition(col);
     curs.insertText(text);
+
     //Aggiorno il mio kk_cursor.
     c->setGlobalPositon(curs.position());
     const QRect qRect = textEdit->cursorRect(curs);
@@ -794,11 +797,11 @@ void TextEdit::onTextChange() {
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
         diffText=lastText.mid(cursorPos, lastLength - s.length());
-        emit diffTextChanged(diffText, lastCursorPos);
+        emit removeTextFromCRDT(diffText, 0, lastCursorPos);
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
        diffText=s.mid(lastCursorPos, s.length() - lastLength);
-       emit diffTextChanged(diffText, lastCursorPos);
+       emit insertTextToCRDT(diffText, 0, lastCursorPos);
     }
     lastLength = s.length();
     lastText = s;

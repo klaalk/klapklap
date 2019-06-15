@@ -28,9 +28,9 @@ int main(int argc, char* argv[])
     Q_UNUSED(client);
 //    TextEdit editor_;
 //    editor_.show();
-//    editor_.insertRemoteText("tizio","ciao\n",0);
-//    editor_.insertRemoteText("caio","sto scrivendo",7);
-//    editor_.insertRemoteText("tizio","come va",0);
+//    editor_.insertRemoteText("tizio","ciao\n",0,0);
+//    editor_.insertRemoteText("caio","sto scrivendo",0,5);
+//    editor_.insertRemoteText("tizio","come va",0,0);
 
     return a.exec();
 }
