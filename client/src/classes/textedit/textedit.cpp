@@ -29,6 +29,7 @@
 #include <QMimeData>
 #include <QLabel>
 #include <QFontMetrics>
+#include <QFont>
 
 #if defined(QT_PRINTSUPPORT_LIB)
 #include <QtPrintSupport/qtprintsupportglobal.h>
@@ -93,6 +94,7 @@ TextEdit::TextEdit(QWidget *parent)
             actionUndo, &QAction::setEnabled);
     connect(textEdit->document(), &QTextDocument::redoAvailable,
             actionRedo, &QAction::setEnabled);
+
 
     setWindowModified(textEdit->document()->isModified());
     actionSave->setEnabled(textEdit->document()->isModified());
@@ -714,11 +716,16 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
 
 void TextEdit::fontChanged(const QFont &f)
 {
+
     comboFont->setCurrentIndex(comboFont->findText(QFontInfo(f).family()));
     comboSize->setCurrentIndex(comboSize->findText(QString::number(f.pointSize())));
     actionTextBold->setChecked(f.bold());
     actionTextItalic->setChecked(f.italic());
     actionTextUnderline->setChecked(f.underline());
+
+    fontSize=f.pointSize();
+    modifyLabels();
+
 }
 
 void TextEdit::colorChanged(const QColor &c)
@@ -740,35 +747,71 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
-void TextEdit::insertRemoteText(QString name, QString text, int line, int col) {
+void TextEdit::modifyLabels(){
+    QString size;
+
+    size=QString::number(fontSize);
+
+    QString styleName;
+    QString styleEarpiece;
+    styleName="background-color: rgb(196, 232, 255);\n"
+              "font: 75 "+size+"pt \"Calibri\";\n"
+              "font: bold;";
+    styleEarpiece="font: 75 "+size+"pt \"Calibri\";\n";
+
+    blockCursor = true;
+    QTextCursor curs = textEdit->textCursor();
+    int editorPos = curs.position();
+    for(kk_cursor* c : cursors_.values()){
+        c->getLabelName()->setStyleSheet(styleName);
+        c->getLabelEarpiece()->setStyleSheet(styleEarpiece);
+
+        c->getLabelName()->adjustSize();
+        c->getLabelEarpiece()->adjustSize();
+
+        curs.setPosition(c->globalPositon);
+        const QRect qRect = textEdit->cursorRect(curs);
+
+        c->getLabelName()->move(qRect.x(),qRect.y()-fontSize);
+        c->getLabelEarpiece()->move(qRect.x()-1, qRect.y());
+    }
+    curs.setPosition(editorPos);
+    blockCursor = false;
+}
+
+void TextEdit::insertRemoteText(QString name, QString text, int position) {
     //Blocco il cursore dell'editor.
     blockCursor = true;
     //Prelevo i cursori.
-    kk_cursor* c = cursors_.value(name);
-    QLabel* qLbl = labels_.value(name);
-    QLabel* qLbl2= labels2_.value(name);
+    kk_cursor* remoteCurs = cursors_.value(name);
+    QTextCursor curs = textEdit->textCursor();
 
     QTextCursor curs = textEdit->textCursor();
     // Faccio dei controlli sulla fattibilità dell'operazione.
     col = col > lastLength ? lastLength : col;
     col = col < 0 ? 0 : col;
-
-    if(c!=nullptr) {
-        //Se esiste, elimino il vecchio segnaposto del mio utente.
-        curs.setPosition(c->globalPositon);
-    } else {
+    if(remoteCurs == nullptr) {
         //Creo il cursore per l'utente se non esiste.
-        c = new kk_cursor(col);
-        qLbl = new QLabel(name, textEdit);
-        qLbl->setStyleSheet(QString::fromUtf8("background-color: rgb(196, 232, 255);\n"
-        "font: 75 10pt \"Calibri\";\n"
-        "font: bold;"));
-        qLbl2 = new QLabel("|", textEdit);
-        qLbl->show();
-        qLbl2->show();
-        cursors_.insert(name, c);
-        labels_.insert(name, qLbl);
-        labels2_.insert(name,qLbl2);
+        remoteCurs = new kk_cursor(position);
+        QLabel* qLbl = new QLabel(name, textEdit);
+        QLabel* qLbl2 = new QLabel("|", textEdit);
+        remoteCurs->setLabels(qLbl, qLbl2);
+        cursors_.insert(name, remoteCurs);
+
+        QString size=QString::number(fontSize);
+        QString styleName;
+        QString styleEarpiece;
+        styleName="background-color: rgb(196, 232, 255);\n"
+                        "font: 75 "+size+"pt \"Calibri\";\n"
+                        "font: bold;";
+        styleEarpiece="font: 75 "+size+"pt \"Calibri\";\n";
+
+        //Aggiorno le label
+        remoteCurs->getLabelName()->setStyleSheet(styleName);
+        remoteCurs->getLabelEarpiece()->setStyleSheet(styleEarpiece);
+
+        remoteCurs->getLabelName()->show();
+        remoteCurs->getLabelEarpiece()->show();
     }
 
     // Scrivo
@@ -776,12 +819,15 @@ void TextEdit::insertRemoteText(QString name, QString text, int line, int col) {
     curs.insertText(text);
 
     //Aggiorno il mio kk_cursor.
-    c->setGlobalPositon(curs.position());
+    remoteCurs->setGlobalPositon(curs.position());
+    for(kk_cursor* c : cursors_.values()) {
+        if(c->globalPositon>=remoteCurs->globalPositon && c!=remoteCurs){
+            c->setGlobalPositon(c->globalPositon+text.length());
+        }
+    }
     const QRect qRect = textEdit->cursorRect(curs);
-    qDebug()<<name<<qRect.x()<<qRect.y();
-    qLbl->move(qRect.x()+2,qRect.y()-10);
-    qLbl2->move(qRect.x(),qRect.y());
-
+    remoteCurs->getLabelName()->move(qRect.x(),qRect.y()-fontSize);
+    remoteCurs->getLabelEarpiece()->move(qRect.x()-1,qRect.y());
     //Riporto il cursore dell'editor alla posizione di partenza.
     curs.setPosition(cursorPos);
     //Aggiorno la length considerando il \0.
