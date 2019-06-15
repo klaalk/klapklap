@@ -46,6 +46,9 @@ int main(int argc, char* argv[])
    std::cout<<"local insert /n(0,2)"<<std::endl;
    crdt->local_insert('\n', kk_pos(0,2));
    crdt->print();
+   crdt->local_delete(kk_pos(0,2),kk_pos(1,0));
+   std::cout<<"local delete da (0,1) a (1,0)"<<std::endl;
+   crdt->print();
    std::cout<<"local insert C(0,2)"<<std::endl;
    crdt->local_insert('C', kk_pos(0,2));
    crdt->print();

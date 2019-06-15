@@ -377,6 +377,7 @@ void kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
               merge_lines(start_pos.get_line());
 
       }
+          text.push_back(list<kk_char_ptr>());
 }
 
 
@@ -433,7 +434,8 @@ void kk_crdt::remove_empty_lines(){
 
 void kk_crdt::merge_lines(unsigned long line){
 
-    text[line].merge(text[line+1]);
+    text[line].splice(std::next(text[line].begin(), text[line].size()),text[line+1]);
+
     list<kk_char_ptr> merged_line(text[line]);
 
     //devi togliere line e line+1 e metter mergelined
