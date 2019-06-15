@@ -113,7 +113,7 @@ void kk_client::onDiffTextChange(QString diffText, int position) {
         mtxCrdt_.lock();
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
             kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(0, static_cast<unsigned long>(position + i)));
-            sendCrdtRequest(QString::fromStdString(char_->get_siteId()+ "_" + char_->get_value()+char_->get_identifiers_string()));
+            //sendCrdtRequest(QString::fromStdString(char_->get_siteId()+ "_" + char_->get_value()+char_->get_identifiers_string()));
         }
         mtxCrdt_.unlock();
     });
