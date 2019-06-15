@@ -68,8 +68,8 @@ private:
     list<kk_char_ptr> delete_single_line(kk_pos start_pos, kk_pos end_pos);
     void merge_lines(unsigned long line);
     void remove_empty_lines();
-    kk_pos find_pos (kk_char_ptr _Char,bool flag);
-    int find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line,bool flag);
+    kk_pos find_pos (kk_char_ptr _Char,bool *flag);
+    unsigned long find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line,bool flag);
     vector<kk_identifier_ptr> slice(vector<kk_identifier_ptr> const &v,int i);//FORSE DA TOGLIERE
 };
 

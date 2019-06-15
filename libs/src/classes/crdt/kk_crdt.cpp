@@ -267,7 +267,7 @@ kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
 
 kk_pos kk_crdt::find_end_position (kk_char last_char, list<kk_char_ptr> last_line, unsigned long total_lines){
     if (last_char.get_value() == '\n') {
-        return kk_pos(total_lines,0);
+        return kk_pos(total_lines-1,0);
     } else {
         return kk_pos(total_lines-2,last_line.size());
   }
@@ -330,8 +330,6 @@ vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int
 
 void kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
       bool new_line_removed=false;
-
-
       if(start_pos.get_line() != end_pos.get_line()){
               new_line_removed = true;
               list<kk_char_ptr> chars(delete_multiple_lines(start_pos,end_pos));
@@ -354,6 +352,7 @@ void kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
               merge_lines(start_pos.get_line());
 
       }
+          text.push_back(list<kk_char_ptr>());
 }
 
 
@@ -410,7 +409,8 @@ void kk_crdt::remove_empty_lines(){
 
 void kk_crdt::merge_lines(unsigned long line){
 
-    text[line].merge(text[line+1]);
+    text[line].splice(std::next(text[line].begin(), static_cast<long>(text[line].size())),text[line+1]);
+
     list<kk_char_ptr> merged_line(text[line]);
 
     //devi togliere line e line+1 e metter mergelined
@@ -425,13 +425,13 @@ void kk_crdt::merge_lines(unsigned long line){
 
 void kk_crdt::remote_delete(kk_char_ptr _Char, string siteid){
     bool flag = true;
-    kk_pos pos(find_pos(_Char,flag));
+    kk_pos pos(find_pos(_Char,&flag));
 
     if(flag==false){
         return;
     }
 
-    text[pos.get_line()].erase(std::next(text[pos.get_line()].begin(),pos.get_ch()));
+    text[pos.get_line()].erase(std::next(text[pos.get_line()].begin(),static_cast<long>(pos.get_ch())));
 
     if(_Char->get_value()=='\n' && !text[pos.get_line()+1].empty()){
         merge_lines(pos.get_line());
@@ -444,7 +444,7 @@ void kk_crdt::remote_delete(kk_char_ptr _Char, string siteid){
 
 }
 
-kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool flag){
+kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool *flag){
     unsigned long min_line=0;
     unsigned long total_lines = text.size();
     unsigned long max_line = total_lines - 2;
@@ -452,7 +452,7 @@ kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool flag){
     list<kk_char_ptr> last_line(text[max_line]);
 
      if (text.empty() || _Char.get()->compare_to(*text[0].front().get()) < 0) {
-         flag=false;
+         *flag=false;
          return kk_pos(0,0);
      }
 
@@ -460,7 +460,7 @@ kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool flag){
 
 
       if(_Char.get()->compare_to(last_char)>0){
-          flag=false;
+          *flag=false;
           return kk_pos(0,0);
       }
 
@@ -494,7 +494,7 @@ kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool flag){
       }
 }
 
-int kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line, bool flag){
+unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line, bool flag){
 
     unsigned long left=0;
     unsigned long right = line.size()-1;
