@@ -31,7 +31,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/textedit/textedit.h \
                 classes/client/kk_client.h \
                 classes/chat/chatdialog.h\
-                classes/view/mainwindow.h\
+                classes/view/mainwindow.h
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/crdt/char/kk_char.cpp \

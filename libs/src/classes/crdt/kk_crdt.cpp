@@ -340,16 +340,16 @@ void kk_crdt::print() {
 }
 
 //forse da eliminare
-//vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int i) {
-//    if(v.cbegin() == v.cend()) {
-//        return std::vector<kk_identifier_ptr>();
-//    }
-//    auto first = v.cbegin() + i;
-//    auto last = v.cend();
+vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int i) {
+    if(v.cbegin() == v.cend()) {
+        return std::vector<kk_identifier_ptr>();
+    }
+    auto first = v.cbegin() + i;
+    auto last = v.cend();
 
-//    std::vector<kk_identifier_ptr> list(first, last);
-//    return list;
-//}
+    std::vector<kk_identifier_ptr> list(first, last);
+    return list;
+}
 
 void kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
       bool new_line_removed=false;
