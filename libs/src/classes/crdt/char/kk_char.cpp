@@ -60,3 +60,7 @@ void kk_char::insert_position(vector<kk_identifier_ptr> position) {
 vector<kk_identifier_ptr> kk_char::get_position() {
     return this->position;
 }
+
+string kk_char::get_siteId(){
+    return this->siteId;
+}
