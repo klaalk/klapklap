@@ -19,17 +19,22 @@ void kk_char::push_identifier(kk_identifier_ptr id) {
 }*/
 
 int kk_char::compare_to(const kk_char &other) {
-    int min, comp;
+    int comp;
+    unsigned long min;
 
-    if (this->position.size() < other.position.size()) {
-        min = static_cast<int>(this->position.size());
+    if (this->position.size() <= other.position.size()) {
+        min = this->position.size();
     } else {
-        min = static_cast<int>(other.position.size());
+        min = other.position.size();
     }
 
-    for (int i = 0; i < min; i++) {
-        comp = this->position[static_cast<unsigned long>(i)]->compare_to(*other.position[static_cast<unsigned long>(i)].get());
-        if (comp != 0) {
+    for (unsigned long i = 0; i < min; i++) {
+        kk_identifier id1(*this->position[i].get());
+        kk_identifier id2(*other.position[i].get());
+
+         comp=id1.compare_to(id2);
+
+         if (comp != 0) {
             return comp;
         }
     }
