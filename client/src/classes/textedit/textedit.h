@@ -18,11 +18,26 @@ class QTextEdit;
 class QTextCharFormat;
 class QMenu;
 class QPrinter;
+class QLabel;
 
 class kk_cursor{
 public:
     int globalPositon=0;
+    QLabel* name;
+    QLabel* earpiece;
+
     kk_cursor(int position): globalPositon(position){}
+    void setLabels(QLabel *name_, QLabel *earpiece_) {
+        name = name_;
+        earpiece = earpiece_;
+    }
+
+    QLabel* getLabelName(){
+        return name;
+    }
+    QLabel* getLabelEarpiece(){
+        return earpiece;
+    }
     void setGlobalPositon(int position) {
         this->globalPositon = position;
     }
@@ -36,10 +51,12 @@ public:
     TextEdit(QWidget *parent = 0);
     QTextEdit *textEdit;
     bool load(const QString &f);
-    void insertRemoteText(QString name, QString text, int position);
+    void insertRemoteText(QString name, QString text, int line, int col);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
+    void modifyLabels();
 signals:
-    void diffTextChanged(QString text, int position);
+    void insertTextToCRDT(QString text, int line, int col);
+    void removeTextFromCRDT(QString text, int line, int col);
 
 public slots:
     void fileNew();
@@ -101,10 +118,8 @@ private:
     QAction *actionPaste;
 #endif
     bool blockCursor = false;
-    int lastLength = 0, cursorPos=0, lastCursorPos=0;
+    int lastLength = 0, cursorPos=0, lastCursorPos=0, fontSize=0;
     QMap <QString,kk_cursor*> cursors_;
-    QMap <QString,QLabel*> labels_;
-    QMap <QString,QLabel*> labels2_;
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;

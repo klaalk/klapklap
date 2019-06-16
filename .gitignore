@@ -44,3 +44,7 @@ client/src/client\.pro\.user
 server/src/server\.pro\.user
 client/build-client-Qt_5_12_3_for_iOS-Debug/
 client/build-client-Qt_5_12_3_for_iOS-Debug/
+/.vscode/ipch/7b79adc2115e1fd3/mmap_address.bin
+/libs/.vscode/ipch/1b3e72de1164de2a/KK_CRDT.ipch
+/libs/.vscode/ipch/1b3e72de1164de2a/mmap_address.bin
+/.vscode/ipch/cb3d8171f781087a/mmap_address.bin

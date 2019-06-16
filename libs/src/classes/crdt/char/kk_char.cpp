@@ -9,8 +9,7 @@ using std::string;
 kk_char::kk_char(char value, string siteId) : siteId(siteId), value(value) {};
 
 void kk_char::push_identifier(kk_identifier_ptr id) {
-    this->position.insert(this->position.end(), id);
-    return;
+    position.push_back(id);
 }
 
 /*void kk_char::insert_identifier(std::vector<identifier>::iterator it,identifier x) {
@@ -19,17 +18,22 @@ void kk_char::push_identifier(kk_identifier_ptr id) {
 }*/
 
 int kk_char::compare_to(const kk_char &other) {
-    int min, comp;
+    int comp;
+    unsigned long min;
 
-    if (this->position.size() < other.position.size()) {
-        min = static_cast<int>(this->position.size());
+    if (this->position.size() <= other.position.size()) {
+        min = this->position.size();
     } else {
-        min = static_cast<int>(other.position.size());
+        min = other.position.size();
     }
 
-    for (int i = 0; i < min; i++) {
-        comp = this->position[static_cast<unsigned long>(i)]->compare_to(*other.position[static_cast<unsigned long>(i)].get());
-        if (comp != 0) {
+    for (unsigned long i = 0; i < min; i++) {
+        kk_identifier id1(*this->position[i].get());
+        kk_identifier id2(*other.position[i].get());
+
+         comp=id1.compare_to(id2);
+
+         if (comp != 0) {
             return comp;
         }
     }
@@ -61,8 +65,10 @@ vector<kk_identifier_ptr> kk_char::get_position() {
 
 std::string kk_char::get_identifiers_string() {
     std::string identifiers_ = "";
-    for(int i = 0; i < this->position.size(); i++) {
-        identifiers_+= "_" + this->position.at(i)->get_digit();
-    }
+    std::for_each(position.begin(), position.end(),[&](kk_identifier_ptr i){
+        char str[sizeof(unsigned long)+1];
+        sprintf(str, "%lu", i->get_digit());
+        identifiers_= identifiers_ + "_" + str;
+    });
     return identifiers_;
 }

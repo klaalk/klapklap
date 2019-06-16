@@ -10,6 +10,8 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include <algorithm>
+#include <string.h>
 #include <memory>
 
 using std::vector;

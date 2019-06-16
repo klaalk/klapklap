@@ -48,17 +48,18 @@ void kk_session::handleRequest(QString message) {
             QStringList _body = req.body().split("_");
             nick_ = _body[0];
             kk_task *mytask = new kk_task([=]() {
-                bool result = db_->db_login(_body[0],_body[1]);
+//                bool result = db_->db_login(_body[0],_body[1]);
+                bool result = true;
                 if(result) {
-                    QStringList q=db_->db_getUserFile(_body[0]);
-                    QString message;
-                    std::for_each(q.begin(), q.end(), [&](QString msg){
-                        message += msg + "_";
-                    });
+//                    QStringList q=db_->db_getUserFile(_body[0]);
+                    QString message ="";
+//                    std::for_each(q.begin(), q.end(), [&](QString msg){
+//                        message += msg + "_";
+//                    });
                     this->sendResponse("login","ok", message);
 
                 } else {
-                    this->sendResponse("login","ko","Invalid credentials");
+                    this->sendResponse("login","ok","Invalid credentials");
                 }
             });
 
@@ -122,7 +123,7 @@ void kk_session::handleRequest(QString message) {
                     });
                 }
                 // Dico a tutti che c'è un nuovo partecipante.
-                actual_file_->deliver("addedpartecipant", "ok","ok", nick_);
+                actual_file_->deliver("addedpartecipant", "ok", "", "All");
             }
         } else if(req.type() == "sharefile") {
 
@@ -150,7 +151,7 @@ void kk_session::handleDisconnection()
     {
 //        clients_.removeAll(pClient);
         if(actual_file_.get() != nullptr) {
-            actual_file_->deliver("removedpartecipant", "ok","ok", nick_);
+            actual_file_->deliver("removedpartecipant", "ok", "", nick_);
             actual_file_->leave(sharedFromThis());
         }
         session_socket_->deleteLater();
