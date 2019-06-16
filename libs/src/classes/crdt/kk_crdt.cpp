@@ -140,9 +140,9 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
 }
 
 strategy kk_crdt::find_strategy(unsigned long level/*FORSE DA TOGLIERE*/) {
-    if (!strategy_cache.empty() && strategy_cache[level]) {
-        return strategy_cache[level];
-    }
+//    if (!strategy_cache.empty() && strategy_cache[level]) {
+//        return strategy_cache[level];
+//    }
     strategy _local_strategy;
     switch (this->_strategy) {
         case plus:
@@ -159,7 +159,7 @@ strategy kk_crdt::find_strategy(unsigned long level/*FORSE DA TOGLIERE*/) {
             break;
         }
     }
-    strategy_cache.insert(std::next(strategy_cache.begin(), static_cast<int>(level)), _local_strategy);
+//    strategy_cache.insert(std::next(strategy_cache.begin(), static_cast<int>(level)), _local_strategy);
     return _local_strategy;
 }
 
