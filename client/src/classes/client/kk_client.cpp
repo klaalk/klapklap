@@ -114,18 +114,18 @@ void kk_client::handleClosedConnection() {
 }
 
 void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
-    std::thread t([=](){
-        QByteArray ba = diffText.toLocal8Bit();
-        char *c_str = ba.data();
-        mtxCrdt_.lock();
-        for(int i = 0; *c_str != '\0'; c_str++, i++) {
-            kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(line, static_cast<unsigned long>(col + i)));
-            QString ids = QString::fromStdString(char_->get_identifiers_string());
-            sendCrdtRequest(QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
-        }
-        mtxCrdt_.unlock();
-    });
-    t.detach();
+//    std::thread t([=](){
+//        QByteArray ba = diffText.toLocal8Bit();
+//        char *c_str = ba.data();
+//        mtxCrdt_.lock();
+//        for(int i = 0; *c_str != '\0'; c_str++, i++) {
+//            kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(line, static_cast<unsigned long>(col + i)));
+//            QString ids = QString::fromStdString(char_->get_identifiers_string());
+//            sendCrdtRequest(QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
+//        }
+//        mtxCrdt_.unlock();
+//    });
+//    t.detach();
 }
 
 
