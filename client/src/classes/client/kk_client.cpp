@@ -75,7 +75,7 @@ void kk_client::handleResponse(QString message) {
         QStringList bodyList_ = res.body().split("_");
         kk_char_ptr char_ = kk_char_ptr(new kk_char(*bodyList_[2].toLatin1().data(), bodyList_[1].toStdString()));
 
-        for(int i = 2; i<bodyList_.size(); i++){
+        for(int i = 3; i<bodyList_.size(); i++){
             unsigned long digit = bodyList_[i].toULong();
             kk_identifier_ptr ptr = kk_identifier_ptr(new kk_identifier(digit, bodyList_[1].toStdString()));
             char_->push_identifier(ptr);
@@ -111,8 +111,8 @@ void kk_client::handleClosedConnection() {
 }
 
 void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
-    std::thread t([=](){
-        mtxCrdt_.lock();
+//    std::thread t([=](){
+//        mtxCrdt_.lock();
         QByteArray ba = diffText.toLocal8Bit();
         char *c_str = ba.data();
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
@@ -121,21 +121,21 @@ void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
             qDebug() << "Insered " << diffText << "in " << line << " " << col;
             sendCrdtRequest("insert", QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
         }
-        mtxCrdt_.unlock();
-    });
-    t.detach();
+//        mtxCrdt_.unlock();
+//    });
+//    t.detach();
 }
 
 void kk_client::onRemoveTextCRDT(int startLine, int startCol, int endLine, int endCol) {
-    std::thread t([=](){
-        mtxCrdt_.lock();
+//    std::thread t([=](){
+//        mtxCrdt_.lock();
         list<kk_char_ptr> deletedChars = crdt_->local_delete(kk_pos(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                             kk_pos(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
-        mtxCrdt_.unlock();
+//        mtxCrdt_.unlock();
         std::for_each(deletedChars.begin(), deletedChars.end(),[&](kk_char_ptr char_){
             QString ids = QString::fromStdString(char_->get_identifiers_string());
             sendCrdtRequest("delete",QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
         });
-    });
-    t.detach();
+//    });
+//    t.detach();
 }

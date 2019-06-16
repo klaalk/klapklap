@@ -753,6 +753,7 @@ void TextEdit::modifyLabels(){
     int editorPos = curs.position();
     for(kk_cursor* c : cursors_.values()){
         c->setLabelsSize(fontSize);
+        curs.setPosition(c->getGlobalPositon());
         c->moveLabels(textEdit->cursorRect(curs));
     }
     curs.setPosition(editorPos);
@@ -766,6 +767,9 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     QTextCursor curs = textEdit->textCursor();
     //Prelevo il cursore remoto.
     kk_cursor* remoteCurs = cursors_.value(name);
+    // Faccio dei controlli sulla fattibilità dell'operazione.
+    col = col > lastLength ? lastLength : col;
+    col = col < 0 ? 0 : col;
     // Se non esiste lo creo e lo memorizzo.
     if(remoteCurs == nullptr) {
         //Creo il cursore per l'utente se non esiste.
@@ -777,10 +781,6 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         remoteCurs->showLabels();
         cursors_.insert(name, remoteCurs);
     }
-
-    // Faccio dei controlli sulla fattibilità dell'operazione.
-    col = col > lastLength ? lastLength : col;
-    col = col < 0 ? 0 : col;
     // Muovo il cursore dell'editor.
     curs.setPosition(col);
     // Eseguo l'operazione
@@ -793,8 +793,11 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         //Aggiorno la length.
         lastLength = lastLength - text.length();
     }
-    //Aggiorno tutti i cursori sulla base dell'operazione.
+    // Aggiorno il cursore remoto
     remoteCurs->setGlobalPositon(curs.position());
+    // Muovo il cursore dopo l'aggiornamento
+    remoteCurs->moveLabels(textEdit->cursorRect(curs));
+    //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for(kk_cursor* c : cursors_.values()) {
         if(c->getGlobalPositon()>=remoteCurs->getGlobalPositon() && c!=remoteCurs){
             if(operation == "insert") {
@@ -802,10 +805,10 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
             } else if(operation == "delete") {
                  c->setGlobalPositon(c->getGlobalPositon()-text.length());
             }
+            curs.setPosition(c->getGlobalPositon());
+            c->moveLabels(textEdit->cursorRect(curs));
         }
     }
-    // Muovo tutti i cursori dopo l'aggiornamento
-    remoteCurs->moveLabels(textEdit->cursorRect(curs));
     // Riporto il cursore dell'editor alla posizione di partenza.
     curs.setPosition(cursorPos);
     // Sblocco il cursore dell'editor.
@@ -824,6 +827,19 @@ void TextEdit::onTextChange() {
         //inserito 1 o più
        diffText=s.mid(lastCursorPos, s.length() - lastLength);
        emit insertTextToCRDT(diffText, 0, lastCursorPos);
+    }
+    //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
+    QTextCursor curs = textEdit->textCursor();
+    for(kk_cursor* c : cursors_.values()) {
+        if(c->getGlobalPositon()>=curs.position()){
+            if(s.length() - lastLength >= 1) {
+                 c->setGlobalPositon(c->getGlobalPositon()+diffText.length());
+            } else if(lastLength - s.length() >= 1) {
+                 c->setGlobalPositon(c->getGlobalPositon()-diffText.length());
+            }
+            curs.setPosition(c->getGlobalPositon());
+            c->moveLabels(textEdit->cursorRect(curs));
+        }
     }
     lastLength = s.length();
     lastText = s;
