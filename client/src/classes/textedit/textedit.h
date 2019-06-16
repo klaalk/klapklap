@@ -21,22 +21,59 @@ class QPrinter;
 class QLabel;
 
 class kk_cursor{
-public:
+private:
     int globalPositon=0;
+    int fontSize=0;
+    QString backgorundColor;
+
     QLabel* name;
     QLabel* earpiece;
 
+    void setLabelsStyleSheet(QString fontColor, int fontSize) {
+        QString size=QString::number(fontSize);
+        QString styleName;
+        QString styleEarpiece;
+        styleName = "background-color: " + fontColor + ";\n"
+                    "font: 75 "+size+"pt \"Calibri\";\n"
+                    "font: bold;";
+
+        styleEarpiece = "font: 75 "+size+"pt \"Calibri\";\n";
+        //Aggiorno le label
+        name->setStyleSheet(styleName);
+        earpiece->setStyleSheet(styleEarpiece);
+    }
+
+public:
     kk_cursor(int position): globalPositon(position){}
     void setLabels(QLabel *name_, QLabel *earpiece_) {
         name = name_;
         earpiece = earpiece_;
     }
 
-    QLabel* getLabelName(){
-        return name;
+    void setLabelsStyle(QString fontColor, int fontSize) {
+        this->fontSize = fontSize;
+        this->backgorundColor = fontColor;
+        setLabelsStyleSheet(this->backgorundColor, this->fontSize);
     }
-    QLabel* getLabelEarpiece(){
-        return earpiece;
+
+    void setLabelsSize(int fontSize) {
+        this->fontSize = fontSize;
+        setLabelsStyleSheet(this->backgorundColor, this->fontSize);
+        name->adjustSize();
+        earpiece->adjustSize();
+    }
+
+    void showLabels() {
+        name->show();
+        earpiece->show();
+    }
+
+    void moveLabels(QRect qRect) {
+        name->move(qRect.x(),qRect.y()-fontSize);
+        earpiece->move(qRect.x()-1, qRect.y());
+    }
+    int getGlobalPositon() {
+        return this->globalPositon;
     }
     void setGlobalPositon(int position) {
         this->globalPositon = position;
@@ -51,7 +88,7 @@ public:
     TextEdit(QWidget *parent = 0);
     QTextEdit *textEdit;
     bool load(const QString &f);
-    void insertRemoteText(QString name, QString text, int line, int col);
+    void applyRemoteChanges(QString operation, QString name, QString text, int line, int col);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
 signals:

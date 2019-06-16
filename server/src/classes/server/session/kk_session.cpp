@@ -48,18 +48,18 @@ void kk_session::handleRequest(QString message) {
             QStringList _body = req.body().split("_");
             nick_ = _body[0];
             kk_task *mytask = new kk_task([=]() {
-                bool result = db_->db_login(_body[0],_body[1]);
-                if(result) {
-                    QStringList q=db_->db_getUserFile(_body[0]);
-                    QString message ="";
-                    std::for_each(q.begin(), q.end(), [&](QString msg){
-                        message += msg + "_";
-                    });
-                    this->sendResponse("login","ok", message);
-
-                } else {
-                    this->sendResponse("login","ok","Invalid credentials");
-                }
+//                bool result = db_->db_login(_body[0],_body[1]);
+//                if(result) {
+//                    QStringList q=db_->db_getUserFile(_body[0]);
+//                    QString message ="";
+//                    std::for_each(q.begin(), q.end(), [&](QString msg){
+//                        message += msg + "_";
+//                    });
+//                    this->sendResponse("login","ok", message);
+//                } else {
+//                    this->sendResponse("login","ko","Invalid credentials");
+//                }
+                this->sendResponse("login","ok", "message");
             });
 
             mytask->setAutoDelete(true);

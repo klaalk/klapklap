@@ -4,12 +4,6 @@
 
 #include "kk_client.h"
 
-#include "../../../../libs/src/classes/crypt/kk_crypt.h"
-
-#include <QtCore/QDebug>
-#include <QtWebSockets/QWebSocket>
-#include <QCoreApplication>
-
 kk_client::kk_client(const QUrl &url, QObject *parent)
     : QObject(parent) {
     connect(&socket_, &QWebSocket::connected, this, &kk_client::handleOpenedConnection);
@@ -79,20 +73,21 @@ void kk_client::handleResponse(QString message) {
        connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);
     } else if(res.type() == "crdt" && res.result_type() == "ok") {
         QStringList bodyList_ = res.body().split("_");
-        if(bodyList_[0] == "insert") {
-            kk_char_ptr char_ = kk_char_ptr(new kk_char(*bodyList_[2].toLatin1().data(), bodyList_[1].toStdString()));
+        kk_char_ptr char_ = kk_char_ptr(new kk_char(*bodyList_[2].toLatin1().data(), bodyList_[1].toStdString()));
 
-            for(int i = 2; i<bodyList_.size(); i++){
-                unsigned long digit = bodyList_[i].toULong();
-                kk_identifier_ptr ptr = kk_identifier_ptr(new kk_identifier(digit, bodyList_[1].toStdString()));
-                char_->push_identifier(ptr);
-            }
-
-            kk_pos p = crdt_->remote_insert(char_);
-            editor_.insertRemoteText(bodyList_[1], bodyList_[2], 0, p.get_ch());
-        } else if(bodyList_[0] == "delete") {
-            // TODO: remote delete
+        for(int i = 2; i<bodyList_.size(); i++){
+            unsigned long digit = bodyList_[i].toULong();
+            kk_identifier_ptr ptr = kk_identifier_ptr(new kk_identifier(digit, bodyList_[1].toStdString()));
+            char_->push_identifier(ptr);
         }
+        if(bodyList_[0] == "insert") {
+            kk_pos remotePos = crdt_->remote_insert(char_);
+            editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], 0, remotePos.get_ch());
+        } else if(bodyList_[0] == "delete") {
+            kk_pos remotePos = crdt_->remote_delete(char_);
+            editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], 0, remotePos.get_ch());
+        }
+
     } else if(res.type() == "chat" && res.result_type() == "ok") {
         QStringList res_ = res.body().split('_');
         chat_.appendMessage(res_[0], res_[1]);
@@ -130,15 +125,16 @@ void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
     t.detach();
 }
 
-
 void kk_client::onRemoveTextCRDT(int startLine, int startCol, int endLine, int endCol) {
     std::thread t([=](){
         mtxCrdt_.lock();
-        crdt_->local_delete(kk_pos(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
+        list<kk_char_ptr> deletedChars = crdt_->local_delete(kk_pos(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                             kk_pos(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
-//        QString ids = QString::fromStdString(char_->get_identifiers_string());
-//        sendCrdtRequest(QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
         mtxCrdt_.unlock();
+        std::for_each(deletedChars.begin(), deletedChars.end(),[&](kk_char_ptr char_){
+            QString ids = QString::fromStdString(char_->get_identifiers_string());
+            sendCrdtRequest("delete",QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
+        });
     });
     t.detach();
 }

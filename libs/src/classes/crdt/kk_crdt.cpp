@@ -341,18 +341,16 @@ vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int
     return list;
 }
 
-void kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
-     bool new_line_removed=false;
-
+list<kk_char_ptr> kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
+    bool new_line_removed=false;
+    list<kk_char_ptr> chars;
     if(start_pos.get_line() != end_pos.get_line()){
         new_line_removed = true;
-        list<kk_char_ptr> chars(delete_multiple_lines(start_pos,end_pos));
+        chars = delete_multiple_lines(start_pos,end_pos);
     }else{
-        list<kk_char_ptr> chars = delete_single_line(start_pos, end_pos);
-
+        chars = delete_single_line(start_pos, end_pos);
         list<kk_char_ptr>::iterator it;
         it=chars.begin();
-
         for (it = chars.begin(); it!= chars.end(); it++) {
             if(it->get()->get_value() == '\n'){
               new_line_removed=true;
@@ -361,9 +359,10 @@ void kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
     }
     remove_empty_lines();
     if(new_line_removed && !text[start_pos.get_line()+1].empty()){
-      merge_lines(start_pos.get_line());
+        merge_lines(start_pos.get_line());
     }
     text.push_back(list<kk_char_ptr>());
+    return chars;
 }
 
 
@@ -433,12 +432,12 @@ void kk_crdt::merge_lines(unsigned long line){
     return;
 }
 
-void kk_crdt::remote_delete(kk_char_ptr _Char, string siteid){
+kk_pos kk_crdt::remote_delete(kk_char_ptr _Char){
     bool flag = true;
     kk_pos pos(find_pos(_Char, &flag));
 
     if(flag==false){
-        return;
+        return pos;
     }
 
     text[pos.get_line()].erase(std::next(text[pos.get_line()].begin(),static_cast<long>(pos.get_ch())));
@@ -449,6 +448,7 @@ void kk_crdt::remote_delete(kk_char_ptr _Char, string siteid){
 
     remove_empty_lines();
     text.push_back(list<kk_char_ptr>());
+    return pos;
 }
 
 kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool *flag){
