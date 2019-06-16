@@ -63,12 +63,6 @@ vector<kk_identifier_ptr> kk_char::get_position() {
     return this->position;
 }
 
-std::string kk_char::get_identifiers_string() {
-    std::string identifiers_ = "";
-    std::for_each(position.begin(), position.end(),[&](kk_identifier_ptr i){
-        char str[sizeof(unsigned long)+1];
-        sprintf(str, "%lu", i->get_digit());
-        identifiers_= identifiers_ + "_" + str;
-    });
-    return identifiers_;
+string kk_char::get_siteId(){
+    return this->siteId;
 }

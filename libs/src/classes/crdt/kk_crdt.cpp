@@ -217,29 +217,31 @@ kk_pos kk_crdt::remote_insert(kk_char_ptr _char){
 }
 
 kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
-    unsigned long min_line=0;
-    unsigned long total_lines = text.size();
-    unsigned long max_line = total_lines >= 2 ? total_lines - 2 : total_lines - 1;
-    unsigned long mid_line;
-
-    list<kk_char_ptr> last_line = text.at(max_line);
-
-    if(text.empty() || text.at(0).empty() || _char.get()->compare_to(*text.at(0).front().get()) <= 0) {
-          return kk_pos(0,0);
-    }
+       unsigned long min_line=0;
+       unsigned long total_lines = text.size();
+       unsigned long mid_line;
+       unsigned long max_line = total_lines-2;
 
 
-    kk_char last_char = *std::next(last_line.begin(),last_line.size()-1)->get();
 
-    if(_char.get()->compare_to(last_char)>0){
+
+//controlla se la char va messa come primo carattere della prima riga
+     if(text.empty() || text.at(0).empty() ||_char.get()->compare_to(*text[0].front().get()) <= 0) {
+              return kk_pos(0,0);
+          }
+list<kk_char_ptr> last_line(text[max_line]);
+
+     kk_char last_char = *std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get();
+//controlla se la char va messa come ultimo carattere dell'a prima'ultima riga
+     if(_char.get()->compare_to(last_char)>0){
         return find_end_position(last_char, last_line, total_lines);
     }
 
     while (min_line +1 < max_line) {
         mid_line = static_cast<unsigned long>(floor(min_line + (max_line - min_line)/2));
 
-        list<kk_char_ptr> current_line (text[mid_line]);
-        last_char = *std::next(current_line.begin(),last_line.size()-1)->get();
+         list<kk_char_ptr> current_line (text[mid_line]);
+
          last_char = *std::next(current_line.begin(),static_cast<long>(current_line.size()-1))->get();
 
         if(_char.get()->compare_to(last_char)==0){
@@ -251,12 +253,14 @@ kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
         }
     }
 
-    list<kk_char_ptr> min_current_line (text[min_line]);
+     //la scelta ora sarà tra massimo due linee
+     list<kk_char_ptr> min_current_line (text[min_line]);
      kk_char min_last_char = *std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1))->get();
     list<kk_char_ptr> max_current_line (text[max_line]);
      kk_char max_last_char = *std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1))->get();
 
-    if(_char.get()->compare_to(min_last_char)<=0){
+     //vede se sta nella linea1 o linea2 comparando con l'ultima Char delle linea1
+     if(_char.get()->compare_to(min_last_char)<=0){
         unsigned long char_idx = find_insert_index_in_line(_char,min_current_line);
         return kk_pos(min_line,char_idx);
     }else {
@@ -294,6 +298,7 @@ unsigned long kk_crdt::find_insert_index_in_line(kk_char_ptr _char, list<kk_char
          };
         cnt++;
     }
+
 }
 
 void kk_crdt::print() {
@@ -451,25 +456,27 @@ kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool *flag){
     unsigned long mid_line;
     list<kk_char_ptr> last_line(text[max_line]);
 
+    //se il testo è vuoto o la char ha una position inferiore alla prima in assoluto
      if (text.empty() || _Char.get()->compare_to(*text[0].front().get()) < 0) {
          *flag=false;
          return kk_pos(0,0);
      }
 
-      kk_char last_char = *std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get();
+      kk_char last_char (*std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get());
 
-
+    //se la char ha position maggiore dell'ultima char nel testo
       if(_Char.get()->compare_to(last_char)>0){
           *flag=false;
           return kk_pos(0,0);
       }
 
+    //ricerca la linea dove si trova la char
 
       while (min_line +1 < max_line) {
           mid_line = static_cast<unsigned long>(floor(min_line + (max_line - min_line)/2));
 
           list<kk_char_ptr> current_line (text[mid_line]);
-          last_char = *std::next(current_line.begin(),static_cast<long>(last_line.size()-1))->get();
+          last_char = *std::next(current_line.begin(),static_cast<long>(current_line.size()-1))->get();
 
           if(_Char.get()->compare_to(last_char)==0){
               return kk_pos(mid_line,current_line.size()-1);
@@ -480,28 +487,31 @@ kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool *flag){
           }
       }
 
+      //ora la scelta è tra una o massimo due righe
       list<kk_char_ptr> min_current_line (text[min_line]);
       kk_char min_last_char = *std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1))->get();
       list<kk_char_ptr> max_current_line (text[max_line]);
       kk_char max_last_char = *std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1))->get();
 
+      //confronta con l'ultima char della riga1 (per capire se è su quella riga o sulla riga2(se c'è))
       if(_Char.get()->compare_to(min_last_char)<=0){
          unsigned long char_idx = find_index_in_line(_Char,min_current_line,flag);
          return kk_pos(min_line,char_idx);
       }else {
-          unsigned long char_idx = find_index_in_line(_Char,max_current_line,flag);
+         unsigned long char_idx = find_index_in_line(_Char,max_current_line,flag);
          return kk_pos(max_line,char_idx);
       }
 }
 
-unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line, bool flag){
+unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line, bool *flag){
 
     unsigned long left=0;
     unsigned long right = line.size()-1;
 
-
+   //controlla se la linea è vuota o il Char è minore del primo della linea
     if(line.size()==0 || _Char.get()->compare_to(*line.begin()->get())<0){
         return left;
+   //controlla se il Char è maggiore dell'ultimo della linea
     } else if ( _Char.get()->compare_to(*std::next(line.begin(),static_cast<long>(line.size()-1))->get())>0){
         return right;
     }
@@ -512,11 +522,13 @@ unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> l
 
     for (it = line.begin(); it!= line.end(); it++) {
         if(_Char.get()->compare_to(*it->get())==0){
+            if(_Char.get()->get_value()==it->get()->get_value()){
+                if(_Char.get()->get_siteId().compare(it->get()->get_siteId())==0){
             return cnt;
-         };
+         }}};
         cnt++;
     }
-    flag=false;
+    *flag=false;
     return 0;
 }
 

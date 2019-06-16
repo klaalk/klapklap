@@ -14,7 +14,9 @@ int kk_identifier::compare_to(const kk_identifier &other) {
         return 1;
     } else if (this->siteid < other.siteid) {
         return -1;
-    }
+    } else if (this->siteid > other.siteid) {
+    return 1;
+}
     return 0;
 }
 
