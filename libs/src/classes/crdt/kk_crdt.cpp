@@ -16,7 +16,7 @@ using std::string;
 using std::shared_ptr;
 
 
-kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(20), _strategy(strategy), base(32) {
+kk_crdt::kk_crdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(strategy), base(32) {
 };
 
 void kk_crdt::local_insert(char val, kk_pos pos) {
@@ -106,9 +106,9 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
         kk_identifier_ptr new_id;
 
         if(position2.empty()){
-            new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit(), _strategy);}
+            new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit(), _strategy, level);}
         else{
-            new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit()-1, _strategy);
+            new_digit = this->generate_identifier_between(id1->get_digit(), id2->get_digit()-1, _strategy, level);
         };
 
         new_id = shared_ptr<kk_identifier>(new kk_identifier(new_digit, this->siteid));
@@ -163,17 +163,20 @@ strategy kk_crdt::find_strategy(unsigned long level/*FORSE DA TOGLIERE*/) {
     return _local_strategy;
 }
 
-unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy) {
+unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy,unsigned long level) {
 
-    if ((max - min < this->boundary)) {
+    unsigned long elev = static_cast<unsigned long>(pow(2,level));
+    unsigned long _boundary = elev * this->boundary;
+
+    if ((max - min < _boundary)) {
         min = min + 1;
     } else {
         if (_strategy == minus) {
             min=min+1;
-            min = max - this->boundary;
+            min = max - _boundary;
         } else {
             min = min + 1;
-            max = min + this->boundary;
+            max = min + _boundary;
         }
     }
 
@@ -184,7 +187,7 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
     std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
     random_number=static_cast<unsigned long>(distr(eng));
 
-    if ((max - min < this->boundary)) {
+    if ((max - min < _boundary)) {
     }else{
         if(_strategy==minus){
         }else if(_strategy==plus){
@@ -320,8 +323,15 @@ unsigned long kk_crdt::find_insert_index_in_line(kk_char_ptr _char, list<kk_char
         if(_char.get()->compare_to(*it->get())<0){
             return cnt;
          };
+//caso non possibile (una remote insert di una Char esattamente identica a una esistente)
+        if(_char.get()->compare_to(*it->get())==0){
+            if(_char.get()->get_value()==it->get()->get_value()){
+                if(_char.get()->get_siteId().compare(it->get()->get_siteId())==0){
+            return cnt;}}}
         cnt++;
     }
+
+
 
 }
 
