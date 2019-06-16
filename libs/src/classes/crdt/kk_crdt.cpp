@@ -322,6 +322,7 @@ unsigned long kk_crdt::find_insert_index_in_line(kk_char_ptr _char, list<kk_char
          };
         cnt++;
     }
+
 }
 
 void kk_crdt::print() {
@@ -484,7 +485,7 @@ kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool *flag){
          return kk_pos(0,0);
      }
 
-      kk_char last_char = *std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get();
+      kk_char last_char (*std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get());
 
     //se la char ha position maggiore dell'ultima char nel testo
       if(_Char.get()->compare_to(last_char)>0){
@@ -498,7 +499,7 @@ kk_pos kk_crdt::find_pos (kk_char_ptr _Char, bool *flag){
           mid_line = static_cast<unsigned long>(floor(min_line + (max_line - min_line)/2));
 
           list<kk_char_ptr> current_line (text[mid_line]);
-          last_char = *std::next(current_line.begin(),static_cast<long>(last_line.size()-1))->get();
+          last_char = *std::next(current_line.begin(),static_cast<long>(current_line.size()-1))->get();
 
           if(_Char.get()->compare_to(last_char)==0){
               return kk_pos(mid_line,current_line.size()-1);
