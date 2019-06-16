@@ -368,6 +368,7 @@ vector<kk_identifier_ptr> kk_crdt::slice(vector<kk_identifier_ptr> const &v, int
 
 void kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
       bool new_line_removed=false;
+
       if(start_pos.get_line() != end_pos.get_line()){
               new_line_removed = true;
               list<kk_char_ptr> chars(delete_multiple_lines(start_pos,end_pos));
@@ -386,7 +387,8 @@ void kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
           //    this.broadcast(chars); ???
 
           remove_empty_lines();
-          if(new_line_removed && !text[start_pos.get_line()+1].empty()){
+
+          if(new_line_removed && !text[start_pos.get_line()+1].empty() && start_pos.get_ch()!=0){
               merge_lines(start_pos.get_line());
 
       }

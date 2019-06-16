@@ -194,8 +194,12 @@ int main(int argc, char* argv[])
   std::cout<<"remote insert 4[30]"<<std::endl;
   crdt->remote_insert(quattro);
   crdt->print();
-  std::cout<<"local delete da (0,0) a (1,1)"<<std::endl;
-  crdt->local_delete(kk_pos(0,0),kk_pos(1,1));
+//  std::cout<<"local delete da (0,0) a (1,1)"<<std::endl;
+//  crdt->local_delete(kk_pos(0,0),kk_pos(1,1));
+
+//  crdt->print();
+  std::cout<<"local delete da (1,0) a (2,2)"<<std::endl;
+  crdt->local_delete(kk_pos(1,0),kk_pos(2,2));
 
   crdt->print();
   std::cout<<"local insert C(0,2)"<<std::endl;
@@ -279,6 +283,9 @@ int main(int argc, char* argv[])
  crdt->print();
  std::cout<<"local insert Z(0,2)"<<std::endl;
   crdt->local_insert('Z', kk_pos(0,2));
+ crdt->print();
+ std::cout<<"local delete da (1,1) a (3,2)"<<std::endl;
+  crdt->local_delete(kk_pos(1,1),kk_pos(3,2));
  crdt->print();
 
 
