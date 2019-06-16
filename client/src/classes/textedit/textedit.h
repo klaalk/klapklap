@@ -56,7 +56,7 @@ public:
     void modifyLabels();
 signals:
     void insertTextToCRDT(QString text, int line, int col);
-    void removeTextFromCRDT(QString text, int line, int col);
+    void removeTextFromCRDT(int startLine, int startCol, int endLine, int endCol);
 
 public slots:
     void fileNew();

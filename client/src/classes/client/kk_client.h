@@ -41,11 +41,11 @@ private slots:
     void sendSignupRequest(QString email, QString password, QString name, QString surname);
     void sendLoginRequest(QString email, QString password);
     void sendOpenFileRequest(QString fileName);
-    void sendCrdtRequest(QString crdt);
+    void sendCrdtRequest(QString crdtType, QString crdt);
     void sendMessageRequest(QString message);
 
     void onInsertTextCRDT(QString diffText, int line, int col);
-    void onRemoveTextCRDT(QString diffText, int line, int col);
+    void onRemoveTextCRDT(int startLine, int startCol, int endLine, int endCol);
 
 private:
     void sendRequest(QString type, QString result, QString body);

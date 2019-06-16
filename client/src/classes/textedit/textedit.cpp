@@ -841,7 +841,7 @@ void TextEdit::onTextChange() {
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
         diffText=lastText.mid(cursorPos, lastLength - s.length());
-        emit removeTextFromCRDT(diffText, 0, lastCursorPos);
+        emit removeTextFromCRDT(0, cursorPos, 0, lastCursorPos);
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
        diffText=s.mid(lastCursorPos, s.length() - lastLength);

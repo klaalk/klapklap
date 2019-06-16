@@ -66,7 +66,6 @@ kk_server::~kk_server()
 
 void kk_server::onNewConnection() {
     QWebSocket *pSocket = server_socket_->nextPendingConnection();
-    qDebug() << "Client connected";
     kk_session_ptr client = QSharedPointer<kk_session>(new kk_session(db_, files_, this));
     client->setSocket(pSocket);
     sessions_ << client;
