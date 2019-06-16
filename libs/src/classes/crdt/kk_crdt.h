@@ -47,7 +47,7 @@ public:
     vector<kk_identifier_ptr> generate_position_between(vector<kk_identifier_ptr> position_1, vector<kk_identifier_ptr> position_2,
                                                     vector<kk_identifier_ptr> *new_position, unsigned long livello); //partendo dalle position di due Char(adiacenti) genera la posizione della Char
     strategy find_strategy(unsigned long level);//trova la strategia migliore per assegnare un identifier alla position della nuova Char
-    unsigned long generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
+    unsigned long generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy, unsigned long level); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
     void insert_char(kk_char_ptr _char, kk_pos pos);
     kk_pos remote_insert(kk_char_ptr _char);
     kk_pos find_insert_position(kk_char_ptr _char);
