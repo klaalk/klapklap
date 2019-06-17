@@ -28,22 +28,25 @@ int kk_char::compare_to(const kk_char &other) {
     }
 
     for (unsigned long i = 0; i < min; i++) {
+
         kk_identifier id1(*this->position[i].get());
         kk_identifier id2(*other.position[i].get());
 
-         comp=id1.compare_to(id2);
 
-         if (comp != 0) {
-            return comp;
-         }
+        if(id1.get_digit()>id2.get_digit()) return 1;
+        else if (id1.get_digit()<id2.get_digit()) return -1;
+
     }
+
+
 
     if (this->position.size() < other.position.size()) {
         return -1;
     } else if (this->position.size() > other.position.size()) {
         return 1;
     } else {
-        return 0;
+        if(this->get_siteId()> other.siteId) return 1;
+        else return -1;
     }
 }
 
