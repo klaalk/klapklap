@@ -35,7 +35,7 @@ int kk_char::compare_to(const kk_char &other) {
 
          if (comp != 0) {
             return comp;
-        }
+         }
     }
 
     if (this->position.size() < other.position.size()) {

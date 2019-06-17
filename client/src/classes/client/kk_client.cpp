@@ -82,6 +82,7 @@ void kk_client::handleResponse(QString message) {
         }
         if(bodyList_[0] == "insert") {
             kk_pos remotePos = crdt_->remote_insert(char_);
+            crdt_->print();
             editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], 0, remotePos.get_ch());
         } else if(bodyList_[0] == "delete") {
             kk_pos remotePos = crdt_->remote_delete(char_);
@@ -117,6 +118,7 @@ void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
         char *c_str = ba.data();
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
             kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(line, static_cast<unsigned long>(col + i)));
+            crdt_->print();
             QString ids = QString::fromStdString(char_->get_identifiers_string());
             qDebug() << "Insered " << diffText << "in " << line << " " << col;
             sendCrdtRequest("insert", QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);

@@ -236,7 +236,7 @@ kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
     kk_char last_char = *std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get();
     //controlla se la char va messa come ultimo carattere dell'a prima'ultima riga
     if(_char.get()->compare_to(last_char)>0){
-    return find_end_position(last_char, last_line, total_lines);
+        return find_end_position(last_char, last_line, total_lines);
     }
 
      while (min_line +1 < max_line) {
@@ -299,15 +299,12 @@ unsigned long kk_crdt::find_insert_index_in_line(kk_char_ptr _char, list<kk_char
             return cnt;
          };
 //caso non possibile (una remote insert di una Char esattamente identica a una esistente)
-        if(_char.get()->compare_to(*it->get())==0){
-            if(_char.get()->get_value()==it->get()->get_value()){
-                if(_char.get()->get_siteId().compare(it->get()->get_siteId())==0){
-            return cnt;}}}
+//        if(_char.get()->compare_to(*it->get())==0){
+//            if(_char.get()->get_value()==it->get()->get_value()){
+//                if(_char.get()->get_siteId().compare(it->get()->get_siteId())==0){
+//            return cnt;}}}
         cnt++;
     }
-
-
-
 }
 
 void kk_crdt::print() {
