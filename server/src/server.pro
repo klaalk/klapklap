@@ -39,7 +39,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/server/filesys/kk_filesys.h \
                 classes/server/task/kk_task.h \
                 classes/server/room/kk_room.h \
-                classes/server/session/kk_session.h \
+                classes/server/session/kk_session.h
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/crdt/char/kk_char.cpp \
