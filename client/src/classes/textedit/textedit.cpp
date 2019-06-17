@@ -749,32 +749,37 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
 
 void TextEdit::modifyLabels(){
     QString size;
-
-    size=QString::number(fontSize);
-
+    int font;
     QString styleName;
     QString styleEarpiece;
-    styleName="background-color: rgb(196, 232, 255);\n"
-              "font: 75 "+size+"pt \"Calibri\";\n"
-              "font: bold;";
-    styleEarpiece="font: 75 "+size+"pt \"Calibri\";\n";
 
     blockCursor = true;
     QTextCursor curs = textEdit->textCursor();
     int editorPos = curs.position();
     for(kk_cursor* c : cursors_.values()){
+
+        curs.setPosition(c->globalPositon);
+        const QRect qRect = textEdit->cursorRect(curs);
+        font=curs.charFormat().font().pointSize();
+        size=QString::number(font);
+
+        if(font==fontSize){
+
+        styleName="background-color: rgb(196, 232, 255);\n"
+                  "font: 75 "+size+"pt \"Calibri\";\n"
+                  "font: bold;";
+        styleEarpiece="font: 75 "+size+"pt \"Calibri\";\n";
+
+
         c->getLabelName()->setStyleSheet(styleName);
         c->getLabelEarpiece()->setStyleSheet(styleEarpiece);
 
         c->getLabelName()->adjustSize();
         c->getLabelEarpiece()->adjustSize();
 
-        curs.setPosition(c->globalPositon);
-        const QRect qRect = textEdit->cursorRect(curs);
-
-        c->getLabelName()->move(qRect.x(),qRect.y()-fontSize);
+        c->getLabelName()->move(qRect.x(),qRect.y()-font);
         c->getLabelEarpiece()->move(qRect.x()-1, qRect.y());
-    }
+    }}
     curs.setPosition(editorPos);
     blockCursor = false;
 }
@@ -810,8 +815,14 @@ void TextEdit::insertRemoteText(QString name, QString text, int position) {
         remoteCurs->getLabelName()->setStyleSheet(styleName);
         remoteCurs->getLabelEarpiece()->setStyleSheet(styleEarpiece);
 
+//        remoteCurs->getLabelName()->setParent(textEdit);
+//        remoteCurs->getLabelEarpiece()->setParent(textEdit);
+//        textEdit->stackUnder(remoteCurs->getLabelName());
+//        textEdit->stackUnder(remoteCurs->getLabelEarpiece());
+
         remoteCurs->getLabelName()->show();
         remoteCurs->getLabelEarpiece()->show();
+
     }
     // Scrivo
     curs.setPosition(position);
