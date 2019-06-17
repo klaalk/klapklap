@@ -749,12 +749,14 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
 }
 
 void TextEdit::modifyLabels(){
+    int font;
     blockCursor = true;
     QTextCursor editorCurs = textEdit->textCursor();
     int editorPos = editorCurs.position();
     for(kk_cursor* c : cursors_.values()){
-        c->setLabelsSize(fontSize);
         editorCurs.setPosition(c->getGlobalPositon());
+        font=editorCurs.charFormat().font().pointSize();
+        c->setLabelsSize(font);
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
     editorCurs.setPosition(editorPos);
@@ -837,7 +839,7 @@ void TextEdit::onTextChange() {
        diffText=s.mid(lastCursorPos, s.length() - lastLength);
        emit insertTextToCRDT(diffText, 0, lastCursorPos);
     }
-    qDebug() << "\tDiffText: " << diffText;
+    qDebug() << "\tHo inserito: " << diffText << "in " << cursorPos;
     //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
     for(kk_cursor* c : cursors_.values()) {
@@ -856,3 +858,4 @@ void TextEdit::onTextChange() {
     lastLength = s.length();
     lastText = s;
 }
+
