@@ -131,9 +131,11 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
             new_position->insert(new_position->end(), id1);
             return this->generate_position_between(slice(position1, 1), slice(position2, 1), new_position, level + 1);
 
-        } else {
-            std::cout << "ERRORE IN GETPOSITION" << std::endl;//gestire errore
-            return vector<kk_identifier_ptr>();
+        } else{
+            new_position->insert(new_position->end(), id2);
+                        return this->generate_position_between(vector<kk_identifier_ptr>(),slice(position2, 1), new_position,
+                                                               level + 1);
+
         }
     }
     return vector<kk_identifier_ptr>();
