@@ -44,10 +44,12 @@ int kk_char::compare_to(const kk_char &other) {
         return -1;
     } else if (this->position.size() > other.position.size()) {
         return 1;
-    } else {
+    } else if (this->position.size() == other.position.size()){
+
         if(this->get_siteId()> other.siteId) return 1;
-        else return -1;
-    }
+        else if(this->get_siteId()< other.siteId) return -1;
+        else return 0;
+       }
 }
 
 char kk_char::get_value() {
