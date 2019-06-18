@@ -121,23 +121,13 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
 
         return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position, level + 1);
 
-    } else if (id1->get_digit() == id2->get_digit()) {
-        if (id1->get_siteid() < id2->get_siteid()) {
-            new_position->insert(new_position->end(), id1);
-            return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position,
-                                                   level + 1);
+    }else if (id1->get_digit() == id2->get_digit()) {
+    new_position->insert(new_position->end(), id1);
+    return this->generate_position_between(slice(position1, 1), slice(position2, 1), new_position,
+                                                       level + 1);
 
-        } else if (id1->get_siteid() == id2->get_siteid()) {
-            new_position->insert(new_position->end(), id1);
-            return this->generate_position_between(slice(position1, 1), slice(position2, 1), new_position, level + 1);
 
-        } else{
-            new_position->insert(new_position->end(), id2);
-                        return this->generate_position_between(vector<kk_identifier_ptr>(),slice(position2, 1), new_position,
-                                                               level + 1);
-
-        }
-    }
+}
     return vector<kk_identifier_ptr>();
 }
 
