@@ -46,7 +46,8 @@ int kk_char::compare_to(const kk_char &other) {
         return 1;
     } else {
         if(this->get_siteId()> other.siteId) return 1;
-        else return -1;
+        else if(this->get_siteId()< other.siteId) return -1;
+        else return 0;
     }
 }
 
