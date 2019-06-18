@@ -130,6 +130,10 @@ void TextEdit::closeEvent(QCloseEvent *e)
         e->ignore();
 }
 
+void TextEdit::resizeEvent(QResizeEvent *event){
+    modifyLabels();
+}
+
 void TextEdit::setupFileActions()
 {
     QToolBar *tb = addToolBar(tr("File Actions"));
@@ -544,6 +548,7 @@ void TextEdit::textSize(const QString &p)
         QTextCharFormat fmt;
         fmt.setFontPointSize(pointSize);
         mergeFormatOnWordOrSelection(fmt);
+        modifyLabels();
     }
 }
 
@@ -635,12 +640,14 @@ void TextEdit::textAlign(QAction *a)
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
     else if (a == actionAlignJustify)
         textEdit->setAlignment(Qt::AlignJustify);
+    modifyLabels();
 }
 
 void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
+    modifyLabels();
 }
 
 void TextEdit::cursorPositionChanged()
@@ -746,6 +753,8 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignRight->setChecked(true);
     else if (a & Qt::AlignJustify)
         actionAlignJustify->setChecked(true);
+
+    modifyLabels();
 }
 
 void TextEdit::modifyLabels(){

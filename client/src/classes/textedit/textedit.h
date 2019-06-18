@@ -100,7 +100,7 @@ public slots:
 
 protected:
     void closeEvent(QCloseEvent *e) override;
-
+    void resizeEvent(QResizeEvent* event);
 private slots:
     void fileOpen();
     bool fileSave();
