@@ -100,9 +100,7 @@ void ChatDialog::returnPressed()
         textEdit->setTextColor(color);
     } else {
         emit sendMessageEvent(myNickName+"_"+text);
-        appendMessage(myNickName, text);
     }
-
     lineEdit->clear();
 }
 

@@ -130,6 +130,10 @@ void TextEdit::closeEvent(QCloseEvent *e)
         e->ignore();
 }
 
+void TextEdit::resizeEvent(QResizeEvent *event){
+    modifyLabels();
+}
+
 void TextEdit::setupFileActions()
 {
     QToolBar *tb = addToolBar(tr("File Actions"));
@@ -544,6 +548,7 @@ void TextEdit::textSize(const QString &p)
         QTextCharFormat fmt;
         fmt.setFontPointSize(pointSize);
         mergeFormatOnWordOrSelection(fmt);
+        modifyLabels();
     }
 }
 
@@ -635,12 +640,14 @@ void TextEdit::textAlign(QAction *a)
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
     else if (a == actionAlignJustify)
         textEdit->setAlignment(Qt::AlignJustify);
+    modifyLabels();
 }
 
 void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
+    modifyLabels();
 }
 
 void TextEdit::cursorPositionChanged()
@@ -649,8 +656,10 @@ void TextEdit::cursorPositionChanged()
     if(blockCursor) return;
 
     alignmentChanged(textEdit->alignment());
+
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor  cursor = textEdit->textCursor();
+
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
 
@@ -722,7 +731,6 @@ void TextEdit::fontChanged(const QFont &f)
     actionTextBold->setChecked(f.bold());
     actionTextItalic->setChecked(f.italic());
     actionTextUnderline->setChecked(f.underline());
-
     fontSize=f.pointSize();
     modifyLabels();
 
@@ -745,92 +753,85 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignRight->setChecked(true);
     else if (a & Qt::AlignJustify)
         actionAlignJustify->setChecked(true);
+
+    modifyLabels();
 }
 
 void TextEdit::modifyLabels(){
-    QString size;
-
-    size=QString::number(fontSize);
-
-    QString styleName;
-    QString styleEarpiece;
-    styleName="background-color: rgb(196, 232, 255);\n"
-              "font: 75 "+size+"pt \"Calibri\";\n"
-              "font: bold;";
-    styleEarpiece="font: 75 "+size+"pt \"Calibri\";\n";
-
+    int font;
     blockCursor = true;
-    QTextCursor curs = textEdit->textCursor();
-    int editorPos = curs.position();
+    QTextCursor editorCurs = textEdit->textCursor();
+    int editorPos = editorCurs.position();
     for(kk_cursor* c : cursors_.values()){
-        c->getLabelName()->setStyleSheet(styleName);
-        c->getLabelEarpiece()->setStyleSheet(styleEarpiece);
-
-        c->getLabelName()->adjustSize();
-        c->getLabelEarpiece()->adjustSize();
-
-        curs.setPosition(c->globalPositon);
-        const QRect qRect = textEdit->cursorRect(curs);
-
-        c->getLabelName()->move(qRect.x(),qRect.y()-fontSize);
-        c->getLabelEarpiece()->move(qRect.x()-1, qRect.y());
+        editorCurs.setPosition(c->getGlobalPositon());
+        font=editorCurs.charFormat().font().pointSize();
+        c->setLabelsSize(font);
+        c->moveLabels(textEdit->cursorRect(editorCurs));
     }
-    curs.setPosition(editorPos);
+    editorCurs.setPosition(editorPos);
     blockCursor = false;
 }
 
-void TextEdit::insertRemoteText(QString name, QString text, int line, int col) {
+void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int line, int col) {
     //Blocco il cursore dell'editor.
     blockCursor = true;
-    //Prelevo i cursori.
+    //Prelevo il cursore dell'editor.
+    QTextCursor editorCurs = textEdit->textCursor();
+    //Prelevo il cursore remoto.
     kk_cursor* remoteCurs = cursors_.value(name);
-    QTextCursor curs = textEdit->textCursor();
     // Faccio dei controlli sulla fattibilità dell'operazione.
     col = col > lastLength ? lastLength : col;
     col = col < 0 ? 0 : col;
+    // Se non esiste lo creo e lo memorizzo.
     if(remoteCurs == nullptr) {
         //Creo il cursore per l'utente se non esiste.
-        remoteCurs = new kk_cursor(col);
         QLabel* qLbl = new QLabel(name, textEdit);
         QLabel* qLbl2 = new QLabel("|", textEdit);
+        remoteCurs = new kk_cursor(col);
         remoteCurs->setLabels(qLbl, qLbl2);
+        remoteCurs->setLabelsStyle("rgb(196, 232, 255)", fontSize);
+        remoteCurs->showLabels();
         cursors_.insert(name, remoteCurs);
-
-        QString size=QString::number(fontSize);
-        QString styleName;
-        QString styleEarpiece;
-        styleName="background-color: rgb(196, 232, 255);\n"
-                        "font: 75 "+size+"pt \"Calibri\";\n"
-                        "font: bold;";
-        styleEarpiece="font: 75 "+size+"pt \"Calibri\";\n";
-
-        //Aggiorno le label
-        remoteCurs->getLabelName()->setStyleSheet(styleName);
-        remoteCurs->getLabelEarpiece()->setStyleSheet(styleEarpiece);
-
-        remoteCurs->getLabelName()->show();
-        remoteCurs->getLabelEarpiece()->show();
     }
-
-    // Scrivo
-    curs.setPosition(col);
-    curs.insertText(text);
-
-    //Aggiorno il mio kk_cursor.
-    remoteCurs->setGlobalPositon(curs.position());
+    // Muovo il cursore dell'editor.
+    editorCurs.setPosition(col);
+    // Eseguo l'operazione
+    if(operation == "insert") {
+        editorCurs.insertText(text);
+        //Aggiorno la length.
+        lastLength = lastLength + text.length();
+    } else if(operation == "delete") {
+        editorCurs.deleteChar();
+        //Aggiorno la length.
+        lastLength = lastLength - text.length();
+    }
+    // Aggiorno il cursore remoto
+    remoteCurs->setGlobalPositon(editorCurs.position());
+    // Muovo il cursore dopo l'aggiornamento
+    remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
+    // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for(kk_cursor* c : cursors_.values()) {
-        if(c->globalPositon>=remoteCurs->globalPositon && c!=remoteCurs){
-            c->setGlobalPositon(c->globalPositon+text.length());
+        if(c->getGlobalPositon() >= col && c!=remoteCurs){
+            if(operation == "insert") {
+                 c->setGlobalPositon(c->getGlobalPositon()+text.length());
+            } else if(operation == "delete") {
+                 c->setGlobalPositon(c->getGlobalPositon()-text.length());
+            }
+            editorCurs.setPosition(c->getGlobalPositon());
+            c->moveLabels(textEdit->cursorRect(editorCurs));
         }
     }
-    const QRect qRect = textEdit->cursorRect(curs);
-    remoteCurs->getLabelName()->move(qRect.x(),qRect.y()-fontSize);
-    remoteCurs->getLabelEarpiece()->move(qRect.x()-1,qRect.y());
-    //Riporto il cursore dell'editor alla posizione di partenza.
-    curs.setPosition(cursorPos);
-    //Aggiorno la length considerando il \0.
-    lastLength = lastLength + text.length();
-    //Sblocco il cursore dell'editor.
+    // Riporto il cursore dell'editor alla posizione di partenza.
+    if(cursorPos >= col){
+        if(operation == "insert") {
+            cursorPos = cursorPos +text.length();
+        } else if(operation == "delete") {
+            cursorPos = cursorPos -text.length();
+        }
+    }
+    lastCursorPos = cursorPos;
+    editorCurs.setPosition(cursorPos);
+    // Sblocco il cursore dell'editor.
     blockCursor = false;
 }
 
@@ -841,12 +842,29 @@ void TextEdit::onTextChange() {
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
         diffText=lastText.mid(cursorPos, lastLength - s.length());
-        emit removeTextFromCRDT(diffText, 0, lastCursorPos);
+        emit removeTextFromCRDT(0, cursorPos, 0, lastCursorPos);
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
        diffText=s.mid(lastCursorPos, s.length() - lastLength);
        emit insertTextToCRDT(diffText, 0, lastCursorPos);
     }
+    qDebug() << "\tHo inserito: " << diffText << "in " << cursorPos;
+    //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
+    QTextCursor editorCurs = textEdit->textCursor();
+    for(kk_cursor* c : cursors_.values()) {
+        if(c->getGlobalPositon()>=editorCurs.position()){
+            if(s.length() - lastLength >= 1) {
+                 c->setGlobalPositon(c->getGlobalPositon()+diffText.length());
+            } else if(lastLength - s.length() >= 1) {
+                 c->setGlobalPositon(c->getGlobalPositon()-diffText.length());
+            }
+            editorCurs.setPosition(c->getGlobalPositon());
+            c->moveLabels(textEdit->cursorRect(editorCurs));
+        }
+    }
+    // Riporto il cursore dell'editor alla posizione di partenza.
+    editorCurs.setPosition(cursorPos);
     lastLength = s.length();
     lastText = s;
 }
+

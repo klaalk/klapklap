@@ -49,25 +49,22 @@ void kk_session::handleRequest(QString message) {
             nick_ = _body[0];
             kk_task *mytask = new kk_task([=]() {
 //                bool result = db_->db_login(_body[0],_body[1]);
-                bool result = true;
-                if(result) {
+//                if(result) {
 //                    QStringList q=db_->db_getUserFile(_body[0]);
-                    QString message ="";
+//                    QString message ="";
 //                    std::for_each(q.begin(), q.end(), [&](QString msg){
 //                        message += msg + "_";
 //                    });
-                    this->sendResponse("login","ok", message);
-
-                } else {
-                    this->sendResponse("login","ok","Invalid credentials");
-                }
+//                    this->sendResponse("login","ok", message);
+//                } else {
+//                    this->sendResponse("login","ko","Invalid credentials");
+//                }
+                this->sendResponse("login","ok", "message");
             });
 
             mytask->setAutoDelete(true);
             // using queued connection
-            qDebug() << "Starting a new task using a thread from the QThreadPool";
             QThreadPool::globalInstance()->start(mytask);
-
         } else if(req.type() == "signup") {
             QStringList _body = req.body().split("_");
             nick_ = _body[0];
@@ -113,7 +110,6 @@ void kk_session::handleRequest(QString message) {
             }
             //mando al client la risposta della request.
             sendResponse("openfile", result, message);
-
             if(result == "ok") {
                 // Mi aggiorno con gli ultimi messaggi mandati.
                 queue_payload_ptr queue = actual_file_->getRecentMessages();
@@ -123,7 +119,7 @@ void kk_session::handleRequest(QString message) {
                     });
                 }
                 // Dico a tutti che c'è un nuovo partecipante.
-                actual_file_->deliver("addedpartecipant", "ok", "", "All");
+                actual_file_->deliver("addedpartecipant", "ok", nick_, "All");
             }
         } else if(req.type() == "sharefile") {
 
@@ -149,9 +145,9 @@ void kk_session::handleDisconnection()
     qDebug() << "Client disconnected";
     if (session_socket_)
     {
-//        clients_.removeAll(pClient);
+//      clients_.removeAll(pClient);
         if(actual_file_.get() != nullptr) {
-            actual_file_->deliver("removedpartecipant", "ok", "", nick_);
+            actual_file_->deliver("removedpartecipant", "ok", nick_, "All");
             actual_file_->leave(sharedFromThis());
         }
         session_socket_->deleteLater();

@@ -31,7 +31,7 @@ void kk_file::deliver(QString type, QString result, QString message, QString myN
         recent_msgs_->pop_front();
 
     std::for_each(participants_.begin(), participants_.end(),[&](QSharedPointer<kk_participant> p){
-        if(p->nick_ != myNick && myNick != "All") {
+        if(p->nick_ != myNick) {
             p->deliver(data);
         }
     });
