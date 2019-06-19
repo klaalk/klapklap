@@ -135,6 +135,14 @@ void TextEdit::resizeEvent(QResizeEvent *event){
     modifyLabels();
 }
 
+void TextEdit::mousePressEvent(QMouseEvent *e) {
+    isMousePressed = true;
+}
+
+void TextEdit::mouseReleaseEvent(QMouseEvent *e) {
+    isMousePressed = false;
+}
+
 void TextEdit::setupFileActions()
 {
     QToolBar *tb = addToolBar(tr("File Actions"));
@@ -662,17 +670,14 @@ void TextEdit::cursorPositionChanged()
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor  cursor = textEdit->textCursor();
 
-    if(isOnSelection) {
+    if(isMousePressed) {
         selectionChangedCounter++;
     }
     positionChangedCounter++;
-
     if(positionChangedCounter > selectionChangedCounter){
         positionChangedCounter = 0;
         selectionChangedCounter = 0;
     }
-    isOnSelection = false;
-
     if (selectionChangedCounter < 1){
         lastCursorPos = cursorPos;
     }
@@ -714,10 +719,6 @@ void TextEdit::cursorPositionChanged()
         int headingLevel = textEdit->textCursor().blockFormat().headingLevel();
         comboStyle->setCurrentIndex(headingLevel ? headingLevel + 8 : 0);
     }
-}
-
-void TextEdit::onSelectionChange() {
-    isOnSelection = true;
 }
 
 void TextEdit::clipboardDataChanged()
