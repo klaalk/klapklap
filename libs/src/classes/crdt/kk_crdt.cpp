@@ -179,8 +179,8 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
     std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
     random_number=static_cast<unsigned long>(distr(gen));
 
-     std::cout<<_strategy<<std::endl;
-    std::cout<<min<< "\t"<<random_number<<"\t"<< max<<std::endl;
+//     std::cout<<_strategy<<std::endl;
+//    std::cout<<min<< "\t"<<random_number<<"\t"<< max<<std::endl;
     return random_number;
 }
 
