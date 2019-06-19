@@ -24,6 +24,8 @@ public:
     bool kk_CreateFile(QString username, QString filename);
     bool kk_OpenFile(QString username, QString filename);
     bool kk_SendFile(QString filename);
+    bool kk_WriteFile(QString filename, QString toPrint);
+    QString kk_ReadFile(QString filename);
 
 
 private:

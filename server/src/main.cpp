@@ -16,11 +16,10 @@
 
 int main(int argc, char *argv[]) {
 
-
-    QApplication a(argc, argv);
-    kk_server server(3002);
-    Q_UNUSED(server);
-    qDebug() <<"Version:" << VERSION_MAJOR << '.' << VERSION_MINOR << " Build: " <<VERSION_BUILD ;
+qDebug() << "touch ./" + QDateTime::currentDateTime().toString("dd.MM.yyyy_hh.mm.ss") + "_log.txt" << endl;
+//    QApplication a(argc, argv);
+//    kk_server server(3002);
+//    Q_UNUSED(server);
 
 //    kk_db_ptr temporary = kk_db_ptr(new kk_db());
 //    kk_filesys filesys(temporary);
@@ -33,7 +32,7 @@ int main(int argc, char *argv[]) {
 
 //    qDebug() << "done";
 
-    return a.exec();
+//    return a.exec();
 }
 
 
