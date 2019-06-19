@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
   crdt->remote_insert(uno);
   crdt->print();
   std::cout<<"remote delete 1[30]"<<std::endl;
-  crdt->remote_delete(uno,"Elefante");
+  crdt->remote_delete(uno);
   crdt->print();
   std::cout<<"local insert /n(0,2)"<<std::endl;
   crdt->local_insert('\n', kk_pos(0,2));
@@ -267,6 +267,9 @@ int main(int argc, char* argv[])
  crdt->print();
  std::cout<<"local delete da (1,1) a (3,2)"<<std::endl;
   crdt->local_delete(kk_pos(1,1),kk_pos(3,2));
+ crdt->print();
+ std::cout<<"remote insert 4[28]"<<std::endl;
+ crdt->remote_insert(quattro);
  crdt->print();
 
 

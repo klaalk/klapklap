@@ -64,6 +64,7 @@ public:
     unsigned long find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> line,bool *flag);
     vector<kk_identifier_ptr> slice(vector<kk_identifier_ptr> const &v,int i);//FORSE DA TOGLIERE
     void print();
+    unsigned long generate_global_pos(kk_pos pos);
 };
 
 

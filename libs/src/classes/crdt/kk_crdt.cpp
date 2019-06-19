@@ -208,8 +208,11 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
 }
 
 kk_pos kk_crdt::remote_insert(kk_char_ptr _char){
+    unsigned long global_pos;
     kk_pos pos = find_insert_position(_char);
     insert_char(_char, pos);
+    global_pos= generate_global_pos(pos);
+    std::cout<<"GB:" <<global_pos<<std::endl;
     return pos;
 }
 
@@ -423,6 +426,7 @@ void kk_crdt::merge_lines(unsigned long line){
 
 kk_pos kk_crdt::remote_delete(kk_char_ptr _Char){
     bool flag = true;
+    unsigned long global_pos;
     kk_pos pos(find_pos(_Char, &flag));
 
     if(flag==false){
@@ -437,6 +441,8 @@ kk_pos kk_crdt::remote_delete(kk_char_ptr _Char){
 
     remove_empty_lines();
     text.push_back(list<kk_char_ptr>());
+    global_pos= generate_global_pos(pos);
+     std::cout<<"GB:" <<global_pos<<std::endl;
     return pos;
 }
 
@@ -518,6 +524,18 @@ unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> l
     *flag=false;
     return 0;
 }
+
+unsigned long kk_crdt::generate_global_pos(kk_pos pos){
+
+
+    unsigned long global_pos=0;
+
+    for (unsigned long i=0; i <  pos.get_line(); i++) {
+         global_pos = global_pos + text[i].size();
+         };
+    global_pos=global_pos+ pos.get_ch();
+    return global_pos;
+    }
 
 
 
