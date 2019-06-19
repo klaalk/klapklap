@@ -660,11 +660,18 @@ void TextEdit::cursorPositionChanged()
 
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor  cursor = textEdit->textCursor();
-    if(!isOnSelection){
+
+    if (selectionChangedCounter < 2){
         lastCursorPos = cursorPos;
     }
     cursorPos = cursor.position();
-    isOnSelection = false;
+
+    positionChangedCounter++;
+    if(positionChangedCounter > selectionChangedCounter){
+        positionChangedCounter = 0;
+        selectionChangedCounter = 0;
+    }
+    qDebug() << "last: " << lastCursorPos << "cur: " << cursorPos;
 
     if (list) {
         switch (list->format().style()) {
@@ -703,7 +710,7 @@ void TextEdit::cursorPositionChanged()
 }
 
 void TextEdit::onSelectionChange() {
-    isOnSelection = true;
+    selectionChangedCounter++;
 }
 
 void TextEdit::clipboardDataChanged()
