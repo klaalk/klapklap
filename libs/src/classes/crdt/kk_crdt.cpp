@@ -158,6 +158,8 @@ strategy kk_crdt::find_strategy(unsigned long level/*FORSE DA TOGLIERE*/) {
 unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy,unsigned long level) {
     unsigned long elev = static_cast<unsigned long>(pow(2,level));
     unsigned long _boundary = elev * this->boundary;
+    if(level%2) _strategy=minus;
+    else _strategy=plus;
 
     if ((max - min < _boundary)) {
         min = min + 1;
@@ -170,11 +172,15 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
             max = min + _boundary;
         }
     }
+
     unsigned long random_number;
     std::random_device rd; // obtain a random number from hardware
     std::mt19937_64 gen(rd()); // seed the generator
     std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
     random_number=static_cast<unsigned long>(distr(gen));
+
+     std::cout<<_strategy<<std::endl;
+    std::cout<<min<< "\t"<<random_number<<"\t"<< max<<std::endl;
     return random_number;
 }
 
