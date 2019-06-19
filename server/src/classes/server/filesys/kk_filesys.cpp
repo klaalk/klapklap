@@ -6,9 +6,12 @@
 
 bool kk_filesys::kk_CreateFile(QString username, QString filename){
 
-    if(filename=="root" && filename == "log"){
-        QString command = "touch ./" + QDateTime::currentDateTime().toString("dd.MM.yyyy_hh.mm.ss") + "_log.txt";
+    if(username=="root" && filename == "log"){
+        QString log_name = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
+        QString command = "touch ./" + log_name;
         system(qPrintable(command));
+        this->log_name=log_name;
+        return true;
     }
 
     SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
@@ -71,8 +74,10 @@ bool kk_filesys::kk_SendFile(QString filename){
 // con header "file_response" e payload "<binary file content>"
 
 bool kk_filesys::kk_WriteFile(QString filename, QString toPrint){
+    if(filename=="log")
+        filename=this->log_name;
     QFile file(filename);
-    if(!file.open(QFile::WriteOnly)) {
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
         return false;
     }
 
