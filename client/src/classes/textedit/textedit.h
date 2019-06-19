@@ -124,6 +124,7 @@ private slots:
     void clipboardDataChanged();
     void about();
     void printPreview(QPrinter *);
+    void onSelectionChange();
     void onTextChange();
 
 private:
@@ -155,6 +156,7 @@ private:
     QAction *actionPaste;
 #endif
     bool blockCursor = false;
+    bool isOnSelection = false;
     int lastLength = 0, cursorPos=0, lastCursorPos=0, fontSize=0;
     QMap <QString,kk_cursor*> cursors_;
     QComboBox *comboStyle;

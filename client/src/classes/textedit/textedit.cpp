@@ -68,6 +68,7 @@ TextEdit::TextEdit(QWidget *parent)
             this, &TextEdit::cursorPositionChanged);
     setCentralWidget(textEdit);
     connect(textEdit, &QTextEdit::textChanged, this, &TextEdit::onTextChange);
+    connect(textEdit, &QTextEdit::selectionChanged, this, &TextEdit::onSelectionChange);
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setupFileActions();
     setupEditActions();
@@ -659,9 +660,11 @@ void TextEdit::cursorPositionChanged()
 
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor  cursor = textEdit->textCursor();
-
-    lastCursorPos = cursorPos;
+    if(!isOnSelection){
+        lastCursorPos = cursorPos;
+    }
     cursorPos = cursor.position();
+    isOnSelection = false;
 
     if (list) {
         switch (list->format().style()) {
@@ -697,6 +700,10 @@ void TextEdit::cursorPositionChanged()
         int headingLevel = textEdit->textCursor().blockFormat().headingLevel();
         comboStyle->setCurrentIndex(headingLevel ? headingLevel + 8 : 0);
     }
+}
+
+void TextEdit::onSelectionChange() {
+    isOnSelection = true;
 }
 
 void TextEdit::clipboardDataChanged()
