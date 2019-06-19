@@ -60,6 +60,7 @@ TextEdit::TextEdit(QWidget *parent)
     setWindowState(Qt::WindowMaximized);
     setWindowTitle(QCoreApplication::applicationName());
 
+    this->setMouseTracking(true);
     textEdit = new QTextEdit(this);
 
     connect(textEdit, &QTextEdit::currentCharFormatChanged,
@@ -68,7 +69,6 @@ TextEdit::TextEdit(QWidget *parent)
             this, &TextEdit::cursorPositionChanged);
     setCentralWidget(textEdit);
     connect(textEdit, &QTextEdit::textChanged, this, &TextEdit::onTextChange);
-    connect(textEdit, &QTextEdit::selectionChanged, this, &TextEdit::onSelectionChange);
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setupFileActions();
     setupEditActions();
@@ -133,14 +133,6 @@ void TextEdit::closeEvent(QCloseEvent *e)
 
 void TextEdit::resizeEvent(QResizeEvent *event){
     modifyLabels();
-}
-
-void TextEdit::mousePressEvent(QMouseEvent *e) {
-    isMousePressed = true;
-}
-
-void TextEdit::mouseReleaseEvent(QMouseEvent *e) {
-    isMousePressed = false;
 }
 
 void TextEdit::setupFileActions()
@@ -663,25 +655,25 @@ void TextEdit::cursorPositionChanged()
 {
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
-    int positionChangedCounter = 0, selectionChangedCounter = 0;
 
     alignmentChanged(textEdit->alignment());
 
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor  cursor = textEdit->textCursor();
+    QString text = cursor.selectedText();
 
-    if(isMousePressed) {
-        selectionChangedCounter++;
-    }
-    positionChangedCounter++;
-    if(positionChangedCounter > selectionChangedCounter){
-        positionChangedCounter = 0;
-        selectionChangedCounter = 0;
-    }
-    if (selectionChangedCounter < 1){
-        lastCursorPos = cursorPos;
-    }
+    lastCursorPos = cursorPos;
     cursorPos = cursor.position();
+
+    if(text.length() > 0) {
+        if(cursor.selectionStart() > cursor.selectionEnd()){
+            lastCursorPos = cursor.selectionStart();
+            cursorPos = cursor.selectionEnd();
+        } else {
+            lastCursorPos = cursor.selectionEnd();
+            cursorPos = cursor.selectionStart();
+        }
+    }
 
     qDebug() << "last: " << lastCursorPos << "cur: " << cursorPos;
 
@@ -873,6 +865,7 @@ void TextEdit::onTextChange() {
     qDebug() << "\tHo inserito: " << diffText << "in " << cursorPos;
     //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
+    int curPos_ = editorCurs.position();
     for(kk_cursor* c : cursors_.values()) {
         if(c->getGlobalPositon()>=editorCurs.position()){
             if(s.length() - lastLength >= 1) {
@@ -885,7 +878,7 @@ void TextEdit::onTextChange() {
         }
     }
     // Riporto il cursore dell'editor alla posizione di partenza.
-    editorCurs.setPosition(cursorPos);
+    editorCurs.setPosition(curPos_);
     lastLength = s.length();
     lastText = s;
 }
