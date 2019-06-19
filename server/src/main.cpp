@@ -17,9 +17,9 @@
 int main(int argc, char *argv[]) {
 
 qDebug() << "touch ./" + QDateTime::currentDateTime().toString("dd.MM.yyyy_hh.mm.ss") + "_log.txt" << endl;
-//    QApplication a(argc, argv);
-//    kk_server server(3002);
-//    Q_UNUSED(server);
+    QApplication a(argc, argv);
+    kk_server server(3002);
+    Q_UNUSED(server);
 
 //    kk_db_ptr temporary = kk_db_ptr(new kk_db());
 //    kk_filesys filesys(temporary);
