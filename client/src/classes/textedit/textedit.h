@@ -157,7 +157,6 @@ private:
 #endif
     bool blockCursor = false;
     bool isOnSelection = false;
-    int positionChangedCounter = 0, selectionChangedCounter = 0;
     int lastLength = 0, cursorPos=0, lastCursorPos=0, fontSize=0;
     QMap <QString,kk_cursor*> cursors_;
     QComboBox *comboStyle;

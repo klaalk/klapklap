@@ -655,25 +655,29 @@ void TextEdit::cursorPositionChanged()
 {
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
+    int positionChangedCounter = 0, selectionChangedCounter = 0;
 
     alignmentChanged(textEdit->alignment());
 
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor  cursor = textEdit->textCursor();
 
-    if (selectionChangedCounter < 2){
+    if(isOnSelection) {
+        selectionChangedCounter++;
+    }
+    positionChangedCounter++;
+
+    if(positionChangedCounter > selectionChangedCounter){
+        positionChangedCounter = 0;
+        selectionChangedCounter = 0;
+    }
+    isOnSelection = false;
+
+    if (selectionChangedCounter < 1){
         lastCursorPos = cursorPos;
     }
     cursorPos = cursor.position();
 
-    if(isOnSelection) {
-        positionChangedCounter++;
-    }
-    if(positionChangedCounter > selectionChangedCounter){
-        positionChangedCounter = 0;
-        selectionChangedCounter = 0;
-        isOnSelection = false;
-    }
     qDebug() << "last: " << lastCursorPos << "cur: " << cursorPos;
 
     if (list) {
@@ -714,7 +718,6 @@ void TextEdit::cursorPositionChanged()
 
 void TextEdit::onSelectionChange() {
     isOnSelection = true;
-    selectionChangedCounter++;
 }
 
 void TextEdit::clipboardDataChanged()
