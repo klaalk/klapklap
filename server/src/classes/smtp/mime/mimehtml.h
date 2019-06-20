@@ -24,7 +24,7 @@
 
 
 class  MimeHtml : public MimeText {
-Q_OBJECT
+    Q_OBJECT
 public:
 
     /* [1] Constructors and Destructors */

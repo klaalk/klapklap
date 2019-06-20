@@ -25,7 +25,7 @@
 #include "mimemessage.h"
 
 class SmtpClient : public QObject {
-Q_OBJECT
+    Q_OBJECT
 public:
 
     /* [0] Enumerations */

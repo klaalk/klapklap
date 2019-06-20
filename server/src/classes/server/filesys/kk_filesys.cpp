@@ -30,7 +30,7 @@ bool kk_filesys::kk_CreateFile(QString username, QString filename){
     QString _filename = jump+"_"+tmp+"_"+filename;
     QString command = "touch ./"+_filename;
     system(qPrintable(command));
-//    system(qPrintable("ls -la | grep "+ _filename));
+    //    system(qPrintable("ls -la | grep "+ _filename));
 
     return db->db_insert_file(username,_filename,"./"+_filename) == 0 ? true:false;
 }

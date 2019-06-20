@@ -24,7 +24,7 @@
 
 
 class  MimeMultiPart : public MimePart {
-Q_OBJECT
+    Q_OBJECT
 public:
 
     /* [0] Enums */

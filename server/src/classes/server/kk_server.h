@@ -22,7 +22,7 @@ QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
 
 class kk_server : public QObject {
-Q_OBJECT
+    Q_OBJECT
 public:
     kk_server(quint16 port, QObject *parent = nullptr);
     ~kk_server() override;

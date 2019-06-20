@@ -43,14 +43,14 @@ user_info *kk_db::db_getUserInfo(QString username) {
     auto userInfo = new user_info;
     try {
         QSqlQuery res = db.exec(
-                "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`='" +
-                username + "';");
+                    "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`='" +
+                    username + "';");
         while(res.next()) {
             userInfo->id = res.value(0).toString();
             userInfo->name = res.value(1).toString();
             userInfo->surname = res.value(2).toString();
             userInfo->email = res.value(3).toString();
-//            userInfo->image = res.value(5).toString();
+            //            userInfo->image = res.value(5).toString();
             userInfo->reg_date = res.value(4).toString();
             userInfo->password = res.value(5).toString();
         }
@@ -70,8 +70,8 @@ int kk_db::db_insert_user(QString username, QString password ,QString email, QSt
     QString mex, dest_name = name + " " + surname;
 
     _queryStr = "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) VALUES('" + username + "','" + password + "','" + email + "','" + name + "','" +
-               surname +
-               "');";
+            surname +
+            "');";
 
     if(!db.open()) {
         qDebug("DB not opened");
@@ -149,7 +149,7 @@ int kk_db::db_share_file(QString username_from, QString username_to, QString fil
     user1 = db_getUserInfo(username_from);
     user2 = db_getUserInfo(username_to);
 
-//    controllo se non ho gia invitato l'user2
+    //    controllo se non ho gia invitato l'user2
     if(!db.open()) {
         qDebug("DB not opened");
     }
@@ -260,12 +260,12 @@ bool kk_db::db_exist_user(QString username) {
     }
 
     try {
-       QSqlQuery res = db.exec("SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`='" + username + "';");
-       db.close();
-       res.next();
-       if (res.value(0).toInt() > 0)
-           return true;
-       return false;
+        QSqlQuery res = db.exec("SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`='" + username + "';");
+        db.close();
+        res.next();
+        if (res.value(0).toInt() > 0)
+            return true;
+        return false;
     } catch (QException &e) {
         QString _str(e.what());
         db.close();

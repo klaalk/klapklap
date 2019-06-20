@@ -19,7 +19,7 @@
 #include "mimecontentformatter.h"
 
 MimeContentFormatter::MimeContentFormatter(int max_length) :
-        max_length(max_length) {}
+    max_length(max_length) {}
 
 QString MimeContentFormatter::format(const QString &content, bool quotedPrintable) const {
 
@@ -41,7 +41,7 @@ QString MimeContentFormatter::format(const QString &content, bool quotedPrintabl
             }
 
             if ((chars > max_length - 1)
-                || ((content[i] == '=') && (chars > max_length - 3))) {
+                    || ((content[i] == '=') && (chars > max_length - 3))) {
                 out.append('=');
                 out.append("\r\n");
                 chars = 1;

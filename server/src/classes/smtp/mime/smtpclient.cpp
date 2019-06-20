@@ -25,12 +25,12 @@
 /* [1] Constructors and destructors */
 
 SmtpClient::SmtpClient(const QString &host, int port, ConnectionType connectionType) :
-        socket(NULL),
-        name("localhost"),
-        authMethod(AuthPlain),
-        connectionTimeout(5000),
-        responseTimeout(5000),
-        sendMessageTimeout(60000) {
+    socket(NULL),
+    name("localhost"),
+    authMethod(AuthPlain),
+    connectionTimeout(5000),
+    responseTimeout(5000),
+    sendMessageTimeout(60000) {
     setConnectionType(connectionType);
 
     this->host = host;
@@ -81,12 +81,12 @@ void SmtpClient::setConnectionType(ConnectionType ct) {
         delete socket;
 
     switch (connectionType) {
-        case TcpConnection:
-            socket = new QTcpSocket(this);
-            break;
-        case SslConnection:
-        case TlsConnection:
-            socket = new QSslSocket(this);
+    case TcpConnection:
+        socket = new QTcpSocket(this);
+        break;
+    case SslConnection:
+    case TlsConnection:
+        socket = new QSslSocket(this);
     }
 }
 
@@ -165,13 +165,13 @@ void SmtpClient::setSendMessageTimeout(int msec) {
 
 bool SmtpClient::connectToHost() {
     switch (connectionType) {
-        case TlsConnection:
-        case TcpConnection:
-            socket->connectToHost(host, port);
-            break;
-        case SslConnection:
-            ((QSslSocket *) socket)->connectToHostEncrypted(host, port);
-            break;
+    case TlsConnection:
+    case TcpConnection:
+        socket->connectToHost(host, port);
+        break;
+    case SslConnection:
+        ((QSslSocket *) socket)->connectToHostEncrypted(host, port);
+        break;
 
     }
 
@@ -388,7 +388,7 @@ void SmtpClient::quit() {
     catch (SmtpClient::SendMessageTimeoutException) {
         //Manually close the connection to the smtp server if message "QUIT" wasn't received by the smtp server
         if (socket->state() == QAbstractSocket::ConnectedState || socket->state() == QAbstractSocket::ConnectingState ||
-            socket->state() == QAbstractSocket::HostLookupState)
+                socket->state() == QAbstractSocket::HostLookupState)
             socket->disconnectFromHost();
     }
 }
@@ -413,10 +413,10 @@ void SmtpClient::waitForResponse() {
             responseCode = responseText.left(3).toInt();
 
             if (responseCode / 100 == 4)
-                    emit smtpError(ServerError);
+                emit smtpError(ServerError);
 
             if (responseCode / 100 == 5)
-                    emit smtpError(ClientError);
+                emit smtpError(ClientError);
 
             if (responseText[3] == ' ') { return; }
         }

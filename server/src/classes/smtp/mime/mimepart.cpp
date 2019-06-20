@@ -140,18 +140,18 @@ void MimePart::prepare() {
     /* Content-Transfer-Encoding */
     mimeString.append("Content-Transfer-Encoding: ");
     switch (cEncoding) {
-        case _7Bit:
-            mimeString.append("7bit\r\n");
-            break;
-        case _8Bit:
-            mimeString.append("8bit\r\n");
-            break;
-        case Base64:
-            mimeString.append("base64\r\n");
-            break;
-        case QuotedPrintable:
-            mimeString.append("quoted-printable\r\n");
-            break;
+    case _7Bit:
+        mimeString.append("7bit\r\n");
+        break;
+    case _8Bit:
+        mimeString.append("8bit\r\n");
+        break;
+    case Base64:
+        mimeString.append("base64\r\n");
+        break;
+    case QuotedPrintable:
+        mimeString.append("quoted-printable\r\n");
+        break;
     }
     /* ------------------------ */
 
@@ -170,18 +170,18 @@ void MimePart::prepare() {
 
     /* === Content === */
     switch (cEncoding) {
-        case _7Bit:
-            mimeString.append(QString(content).toLatin1());
-            break;
-        case _8Bit:
-            mimeString.append(content);
-            break;
-        case Base64:
-            mimeString.append(formatter.format(content.toBase64()));
-            break;
-        case QuotedPrintable:
-            mimeString.append(formatter.format(QuotedPrintable::encode(content), true));
-            break;
+    case _7Bit:
+        mimeString.append(QString(content).toLatin1());
+        break;
+    case _8Bit:
+        mimeString.append(content);
+        break;
+    case Base64:
+        mimeString.append(formatter.format(content.toBase64()));
+        break;
+    case QuotedPrintable:
+        mimeString.append(formatter.format(QuotedPrintable::encode(content), true));
+        break;
     }
     mimeString.append("\r\n");
     /* === End of Content === */

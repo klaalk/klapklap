@@ -13,7 +13,7 @@
 #define DEBUG
 
 kk_session::kk_session(kk_db_ptr db, map_files_ptr files_, QObject*  parent)
-        : QObject(parent), db_(db), files_(files_) {
+    : QObject(parent), db_(db), files_(files_) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
 }
 
@@ -48,17 +48,17 @@ void kk_session::handleRequest(QString message) {
             QStringList _body = req.body().split("_");
             nick_ = _body[0];
             kk_task *mytask = new kk_task([=]() {
-//                bool result = db_->db_login(_body[0],_body[1]);
-//                if(result) {
-//                    QStringList q=db_->db_getUserFile(_body[0]);
-//                    QString message ="";
-//                    std::for_each(q.begin(), q.end(), [&](QString msg){
-//                        message += msg + "_";
-//                    });
-//                    this->sendResponse("login","ok", message);
-//                } else {
-//                    this->sendResponse("login","ko","Invalid credentials");
-//                }
+                //                bool result = db_->db_login(_body[0],_body[1]);
+                //                if(result) {
+                //                    QStringList q=db_->db_getUserFile(_body[0]);
+                //                    QString message ="";
+                //                    std::for_each(q.begin(), q.end(), [&](QString msg){
+                //                        message += msg + "_";
+                //                    });
+                //                    this->sendResponse("login","ok", message);
+                //                } else {
+                //                    this->sendResponse("login","ko","Invalid credentials");
+                //                }
                 this->sendResponse("login","ok", "message");
             });
 
@@ -104,8 +104,8 @@ void kk_session::handleRequest(QString message) {
                     qDebug() << "file creato, sei stato aggiunto correttamente";
                     message = "file creato, sei stato aggiunto correttamente";
                 } else {
-                     message = "non è stato possibile creare il file";
-                     result = "ko";
+                    message = "non è stato possibile creare il file";
+                    result = "ko";
                 }
             }
             //mando al client la risposta della request.
@@ -136,7 +136,7 @@ void kk_session::handleBinaryRequests(QByteArray message)
     if (session_socket_)
     {
         qDebug() << "Client send binary:" << message;
-//        session_socket_->sendBinaryMessage(message);
+        //        session_socket_->sendBinaryMessage(message);
     }
 }
 
@@ -145,7 +145,7 @@ void kk_session::handleDisconnection()
     qDebug() << "Client disconnected";
     if (session_socket_)
     {
-//      clients_.removeAll(pClient);
+        //      clients_.removeAll(pClient);
         if(actual_file_.get() != nullptr) {
             actual_file_->deliver("removedpartecipant", "ok", nick_, "All");
             actual_file_->leave(sharedFromThis());
