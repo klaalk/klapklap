@@ -80,10 +80,10 @@ vector<kk_identifier_ptr> kk_crdt::find_position_after(kk_pos pos) {
 vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifier_ptr> position1, vector<kk_identifier_ptr> position2,
                                    vector<kk_identifier_ptr> *new_position, unsigned long level) {
 
-    strategy _strategy;
+    strategy _strategy=casuale;
     unsigned long elev = static_cast<unsigned long>(pow(2,level));
     unsigned long _base = elev * this->base;
-    _strategy = this->find_strategy(level);
+//    _strategy = this->find_strategy(level);
 
     kk_identifier_ptr id1, id2;
 
@@ -158,6 +158,8 @@ strategy kk_crdt::find_strategy(unsigned long level/*FORSE DA TOGLIERE*/) {
 unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy,unsigned long level) {
     unsigned long elev = static_cast<unsigned long>(pow(2,level));
     unsigned long _boundary = elev * this->boundary;
+    if(level%2)_strategy = plus;
+    else _strategy=minus;
 
     if ((max - min < _boundary)) {
         min = min + 1;
@@ -175,6 +177,11 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
     std::mt19937_64 gen(rd()); // seed the generator
     std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
     random_number=static_cast<unsigned long>(distr(gen));
+    std::cout<< _strategy<<std::endl;
+    std::cout<<min<<" < "<<random_number<<" < "<<max<<std::endl;
+
+
+
     return random_number;
 }
 
@@ -294,10 +301,10 @@ unsigned long kk_crdt::find_insert_index_in_line(kk_char_ptr _char, list<kk_char
             return cnt;
          };
 //caso non possibile (una remote insert di una Char esattamente identica a una esistente)
-//        if(_char.get()->compare_to(*it->get())==0){
-//            if(_char.get()->get_value()==it->get()->get_value()){
-//                if(_char.get()->get_siteId().compare(it->get()->get_siteId())==0){
-//            return cnt;}}}
+        if(_char.get()->compare_to(*it->get())==0){
+            if(_char.get()->get_value()==it->get()->get_value()){
+                if(_char.get()->get_siteId().compare(it->get()->get_siteId())==0){
+            return cnt;}}}
         cnt++;
     }
 }
