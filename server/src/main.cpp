@@ -16,9 +16,8 @@ int main(int argc, char *argv[]) {
 
     kk_filesys log;
     QString run_info="";
-    run_info = "DateTime: " + QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss")
-            + " Version:" +  QString::number(VERSION_MAJOR) +  "." + QString::number(VERSION_MINOR) + " Build: "
-            + QString::number(VERSION_BUILD);
+    run_info = "RUNNING (Version:" +  QString::number(VERSION_MAJOR) +  "." + QString::number(VERSION_MINOR) + " Build: "
+            + QString::number(VERSION_BUILD)+")";
 
     log.kk_CreateFile("root","log");
     log.kk_WriteFile("log",run_info);

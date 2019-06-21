@@ -15,6 +15,7 @@
 kk_session::kk_session(kk_db_ptr db, map_files_ptr files_, QObject*  parent)
     : QObject(parent), db_(db), files_(files_) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
+    log.kk_CreateFile("root","log");
 }
 
 kk_session::~kk_session() {}
@@ -30,17 +31,24 @@ void kk_session::setSocket(QWebSocket* descriptor) {
     connect(session_socket_, &QWebSocket::binaryMessageReceived, this, &kk_session::handleBinaryRequests);
     connect(session_socket_, &QWebSocket::disconnected, this, &kk_session::handleDisconnection);
     qDebug() << "Client connected at " << descriptor;
+    log.kk_WriteFile("log","Client ( \""+descriptor->peerName()+"\" "
+                                      +descriptor->peerAddress().toString()+":"
+                                      +QString::number(descriptor->peerPort())+" ) connected at "
+                                      + descriptor->localAddress().toString() +":"
+                                      +QString::number(descriptor->localPort()) );
 }
 
 
 void kk_session::sendResponse(QString type, QString result, QString body) {
     kk_payload res(type, result, body);
     qDebug() << "Server send: " << res.encode_header();
+    log.kk_WriteFile("log", "Server send: " + res.encode_header());
     session_socket_->sendTextMessage(res.encode_header());
 }
 
 void kk_session::handleRequest(QString message) {
     qDebug() << "Client send:" << message;
+    log.kk_WriteFile("log","Client send: " + message);
     if (session_socket_){
         kk_payload req(message);
         req.decode_header();
@@ -143,6 +151,10 @@ void kk_session::handleBinaryRequests(QByteArray message)
 void kk_session::handleDisconnection()
 {
     qDebug() << "Client disconnected";
+    log.kk_WriteFile("log","Client ( \""+session_socket_->peerName()+"\" "
+                                      +session_socket_->peerAddress().toString()+":"
+                                      +QString::number(session_socket_->peerPort())+" ) disconnected");
+
     if (session_socket_)
     {
         //      clients_.removeAll(pClient);

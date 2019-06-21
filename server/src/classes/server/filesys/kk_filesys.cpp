@@ -74,8 +74,10 @@ bool kk_filesys::kk_SendFile(QString filename){
 // con header "file_response" e payload "<binary file content>"
 
 bool kk_filesys::kk_WriteFile(QString filename, QString toPrint){
-    if(filename=="log")
+    if(filename=="log"){
         filename=this->log_name;
+        toPrint.insert(0,QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
+    }
     QFile file(filename);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
         return false;

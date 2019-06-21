@@ -7,6 +7,7 @@
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../../libs/src/constants/kk_constants.h"
+#include "classes/server/filesys/kk_filesys.h"
 #include <QObject>
 #include <QTcpSocket>
 #include <QWebSocket>
@@ -40,6 +41,7 @@ private:
     kk_db_ptr db_;
     map_files_ptr files_;
     kk_file_ptr actual_file_;
+    kk_filesys log;
 };
 
 typedef QSharedPointer<kk_session> kk_session_ptr;

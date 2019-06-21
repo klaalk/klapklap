@@ -15,6 +15,7 @@
 #include <QAbstractSocket>
 
 #include "session/kk_session.h"
+#include "classes/server/filesys/kk_filesys.h"
 #include "file/kk_file.h"
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
@@ -35,6 +36,7 @@ private:
     QList<kk_session_ptr> sessions_;
     map_files_ptr files_;
     kk_db_ptr db_;
+    kk_filesys log;
 };
 
 #endif //KK_SERVER_H
