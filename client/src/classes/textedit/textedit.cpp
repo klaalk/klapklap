@@ -664,19 +664,8 @@ void TextEdit::cursorPositionChanged()
 
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
-
-    if(text.length() > 0) {
-        if(cursor.selectionStart() > cursor.selectionEnd()){
-            lastCursorPos = cursor.selectionStart();
-            cursorPos = cursor.selectionEnd();
-        } else {
-            lastCursorPos = cursor.selectionEnd();
-            cursorPos = cursor.selectionStart();
-        }
-    }
-
     qDebug() << "last: " << lastCursorPos << "cur: " << cursorPos;
-
+    qDebug() << "selected:" << text;
     if (list) {
         switch (list->format().style()) {
             case QTextListFormat::ListDisc:
@@ -808,6 +797,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         cursors_.insert(name, remoteCurs);
     }
     // Muovo il cursore dell'editor.
+    qDebug() << "Remote global:" << col;
     editorCurs.setPosition(col);
     // Eseguo l'operazione
     if(operation == "insert") {
@@ -856,13 +846,13 @@ void TextEdit::onTextChange() {
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
         diffText=lastText.mid(cursorPos, lastLength - s.length());
-        emit removeTextFromCRDT(0, cursorPos, 0, lastCursorPos);
+        emit removeTextFromCRDT(0, cursorPos, 0, cursorPos + diffText.length());
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
        diffText=s.mid(lastCursorPos, s.length() - lastLength);
        emit insertTextToCRDT(diffText, 0, lastCursorPos);
     }
-    qDebug() << "\tHo inserito: " << diffText << "in " << cursorPos;
+    qDebug() << "\tDiff: " << diffText << "in " << cursorPos;
     //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
     int curPos_ = editorCurs.position();
