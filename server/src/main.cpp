@@ -22,7 +22,6 @@ int main(int argc, char *argv[]) {
     log.kk_CreateFile("root","log");
     log.kk_WriteFile("log",run_info);
 
-
     qDebug() << run_info;
 
     QApplication a(argc, argv);
