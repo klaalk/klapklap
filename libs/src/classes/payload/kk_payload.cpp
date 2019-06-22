@@ -5,12 +5,12 @@
 #include "kk_payload.h"
 
 kk_payload::kk_payload(QString data)
-        : data_(data) {
+    : data_(data) {
 }
 
 
 kk_payload::kk_payload(QString type, QString result, QString message)
-        : msg_(message), type_(type), result_(result), body_length_(message.size()) {
+    : msg_(message), type_(type), result_(result), body_length_(message.size()) {
 }
 
 QString kk_payload::body(){

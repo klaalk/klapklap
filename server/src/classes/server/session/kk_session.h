@@ -7,6 +7,7 @@
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../../libs/src/constants/kk_constants.h"
+#include "classes/server/filesys/kk_filesys.h"
 #include <QObject>
 #include <QTcpSocket>
 #include <QWebSocket>
@@ -24,7 +25,7 @@ QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
 class kk_session : public QObject, public kk_participant, public QEnableSharedFromThis<kk_session> {
-        Q_OBJECT
+    Q_OBJECT
 public:
     kk_session(kk_db_ptr db, map_files_ptr files_, QObject *parent = 0);
     ~kk_session();
@@ -40,6 +41,7 @@ private:
     kk_db_ptr db_;
     map_files_ptr files_;
     kk_file_ptr actual_file_;
+    kk_filesys log;
 };
 
 typedef QSharedPointer<kk_session> kk_session_ptr;

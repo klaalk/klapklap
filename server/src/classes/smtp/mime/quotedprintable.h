@@ -25,7 +25,7 @@
 
 
 class  QuotedPrintable : public QObject {
-Q_OBJECT
+    Q_OBJECT
 public:
 
     static QString encode(const QByteArray &input);

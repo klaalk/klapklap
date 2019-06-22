@@ -25,7 +25,7 @@
 
 
 class  MimePart : public QObject {
-Q_OBJECT
+    Q_OBJECT
 public:
 
     /* [0] Enumerations */

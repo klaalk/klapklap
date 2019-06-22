@@ -15,8 +15,9 @@ QT_USE_NAMESPACE
 kk_server::kk_server(quint16 port, QObject *parent):
     QObject(parent), server_socket_(nullptr) {
     server_socket_ = new QWebSocketServer(QStringLiteral("SSL Echo Server"),
-                                              QWebSocketServer::SecureMode,
-                                              this);
+                                          QWebSocketServer::SecureMode,
+                                          this);
+    log.kk_CreateFile("root","log");
     QSslConfiguration sslConfiguration;
     QFile certFile(QStringLiteral(":/localhost.cert"));
     QFile keyFile(QStringLiteral(":/localhost.key"));
@@ -41,6 +42,7 @@ kk_server::kk_server(quint16 port, QObject *parent):
 
     if (server_socket_->listen(QHostAddress::Any, port)) {
         qDebug() << "SSL Server listening on port" << port;
+        log.kk_WriteFile("log","SSL Server listening on port " + QString::number(port));
         connect(server_socket_, &QWebSocketServer::newConnection, this,&kk_server::onNewConnection);
         connect(server_socket_, &QWebSocketServer::sslErrors, this, &kk_server::onSslErrors);
     }
@@ -75,4 +77,5 @@ void kk_server::onNewConnection() {
 void kk_server::onSslErrors(const QList<QSslError> &)
 {
     qDebug() << "Ssl errors occurred";
+    log.kk_WriteFile("log","SSL errors occurred");
 }

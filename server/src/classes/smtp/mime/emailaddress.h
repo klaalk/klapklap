@@ -24,7 +24,7 @@
 
 
 class  EmailAddress : public QObject {
-Q_OBJECT
+    Q_OBJECT
 public:
 
     /* [1] Constructors and Destructors */

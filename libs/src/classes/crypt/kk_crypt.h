@@ -79,10 +79,10 @@ public:
 
 
     enum CryptoFlag{CryptoFlagNone = 0,
-        CryptoFlagCompression = 0x01,
-        CryptoFlagChecksum = 0x02,
-        CryptoFlagHash = 0x04
-    };
+                    CryptoFlagCompression = 0x01,
+                    CryptoFlagChecksum = 0x02,
+                    CryptoFlagHash = 0x04
+                   };
     Q_DECLARE_FLAGS(CryptoFlags, CryptoFlag)
 
     bool containLetter(QChar letter, QString myString);

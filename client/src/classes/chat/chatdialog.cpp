@@ -67,9 +67,9 @@ ChatDialog::ChatDialog(QWidget *parent)
 
 void ChatDialog::setNickName(QString nick) {
     myNickName = nick;
-//    newParticipant(myNickName);
+    newParticipant(myNickName);
     tableFormat.setBorder(0);
-//    QTimer::singleShot(10 * 1000, this, SLOT(showInformation()));
+    QTimer::singleShot(10 * 1000, this, SLOT(showInformation()));
 }
 
 void ChatDialog::appendMessage(const QString &from, const QString &message)

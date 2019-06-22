@@ -15,19 +15,19 @@
 #include <QDataStream>
 
 SimpleCrypt::SimpleCrypt():
-        m_key(0),
-        m_compressionMode(CompressionAuto),
-        m_protectionMode(ProtectionChecksum),
-        m_lastError(ErrorNoError)
+    m_key(0),
+    m_compressionMode(CompressionAuto),
+    m_protectionMode(ProtectionChecksum),
+    m_lastError(ErrorNoError)
 {
     qsrand(uint(QDateTime::currentMSecsSinceEpoch() & 0xFFFF));
 }
 
 SimpleCrypt::SimpleCrypt(quint64 key):
-        m_key(key),
-        m_compressionMode(CompressionAuto),
-        m_protectionMode(ProtectionChecksum),
-        m_lastError(ErrorNoError)
+    m_key(key),
+    m_compressionMode(CompressionAuto),
+    m_protectionMode(ProtectionChecksum),
+    m_lastError(ErrorNoError)
 {
     qsrand(uint(QDateTime::currentMSecsSinceEpoch() & 0xFFFF));
     splitKey();
@@ -236,7 +236,7 @@ QByteArray SimpleCrypt::decryptToByteArray(QByteArray cypher)
 QString SimpleCrypt::random_psw(QString s){
 
     int len=20;
-//    QString s;
+    //    QString s;
     static const char alphanum[] =
             "0123456789"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

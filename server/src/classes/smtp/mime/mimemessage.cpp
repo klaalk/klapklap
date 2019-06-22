@@ -24,8 +24,8 @@
 
 /* [1] Constructors and Destructors */
 MimeMessage::MimeMessage(bool createAutoMimeContent) :
-        replyTo(nullptr),
-        hEncoding(MimePart::_8Bit) {
+    replyTo(nullptr),
+    hEncoding(MimePart::_8Bit) {
     if (createAutoMimeContent)
         this->content = new MimeMultiPart();
 
@@ -66,15 +66,15 @@ void MimeMessage::setSender(EmailAddress *e) {
 
 void MimeMessage::addRecipient(EmailAddress *rcpt, RecipientType type) {
     switch (type) {
-        case To:
-            recipientsTo << rcpt;
-            break;
-        case Cc:
-            recipientsCc << rcpt;
-            break;
-        case Bcc:
-            recipientsBcc << rcpt;
-            break;
+    case To:
+        recipientsTo << rcpt;
+        break;
+    case Cc:
+        recipientsCc << rcpt;
+        break;
+    case Bcc:
+        recipientsBcc << rcpt;
+        break;
     }
 
     rcpt->setParent(this);
@@ -116,13 +116,13 @@ const EmailAddress &MimeMessage::getSender() const {
 
 const QList<EmailAddress *> &MimeMessage::getRecipients(RecipientType type) const {
     switch (type) {
-        default:
-        case To:
-            return recipientsTo;
-        case Cc:
-            return recipientsCc;
-        case Bcc:
-            return recipientsBcc;
+    default:
+    case To:
+        return recipientsTo;
+    case Cc:
+        return recipientsCc;
+    case Bcc:
+        return recipientsBcc;
     }
 }
 
@@ -158,17 +158,17 @@ QString MimeMessage::toString() {
     mime = "From:";
     if (sender->getName() != "") {
         switch (hEncoding) {
-            case MimePart::Base64:
-                mime += " =?utf-8?B?" + QByteArray().append(sender->getName()).toBase64() + "?=";
-                break;
-            case MimePart::QuotedPrintable:
-                mime += " =?utf-8?Q?" +
-                        QuotedPrintable::encode(QByteArray().append(sender->getName())).replace(' ', "_").replace(':',
-                                                                                                                  "=3A") +
-                        "?=";
-                break;
-            default:
-                mime += " " + sender->getName();
+        case MimePart::Base64:
+            mime += " =?utf-8?B?" + QByteArray().append(sender->getName()).toBase64() + "?=";
+            break;
+        case MimePart::QuotedPrintable:
+            mime += " =?utf-8?Q?" +
+                    QuotedPrintable::encode(QByteArray().append(sender->getName())).replace(' ', "_").replace(':',
+                                                                                                              "=3A") +
+                    "?=";
+            break;
+        default:
+            mime += " " + sender->getName();
         }
     }
     mime += " <" + sender->getAddress() + ">\r\n";
@@ -184,16 +184,16 @@ QString MimeMessage::toString() {
 
         if ((*it)->getName() != "") {
             switch (hEncoding) {
-                case MimePart::Base64:
-                    mime += " =?utf-8?B?" + QByteArray().append((*it)->getName()).toBase64() + "?=";
-                    break;
-                case MimePart::QuotedPrintable:
-                    mime += " =?utf-8?Q?" +
-                            QuotedPrintable::encode(QByteArray().append((*it)->getName())).replace(' ', "_").replace(
-                                    ':', "=3A") + "?=";
-                    break;
-                default:
-                    mime += " " + (*it)->getName();
+            case MimePart::Base64:
+                mime += " =?utf-8?B?" + QByteArray().append((*it)->getName()).toBase64() + "?=";
+                break;
+            case MimePart::QuotedPrintable:
+                mime += " =?utf-8?Q?" +
+                        QuotedPrintable::encode(QByteArray().append((*it)->getName())).replace(' ', "_").replace(
+                            ':', "=3A") + "?=";
+                break;
+            default:
+                mime += " " + (*it)->getName();
             }
         }
         mime += " <" + (*it)->getAddress() + ">";
@@ -210,16 +210,16 @@ QString MimeMessage::toString() {
 
         if ((*it)->getName() != "") {
             switch (hEncoding) {
-                case MimePart::Base64:
-                    mime += " =?utf-8?B?" + QByteArray().append((*it)->getName()).toBase64() + "?=";
-                    break;
-                case MimePart::QuotedPrintable:
-                    mime += " =?utf-8?Q?" +
-                            QuotedPrintable::encode(QByteArray().append((*it)->getName())).replace(' ', "_").replace(
-                                    ':', "=3A") + "?=";
-                    break;
-                default:
-                    mime += " " + (*it)->getName();
+            case MimePart::Base64:
+                mime += " =?utf-8?B?" + QByteArray().append((*it)->getName()).toBase64() + "?=";
+                break;
+            case MimePart::QuotedPrintable:
+                mime += " =?utf-8?Q?" +
+                        QuotedPrintable::encode(QByteArray().append((*it)->getName())).replace(' ', "_").replace(
+                            ':', "=3A") + "?=";
+                break;
+            default:
+                mime += " " + (*it)->getName();
             }
         }
         mime += " <" + (*it)->getAddress() + ">";
@@ -234,15 +234,15 @@ QString MimeMessage::toString() {
 
 
     switch (hEncoding) {
-        case MimePart::Base64:
-            mime += "=?utf-8?B?" + QByteArray().append(subject).toBase64() + "?=";
-            break;
-        case MimePart::QuotedPrintable:
-            mime += "=?utf-8?Q?" +
-                    QuotedPrintable::encode(QByteArray().append(subject)).replace(' ', "_").replace(':', "=3A") + "?=";
-            break;
-        default:
-            mime += subject;
+    case MimePart::Base64:
+        mime += "=?utf-8?B?" + QByteArray().append(subject).toBase64() + "?=";
+        break;
+    case MimePart::QuotedPrintable:
+        mime += "=?utf-8?Q?" +
+                QuotedPrintable::encode(QByteArray().append(subject)).replace(' ', "_").replace(':', "=3A") + "?=";
+        break;
+    default:
+        mime += subject;
     }
     mime += "\r\n";
     /* ---------------------------------- */
@@ -252,16 +252,16 @@ QString MimeMessage::toString() {
         mime += "Reply-To: ";
         if (replyTo->getName() != "") {
             switch (hEncoding) {
-                case MimePart::Base64:
-                    mime += " =?utf-8?B?" + QByteArray().append(replyTo->getName()).toBase64() + "?=";
-                    break;
-                case MimePart::QuotedPrintable:
-                    mime += " =?utf-8?Q?" +
-                            QuotedPrintable::encode(QByteArray().append(replyTo->getName())).replace(' ', "_").replace(
-                                    ':', "=3A") + "?=";
-                    break;
-                default:
-                    mime += " " + replyTo->getName();
+            case MimePart::Base64:
+                mime += " =?utf-8?B?" + QByteArray().append(replyTo->getName()).toBase64() + "?=";
+                break;
+            case MimePart::QuotedPrintable:
+                mime += " =?utf-8?Q?" +
+                        QuotedPrintable::encode(QByteArray().append(replyTo->getName())).replace(' ', "_").replace(
+                            ':', "=3A") + "?=";
+                break;
+            default:
+                mime += " " + replyTo->getName();
             }
         }
         mime += " <" + replyTo->getAddress() + ">\r\n";

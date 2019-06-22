@@ -78,7 +78,7 @@ vector<kk_identifier_ptr> kk_crdt::find_position_after(kk_pos pos) {
 }
 
 vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifier_ptr> position1, vector<kk_identifier_ptr> position2,
-                                   vector<kk_identifier_ptr> *new_position, unsigned long level) {
+                                                             vector<kk_identifier_ptr> *new_position, unsigned long level) {
 
     strategy _strategy=casuale;
     unsigned long elev = static_cast<unsigned long>(pow(2,level));
@@ -122,36 +122,36 @@ vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifie
         return this->generate_position_between(slice(position1, 1), vector<kk_identifier_ptr>(), new_position, level + 1);
 
     }else if (id1->get_digit() == id2->get_digit()) {
-    new_position->insert(new_position->end(), id1);
-    return this->generate_position_between(slice(position1, 1), slice(position2, 1), new_position,
-                                                       level + 1);
+        new_position->insert(new_position->end(), id1);
+        return this->generate_position_between(slice(position1, 1), slice(position2, 1), new_position,
+                                               level + 1);
 
 
-}
+    }
     return vector<kk_identifier_ptr>();
 }
 
 strategy kk_crdt::find_strategy(unsigned long level/*FORSE DA TOGLIERE*/) {
-//    if (!strategy_cache.empty() && strategy_cache[level]) {
-//        return strategy_cache[level];
-//    }
+    //    if (!strategy_cache.empty() && strategy_cache[level]) {
+    //        return strategy_cache[level];
+    //    }
     strategy _local_strategy;
     switch (this->_strategy) {
-        case plus:
-            _local_strategy = plus;
+    case plus:
+        _local_strategy = plus;
         break;
-        case minus:
-            _local_strategy = minus;
+    case minus:
+        _local_strategy = minus;
         break;
-        case casuale: {
-            double _rand;
-            _rand = rand()%100;
-            _rand=_rand/100;
-            _local_strategy = round(_rand) == 0 ? plus : minus;
-            break;
-        }
+    case casuale: {
+        double _rand;
+        _rand = rand()%100;
+        _rand=_rand/100;
+        _local_strategy = round(_rand) == 0 ? plus : minus;
+        break;
     }
-//    strategy_cache.insert(std::next(strategy_cache.begin(), static_cast<int>(level)), _local_strategy);
+    }
+    //    strategy_cache.insert(std::next(strategy_cache.begin(), static_cast<int>(level)), _local_strategy);
     return _local_strategy;
 }
 
@@ -231,7 +231,7 @@ kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
     unsigned long max_line = total_lines-2;
     //controlla se la char va messa come primo carattere della prima riga
     if(text.empty() || text.at(0).empty() ||_char.get()->compare_to(*text[0].front().get()) <= 0) {
-          return kk_pos(0,0);
+        return kk_pos(0,0);
     }
 
     list<kk_char_ptr> last_line(text[max_line]);
@@ -242,36 +242,36 @@ kk_pos kk_crdt::find_insert_position(kk_char_ptr _char){
         return find_end_position(last_char, last_line, total_lines);
     }
 
-     while (min_line +1 < max_line) {
-         mid_line = static_cast<unsigned long>(floor(min_line + (max_line - min_line)/2));
+    while (min_line +1 < max_line) {
+        mid_line = static_cast<unsigned long>(floor(min_line + (max_line - min_line)/2));
 
-         list<kk_char_ptr> current_line (text[mid_line]);
+        list<kk_char_ptr> current_line (text[mid_line]);
 
-         last_char = *std::next(current_line.begin(),static_cast<long>(current_line.size()-1))->get();
+        last_char = *std::next(current_line.begin(),static_cast<long>(current_line.size()-1))->get();
 
-         if(_char.get()->compare_to(last_char)==0){
-             return kk_pos(mid_line,current_line.size()-1);
-         }else if(_char.get()->compare_to(last_char)<0) {
-             max_line=mid_line;
-         }else{
-             min_line=mid_line;
-         }
-     }
+        if(_char.get()->compare_to(last_char)==0){
+            return kk_pos(mid_line,current_line.size()-1);
+        }else if(_char.get()->compare_to(last_char)<0) {
+            max_line=mid_line;
+        }else{
+            min_line=mid_line;
+        }
+    }
 
-     //la scelta ora sarà tra massimo due linee
-     list<kk_char_ptr> min_current_line (text[min_line]);
-     kk_char min_last_char = *std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1))->get();
-     list<kk_char_ptr> max_current_line (text[max_line]);
-     kk_char max_last_char = *std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1))->get();
+    //la scelta ora sarà tra massimo due linee
+    list<kk_char_ptr> min_current_line (text[min_line]);
+    kk_char min_last_char = *std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1))->get();
+    list<kk_char_ptr> max_current_line (text[max_line]);
+    kk_char max_last_char = *std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1))->get();
 
-     //vede se sta nella linea1 o linea2 comparando con l'ultima Char delle linea1
-     if(_char.get()->compare_to(min_last_char)<=0){
+    //vede se sta nella linea1 o linea2 comparando con l'ultima Char delle linea1
+    if(_char.get()->compare_to(min_last_char)<=0){
         unsigned long char_idx = find_insert_index_in_line(_char,min_current_line);
         return kk_pos(min_line,char_idx);
-     }else {
-         unsigned long char_idx = find_insert_index_in_line(_char,max_current_line);
+    }else {
+        unsigned long char_idx = find_insert_index_in_line(_char,max_current_line);
         return kk_pos(max_line,char_idx);
-     }
+    }
 }
 
 kk_pos kk_crdt::find_end_position (kk_char last_char, list<kk_char_ptr> last_line, unsigned long total_lines){
@@ -300,8 +300,8 @@ unsigned long kk_crdt::find_insert_index_in_line(kk_char_ptr _char, list<kk_char
     for (it = line.begin(); it!= line.end(); it++) {
         if(_char.get()->compare_to(*it->get())<0){
             return cnt;
-         };
-//caso non possibile (una remote insert di una Char esattamente identica a una esistente)
+        };
+        //caso non possibile (una remote insert di una Char esattamente identica a una esistente)
         if(_char.get()->compare_to(*it->get())==0){
             if(_char.get()->get_value()==it->get()->get_value()){
                 if(_char.get()->get_siteId().compare(it->get()->get_siteId())==0){
@@ -314,7 +314,7 @@ void kk_crdt::print() {
     for (unsigned long i = 0; i < text.size(); i++) {
         for (auto x : text[i]) {
             if(x->get_value() =='\n'){
-                 std::cout <<"/n"<< "[ ";
+                std::cout <<"/n"<< "[ ";
             }else {
                 std::cout << x->get_value() << "[ ";
             }
@@ -353,7 +353,7 @@ list<kk_char_ptr> kk_crdt::local_delete(kk_pos start_pos, kk_pos end_pos){
         it=chars.begin();
         for (it = chars.begin(); it!= chars.end(); it++) {
             if(it->get()->get_value() == '\n'){
-              new_line_removed=true;
+                new_line_removed=true;
             }
         }
     }
@@ -378,7 +378,7 @@ list<kk_char_ptr> kk_crdt::delete_multiple_lines(kk_pos start_pos, kk_pos end_po
         chars.splice(chars.end(),text[line]);
         text[line].erase(text[line].begin(),std::next(text[line].begin(),static_cast<long>(text[line].size())));
 
-        }
+    }
 
     if(!text[end_pos.get_line()].empty()){
         //azioni ottimizabili
@@ -403,13 +403,13 @@ void kk_crdt::remove_empty_lines(){
     it=text.begin();
 
     for(unsigned long line=0; line<text.size(); line++){
-            if(text[line].size()==0){
+        if(text[line].size()==0){
             text.erase(it);
             line --;
             it--;
         }
         it++;
-     }
+    }
     if(text.size()==0){
         text[0] = list<kk_char_ptr>(); //occhio
 
@@ -509,10 +509,10 @@ unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> l
     unsigned long left=0;
     unsigned long right = line.size()-1;
 
-   //controlla se la linea è vuota o il Char è minore del primo della linea
+    //controlla se la linea è vuota o il Char è minore del primo della linea
     if(line.size()==0 || _Char.get()->compare_to(*line.begin()->get())<0){
         return left;
-   //controlla se il Char è maggiore dell'ultimo della linea
+        //controlla se il Char è maggiore dell'ultimo della linea
     } else if ( _Char.get()->compare_to(*std::next(line.begin(),static_cast<long>(line.size()-1))->get())>0){
         return right;
     }
@@ -523,10 +523,10 @@ unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> l
 
     for (it = line.begin(); it!= line.end(); it++) {
         if(_Char.get()->compare_to(*it->get())==0 &&
-           _Char.get()->get_value()==it->get()->get_value() &&
-           _Char.get()->get_siteId().compare(it->get()->get_siteId())==0) {
+                _Char.get()->get_value()==it->get()->get_value() &&
+                _Char.get()->get_siteId().compare(it->get()->get_siteId())==0) {
             return cnt;
-         }
+        }
         cnt++;
     }
     *flag=false;

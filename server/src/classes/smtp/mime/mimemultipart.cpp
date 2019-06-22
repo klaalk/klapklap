@@ -21,13 +21,13 @@
 #include <QCryptographicHash>
 
 const QString MULTI_PART_NAMES[] = {
-        "multipart/mixed",         //    Mixed
-        "multipart/digest",        //    Digest
-        "multipart/alternative",   //    Alternative
-        "multipart/related",       //    Related
-        "multipart/report",        //    Report
-        "multipart/signed",        //    Signed
-        "multipart/encrypted"      //    Encrypted
+    "multipart/mixed",         //    Mixed
+    "multipart/digest",        //    Digest
+    "multipart/alternative",   //    Alternative
+    "multipart/related",       //    Related
+    "multipart/report",        //    Report
+    "multipart/signed",        //    Signed
+    "multipart/encrypted"      //    Encrypted
 };
 
 MimeMultiPart::MimeMultiPart(MultiPartType type) {
