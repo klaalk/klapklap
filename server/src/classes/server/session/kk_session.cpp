@@ -31,7 +31,7 @@ void kk_session::setSocket(QWebSocket* descriptor) {
     connect(session_socket_, &QWebSocket::binaryMessageReceived, this, &kk_session::handleBinaryRequests);
     connect(session_socket_, &QWebSocket::disconnected, this, &kk_session::handleDisconnection);
     qDebug() << "Client connected at " << descriptor;
-    log.kk_WriteFile("log","Client ( \""+descriptor->peerName()+"\" "
+    log.kk_WriteFile("log","Client (\""+nick_+"\" "
                                       +descriptor->peerAddress().toString()+":"
                                       +QString::number(descriptor->peerPort())+" ) connected at "
                                       + descriptor->localAddress().toString() +":"
@@ -55,6 +55,9 @@ void kk_session::handleRequest(QString message) {
         if(req.type() == "login") {
             QStringList _body = req.body().split("_");
             nick_ = _body[0];
+            log.kk_WriteFile("log","Client info (\""+nick_+"\" "
+                                              +session_socket_->peerAddress().toString()+":"
+                                              +QString::number(session_socket_->peerPort())+")" );
             kk_task *mytask = new kk_task([=]() {
                 //                bool result = db_->db_login(_body[0],_body[1]);
                 //                if(result) {

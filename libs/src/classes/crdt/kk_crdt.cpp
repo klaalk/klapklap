@@ -80,10 +80,10 @@ vector<kk_identifier_ptr> kk_crdt::find_position_after(kk_pos pos) {
 vector<kk_identifier_ptr> kk_crdt::generate_position_between(vector<kk_identifier_ptr> position1, vector<kk_identifier_ptr> position2,
                                                              vector<kk_identifier_ptr> *new_position, unsigned long level) {
 
-    strategy _strategy;
+    strategy _strategy=casuale;
     unsigned long elev = static_cast<unsigned long>(pow(2,level));
     unsigned long _base = elev * this->base;
-    _strategy = this->find_strategy(level);
+//    _strategy = this->find_strategy(level);
 
     kk_identifier_ptr id1, id2;
 
@@ -158,6 +158,8 @@ strategy kk_crdt::find_strategy(unsigned long level/*FORSE DA TOGLIERE*/) {
 unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy,unsigned long level) {
     unsigned long elev = static_cast<unsigned long>(pow(2,level));
     unsigned long _boundary = elev * this->boundary;
+    if(level%2)_strategy = plus;
+    else _strategy=minus;
 
     if ((max - min < _boundary)) {
         min = min + 1;
@@ -170,11 +172,17 @@ unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned l
             max = min + _boundary;
         }
     }
+
     unsigned long random_number;
     std::random_device rd; // obtain a random number from hardware
     std::mt19937_64 gen(rd()); // seed the generator
     std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
     random_number=static_cast<unsigned long>(distr(gen));
+
+//     std::cout<<_strategy<<std::endl;
+//    std::cout<<min<< "\t"<<random_number<<"\t"<< max<<std::endl;
+
+
     return random_number;
 }
 
@@ -208,8 +216,11 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
 }
 
 kk_pos kk_crdt::remote_insert(kk_char_ptr _char){
+    unsigned long global_pos;
     kk_pos pos = find_insert_position(_char);
     insert_char(_char, pos);
+    global_pos= generate_global_pos(pos);
+    std::cout<<"GB:" <<global_pos<<std::endl;
     return pos;
 }
 
@@ -291,10 +302,10 @@ unsigned long kk_crdt::find_insert_index_in_line(kk_char_ptr _char, list<kk_char
             return cnt;
         };
         //caso non possibile (una remote insert di una Char esattamente identica a una esistente)
-        //        if(_char.get()->compare_to(*it->get())==0){
-        //            if(_char.get()->get_value()==it->get()->get_value()){
-        //                if(_char.get()->get_siteId().compare(it->get()->get_siteId())==0){
-        //            return cnt;}}}
+        if(_char.get()->compare_to(*it->get())==0){
+            if(_char.get()->get_value()==it->get()->get_value()){
+                if(_char.get()->get_siteId().compare(it->get()->get_siteId())==0){
+            return cnt;}}}
         cnt++;
     }
 }
@@ -423,6 +434,7 @@ void kk_crdt::merge_lines(unsigned long line){
 
 kk_pos kk_crdt::remote_delete(kk_char_ptr _Char){
     bool flag = true;
+    unsigned long global_pos;
     kk_pos pos(find_pos(_Char, &flag));
 
     if(flag==false){
@@ -437,6 +449,8 @@ kk_pos kk_crdt::remote_delete(kk_char_ptr _Char){
 
     remove_empty_lines();
     text.push_back(list<kk_char_ptr>());
+    global_pos= generate_global_pos(pos);
+     std::cout<<"GB:" <<global_pos<<std::endl;
     return pos;
 }
 
@@ -518,6 +532,18 @@ unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> l
     *flag=false;
     return 0;
 }
+
+unsigned long kk_crdt::generate_global_pos(kk_pos pos){
+
+
+    unsigned long global_pos=0;
+
+    for (unsigned long i=0; i <  pos.get_line(); i++) {
+         global_pos = global_pos + text[i].size();
+         };
+    global_pos=global_pos+ pos.get_ch();
+    return global_pos;
+    }
 
 
 

@@ -60,6 +60,7 @@ TextEdit::TextEdit(QWidget *parent)
     setWindowState(Qt::WindowMaximized);
     setWindowTitle(QCoreApplication::applicationName());
 
+    this->setMouseTracking(true);
     textEdit = new QTextEdit(this);
 
     connect(textEdit, &QTextEdit::currentCharFormatChanged,
@@ -659,10 +660,12 @@ void TextEdit::cursorPositionChanged()
 
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor  cursor = textEdit->textCursor();
+    QString text = cursor.selectedText();
 
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
-
+    qDebug() << "last: " << lastCursorPos << "cur: " << cursorPos;
+    qDebug() << "selected:" << text;
     if (list) {
         switch (list->format().style()) {
             case QTextListFormat::ListDisc:
@@ -794,6 +797,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         cursors_.insert(name, remoteCurs);
     }
     // Muovo il cursore dell'editor.
+    qDebug() << "Remote global:" << col;
     editorCurs.setPosition(col);
     // Eseguo l'operazione
     if(operation == "insert") {
@@ -842,15 +846,16 @@ void TextEdit::onTextChange() {
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
         diffText=lastText.mid(cursorPos, lastLength - s.length());
-        emit removeTextFromCRDT(0, cursorPos, 0, lastCursorPos);
+        emit removeTextFromCRDT(0, cursorPos, 0, cursorPos + diffText.length());
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
        diffText=s.mid(lastCursorPos, s.length() - lastLength);
        emit insertTextToCRDT(diffText, 0, lastCursorPos);
     }
-    qDebug() << "\tHo inserito: " << diffText << "in " << cursorPos;
+    qDebug() << "\tDiff: " << diffText << "in " << cursorPos;
     //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
+    int curPos_ = editorCurs.position();
     for(kk_cursor* c : cursors_.values()) {
         if(c->getGlobalPositon()>=editorCurs.position()){
             if(s.length() - lastLength >= 1) {
@@ -863,7 +868,7 @@ void TextEdit::onTextChange() {
         }
     }
     // Riporto il cursore dell'editor alla posizione di partenza.
-    editorCurs.setPosition(cursorPos);
+    editorCurs.setPosition(curPos_);
     lastLength = s.length();
     lastText = s;
 }

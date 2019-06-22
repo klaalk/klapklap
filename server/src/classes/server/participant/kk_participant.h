@@ -11,8 +11,8 @@
 
 class kk_participant {
 public:
-    QString nick_;
-    virtual ~kk_participant(){};
+    QString nick_="Unknowns";
+    virtual ~kk_participant(){}
     virtual void deliver(kk_payload_ptr msg) = 0;
 };
 

@@ -86,6 +86,7 @@ void kk_client::handleResponse(QString message) {
             editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], 0, remotePos.get_ch());
         } else if(bodyList_[0] == "delete") {
             kk_pos remotePos = crdt_->remote_delete(char_);
+            crdt_->print();
             editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], 0, remotePos.get_ch());
         }
 
@@ -120,7 +121,6 @@ void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
             kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(line, static_cast<unsigned long>(col + i)));
             crdt_->print();
             QString ids = QString::fromStdString(char_->get_identifiers_string());
-            qDebug() << "Insered " << diffText << "in " << line << " " << col;
             sendCrdtRequest("insert", QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
         }
 //        mtxCrdt_.unlock();
@@ -131,8 +131,10 @@ void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
 void kk_client::onRemoveTextCRDT(int startLine, int startCol, int endLine, int endCol) {
 //    std::thread t([=](){
 //        mtxCrdt_.lock();
+        qDebug() << startLine << " " << startCol << " - " << endLine << " " << endCol;
         list<kk_char_ptr> deletedChars = crdt_->local_delete(kk_pos(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                             kk_pos(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
+        crdt_->print();
 //        mtxCrdt_.unlock();
         std::for_each(deletedChars.begin(), deletedChars.end(),[&](kk_char_ptr char_){
             QString ids = QString::fromStdString(char_->get_identifiers_string());

@@ -155,6 +155,7 @@ private:
     QAction *actionPaste;
 #endif
     bool blockCursor = false;
+    bool isTextSelected = false;
     int lastLength = 0, cursorPos=0, lastCursorPos=0, fontSize=0;
     QMap <QString,kk_cursor*> cursors_;
     QComboBox *comboStyle;
