@@ -112,9 +112,12 @@ void kk_client::handleClosedConnection() {
     qApp->quit();
 }
 
-void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
+void kk_client::onInsertTextCRDT(QString diffText, int global_pos) {
 //    std::thread t([=](){
 //        mtxCrdt_.lock();
+    
+    unsigned long line,col;
+    crdt_->calculate_Line_Col(global_pos,&line,&c);
         QByteArray ba = diffText.toLocal8Bit();
         char *c_str = ba.data();
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
