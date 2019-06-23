@@ -156,8 +156,9 @@ strategy kk_crdt::find_strategy(unsigned long level/*FORSE DA TOGLIERE*/) {
 }
 
 unsigned long kk_crdt::generate_identifier_between(unsigned long min, unsigned long max, strategy _strategy,unsigned long level) {
-    unsigned long elev = static_cast<unsigned long>(pow(2,level));
-    unsigned long _boundary = elev * this->boundary;
+//    unsigned long elev = static_cast<unsigned long>(pow(2,level));
+//    unsigned long _boundary = elev * this->boundary;
+    unsigned long _boundary = this->boundary;
     if(level%2)_strategy = plus;
     else _strategy=minus;
 
