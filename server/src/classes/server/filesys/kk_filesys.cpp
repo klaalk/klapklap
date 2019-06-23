@@ -4,14 +4,14 @@
 
 #include "kk_filesys.h"
 
-bool kk_filesys::kk_CreateFile(QString username, QString filename){
+QString kk_filesys::kk_CreateFile(QString username, QString filename){
 
-    if(username=="root" && filename == "log"){
+    if(username=="root" && filename == "log") {
         QString log_name = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
         QString command = "touch ./" + log_name;
         system(qPrintable(command));
         this->log_name=log_name;
-        return true;
+        return log_name;
     }
 
     SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
@@ -27,19 +27,23 @@ bool kk_filesys::kk_CreateFile(QString username, QString filename){
     QString jump;
     jump=crypt.random_psw(jump);
 
-    QString _filename = jump+"_"+tmp+"_"+filename;
+    QString _filename = jump+"@"+tmp+"@"+filename;
     QString command = "touch ./"+_filename;
     system(qPrintable(command));
     //    system(qPrintable("ls -la | grep "+ _filename));
 
-    return db->db_insert_file(username,_filename,"./"+_filename) == 0 ? true:false;
+    bool result = db->db_insert_file(username,_filename,"./"+_filename) == 0 ? true : false;
+    if(result) {
+        return _filename;
+    }
+    return "ERR_CREATEFILE";
 }
 
 bool kk_filesys::kk_OpenFile(QString username, QString filename){
 
     SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
     // 0=random_jump, 1=crypted username 2=effective filename
-    QStringList body = filename.split("_");
+    QStringList body = filename.split("@");
     QString _username=crypt.decryptToString(body[1]);
 
     if (db->db_exist_user(_username)==false)

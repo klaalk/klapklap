@@ -12,10 +12,9 @@
 
 #define DEBUG
 
-kk_session::kk_session(kk_db_ptr db, map_files_ptr files_, QObject*  parent)
-    : QObject(parent), db_(db), files_(files_) {
+kk_session::kk_session(kk_db_ptr db, kk_filesys_ptr filesys, map_files_ptr files_, QObject*  parent)
+    : QObject(parent), db_(db), files_(files_), filesys_(filesys) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
-    log.kk_CreateFile("root","log");
 }
 
 kk_session::~kk_session() {}
@@ -31,7 +30,7 @@ void kk_session::setSocket(QWebSocket* descriptor) {
     connect(session_socket_, &QWebSocket::binaryMessageReceived, this, &kk_session::handleBinaryRequests);
     connect(session_socket_, &QWebSocket::disconnected, this, &kk_session::handleDisconnection);
     qDebug() << "Client connected at " << descriptor;
-    log.kk_WriteFile("log","Client (\""+nick_+"\" "
+    filesys_->kk_WriteFile("log","Client (\""+nick_+"\" "
                                       +descriptor->peerAddress().toString()+":"
                                       +QString::number(descriptor->peerPort())+" ) connected at "
                                       + descriptor->localAddress().toString() +":"
@@ -42,35 +41,35 @@ void kk_session::setSocket(QWebSocket* descriptor) {
 void kk_session::sendResponse(QString type, QString result, QString body) {
     kk_payload res(type, result, body);
     qDebug() << "Server send: " << res.encode_header();
-    log.kk_WriteFile("log", "Server send: " + res.encode_header());
+    filesys_->kk_WriteFile("log", "Server send: " + res.encode_header());
     session_socket_->sendTextMessage(res.encode_header());
 }
 
 void kk_session::handleRequest(QString message) {
     qDebug() << "Client send:" << message;
-    log.kk_WriteFile("log","Client send: " + message);
+    filesys_->kk_WriteFile("log","Client send: " + message);
     if (session_socket_){
         kk_payload req(message);
         req.decode_header();
         if(req.type() == "login") {
             QStringList _body = req.body().split("_");
             nick_ = _body[0];
-            log.kk_WriteFile("log","Client info (\""+nick_+"\" "
+            filesys_->kk_WriteFile("log","Client info (\""+nick_+"\" "
                                               +session_socket_->peerAddress().toString()+":"
                                               +QString::number(session_socket_->peerPort())+")" );
             kk_task *mytask = new kk_task([=]() {
-                //                bool result = db_->db_login(_body[0],_body[1]);
-                //                if(result) {
-                //                    QStringList q=db_->db_getUserFile(_body[0]);
-                //                    QString message ="";
-                //                    std::for_each(q.begin(), q.end(), [&](QString msg){
-                //                        message += msg + "_";
-                //                    });
-                //                    this->sendResponse("login","ok", message);
-                //                } else {
-                //                    this->sendResponse("login","ko","Invalid credentials");
-                //                }
-                this->sendResponse("login","ok", "message");
+               bool result = db_->db_login(_body[0],_body[1]);
+                if(result) {
+                    QStringList q=db_->db_getUserFile(_body[0]);
+                    QString message ="";
+                    std::for_each(q.begin(), q.end(), [&](QString msg){
+                        message += msg + "_";
+                    });
+                    this->sendResponse("login","ok", message);
+                } else {
+                    this->sendResponse("login","ko","Invalid credentials");
+                }
+//                this->sendResponse("login","ok", "message");
             });
 
             mytask->setAutoDelete(true);
@@ -96,29 +95,38 @@ void kk_session::handleRequest(QString message) {
             QThreadPool::globalInstance()->start(mytask);
         } else if(req.type() == "openfile") {
             QString fileName = req.body();
+            QString completeFileName = fileName;
             QString message;
             QString result = "ok";
-            auto search = files_.get()->find(fileName);
+            auto search = files_.get()->find(completeFileName);
             if (search != files_.get()->end()) {
+                filesys_->kk_OpenFile(nick_, completeFileName); //sto aprendo un file condiviso/privato
                 // il file era già aperto ed è nella mappa globale
-                actual_file_ = files_.get()->value(fileName);
+                actual_file_ = files_.get()->value(completeFileName);
                 actual_file_->join(sharedFromThis());
                 message = "file esistente, sei stato aggiunto correttamente";
             } else {
                 // Apro il file. Con i dovuti controlli
                 // TODO: fare query per inserire file
-                actual_file_ = QSharedPointer<kk_file>(new kk_file());
-                actual_file_->join(sharedFromThis());
-                files_.get()->insert(fileName, actual_file_);
-                auto search = files_.get()->find(fileName);
-                if (search != files_.get()->end()) {
-                    qDebug() << "file creato, sei stato aggiunto correttamente";
-                    message = "file creato, sei stato aggiunto correttamente";
+                completeFileName = filesys_->kk_CreateFile(nick_, fileName); //sto creando un file condiviso/privato
+                if(completeFileName != "ERR_CREATEFILE") {
+                    actual_file_ = QSharedPointer<kk_file>(new kk_file());
+                    actual_file_->join(sharedFromThis());
+                    files_.get()->insert(completeFileName, actual_file_);
+                    auto search = files_.get()->find(completeFileName);
+                    if (search != files_.get()->end()) {
+                        filesys_->kk_OpenFile(nick_, completeFileName); //sto aprendo un file condiviso/privato
+                        message = "file creato, sei stato aggiunto correttamente";
+                    } else {
+                        message = "non è stato possibile creare il file";
+                        result = "ko";
+                    }
                 } else {
                     message = "non è stato possibile creare il file";
                     result = "ko";
                 }
             }
+            filesys_->kk_WriteFile("log", completeFileName + ": " + message);
             //mando al client la risposta della request.
             sendResponse("openfile", result, message);
             if(result == "ok") {
@@ -154,7 +162,7 @@ void kk_session::handleBinaryRequests(QByteArray message)
 void kk_session::handleDisconnection()
 {
     qDebug() << "Client disconnected";
-    log.kk_WriteFile("log","Client ( \""+session_socket_->peerName()+"\" "
+    filesys_->kk_WriteFile("log","Client ( \""+session_socket_->peerName()+"\" "
                                       +session_socket_->peerAddress().toString()+":"
                                       +QString::number(session_socket_->peerPort())+" ) disconnected");
 

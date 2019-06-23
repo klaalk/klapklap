@@ -25,6 +25,7 @@
 
 #include "../login/login.h"
 #include "../chat/chatdialog.h"
+#include "../openfile/openfiledialog.h"
 #include "../textedit/textedit.h"
 
 
@@ -59,6 +60,7 @@ private:
     LoginWindow login_;
     TextEdit editor_;
     ChatDialog chat_;
+    OpenFileDialog openFile_;
     kk_crdt* crdt_;
     QByteArray bufferCrdt_;
     std::mutex mtxCrdt_;

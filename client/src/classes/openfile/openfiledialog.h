@@ -23,8 +23,7 @@ public:
 
 private slots:
     void on_listWidget_itemClicked(QListWidgetItem *item);
-
-    void on_buttonBox_clicked(QAbstractButton *button);
+    void on_openBtn_clicked();
 
 private:
     Ui::OpenFileDialog *ui;

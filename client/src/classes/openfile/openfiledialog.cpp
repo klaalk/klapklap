@@ -14,7 +14,7 @@ OpenFileDialog::~OpenFileDialog()
 }
 
 void OpenFileDialog::addFile(QString fileName) {
-    QStringList splittedName = fileName.split("&");
+    QStringList splittedName = fileName.split("@");
     files_.insert(splittedName[2], fileName);
     ui->listWidget->addItem(splittedName[2]);
 }
@@ -27,11 +27,12 @@ void OpenFileDialog::on_listWidget_itemClicked(QListWidgetItem *item)
     ui->lineEdit->setText(txt);
 }
 
-void OpenFileDialog::on_buttonBox_clicked(QAbstractButton *button)
+void OpenFileDialog::on_openBtn_clicked()
 {
     QString completeFileName = files_.value(selectedFile);
     if(selectedFile == "") {
-
+        completeFileName=ui->lineEdit->text();
     }
     emit openFileRequest(completeFileName);
 }
+

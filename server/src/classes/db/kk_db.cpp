@@ -252,8 +252,6 @@ QStringList  kk_db::db_getUserFile(QString username){
 
 
 bool kk_db::db_exist_user(QString username) {
-    int errCode = 0;
-
     if(!db.open()) {
         qDebug("DB not opened");
         return -1;
@@ -271,6 +269,5 @@ bool kk_db::db_exist_user(QString username) {
         db.close();
         return false;
     }
-    return errCode;
 }
 
