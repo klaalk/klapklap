@@ -662,6 +662,12 @@ void TextEdit::cursorPositionChanged()
     QTextCursor cursor = textEdit->textCursor();
     QString text = cursor.selectedText();
 
+    if(textEdit->textCursor().selectedText().size()!=0){
+        isTextSelected = true;
+    }else {
+        isTextSelected=false;
+}
+
     if(cursor.selectionStart()<cursor.selectionEnd()){
         this->selection_end=cursor.selectionEnd();
         this->selection_start=cursor.selectionStart();
@@ -858,9 +864,13 @@ void TextEdit::onTextChange() {
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
 //        qDebug()<<"LASTTEXT:"<< lastText <<"\n";
-//        diffText=lastText.mid(cursorPos, lastLength - s.length());
 //        qDebug()<<"stringa di differenza:"<< diffText <<"\n";
-        emit removeTextFromCRDT(0, this->selection_start, 0, this->selection_end);
+        if(isTextSelected){
+          emit removeTextFromCRDT(0, this->selection_start, 0, this->selection_end);}
+        else{
+             diffText=lastText.mid(cursorPos, lastLength - s.length());
+             emit removeTextFromCRDT(0, cursorPos, 0, lastCursorPos );
+        }
 
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
