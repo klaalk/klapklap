@@ -65,6 +65,7 @@ public:
     vector<kk_identifier_ptr> slice(vector<kk_identifier_ptr> const &v,int i);//FORSE DA TOGLIERE
     void print();
     unsigned long generate_global_pos(kk_pos pos);
+    void calculate_Line_Col(unsigned long global_pos,unsigned long *line,unsigned long *col);
 };
 
 
