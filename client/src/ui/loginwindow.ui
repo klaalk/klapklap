@@ -67,6 +67,9 @@
          <pointsize>10</pointsize>
         </font>
        </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
       </widget>
      </item>
      <item>
@@ -246,6 +249,9 @@
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
            </property>
           </widget>
          </item>
