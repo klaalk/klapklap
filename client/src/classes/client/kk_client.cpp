@@ -71,7 +71,7 @@ void kk_client::handleResponse(QString message) {
        chat_.show();
        chat_.setNickName(email_);
        connect(&chat_, &ChatDialog::sendMessageEvent, this, &kk_client::sendMessageRequest);
-    } else if(res.type() == "crdt" && res.result_type() == "ok") {
+    } else if(res.type() == "crdt" && res.result_type() == "ok"){
         QStringList bodyList_ = res.body().split("_");
         kk_char_ptr char_ = kk_char_ptr(new kk_char(*bodyList_[2].toLatin1().data(), bodyList_[1].toStdString()));
 

@@ -62,7 +62,7 @@ TextEdit::TextEdit(QWidget *parent)
 
     this->setMouseTracking(true);
     textEdit = new QTextEdit(this);
-
+//Collega funzioni nostre a funzioni di QTextEdit
     connect(textEdit, &QTextEdit::currentCharFormatChanged,
             this, &TextEdit::currentCharFormatChanged);
     connect(textEdit, &QTextEdit::cursorPositionChanged,
@@ -659,13 +659,22 @@ void TextEdit::cursorPositionChanged()
     alignmentChanged(textEdit->alignment());
 
     QTextList *list = textEdit->textCursor().currentList();
-    QTextCursor  cursor = textEdit->textCursor();
+    QTextCursor cursor = textEdit->textCursor();
     QString text = cursor.selectedText();
+
+    if(cursor.selectionStart()<cursor.selectionEnd()){
+        this->selection_end=cursor.selectionEnd();
+        this->selection_start=cursor.selectionStart();
+    }else if(cursor.selectionStart()>cursor.selectionEnd()){
+        this->selection_end=cursor.selectionStart();
+        this->selection_start=cursor.selectionEnd();
+    }
 
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
     qDebug() << "last: " << lastCursorPos << "cur: " << cursorPos;
     qDebug() << "selected:" << text;
+
     if (list) {
         switch (list->format().style()) {
             case QTextListFormat::ListDisc:
@@ -842,20 +851,32 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
 void TextEdit::onTextChange() {
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
-    QString s = textEdit->toPlainText();
+
+    QString s = textEdit->toPlainText();//prende testo che sta scritto e lo mette in stringa
+    qDebug()<<"PLAIN TEXT"<< s<<"\n";
+
     if(lastLength - s.length() >= 1) {
         //cancellato 1 o più
-        diffText=lastText.mid(cursorPos, lastLength - s.length());
-        emit removeTextFromCRDT(0, cursorPos, 0, cursorPos + diffText.length());
+//        qDebug()<<"LASTTEXT:"<< lastText <<"\n";
+//        diffText=lastText.mid(cursorPos, lastLength - s.length());
+//        qDebug()<<"stringa di differenza:"<< diffText <<"\n";
+        emit removeTextFromCRDT(0, this->selection_start, 0, this->selection_end);
+
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
-       diffText=s.mid(lastCursorPos, s.length() - lastLength);
+       diffText=s.mid(lastCursorPos, s.length() - lastLength);//salva in diff text le cose nuove scritte
+
+       qDebug()<<"stringa di differenza:"<< diffText <<"\n";
        emit insertTextToCRDT(diffText, 0, lastCursorPos);
     }
+
     qDebug() << "\tDiff: " << diffText << "in " << cursorPos;
     //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
+
     QTextCursor editorCurs = textEdit->textCursor();
-    int curPos_ = editorCurs.position();
+
+    int curPos_ = editorCurs.position();//da la posizione x,y di coordinate sullo schermo del tuo cursore
+
     for(kk_cursor* c : cursors_.values()) {
         if(c->getGlobalPositon()>=editorCurs.position()){
             if(s.length() - lastLength >= 1) {
@@ -863,6 +884,7 @@ void TextEdit::onTextChange() {
             } else if(lastLength - s.length() >= 1) {
                  c->setGlobalPositon(c->getGlobalPositon()-diffText.length());
             }
+
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
         }

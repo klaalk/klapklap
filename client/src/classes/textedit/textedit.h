@@ -24,6 +24,8 @@ class kk_cursor{
 private:
     int globalPositon=0;
     int fontSize=0;
+
+
     QString backgorundColor;
 
     QLabel* name;
@@ -78,6 +80,22 @@ public:
     void setGlobalPositon(int position) {
         this->globalPositon = position;
     }
+   // DA TOGLIERE
+//    int getSelectionStart(){
+//        return this->selection_start;
+//      }
+
+//    int getSelectionEnd(){
+//        return this->selection_end;
+//      }
+
+//    void setSelectionStart(int start){
+//        this->selection_start=start;
+//      }
+
+//    void setSelectionEnd(int end){
+//        this->selection_end=end;
+//      }
 };
 
 class TextEdit : public QMainWindow
@@ -157,6 +175,8 @@ private:
     bool blockCursor = false;
     bool isTextSelected = false;
     int lastLength = 0, cursorPos=0, lastCursorPos=0, fontSize=0;
+    int selection_start=0;
+    int selection_end=0;
     QMap <QString,kk_cursor*> cursors_;
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
