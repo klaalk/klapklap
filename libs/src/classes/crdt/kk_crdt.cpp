@@ -218,10 +218,17 @@ void kk_crdt::insert_char(kk_char_ptr _char, kk_pos pos) {
 
 kk_pos kk_crdt::remote_insert(kk_char_ptr _char){
     unsigned long global_pos;
+
     kk_pos pos = find_insert_position(_char);
     insert_char(_char, pos);
     global_pos= generate_global_pos(pos);
-    std::cout<<"GB:" <<global_pos<<std::endl;
+//    std::cout<<"GB:" <<global_pos<<std::endl;
+//    unsigned long line;
+//    unsigned long col;
+//    calculate_Line_Col(global_pos,&line,&col);
+//    std::cout<<"kk_line: " <<pos.get_line()<<"    kk_col: " <<pos.get_ch()<<std::endl;
+//    std::cout<<"line: " <<line<<"    col: " <<col<<std::endl;
+
     return pos;
 }
 
@@ -568,7 +575,26 @@ void kk_crdt::calculate_Line_Col(unsigned long global_pos,unsigned long *line,un
  }
 
 
+void kk_crdt::calculate_Line_Col(unsigned long global_pos,unsigned long *line,unsigned long *col){
+    unsigned long tot=0,succ=0;
 
+    if(global_pos==0){
+        *line=0;
+        *col=0;
+        return;
+    }
+
+    for(unsigned long i=0;i<text.size();i++){
+         succ+=text[i].size();
+         if(global_pos<=succ){ //linea trovata
+             *line=i;
+             *col=global_pos-tot;
+             return;
+         }
+         tot+=text[i].size();
+    }
+
+ }
 
 
 
