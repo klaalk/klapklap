@@ -36,7 +36,7 @@ private:
     QList<kk_session_ptr> sessions_;
     map_files_ptr files_;
     kk_db_ptr db_;
-    kk_filesys log;
+    kk_filesys_ptr filesys_;
 };
 
 #endif //KK_SERVER_H

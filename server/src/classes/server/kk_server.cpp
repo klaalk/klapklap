@@ -17,7 +17,7 @@ kk_server::kk_server(quint16 port, QObject *parent):
     server_socket_ = new QWebSocketServer(QStringLiteral("SSL Echo Server"),
                                           QWebSocketServer::SecureMode,
                                           this);
-    log.kk_CreateFile("root","log");
+
     QSslConfiguration sslConfiguration;
     QFile certFile(QStringLiteral(":/localhost.cert"));
     QFile keyFile(QStringLiteral(":/localhost.key"));
@@ -39,10 +39,17 @@ kk_server::kk_server(quint16 port, QObject *parent):
 
     files_ = QSharedPointer<QMap<QString, kk_file_ptr>>(new QMap<QString, kk_file_ptr>());
     db_ = QSharedPointer<kk_db>(new kk_db());
+    filesys_ = QSharedPointer<kk_filesys>(new kk_filesys(db_));
 
+    QString run_info="";
+    run_info = "RUNNING (Version:" +  QString::number(VERSION_MAJOR) +  "." + QString::number(VERSION_MINOR) + " Build: "
+            + QString::number(VERSION_BUILD)+")";
+    filesys_->kk_CreateFile("root","log");
+    filesys_->kk_WriteFile("log",run_info);
+    qDebug() << run_info;
     if (server_socket_->listen(QHostAddress::Any, port)) {
         qDebug() << "SSL Server listening on port" << port;
-        log.kk_WriteFile("log","SSL Server listening on port " + QString::number(port));
+        filesys_->kk_WriteFile("log","SSL Server listening on port " + QString::number(port));
         connect(server_socket_, &QWebSocketServer::newConnection, this,&kk_server::onNewConnection);
         connect(server_socket_, &QWebSocketServer::sslErrors, this, &kk_server::onSslErrors);
     }
@@ -68,7 +75,7 @@ kk_server::~kk_server()
 
 void kk_server::onNewConnection() {
     QWebSocket *pSocket = server_socket_->nextPendingConnection();
-    kk_session_ptr client = QSharedPointer<kk_session>(new kk_session(db_, files_, this));
+    kk_session_ptr client = QSharedPointer<kk_session>(new kk_session(db_, filesys_, files_, this));
     client->setSocket(pSocket);
     sessions_ << client;
     clients_ << pSocket;
@@ -77,5 +84,5 @@ void kk_server::onNewConnection() {
 void kk_server::onSslErrors(const QList<QSslError> &)
 {
     qDebug() << "Ssl errors occurred";
-    log.kk_WriteFile("log","SSL errors occurred");
+    filesys_->kk_WriteFile("log","SSL errors occurred");
 }

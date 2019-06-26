@@ -51,6 +51,7 @@ void kk_client::handleOpenedConnection() {
     connect(&socket_, &QWebSocket::textMessageReceived, this, &kk_client::handleResponse);
     connect(&login_, &LoginWindow::loginBtnClicked, this, &kk_client::sendLoginRequest);
     connect(&login_, &LoginWindow::signupBtnClicked, this, &kk_client::sendSignupRequest);
+    connect(&openFile_, &OpenFileDialog::openFileRequest, this, &kk_client::sendOpenFileRequest);
     login_.show();
 }
 
@@ -60,13 +61,17 @@ void kk_client::handleResponse(QString message) {
     res.decode_header();
     if(res.type() == "login" && res.result_type() == "ok") {
        login_.hide();
-       //TODO: aprire la window che gestisce i file.
-       // ma per il momento faccio l'apertura automatica del file.
-       sendOpenFileRequest("file1");
+        QStringList files = res.body().split("_");
+        for(QString s : files) {
+            if(s!="")
+                openFile_.addFile(s);
+        }
+       openFile_.show();
     } else if(res.type() == "openfile" && res.result_type() == "ok") {
        crdt_ = new kk_crdt(email_.toStdString(), casuale);
        connect(&editor_, &TextEdit::insertTextToCRDT, this, &kk_client::onInsertTextCRDT);
        connect(&editor_, &TextEdit::removeTextFromCRDT, this, &kk_client::onRemoveTextCRDT);
+       openFile_.hide();
        editor_.show();
        chat_.show();
        chat_.setNickName(email_);
