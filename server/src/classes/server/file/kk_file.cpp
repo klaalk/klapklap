@@ -27,7 +27,7 @@ void KKFile::deliver(QString type, QString result, QString message, QString myNi
     KKPayloadPtr data = QSharedPointer<KKPayload>(new KKPayload(type,result, message));
     recentMessages->push_back(data);
 
-    while (recentMessages->size() > max_recent_msgs)
+    while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
 
     std::for_each(participants.begin(), participants.end(),[&](QSharedPointer<KKParticipant> p){
