@@ -37,6 +37,13 @@ public slots:
     void handleBinaryRequests(QByteArray message);
     void handleDisconnection();
 private:
+    void handleLoginRequest(KKPayload request);
+    void handleSignupRequest(KKPayload request);
+    void handleOpenFileRequest(KKPayload request);
+    void handleShareFileRequest(KKPayload request);
+    void handleChatRequest(KKPayload request);
+    void handleCrdtRequest(KKPayload request);
+
     QWebSocket*  socket;
     kk_db_ptr db;
     KKMapFilePtr files;

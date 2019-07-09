@@ -14,9 +14,7 @@ QT_USE_NAMESPACE
 
 KKServer::KKServer(quint16 port, QObject *parent):
     QObject(parent), socket(nullptr) {
-    socket = new QWebSocketServer(QStringLiteral("SSL Echo Server"),
-                                          QWebSocketServer::SecureMode,
-                                          this);
+    socket = new QWebSocketServer(QStringLiteral("SSL Echo Server"), QWebSocketServer::SecureMode, this);
 
     QSslConfiguration sslConfiguration;
     QFile certFile(QStringLiteral(":/localhost.cert"));

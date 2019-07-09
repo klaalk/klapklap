@@ -32,7 +32,7 @@ public:
 private:
     std::set<QSharedPointer<KKParticipant>> participants;
     enum {
-        max_recent_msgs = 100
+        MaxRecentMessages = 100
     };
     KKVectorPayloadPtr recentMessages;
 };

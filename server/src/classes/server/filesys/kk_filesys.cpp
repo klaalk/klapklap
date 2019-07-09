@@ -53,7 +53,7 @@ bool KKFileSystem::openFile(QString username, QString filename){
         return true;
 
     //    sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
-    return db->insertUserFile(username,filename,"./"+filename) == 0 ? true:false;
+    return db->insertUserFile(username, filename, "./" + filename) == 0 ? true:false;
 }
 
 bool KKFileSystem::sendFile(QString filename){
