@@ -866,10 +866,11 @@ void TextEdit::onTextChange() {
 //        qDebug()<<"LASTTEXT:"<< lastText <<"\n";
 //        qDebug()<<"stringa di differenza:"<< diffText <<"\n";
         if(isTextSelected){
-          emit removeTextFromCRDT( this->selection_start, this->selection_end);}
+          emit removeTextFromCRDT( this->selection_start, this->selection_end);
+        }
         else{
              diffText=lastText.mid(cursorPos, lastLength - s.length());
-             emit removeTextFromCRDT(cursorPos, lastCursorPos );
+             emit removeTextFromCRDT(cursorPos, lastCursorPos);
         }
 
     } else if(s.length() - lastLength >= 1) {
@@ -877,7 +878,7 @@ void TextEdit::onTextChange() {
        diffText=s.mid(lastCursorPos, s.length() - lastLength);//salva in diff text le cose nuove scritte
 
        qDebug()<<"stringa di differenza:"<< diffText <<"\n";
-       emit insertTextToCRDT(diffText,  lastCursorPos);
+       emit insertTextToCRDT(diffText, lastCursorPos);
     }
 
     qDebug() << "\tDiff: " << diffText << "in " << cursorPos;

@@ -542,18 +542,17 @@ unsigned long kk_crdt::find_index_in_line(kk_char_ptr _Char, list<kk_char_ptr> l
 }
 
 unsigned long kk_crdt::generate_global_pos(kk_pos pos){
-
-
     unsigned long global_pos=0;
 
     for (unsigned long i=0; i <  pos.get_line(); i++) {
          global_pos = global_pos + text[i].size();
-         };
-    global_pos=global_pos+ pos.get_ch();
+    };
+
+    global_pos = global_pos + pos.get_ch();
     return global_pos;
-   }
+}
 
-void kk_crdt::calculate_Line_Col(unsigned long global_pos,unsigned long *line,unsigned long *col){
+void kk_crdt::calculate_Line_Col(unsigned long global_pos, unsigned long *line, unsigned long *col){
     unsigned long tot=0,succ=0;
 
     if(global_pos==0){
@@ -572,29 +571,7 @@ void kk_crdt::calculate_Line_Col(unsigned long global_pos,unsigned long *line,un
          tot+=text[i].size();
     }
 
- }
-
-
-void kk_crdt::calculate_Line_Col(unsigned long global_pos,unsigned long *line,unsigned long *col){
-    unsigned long tot=0,succ=0;
-
-    if(global_pos==0){
-        *line=0;
-        *col=0;
-        return;
-    }
-
-    for(unsigned long i=0;i<text.size();i++){
-         succ+=text[i].size();
-         if(global_pos<=succ){ //linea trovata
-             *line=i;
-             *col=global_pos-tot;
-             return;
-         }
-         tot+=text[i].size();
-    }
-
- }
+}
 
 
 

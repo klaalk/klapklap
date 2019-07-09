@@ -110,8 +110,8 @@ public:
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
 signals:
-    void insertTextToCRDT(QString text, int line, int col);
-    void removeTextFromCRDT(int startLine, int startCol, int endLine, int endCol);
+    void insertTextToCRDT(QString text, int position);
+    void removeTextFromCRDT(int start, int end);
 
 public slots:
     void fileNew();

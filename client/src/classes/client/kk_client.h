@@ -50,8 +50,8 @@ private slots:
     void sendCrdtRequest(QString crdtType, QString crdt);
     void sendMessageRequest(QString message);
 
-    void onInsertTextCRDT(QString diffText, int line, int col);
-   void onRemoveTextCRDT(int startLine, int startCol, int endLine, int endCol);
+    void onInsertTextCRDT(QString diffText, int position);
+   void onRemoveTextCRDT(int start, int end);
 
 private:
     void sendRequest(QString type, QString result, QString body);

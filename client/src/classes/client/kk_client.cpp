@@ -117,13 +117,15 @@ void kk_client::handleClosedConnection() {
     qApp->quit();
 }
 
-void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
+void kk_client::onInsertTextCRDT(QString diffText, int position) {
 //    std::thread t([=](){
 //        mtxCrdt_.lock();
         QByteArray ba = diffText.toLocal8Bit();
         char *c_str = ba.data();
+        unsigned long line, col;
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
-            kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(line, static_cast<unsigned long>(col + i)));
+            crdt_->calculate_Line_Col(position + i, &line, &col);
+            kk_char_ptr char_= crdt_->local_insert(*c_str, kk_pos(line, col));
             crdt_->print();
             QString ids = QString::fromStdString(char_->get_identifiers_string());
             sendCrdtRequest("insert", QString::fromStdString(char_->get_siteId())+ "_" + QString(char_->get_value())+ ids);
@@ -133,15 +135,13 @@ void kk_client::onInsertTextCRDT(QString diffText, int line, int col) {
 //    t.detach();
 }
 
-void kk_client::onRemoveTextCRDT(int start,int end) {
+void kk_client::onRemoveTextCRDT(int start, int end) {
     unsigned long startLine,endLine,startCol,endCol;
-    crdt_->calculate_Line_Col(start,&startLine,&startCol);
-    crdt_->calculate_Line_Col(end,&endLine,&endCol);
+    crdt_->calculate_Line_Col(start, &startLine, &startCol);
+    crdt_->calculate_Line_Col(end, &endLine, &endCol);
 //    std::thread t([=](){
 //        mtxCrdt_.lock();
-//        qDebug() << startLine << " " << startCol << " - " << endLine << " " << endCol;
-      
-    
+//        qDebug() << startLine << " " << startCol << " - " << endLine << " " << endCol;   
         list<kk_char_ptr> deletedChars = crdt_->local_delete(kk_pos(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                             kk_pos(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
         crdt_->print();
