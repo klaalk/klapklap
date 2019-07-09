@@ -4,37 +4,37 @@
 
 #include "kk_payload.h"
 
-kk_payload::kk_payload(QString data)
-    : data_(data) {
+KKPayload::KKPayload(QString data)
+    : data(data) {
 }
 
 
-kk_payload::kk_payload(QString type, QString result, QString message)
-    : msg_(message), type_(type), result_(result), body_length_(message.size()) {
+KKPayload::KKPayload(QString type, QString result, QString message)
+    : msg(message), type(type), result(result), bodyLength(message.size()) {
 }
 
-QString kk_payload::body(){
-    return msg_;
+QString KKPayload::getBody(){
+    return msg;
 }
 
-QString kk_payload::type() {
-    return type_;
+QString KKPayload::getType() {
+    return type;
 }
 
-QString kk_payload::result_type() {
-    return result_;
+QString KKPayload::getResultType() {
+    return result;
 }
 
-QString kk_payload::decode_header() {
-    QStringList list = data_.split("-");
+QString KKPayload::decodeHeader() {
+    QStringList list = data.split("-");
 
-    type_ = list.at(0);
-    result_ = list.at(1);
-    msg_ = list.at(2);
+    type = list.at(0);
+    result = list.at(1);
+    msg = list.at(2);
 
-    return type_;
+    return type;
 }
 
-QString kk_payload::encode_header() {
-    return data_= type_ + "-" + result_ + "-" + msg_;
+QString KKPayload::encodeHeader() {
+    return data= type + "-" + result + "-" + msg;
 }

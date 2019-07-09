@@ -9,11 +9,10 @@
 #include <QString>
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 
-class kk_participant {
+class KKParticipant {
 public:
-    QString nick_="Unknowns";
-    virtual ~kk_participant(){}
-    virtual void deliver(kk_payload_ptr msg) = 0;
+    QString id = "Unknown";
+    virtual void deliver(KKPayloadPtr msg) = 0;
 };
 
 #endif //KK_PARTECIPANT_H

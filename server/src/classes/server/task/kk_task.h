@@ -18,17 +18,17 @@
 // But we need them.
 
 // Thus, we should use multiple inheritance: QObject inserted here
-class kk_task : public QObject, public QRunnable
+class KKTask : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    kk_task(std::function<void ()> f_taks);
+    KKTask(std::function<void ()> f_taks);
 signals:
 
 protected:
     void run();
 private:
-    std::function<void()> taskFunc_;
+    std::function<void()> function;
 };
 
 #endif // KKTASK_H

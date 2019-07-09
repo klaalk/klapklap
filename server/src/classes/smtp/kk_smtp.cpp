@@ -8,7 +8,7 @@
 #define KK_NAME "KlapKlap Soft"
 #define KK_PSW "Progetto2019"
 
-bool kk_smtp::QSMTP_send_message(QString message, QString dest_name, QString dest_mail, QString subject) {
+bool KKSmtp::sendMessage(QString message, QString dest_name, QString dest_mail, QString subject) {
     SmtpClient smtp("smtp.gmail.com", 465, SmtpClient::SslConnection);
     smtp.setUser(KK_MAIL);
     smtp.setPassword(KK_PSW);
@@ -31,7 +31,7 @@ bool kk_smtp::QSMTP_send_message(QString message, QString dest_name, QString des
     return ret_val;
 }
 
-QString kk_smtp::QSMTP_message_builder(QString header, QString username, QString message, QString button_text,
+QString KKSmtp::messageBuilder(QString header, QString username, QString message, QString button_text,
                                        QString button_action) {
 
     return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"

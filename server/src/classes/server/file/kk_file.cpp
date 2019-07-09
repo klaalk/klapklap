@@ -4,39 +4,39 @@
 
 #include "kk_file.h"
 
-kk_file::kk_file(){
-    recent_msgs_ = QSharedPointer<QVector<kk_payload_ptr>>(new QVector<kk_payload_ptr>());
+KKFile::KKFile(){
+    recentMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
 }
 
-kk_file::~kk_file() {
-    std::for_each(recent_msgs_->begin(), recent_msgs_->end(), [](kk_payload_ptr d){
+KKFile::~KKFile() {
+    std::for_each(recentMessages->begin(), recentMessages->end(), [](KKPayloadPtr d){
         delete d.get();
     });
 
-    delete recent_msgs_.get();
+    delete recentMessages.get();
 }
-void kk_file::join(QSharedPointer<kk_participant> participant) {
-    participants_.insert(participant);
-}
-
-void kk_file::leave(QSharedPointer<kk_participant> participant) {
-    participants_.erase(participant);
+void KKFile::join(QSharedPointer<KKParticipant> participant) {
+    participants.insert(participant);
 }
 
-void kk_file::deliver(QString type, QString result, QString message, QString myNick) {
-    kk_payload_ptr data = QSharedPointer<kk_payload>(new kk_payload(type,result, message));
-    recent_msgs_->push_back(data);
+void KKFile::leave(QSharedPointer<KKParticipant> participant) {
+    participants.erase(participant);
+}
 
-    while (recent_msgs_->size() > max_recent_msgs)
-        recent_msgs_->pop_front();
+void KKFile::deliver(QString type, QString result, QString message, QString myNick) {
+    KKPayloadPtr data = QSharedPointer<KKPayload>(new KKPayload(type,result, message));
+    recentMessages->push_back(data);
 
-    std::for_each(participants_.begin(), participants_.end(),[&](QSharedPointer<kk_participant> p){
-        if(p->nick_ != myNick) {
+    while (recentMessages->size() > max_recent_msgs)
+        recentMessages->pop_front();
+
+    std::for_each(participants.begin(), participants.end(),[&](QSharedPointer<KKParticipant> p){
+        if(p->id != myNick) {
             p->deliver(data);
         }
     });
 }
 
-queue_payload_ptr kk_file::getRecentMessages() {
-    return recent_msgs_;
+KKVectorPayloadPtr KKFile::getRecentMessages() {
+    return recentMessages;
 }

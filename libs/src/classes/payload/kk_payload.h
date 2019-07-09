@@ -11,35 +11,34 @@
 #include <QVector>
 #include "../../constants/kk_constants.h"
 
-class kk_payload {
+class KKPayload {
 public:
     enum {
         max_body_length = 512
     };
 
     /// Costruttuore.
-    kk_payload(QString data);
-    kk_payload(QString type, QString result, QString message);
+    KKPayload(QString data);
+    KKPayload(QString type, QString result, QString message);
 
-    QString body();
+    QString getBody();
 
-    QString type();
+    QString getType();
 
-    QString result_type();
+    QString getResultType();
 
-    QString decode_header();
+    QString decodeHeader();
 
-    QString encode_header();
+    QString encodeHeader();
 
 private:
-    QString data_;
-    QString msg_;
-    QString type_;
-    QString result_;
-
-    size_t body_length_;
+    QString data;
+    QString msg;
+    QString type;
+    QString result;
+    size_t bodyLength;
 };
 
-typedef QSharedPointer<kk_payload> kk_payload_ptr;
-typedef QSharedPointer<QVector<kk_payload_ptr>> queue_payload_ptr;
+typedef QSharedPointer<KKPayload> KKPayloadPtr;
+typedef QSharedPointer<QVector<KKPayloadPtr>> KKVectorPayloadPtr;
 #endif //CLIENT_CHAT_MESSAGE_H

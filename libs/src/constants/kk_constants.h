@@ -5,7 +5,7 @@
 #ifndef SERVER_KK_CONSTANTS_H
 #define SERVER_KK_CONSTANTS_H
 
-enum class kk_client_connection_state {
+enum class KKClientConnectionState {
     waiting,
     connected,
     not_connected,
@@ -14,12 +14,12 @@ enum class kk_client_connection_state {
     authentication_failed,
 };
 
-enum class kk_client_state {
+enum class KKClientState {
     file_closed,
     file_opened
 };
 
-enum class kk_payload_type {
+enum class KKPayloadType {
     error,
     login,
     logout,
@@ -29,7 +29,7 @@ enum class kk_payload_type {
     chat,
 };
 
-enum class kk_payload_result_type {
+enum class KKPayloadResultType {
     OK = 200,
     NOT_FOUND = 404,
     ERR_SIZE = 406,

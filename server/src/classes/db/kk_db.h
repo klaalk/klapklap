@@ -10,48 +10,48 @@
 #include <QtSql>
 #include <QSqlDatabase>
 
-typedef struct var user_info;
+typedef struct record UserInfo;
 
-
-class kk_db {
+class KKDataBase {
 private:
     QSqlDatabase db;
 public:
 
     ///Costruttore
-    explicit kk_db();
+    explicit KKDataBase();
+    ~KKDataBase();
 
     ///Generic query exec
     bool db_query(QString query);
 
 
     ///inserimento utente. Ritorna 0 successo, -1 username fault, -2 email fault.
-    int db_insert_user(QString username, QString password, QString email, QString name,
+    int insertUserInfo(QString username, QString password, QString email, QString name,
                        QString surname);
 
     ///inserimento utente. Ritorna 0 successo,
-    int db_insert_file(QString username, QString filename, QString path);
+    int insertUserFile(QString username, QString filename, QString path);
 
     ///inserimento permessi (share file). Ritorna 0 successo,
-    int db_share_file(QString username_from, QString username_to, QString filename);
+    int shareUserFile(QString username_from, QString username_to, QString filename);
 
-    user_info *db_getUserInfo(QString username);
+    UserInfo *getUserInfo(QString username);
 
-    bool db_login(QString username, QString password);
+    bool login(QString username, QString password);
 
     ///reset password ask. invia una mail con password temporanea
-    int db_reset_psw(QString username);
+    int resetPassword(QString username);
 
     ///reset password ask. cambia password
-    int db_update_psw(QString username, QString new_psw);
+    int updatePassword(QString username, QString new_psw);
 
     ///retorna la lista dei file a cui user ha accesso
-    QStringList db_getUserFile(QString username);
+    QStringList getUserFile(QString username);
 
     ///controlla l'esistenza di un utente
-    bool db_exist_user(QString username);
+    bool checkUserInfo(QString username);
 
 };
 
-typedef QSharedPointer<kk_db> kk_db_ptr;
+typedef QSharedPointer<KKDataBase> kk_db_ptr;
 #endif //SERVER_KK_DB_H

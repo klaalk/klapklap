@@ -22,21 +22,21 @@ QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
 
-class kk_server : public QObject {
+class KKServer : public QObject {
     Q_OBJECT
 public:
-    kk_server(quint16 port, QObject *parent = nullptr);
-    ~kk_server() override;
+    KKServer(quint16 port, QObject *parent = nullptr);
+    ~KKServer() override;
 private slots:
     void onNewConnection();
     void onSslErrors(const QList<QSslError> &errors);
 private:
-    QWebSocketServer* server_socket_;
-    QList<QWebSocket*> clients_;
-    QList<kk_session_ptr> sessions_;
-    map_files_ptr files_;
-    kk_db_ptr db_;
-    kk_filesys_ptr filesys_;
+    QWebSocketServer* socket;
+    QList<QWebSocket*> clients;
+    QList<KKSessionPtr> sessions;
+    KKMapFilePtr files;
+    kk_db_ptr db;
+    KKFileSystemPtr filesys;
 };
 
 #endif //KK_SERVER_H

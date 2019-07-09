@@ -13,27 +13,27 @@
 #include <QSharedPointer>
 #include <QWebSocket>
 #include <QFile>
-#define FILE_PATH "./filefolder/"
+
 #include "../../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../../db/kk_db.h"
 
-class kk_filesys {
+#define FILE_PATH "./filefolder/"
 
+class KKFileSystem {
 public:
-    kk_filesys(kk_db_ptr db): db(db){}
-    kk_filesys(){}
-    QString kk_CreateFile(QString username, QString filename);
-    bool kk_OpenFile(QString username, QString filename);
-    bool kk_SendFile(QString filename);
-    bool kk_WriteFile(QString filename, QString toPrint);
-    QString kk_ReadFile(QString filename);
-
+    KKFileSystem(kk_db_ptr db): db(db){}
+    KKFileSystem(){}
+    QString createFile(QString username, QString filename);
+    bool openFile(QString username, QString filename);
+    bool sendFile(QString filename);
+    bool writeFile(QString filename, QString toPrint);
+    QString readFile(QString filename);
 
 private:
     kk_db_ptr db;
-    QString log_name;
+    QString logFileName;
 };
 
-typedef QSharedPointer<kk_filesys> kk_filesys_ptr;
+typedef QSharedPointer<KKFileSystem> KKFileSystemPtr;
 
 #endif //KK_FILESYS_H

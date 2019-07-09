@@ -4,13 +4,13 @@
 
 #include "kk_filesys.h"
 
-QString kk_filesys::kk_CreateFile(QString username, QString filename){
+QString KKFileSystem::createFile(QString username, QString filename){
 
     if(username=="root" && filename == "log") {
         QString log_name = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
         QString command = "touch ./" + log_name;
         system(qPrintable(command));
-        this->log_name=log_name;
+        this->logFileName=log_name;
         return log_name;
     }
 
@@ -32,31 +32,31 @@ QString kk_filesys::kk_CreateFile(QString username, QString filename){
     system(qPrintable(command));
     //    system(qPrintable("ls -la | grep "+ _filename));
 
-    bool result = db->db_insert_file(username,_filename,"./"+_filename) == 0 ? true : false;
+    bool result = db->insertUserFile(username,_filename,"./"+_filename) == 0 ? true : false;
     if(result) {
         return _filename;
     }
     return "ERR_CREATEFILE";
 }
 
-bool kk_filesys::kk_OpenFile(QString username, QString filename){
+bool KKFileSystem::openFile(QString username, QString filename){
 
     SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
     // 0=random_jump, 1=crypted username 2=effective filename
     QStringList body = filename.split("@");
     QString _username=crypt.decryptToString(body[1]);
 
-    if (db->db_exist_user(_username)==false)
+    if (db->checkUserInfo(_username)==false)
         return false;
     //Gia presente nella tabella, avendo
     if(username==_username)
         return true;
 
     //    sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
-    return db->db_insert_file(username,filename,"./"+filename) == 0 ? true:false;
+    return db->insertUserFile(username,filename,"./"+filename) == 0 ? true:false;
 }
 
-bool kk_filesys::kk_SendFile(QString filename){
+bool KKFileSystem::sendFile(QString filename){
 
     QFile file(filename);
     file.open(QFile::ReadOnly);
@@ -77,9 +77,9 @@ bool kk_filesys::kk_SendFile(QString filename){
 // SendFile prene il file e lo invia sulla sock che usiamo per comunicare
 // con header "file_response" e payload "<binary file content>"
 
-bool kk_filesys::kk_WriteFile(QString filename, QString toPrint){
+bool KKFileSystem::writeFile(QString filename, QString toPrint){
     if(filename=="log"){
-        filename=this->log_name;
+        filename=this->logFileName;
         toPrint.insert(0,QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
     }
     QFile file(filename);
@@ -94,7 +94,7 @@ bool kk_filesys::kk_WriteFile(QString filename, QString toPrint){
 }
 
 
-QString kk_filesys::kk_ReadFile(QString filename){
+QString KKFileSystem::readFile(QString filename){
     QString text;
     QFile file(filename);
     if(!file.open(QFile::ReadOnly)) {

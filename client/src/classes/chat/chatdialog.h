@@ -61,8 +61,8 @@ public:
     ChatDialog(QWidget *parent = 0);
     void setNickName(QString nick);
     void appendMessage(const QString &from, const QString &message);
-    void newParticipant(const QString &nick);
-    void participantLeft(const QString &nick);
+    void addParticipant(const QString &nick);
+    void removeParticipant(const QString &nick);
 signals:
     void sendMessageEvent(QString message);
 

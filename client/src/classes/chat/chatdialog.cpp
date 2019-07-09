@@ -67,9 +67,7 @@ ChatDialog::ChatDialog(QWidget *parent)
 
 void ChatDialog::setNickName(QString nick) {
     myNickName = nick;
-    newParticipant(myNickName);
     tableFormat.setBorder(0);
-    QTimer::singleShot(10 * 1000, this, SLOT(showInformation()));
 }
 
 void ChatDialog::appendMessage(const QString &from, const QString &message)
@@ -104,7 +102,7 @@ void ChatDialog::returnPressed()
     lineEdit->clear();
 }
 
-void ChatDialog::newParticipant(const QString &nick)
+void ChatDialog::addParticipant(const QString &nick)
 {
     if (nick.isEmpty())
         return;
@@ -116,13 +114,12 @@ void ChatDialog::newParticipant(const QString &nick)
     listWidget->addItem(nick);
 }
 
-void ChatDialog::participantLeft(const QString &nick)
+void ChatDialog::removeParticipant(const QString &nick)
 {
     if (nick.isEmpty())
         return;
 
-    QList<QListWidgetItem *> items = listWidget->findItems(nick,
-                                                           Qt::MatchExactly);
+    QList<QListWidgetItem *> items = listWidget->findItems(nick, Qt::MatchExactly);
     if (items.isEmpty())
         return;
 

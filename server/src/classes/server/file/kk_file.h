@@ -18,25 +18,25 @@
 #include "../participant/kk_participant.h"
 
 
-class kk_file {
+class KKFile {
 public:
-    kk_file();
-    ~kk_file();
-    void join(QSharedPointer<kk_participant> participant);
+    KKFile();
+    ~KKFile();
+    void join(QSharedPointer<KKParticipant> participant);
 
-    void leave(QSharedPointer<kk_participant> participant);
+    void leave(QSharedPointer<KKParticipant> participant);
 
     void deliver(QString type, QString result, QString message, QString myNick);
 
-    queue_payload_ptr getRecentMessages();
+    KKVectorPayloadPtr getRecentMessages();
 private:
-    std::set<QSharedPointer<kk_participant>> participants_;
+    std::set<QSharedPointer<KKParticipant>> participants;
     enum {
         max_recent_msgs = 100
     };
-    queue_payload_ptr recent_msgs_;
+    KKVectorPayloadPtr recentMessages;
 };
 
-typedef QSharedPointer<kk_file> kk_file_ptr;
-typedef QSharedPointer<QMap<QString, kk_file_ptr>> map_files_ptr;
+typedef QSharedPointer<KKFile> KKFilePtr;
+typedef QSharedPointer<QMap<QString, KKFilePtr>> KKMapFilePtr;
 #endif //KK_FILE_H

@@ -24,12 +24,12 @@
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
-class kk_session : public QObject, public kk_participant, public QEnableSharedFromThis<kk_session> {
+class KKSession : public QObject, public KKParticipant, public QEnableSharedFromThis<KKSession> {
     Q_OBJECT
 public:
-    kk_session(kk_db_ptr db, kk_filesys_ptr filesys,map_files_ptr files_, QObject *parent = 0);
-    ~kk_session();
-    void deliver(kk_payload_ptr msg);
+    KKSession(kk_db_ptr db, KKFileSystemPtr filesys, KKMapFilePtr files, QObject *parent = 0);
+    ~KKSession();
+    void deliver(KKPayloadPtr msg);
     void sendResponse(QString type, QString result, QString body);
     void setSocket(QWebSocket* Descriptor);
 public slots:
@@ -37,13 +37,13 @@ public slots:
     void handleBinaryRequests(QByteArray message);
     void handleDisconnection();
 private:
-    QWebSocket*  session_socket_;
-    kk_db_ptr db_;
-    map_files_ptr files_;
-    kk_file_ptr actual_file_;
-    kk_filesys_ptr filesys_;
+    QWebSocket*  socket;
+    kk_db_ptr db;
+    KKMapFilePtr files;
+    KKFilePtr file;
+    KKFileSystemPtr fileSystem;
 };
 
-typedef QSharedPointer<kk_session> kk_session_ptr;
+typedef QSharedPointer<KKSession> KKSessionPtr;
 
 #endif //KK_SESSION_H

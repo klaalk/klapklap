@@ -2,30 +2,28 @@
 // Created by jsnow on 11/05/19.
 //
 //
-
 #include "kk_db.h"
 #include <QtSql>
 #include <QDebug>
+
 #define  HOST "tcp://130.192.163.109:3000"
 #define  USR  "server"
 #define  DBN  "KLAPKLAP_DB"
 #define  PSW  "password" //TODO:change
 
-#define STD_Q(x) QString::fromStdString(x)
-
-struct var {
+struct record {
     QString id;
     QString name;
     QString surname;
     QString email;
     QString username;
     QString image; //cosa è questo? quanto fa questo?
-    QString reg_date;
+    QString registrationDate;
     QString password;
 
 };
 
-kk_db::kk_db(){
+KKDataBase::KKDataBase(){
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("130.192.163.109");
     db.setPort(3000);
@@ -34,13 +32,16 @@ kk_db::kk_db(){
     db.setDatabaseName(DBN);
 }
 
+KKDataBase::~KKDataBase(){
+    db.close();
+}
 
-user_info *kk_db::db_getUserInfo(QString username) {
+UserInfo *KKDataBase::getUserInfo(QString username) {
     if(!db.open()) {
         qDebug("DB not opened");
         return nullptr;
     }
-    auto userInfo = new user_info;
+    auto userInfo = new UserInfo;
     try {
         QSqlQuery res = db.exec(
                     "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`='" +
@@ -50,8 +51,8 @@ user_info *kk_db::db_getUserInfo(QString username) {
             userInfo->name = res.value(1).toString();
             userInfo->surname = res.value(2).toString();
             userInfo->email = res.value(3).toString();
-            //            userInfo->image = res.value(5).toString();
-            userInfo->reg_date = res.value(4).toString();
+//          userInfo->image = res.value(5).toString();
+            userInfo->registrationDate = res.value(4).toString();
             userInfo->password = res.value(5).toString();
         }
         db.close();
@@ -62,31 +63,26 @@ user_info *kk_db::db_getUserInfo(QString username) {
     }
 }
 
-int kk_db::db_insert_user(QString username, QString password ,QString email, QString name,
-                          QString surname) {
-    int errCode = 0;
-    QString _queryStr;
-    kk_smtp sender;
-    QString mex, dest_name = name + " " + surname;
-
-    _queryStr = "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) VALUES('" + username + "','" + password + "','" + email + "','" + name + "','" +
-            surname +
-            "');";
-
+int KKDataBase::insertUserInfo(QString username, QString password, QString email, QString name, QString surname) {
+    KKSmtp sender;
+    QString destName = name + " " + surname;
+    QString queryStr = "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) VALUES('" +
+            username + "','" + password + "','" + email + "','" + name + "','" + surname + "');";
     if(!db.open()) {
         qDebug("DB not opened");
         return -1;
     }
-
     try {
-        QSqlQuery res = db.exec(_queryStr);
-        mex = sender.QSMTP_message_builder("Welcome in KlapKlap Soft :)", dest_name,
-                                           username + " complete your registration now!",
-                                           "You are signed in!",
-                                           "http://www.facebook.it");
-        sender.QSMTP_send_message(mex, dest_name, email, "KlapKlap Registration");
+        QSqlQuery res = db.exec(queryStr);
+        QString mex = sender.messageBuilder("Welcome in KlapKlap Soft :)",
+                                    destName,
+                                    username + " complete your registration now!",
+                                    "You are signed in!",
+                                    "http://www.facebook.it"
+                                    );
+        sender.sendMessage(mex, destName, email, "KlapKlap Registration");
         db.close();
-        return true;
+        return 0;
     } catch (QException &e) {
         QString _str(e.what());
         db.close();
@@ -95,11 +91,11 @@ int kk_db::db_insert_user(QString username, QString password ,QString email, QSt
         else if (_str.contains("USERNAME"))
             return -2;
     }
-    return errCode;
+    return 0;
 }
 
-int kk_db::db_insert_file(QString username, QString filename, QString path) {
-    kk_smtp sender;
+int KKDataBase::insertUserFile(QString username, QString filename, QString path) {
+    KKSmtp sender;
     QString name, surname, email;
     QString _queryStr;
 
@@ -120,14 +116,12 @@ int kk_db::db_insert_file(QString username, QString filename, QString path) {
 
     QString mex, dest_name =name + " " + surname;
 
-    mex = sender.QSMTP_message_builder("New File added: " + filename, "Owner: " + dest_name,
-                                       username + "",
-                                       "Share now!", "http://www.facebook.it");
+    mex = sender.messageBuilder("New File added: " + filename, "Owner: " + dest_name, username + "", "Share now!", "http://www.facebook.it");
 
     try {
         db.exec(_queryStr);
         db.close();
-        sender.QSMTP_send_message(mex, dest_name, email, "KlapKlap File_Add");
+        sender.sendMessage(mex, dest_name, email, "KlapKlap File_Add");
     } catch (QException &e) {
         db.close();
         qDebug() << e.what();
@@ -136,18 +130,18 @@ int kk_db::db_insert_file(QString username, QString filename, QString path) {
     return 0;
 }
 
-int kk_db::db_share_file(QString username_from, QString username_to, QString filename) {
+int KKDataBase::shareUserFile(QString fromUser, QString toUser, QString filename) {
 
 
-    kk_smtp sender;
+    KKSmtp sender;
     QString mex;
     QString _queryStr;
-    auto user1 = new user_info;
-    auto user2 = new user_info;
+    auto user1 = new UserInfo;
+    auto user2 = new UserInfo;
 
 
-    user1 = db_getUserInfo(username_from);
-    user2 = db_getUserInfo(username_to);
+    user1 = getUserInfo(fromUser);
+    user2 = getUserInfo(toUser);
 
     //    controllo se non ho gia invitato l'user2
     if(!db.open()) {
@@ -162,7 +156,7 @@ int kk_db::db_share_file(QString username_from, QString username_to, QString fil
     _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) VALUES('" + user2->id + "','" + filename + "','./" + filename + "');";
 
 
-    mex = sender.QSMTP_message_builder("New file shared: " + filename, "",
+    mex = sender.messageBuilder("New file shared: " + filename, "",
                                        "Sender: " + user1->name + " " + user1->surname,
                                        "Open now!",
                                        "http://www.facebook.it");
@@ -170,7 +164,7 @@ int kk_db::db_share_file(QString username_from, QString username_to, QString fil
     try {
         db.exec(_queryStr);
         db.close();
-        sender.QSMTP_send_message(mex, user2->name + " " + user2->surname,
+        sender.sendMessage(mex, user2->name + " " + user2->surname,
                                   user2->email, "KlapKlap Invite");
     } catch (QException &e) {
         db.close();
@@ -180,9 +174,9 @@ int kk_db::db_share_file(QString username_from, QString username_to, QString fil
     return 0;
 }
 
-bool kk_db::db_login(QString username, QString password) {
-    user_info *user;
-    user = db_getUserInfo(username);
+bool KKDataBase::login(QString username, QString password) {
+    UserInfo *user;
+    user = getUserInfo(username);
     if(user== nullptr)
         return false;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
@@ -191,34 +185,34 @@ bool kk_db::db_login(QString username, QString password) {
 
 //TODO: delete user
 
-int  kk_db::db_reset_psw(QString username){
-    auto user1 = new user_info;
-    user1 = db_getUserInfo(username);
+int  KKDataBase::resetPassword(QString username){
+    auto user1 = new UserInfo;
+    user1 = getUserInfo(username);
     QString mex;
-    kk_smtp sender;
+    KKSmtp sender;
     SimpleCrypt casual_psw(Q_UINT64_C(0x1c3ad5a6acb0f134));
     QString cos;
 
-    mex = sender.QSMTP_message_builder("Reset password for user: " +username, "",
+    mex = sender.messageBuilder("Reset password for user: " +username, "",
                                        "Your temporary password is:",
                                        casual_psw.random_psw(cos),
                                        "null");
-    sender.QSMTP_send_message(mex, user1->name + " " + user1->surname,
+    sender.sendMessage(mex, user1->name + " " + user1->surname,
                               user1->email, "KlapKlap Reset Password");
 
     //update with temporary password
 
-    db_update_psw(username,cos);
+    updatePassword(username,cos);
     return 0;
 }
 
-int kk_db::db_update_psw(QString username, QString new_psw){
+int KKDataBase::updatePassword(QString username, QString password){
     if(!db.open()) {
         qDebug("DB not opened");
         return -1;
     }
     try {
-        QSqlQuery res = db.exec("UPDATE `USERS` SET `PASSWORD`='"+new_psw+"' WHERE `USERNAME`='" + username + "';");
+        QSqlQuery res = db.exec("UPDATE `USERS` SET `PASSWORD`='"+password+"' WHERE `USERNAME`='" + username + "';");
         db.close();
         return 0;
     } catch (QException &e) {
@@ -228,9 +222,9 @@ int kk_db::db_update_psw(QString username, QString new_psw){
     }
 }
 
-QStringList  kk_db::db_getUserFile(QString username){
-    auto user1 = new user_info;
-    user1 = db_getUserInfo(username);
+QStringList  KKDataBase::getUserFile(QString username){
+    auto user1 = new UserInfo;
+    user1 = getUserInfo(username);
     QStringList tmp;
     QString _queryStr;
 
@@ -249,14 +243,11 @@ QStringList  kk_db::db_getUserFile(QString username){
     return tmp;
 }
 
-
-
-bool kk_db::db_exist_user(QString username) {
+bool KKDataBase::checkUserInfo(QString username) {
     if(!db.open()) {
         qDebug("DB not opened");
         return -1;
     }
-
     try {
         QSqlQuery res = db.exec("SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`='" + username + "';");
         db.close();

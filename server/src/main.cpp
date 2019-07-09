@@ -14,7 +14,7 @@
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    kk_server server(3002);
+    KKServer server(3002);
     Q_UNUSED(server);
     return a.exec();
 }

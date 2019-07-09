@@ -11,14 +11,14 @@
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../participant/kk_participant.h"
 #include <QSharedPointer>
-class kk_room {
+class KKRoom {
 public:
-    void join(QSharedPointer<kk_participant> participant);
+    void join(QSharedPointer<KKParticipant> participant);
 
-    void leave(QSharedPointer<kk_participant> participant);
+    void leave(QSharedPointer<KKParticipant> participant);
 
 private:
-    std::set<QSharedPointer<kk_participant>> participants_;
+    std::set<QSharedPointer<KKParticipant>> participants;
 };
 
 #endif //KK_ROOM_H

@@ -4,10 +4,10 @@
 
 #include "kk_room.h"
 
-void kk_room::join(QSharedPointer<kk_participant> participant) {
-    participants_.insert(participant);
+void KKRoom::join(QSharedPointer<KKParticipant> participant) {
+    participants.insert(participant);
 }
 
-void kk_room::leave(QSharedPointer<kk_participant> participant) {
-    participants_.erase(participant);
+void KKRoom::leave(QSharedPointer<KKParticipant> participant) {
+    participants.erase(participant);
 }

@@ -6,9 +6,9 @@
 
 using std::string;
 
-kk_char::kk_char(char value, string siteId) : siteId(siteId), value(value) {};
+KKChar::KKChar(char value, string siteId) : siteId(siteId), value(value) {};
 
-void kk_char::push_identifier(kk_identifier_ptr id) {
+void KKChar::pushIdentifier(KKIdentifierPtr id) {
     position.push_back(id);
 }
 
@@ -17,7 +17,7 @@ void kk_char::push_identifier(kk_identifier_ptr id) {
     return;
 }*/
 
-int kk_char::compare_to(const kk_char &other) {
+int KKChar::compareTo(const KKChar &other) {
     int comp;
     unsigned long min;
 
@@ -29,12 +29,12 @@ int kk_char::compare_to(const kk_char &other) {
 
     for (unsigned long i = 0; i < min; i++) {
 
-        kk_identifier id1(*this->position[i].get());
-        kk_identifier id2(*other.position[i].get());
+        KKIdentifier id1(*this->position[i].get());
+        KKIdentifier id2(*other.position[i].get());
 
 
-        if(id1.get_digit()>id2.get_digit()) return 1;
-        else if (id1.get_digit()<id2.get_digit()) return -1;
+        if(id1.getDigit()>id2.getDigit()) return 1;
+        else if (id1.getDigit()<id2.getDigit()) return -1;
 
     }
 
@@ -45,33 +45,35 @@ int kk_char::compare_to(const kk_char &other) {
     } else if (this->position.size() > other.position.size()) {
         return 1;
     } else {
-        if(this->get_siteId()> other.siteId) return 1;
-        else if(this->get_siteId()< other.siteId) return -1;
+        if(this->getSiteId()> other.siteId) return 1;
+        else if(this->getSiteId()< other.siteId) return -1;
         else return 0;
     }
 }
 
-char kk_char::get_value() {
+char KKChar::getValue() {
     return value;
 }
-string kk_char::get_siteId() {
+
+string KKChar::getSiteId() {
     return siteId;
 }
 
-void kk_char::insert_position(vector<kk_identifier_ptr> position) {
+
+void KKChar::insertPosition(vector<KKIdentifierPtr> position) {
     this->position = position;
     return;
 }
 
-vector<kk_identifier_ptr> kk_char::get_position() {
+vector<KKIdentifierPtr> KKChar::getPosition() {
     return this->position;
 }
 
-std::string kk_char::get_identifiers_string() {
+std::string KKChar::getIdentifiersString() {
     std::string identifiers_ = "";
-    std::for_each(position.begin(), position.end(),[&](kk_identifier_ptr i){
+    std::for_each(position.begin(), position.end(),[&](KKIdentifierPtr i){
         char str[sizeof(unsigned long)+1];
-        sprintf(str, "%lu", i->get_digit());
+        sprintf(str, "%lu", i->getDigit());
         identifiers_= identifiers_ + "_" + str;
     });
     return identifiers_;

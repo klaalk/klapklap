@@ -32,11 +32,11 @@
 
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
-class kk_client : public QObject
+class KKClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit kk_client(const QUrl &url, QObject *parent = nullptr);
+    explicit KKClient(const QUrl &url, QObject *parent = nullptr);
 
 private slots:
     void handleOpenedConnection();
@@ -51,7 +51,7 @@ private slots:
     void sendMessageRequest(QString message);
 
     void onInsertTextCRDT(QString diffText, int position);
-   void onRemoveTextCRDT(int start, int end);
+    void onRemoveTextCRDT(int start, int end);
 
 private:
     void sendRequest(QString type, QString result, QString body);
@@ -61,12 +61,12 @@ private:
     TextEdit editor_;
     ChatDialog chat_;
     OpenFileDialog openFile_;
-    kk_crdt* crdt_;
+    KKCrdt* crdt_;
     QByteArray bufferCrdt_;
     std::mutex mtxCrdt_;
 };
 
-typedef std::shared_ptr<kk_client> kk_client_ptr;
+typedef std::shared_ptr<KKClient> KKClientPtr;
 
 
 #endif //CLIENT_CHAT_CLIENT_H

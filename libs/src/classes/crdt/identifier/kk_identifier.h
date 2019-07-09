@@ -10,16 +10,16 @@
 #include <memory>
 
 using std::string;
-class kk_identifier {
+class KKIdentifier {
     unsigned long digit; // cifra della posizione
     string siteid; //univoco del client, serve per calcolare posizione in caso di stessi digit
 public:
-    kk_identifier(unsigned long digit, string siteid); //costruttore
-    int compare_to(const kk_identifier &other); // torna -1 se questo < l'altro, 1 se questo > l'altro e lo fa confrontando prima il digit e poi se il digit è uguale, il siteId
-    unsigned long get_digit();
-    void set_digit(unsigned long digit);
-    string get_siteid();
+    KKIdentifier(unsigned long digit, string siteid); //costruttore
+    int compareTo(const KKIdentifier &other); // torna -1 se questo < l'altro, 1 se questo > l'altro e lo fa confrontando prima il digit e poi se il digit è uguale, il siteId
+    unsigned long getDigit();
+    void setDigit(unsigned long digit);
+    string getSiteId();
 };
 
-typedef std::shared_ptr<kk_identifier> kk_identifier_ptr;
+typedef std::shared_ptr<KKIdentifier> KKIdentifierPtr;
 #endif //KK_IDENTIFIER_H

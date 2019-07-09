@@ -4,12 +4,12 @@
 
 #include "kk_pos.h"
 
-kk_pos::kk_pos(unsigned long line, unsigned long ch) : line(line),ch(ch){}
+KKPosition::KKPosition(unsigned long line, unsigned long ch) : line(line),ch(ch){}
 
-unsigned long kk_pos::get_ch() {
+unsigned long KKPosition::getCh() {
     return this->ch;
 }
 
-unsigned long kk_pos::get_line() {
+unsigned long KKPosition::getLine() {
     return this->line;
 }

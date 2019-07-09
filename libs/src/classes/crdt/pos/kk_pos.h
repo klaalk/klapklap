@@ -8,15 +8,15 @@
 #include "../../../kklibexport.h"
 #include <memory>
 
-class kk_pos {
+class KKPosition {
     unsigned long line;
     unsigned long ch;
 public:
-    kk_pos();
-    kk_pos(unsigned long line, unsigned long ch);
-    unsigned long get_line();
-    unsigned long get_ch();
+    KKPosition();
+    KKPosition(unsigned long line, unsigned long ch);
+    unsigned long getLine();
+    unsigned long getCh();
 };
 
-typedef std::shared_ptr<kk_pos> kk_pos_ptr;
+typedef std::shared_ptr<KKPosition> KKPosPtr;
 #endif //KK_POS_H
