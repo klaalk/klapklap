@@ -144,7 +144,6 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         }
     }
     fileSystem->writeFile("log", completeFileName + ": " + message);
-
     //mando al client la risposta della request.
     sendResponse("openfile", result, message);
     if(result == "ok") {

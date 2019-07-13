@@ -40,6 +40,7 @@ public:
 
 private slots:
     void handleOpenedConnection();
+    void handleErrorConnection(QAbstractSocket::SocketError error);
     void handleResponse(QString message);
     void handleSslErrors(const QList<QSslError> &errors);
     void handleClosedConnection();

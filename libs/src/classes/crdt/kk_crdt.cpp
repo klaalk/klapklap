@@ -216,20 +216,14 @@ void KKCrdt::insertChar(KKCharPtr _char, KKPosition pos) {
     }
 }
 
-KKPosition KKCrdt::remoteInsert(KKCharPtr _char){
+unsigned long KKCrdt::remoteInsert(KKCharPtr _char){
     unsigned long global_pos;
 
     KKPosition pos = findInsertPosition(_char);
     insertChar(_char, pos);
     global_pos= generateGlobalPos(pos);
-//    std::cout<<"GB:" <<global_pos<<std::endl;
-//    unsigned long line;
-//    unsigned long col;
-//    calculate_Line_Col(global_pos,&line,&col);
-//    std::cout<<"kk_line: " <<pos.get_line()<<"    kk_col: " <<pos.get_ch()<<std::endl;
-//    std::cout<<"line: " <<line<<"    col: " <<col<<std::endl;
-
-    return pos;
+    std::cout<<"GB:" <<global_pos<<std::endl;
+    return global_pos;
 }
 
 KKPosition KKCrdt::findInsertPosition(KKCharPtr _char){
@@ -440,13 +434,13 @@ void KKCrdt::mergeLines(unsigned long line){
     return;
 }
 
-KKPosition KKCrdt::remoteDelete(KKCharPtr _Char){
+unsigned long KKCrdt::remoteDelete(KKCharPtr _Char){
     bool flag = true;
     unsigned long global_pos;
     KKPosition pos(findPos(_Char, &flag));
 
     if(flag==false){
-        return pos;
+        return generateGlobalPos(pos);;
     }
 
     text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())));
@@ -458,8 +452,8 @@ KKPosition KKCrdt::remoteDelete(KKCharPtr _Char){
     removeEmptyLines();
     text.push_back(list<KKCharPtr>());
     global_pos= generateGlobalPos(pos);
-     std::cout<<"GB:" <<global_pos<<std::endl;
-    return pos;
+    std::cout<<"GB:" <<global_pos<<std::endl;
+    return global_pos;
 }
 
 KKPosition KKCrdt::findPos (KKCharPtr _Char, bool *flag){

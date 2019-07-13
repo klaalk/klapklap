@@ -42,7 +42,7 @@ public:
     KKCharPtr generateChar(char val, KKPosition pos); //genera la Char partendo dal valore e dalla posizione nel local text
     vector<KKIdentifierPtr> generatePositionBetween(vector<KKIdentifierPtr> position_1, vector<KKIdentifierPtr> position_2, vector<KKIdentifierPtr> *new_position, unsigned long livello); //partendo dalle position di due Char(adiacenti) genera la posizione della Char
     unsigned long generateIdentifierBetween(unsigned long min, unsigned long max, strategy _strategy, unsigned long level); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
-    KKPosition remoteInsert(KKCharPtr _char);
+    unsigned long remoteInsert(KKCharPtr _char);
 
     vector<KKIdentifierPtr> findPositionBefore(KKPosition pos); //trova la position della Char immediatamente prima di quella passata
     vector<KKIdentifierPtr> findPositionAfter(KKPosition pos);//trova la position della Char immediatamente dopo di quella passata
@@ -55,7 +55,7 @@ public:
     list<KKCharPtr> localDelete(KKPosition start_pos, KKPosition end_pos);
     list<KKCharPtr> deleteMultipleLines(KKPosition start_pos, KKPosition end_pos);
     list<KKCharPtr> deleteSingleLine(KKPosition start_pos, KKPosition end_pos);
-    KKPosition remoteDelete(KKCharPtr _Char);
+    unsigned long remoteDelete(KKCharPtr _Char);
 
     KKPosition findInsertPosition(KKCharPtr _char);
     KKPosition findPos (KKCharPtr _Char,bool *flag);
