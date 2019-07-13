@@ -18,5 +18,3 @@ int main(int argc, char *argv[]) {
     Q_UNUSED(server);
     return a.exec();
 }
-
-
