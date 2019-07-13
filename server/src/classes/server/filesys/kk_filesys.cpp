@@ -8,8 +8,9 @@ QString KKFileSystem::createFile(QString username, QString filename){
 
     if(username=="root" && filename == "log") {
         QString log_name = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
-        QString command = "touch ./" + log_name;
-        system(qPrintable(command));
+
+        QFile file(log_name);
+        file.open(QIODevice::WriteOnly | QIODevice::Text);
         this->logFileName=log_name;
         return log_name;
     }
@@ -28,9 +29,8 @@ QString KKFileSystem::createFile(QString username, QString filename){
     jump=crypt.random_psw(jump);
 
     QString _filename = jump+"@"+tmp+"@"+filename;
-    QString command = "touch ./"+_filename;
-    system(qPrintable(command));
-    //    system(qPrintable("ls -la | grep "+ _filename));
+    QFile file(_filename);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
 
     bool result = db->insertUserFile(username,_filename,"./"+_filename) == 0 ? true : false;
     if(result) {
