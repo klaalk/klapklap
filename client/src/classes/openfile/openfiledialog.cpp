@@ -31,7 +31,7 @@ void OpenFileDialog::on_openBtn_clicked()
 {
     QString completeFileName = files_.value(selectedFile);
     if(selectedFile == "") {
-        completeFileName=ui->lineEdit->text();
+        completeFileName = ui->lineEdit->text();
     }
     emit openFileRequest(completeFileName);
 }
