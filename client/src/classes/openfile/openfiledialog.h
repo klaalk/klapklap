@@ -25,6 +25,8 @@ private slots:
     void on_listWidget_itemClicked(QListWidgetItem *item);
     void on_openBtn_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::OpenFileDialog *ui;
     QMap<QString, QString> files_;

@@ -12,7 +12,7 @@
 
 #define DEBUG
 
-KKSession::KKSession(kk_db_ptr db, KKFileSystemPtr filesys, KKMapFilePtr files_, QObject*  parent)
+KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files_, QObject*  parent)
     : QObject(parent), db(db), files(files_), fileSystem(filesys) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
 }

@@ -21,7 +21,7 @@
 
 class KKFileSystem {
 public:
-    KKFileSystem(kk_db_ptr db): db(db){}
+    KKFileSystem(KKDataBasePtr db): db(db){}
     KKFileSystem(){}
     QString createFile(QString username, QString filename);
     bool openFile(QString username, QString filename);
@@ -30,7 +30,7 @@ public:
     QString readFile(QString filename);
 
 private:
-    kk_db_ptr db;
+    KKDataBasePtr db;
     QString logFileName;
 };
 

@@ -35,7 +35,7 @@ private:
     QList<QWebSocket*> clients;
     QList<KKSessionPtr> sessions;
     KKMapFilePtr files;
-    kk_db_ptr db;
+    KKDataBasePtr db;
     KKFileSystemPtr filesys;
 };
 

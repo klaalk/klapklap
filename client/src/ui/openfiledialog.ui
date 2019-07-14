@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>403</width>
-    <height>272</height>
+    <height>293</height>
    </rect>
+  </property>
+  <property name="cursor">
+   <cursorShape>IBeamCursor</cursorShape>
+  </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
@@ -38,20 +44,20 @@
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>64</width>
+     <width>230</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
-    <string>File:</string>
+    <string>Inserisci il nome del file o il link di condivisione:</string>
    </property>
   </widget>
   <widget class="QPushButton" name="openBtn">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>230</y>
-     <width>83</width>
+     <x>300</x>
+     <y>260</y>
+     <width>90</width>
      <height>25</height>
     </rect>
    </property>
@@ -63,13 +69,50 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>230</y>
-     <width>83</width>
+     <y>260</y>
+     <width>90</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
     <string>Annulla</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>260</y>
+     <width>190</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ottieni Link</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>220</y>
+     <width>380</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="textInteractionFlags">
+    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
    </property>
   </widget>
  </widget>
