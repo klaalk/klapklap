@@ -130,7 +130,7 @@ public:
     TextEdit(QWidget *parent = 0);
     QTextEdit *textEdit;
     bool load(const QString &f);
-    void applyRemoteChanges(QString operation, QString name, QString text, int line, int col);
+    void applyRemoteChanges(QString operation, QString name, QString text, int globalPos);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
     void updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list);

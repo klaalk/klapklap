@@ -791,7 +791,7 @@ void TextEdit::modifyLabels(){
     blockCursor = false;
 }
 
-void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int line, int col) {
+void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos) {
     //Blocco il cursore dell'editor.
     blockCursor = true;
     //Prelevo il cursore dell'editor.
@@ -799,22 +799,22 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     //Prelevo il cursore remoto.
     kk_cursor* remoteCurs = cursors_.value(name);
     // Faccio dei controlli sulla fattibilità dell'operazione.
-    col = col > lastLength ? lastLength : col;
-    col = col < 0 ? 0 : col;
+    globalPos = globalPos > lastLength ? lastLength : globalPos;
+    globalPos = globalPos < 0 ? 0 : globalPos;
     // Se non esiste lo creo e lo memorizzo.
     if(remoteCurs == nullptr) {
         //Creo il cursore per l'utente se non esiste.
         QLabel* qLbl = new QLabel(name, textEdit);
         QLabel* qLbl2 = new QLabel("|", textEdit);
-        remoteCurs = new kk_cursor(col);
+        remoteCurs = new kk_cursor(globalPos);
         remoteCurs->setLabels(qLbl, qLbl2);
         remoteCurs->setLabelsStyle("rgb(196, 232, 255)", fontSize);
         remoteCurs->showLabels();
         cursors_.insert(name, remoteCurs);
     }
     // Muovo il cursore dell'editor.
-    qDebug() << "Remote global:" << col;
-    editorCurs.setPosition(col);
+    qDebug() << "Remote global:" << globalPos;
+    editorCurs.setPosition(globalPos);
     // Eseguo l'operazione
     if(operation == "insert") {
         editorCurs.insertText(text);
@@ -831,7 +831,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for(kk_cursor* c : cursors_.values()) {
-        if(c->getGlobalPositon() >= col && c!=remoteCurs){
+        if(c->getGlobalPositon() >= globalPos && c!=remoteCurs){
             if(operation == "insert") {
                  c->setGlobalPositon(c->getGlobalPositon()+text.length());
             } else if(operation == "delete") {
@@ -842,7 +842,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         }
     }
     // Riporto il cursore dell'editor alla posizione di partenza.
-    if(cursorPos >= col){
+    if(cursorPos >= globalPos){
         if(operation == "insert") {
             cursorPos = cursorPos +text.length();
         } else if(operation == "delete") {

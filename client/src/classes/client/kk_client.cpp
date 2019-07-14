@@ -7,6 +7,7 @@
 KKClient::KKClient(const QUrl &url, QObject *parent)
     : QObject(parent) {
     connect(&socket_, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);
+//    connect(&socket_, &QWebSocket::error, this, &KKClient::handleErrorConnection);
     connect(&socket_, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors),
             this, &KKClient::handleSslErrors);
     socket_.open(QUrl(url));
@@ -55,6 +56,12 @@ void KKClient::handleOpenedConnection() {
     login_.show();
 }
 
+void KKClient::handleErrorConnection(QAbstractSocket::SocketError error) {
+    qDebug() << "WebSocket not connected";
+    qDebug() << error;
+    socket_.close();
+}
+
 void KKClient::handleResponse(QString message) {
     qDebug() << "Message received:" << message;
     KKPayload res(message);
@@ -88,16 +95,10 @@ void KKClient::handleResponse(QString message) {
             KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, bodyList_[1].toStdString()));
             char_->pushIdentifier(ptr);
         }
-        if(bodyList_[0] == "insert") {
-            KKPosition remotePos = crdt_->remoteInsert(char_);
-            crdt_->print();
-            editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], 0, remotePos.getCh());
-        } else if(bodyList_[0] == "delete") {
-            KKPosition remotePos = crdt_->remoteDelete(char_);
-            crdt_->print();
-            editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], 0, remotePos.getCh());
-        }
 
+        unsigned long remotePos = bodyList_[0] == "insert" ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
+        crdt_->print();
+        editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], static_cast<int>(remotePos));
     } else if(res.getType() == "chat" && res.getResultType() == "ok") {
         QStringList res_ = res.getBody().split('_');
         chat_.appendMessage(res_[0], res_[1]);
@@ -113,7 +114,7 @@ void KKClient::handleSslErrors(const QList<QSslError> &errors) {
     // WARNING: Never ignore SSL errors in production code.
     // The proper way to handle self-signed certificates is to add a custom root
     // to the CA store.
-    socket_.ignoreSslErrors();
+    socket_.ignoreSslErrors();    
 }
 
 void KKClient::handleClosedConnection() {
@@ -142,7 +143,7 @@ void KKClient::onInsertTextCRDT(QString diffText, int position) {
 }
 
 void KKClient::onRemoveTextCRDT(int start, int end) {
-    unsigned long startLine,endLine,startCol,endCol;
+    unsigned long startLine, endLine, startCol, endCol;
     crdt_->calculateLineCol(start, &startLine, &startCol);
     crdt_->calculateLineCol(end, &endLine, &endCol);
 //    std::thread t([=](){

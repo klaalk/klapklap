@@ -8,9 +8,10 @@ QString KKFileSystem::createFile(QString username, QString filename){
 
     if(username=="root" && filename == "log") {
         QString log_name = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
-        QString command = "touch ./" + log_name;
-        system(qPrintable(command));
-        this->logFileName=log_name;
+
+        QFile file(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +log_name);
+        file.open(QIODevice::WriteOnly | QIODevice::Text);
+        this->logFileName=QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +log_name;
         return log_name;
     }
 
@@ -28,11 +29,10 @@ QString KKFileSystem::createFile(QString username, QString filename){
     jump=crypt.random_psw(jump);
 
     QString _filename = jump+"@"+tmp+"@"+filename;
-    QString command = "touch ./"+_filename;
-    system(qPrintable(command));
-    //    system(qPrintable("ls -la | grep "+ _filename));
+    QFile file(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +_filename);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
 
-    bool result = db->insertUserFile(username,_filename,"./"+_filename) == 0 ? true : false;
+    bool result = db->insertUserFile(username,_filename,QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +_filename) == 0 ? true : false;
     if(result) {
         return _filename;
     }
@@ -53,12 +53,12 @@ bool KKFileSystem::openFile(QString username, QString filename){
         return true;
 
     //    sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
-    return db->insertUserFile(username, filename, "./" + filename) == 0 ? true:false;
+    return db->insertUserFile(username, filename,QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" + filename) == 0 ? true:false;
 }
 
 bool KKFileSystem::sendFile(QString filename){
 
-    QFile file(filename);
+    QFile file(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +filename);
     file.open(QFile::ReadOnly);
 
     //@klaus
