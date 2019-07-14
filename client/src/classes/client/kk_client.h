@@ -16,6 +16,7 @@
 #include <QtWebSockets/QWebSocket>
 #include <QtNetwork/QSslError>
 #include <QCoreApplication>
+#include <QMap>
 
 #include "../../../../libs/src/constants/kk_constants.h"
 #include "../../../../libs/src/classes/payload/kk_payload.h"
@@ -53,6 +54,8 @@ private slots:
 
     void onInsertTextCRDT(QString diffText, int position);
     void onRemoveTextCRDT(int start, int end);
+
+    void onSiteIdClicked(QString siteId);
 
 private:
     void sendRequest(QString type, QString result, QString body);

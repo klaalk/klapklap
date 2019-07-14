@@ -61,7 +61,7 @@ ChatDialog::ChatDialog(QWidget *parent)
     textEdit->setFocusPolicy(Qt::NoFocus);
     textEdit->setReadOnly(true);
     listWidget->setFocusPolicy(Qt::NoFocus);
-
+    connect(listWidget, &QListWidget::itemClicked, this, &ChatDialog::onItemClicked);
     connect(lineEdit, &QLineEdit::returnPressed, this, &ChatDialog::returnPressed);
 }
 
@@ -139,3 +139,12 @@ void ChatDialog::showInformation()
                                     "start chatting!"));
     }
 }
+
+void ChatDialog::onItemClicked(QListWidgetItem *item) {
+    if(!item) {
+        return;
+    }
+    QString siteId = item->text();
+    emit siteIdClicked(siteId);
+}
+

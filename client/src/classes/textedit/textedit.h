@@ -10,6 +10,7 @@
 #include <QPointer>
 #include <QTextCursor>
 #include <QLabel>
+#include <QListWidgetItem>
 
 class QAction;
 class QComboBox;
@@ -98,6 +99,29 @@ public:
 //      }
 };
 
+//DEPRECATED
+//class kk_couple{
+//private:
+//    int startPos=0;
+//    int endPos=0;
+
+//public:
+//    kk_couple(int startPos, int endPos): startPos(startPos), endPos(endPos){}
+
+//    int getStartPos() {
+//        return this->startPos;
+//    }
+//    void setStartPos(int position) {
+//        this->startPos = position;
+//    }
+//    int getEndPos() {
+//        return this->endPos;
+//    }
+//    void setEndPos(int position) {
+//        this->endPos = position;
+//    }
+//};
+
 class TextEdit : public QMainWindow
 {
 Q_OBJECT
@@ -109,6 +133,7 @@ public:
     void applyRemoteChanges(QString operation, QString name, QString text, int globalPos);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
+    void updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list);
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
@@ -156,6 +181,8 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
+    void colorText(QString name);
+
     QAction *actionSave;
     QAction *actionTextBold;
     QAction *actionTextUnderline;
@@ -183,6 +210,7 @@ private:
     QComboBox *comboSize;
     QString lastText="",diffText="",fileName;
     QToolBar *tb;
+    QMap<QString,QSharedPointer<QList<int>>> siteIds_;
 };
 typedef QSharedPointer<TextEdit> textedit_ptr;
 #endif // TEXTEDIT_H
