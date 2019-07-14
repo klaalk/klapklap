@@ -53,5 +53,5 @@ public:
 
 };
 
-typedef QSharedPointer<KKDataBase> kk_db_ptr;
+typedef QSharedPointer<KKDataBase> KKDataBasePtr;
 #endif //SERVER_KK_DB_H

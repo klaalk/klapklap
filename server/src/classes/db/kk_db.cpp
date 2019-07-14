@@ -17,7 +17,7 @@ struct record {
     QString surname;
     QString email;
     QString username;
-    QString image; //cosa è questo? quanto fa questo?
+    QString image;
     QString registrationDate;
     QString password;
 

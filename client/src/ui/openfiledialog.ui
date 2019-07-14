@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>403</width>
-    <height>272</height>
+    <height>276</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,19 +38,19 @@
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>64</width>
+     <width>230</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
-    <string>File:</string>
+    <string>Inserisci il nome del file o il link di condivisione:</string>
    </property>
   </widget>
   <widget class="QPushButton" name="openBtn">
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>230</y>
+     <y>240</y>
      <width>83</width>
      <height>25</height>
     </rect>
@@ -63,7 +63,7 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>230</y>
+     <y>240</y>
      <width>83</width>
      <height>25</height>
     </rect>
