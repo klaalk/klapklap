@@ -52,7 +52,7 @@ public:
     bool checkUserInfo(QString username);
 
     ///inserisce l'immagine dell'utente
-    bool InsertUserImage(QString username, QString image_path);
+    bool insertUserImage(QString username, QString image_path);
 
 };
 

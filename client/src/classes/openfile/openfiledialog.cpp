@@ -36,3 +36,10 @@ void OpenFileDialog::on_openBtn_clicked()
     emit openFileRequest(completeFileName);
 }
 
+
+void OpenFileDialog::on_pushButton_clicked()
+{
+    if(selectedFile != "") {
+        ui->label_2->setText(files_.value(selectedFile));
+    }
+}

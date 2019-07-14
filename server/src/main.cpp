@@ -14,12 +14,7 @@
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-//    KKServer server(3002);
-//    Q_UNUSED(server);
-
-    KKDataBase db;
-    db.InsertUserImage("grecomichele","/home/jsnow/Scaricati/016.jpg");
-
-
+    KKServer server(3002);
+    Q_UNUSED(server);
     return a.exec();
 }

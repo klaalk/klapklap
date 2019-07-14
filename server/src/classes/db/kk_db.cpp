@@ -262,7 +262,7 @@ bool KKDataBase::checkUserInfo(QString username) {
     }
 }
 
-bool KKDataBase::InsertUserImage(QString username, QString image_path){
+bool KKDataBase::insertUserImage(QString username, QString image_path){
      QFile file(image_path);
      if (!file.open(QIODevice::ReadOnly))
          return false;
@@ -275,10 +275,6 @@ bool KKDataBase::InsertUserImage(QString username, QString image_path){
          query.bindValue( ":imageData", inByteArray );
          if( !query.exec() )
              qDebug() << "Error inserting image into table:\n" << query.lastError();
-
-
-
-
 
 }
 
