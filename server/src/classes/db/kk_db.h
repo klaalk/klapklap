@@ -51,6 +51,9 @@ public:
     ///controlla l'esistenza di un utente
     bool checkUserInfo(QString username);
 
+    ///inserisce l'immagine dell'utente
+    bool InsertUserImage(QString username, QString image_path);
+
 };
 
 typedef QSharedPointer<KKDataBase> KKDataBasePtr;

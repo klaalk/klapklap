@@ -17,7 +17,7 @@ struct record {
     QString surname;
     QString email;
     QString username;
-    QString image;
+    QString image; //cosa è questo? quanto fa questo?
     QString registrationDate;
     QString password;
 
@@ -269,16 +269,10 @@ bool KKDataBase::InsertUserImage(QString username, QString image_path){
      QByteArray inByteArray = file.readAll();
      db.open();
      QSqlQuery query = QSqlQuery( db );
-
-
      query.prepare( "UPDATE `USERS` SET `IMAGE` = :imageData WHERE `USERNAME`='" + username + "';" );
          query.bindValue( ":imageData", inByteArray );
          if( !query.exec() )
-             qDebug() << "Error inserting image into table:\n" << query.lastError();
-
-
-
-
-
+             return false;
+         return true;
 }
 
