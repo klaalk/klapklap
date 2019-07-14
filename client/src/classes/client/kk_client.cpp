@@ -71,11 +71,14 @@ void KKClient::handleResponse(QString message) {
        crdt_ = new KKCrdt(email_.toStdString(), casuale);
        connect(&editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCRDT);
        connect(&editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCRDT);
+       connect(&chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
+       connect(&chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
        openFile_.hide();
        editor_.show();
        chat_.show();
        chat_.setNickName(email_);
-       connect(&chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
+
+
     } else if(res.getType() == "crdt" && res.getResultType() == "ok"){
         QStringList bodyList_ = res.getBody().split("_");
         KKCharPtr char_ = KKCharPtr(new KKChar(*bodyList_[2].toLatin1().data(), bodyList_[1].toStdString()));
@@ -121,6 +124,7 @@ void KKClient::onInsertTextCRDT(QString diffText, int position) {
 //    std::thread t([=](){
 //        mtxCrdt_.lock();
         QByteArray ba = diffText.toLocal8Bit();
+        QString siteId;
         char *c_str = ba.data();
         unsigned long line, col;
         for(int i = 0; *c_str != '\0'; c_str++, i++) {
@@ -130,6 +134,8 @@ void KKClient::onInsertTextCRDT(QString diffText, int position) {
             QString ids = QString::fromStdString(char_->getIdentifiersString());
             sendCrdtRequest("insert", QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
         }
+
+
 //        mtxCrdt_.unlock();
 //    });
 //    t.detach();
@@ -153,3 +159,18 @@ void KKClient::onRemoveTextCRDT(int start, int end) {
 //    });
 //    t.detach();
 }
+
+void KKClient::onSiteIdClicked(QString siteId){
+    QSharedPointer<QList<int>> myList=QSharedPointer<QList<int>>(new QList<int>());
+    int global = 0;
+    for(list<KKCharPtr> linea: crdt_->text){
+        for(KKCharPtr carattere: linea){
+            if(carattere->getSiteId()==siteId.toStdString()){
+                myList->push_back(global);
+            }
+            global++;
+        }
+    }
+    editor_.updateSiteIdsMap(siteId, myList);
+}
+

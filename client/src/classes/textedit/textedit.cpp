@@ -30,6 +30,7 @@
 #include <QLabel>
 #include <QFontMetrics>
 #include <QFont>
+#include <QListWidgetItem>
 
 #if defined(QT_PRINTSUPPORT_LIB)
 #include <QtPrintSupport/qtprintsupportglobal.h>
@@ -905,4 +906,28 @@ void TextEdit::onTextChange() {
     lastLength = s.length();
     lastText = s;
 }
+
+void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list){
+    if(siteIds_.contains(siteId))
+        siteIds_.remove(siteId);
+    siteIds_.insert(siteId,list);
+    colorText(siteId);
+}
+
+void TextEdit::colorText(QString siteId){
+    blockCursor=true;
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat fmt;
+    fmt.setBackground(QBrush(Qt::yellow));
+    int last = cursor.position();
+    for(int pos : *siteIds_.value(siteId)){
+        cursor.setPosition(pos);
+        cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(fmt);
+    }
+    cursor.setPosition(last);
+    textEdit->setTextCursor(cursor);
+    blockCursor=false;
+}
+
 
