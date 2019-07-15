@@ -1,8 +1,5 @@
 #include <QApplication>
-#include <QDesktopWidget>
-#include <QCommandLineParser>
-#include <QCommandLineOption>
-#include <QtWidgets/QMainWindow>
+#include <QPalette>
 
 
 #include "classes/client/kk_client.h"

@@ -35,7 +35,8 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/client/kk_client.h \
                 classes/chat/chatdialog.h\
                 classes/login/login.h\
-                classes/openfile/openfiledialog.h
+                classes/openfile/openfiledialog.h \
+                classes/modal/modaldialog.h
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/crdt/char/kk_char.cpp \
@@ -48,11 +49,13 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 classes/chat/chatdialog.cpp\
                 classes/login/login.cpp \
                 main.cpp \
-                classes/openfile/openfiledialog.cpp
+                classes/openfile/openfiledialog.cpp \
+                classes/modal/modaldialog.cpp
 
 RESOURCES += assets/client.qrc
 
 FORMS += \
+        ui/modaldialog.ui \
         ui/chatdialog.ui \
         ui/loginwindow.ui \
         ui/openfiledialog.ui

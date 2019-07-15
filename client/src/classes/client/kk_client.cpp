@@ -4,14 +4,22 @@
 
 #include "kk_client.h"
 
+
 KKClient::KKClient(const QUrl &url, QObject *parent)
-    : QObject(parent) {
+    : QObject(parent), url_(url) {
     connect(&socket_, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);
-//    connect(&socket_, &QWebSocket::error, this, &KKClient::handleErrorConnection);
-    connect(&socket_, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors),
-            this, &KKClient::handleSslErrors);
-    socket_.open(QUrl(url));
-    //Editor setup
+    connect(&socket_, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors), this, &KKClient::handleSslErrors);
+    connect(&modal_, &ModalDialog::modalButtonClicked, this, &KKClient::handleModalButtonClick);
+    connect(&modal_, &ModalDialog::modalClosed, this, &KKClient::handleModalClosed);
+    connect(&login_, &LoginWindow::loginBtnClicked, this, &KKClient::sendLoginRequest);
+    connect(&login_, &LoginWindow::signupBtnClicked, this, &KKClient::sendSignupRequest);
+    connect(&timer_, &QTimer::timeout, this, &KKClient::handleTimeOutConnection);
+
+    state_ = "not connected";
+    timer_.start(5000);
+    socket_.open(QUrl(url_));
+    login_.showLoader(true);
+    login_.show();
 }
 
 void KKClient::sendLoginRequest(QString email, QString password) {
@@ -43,17 +51,31 @@ void KKClient::sendCrdtRequest(QString crdtType, QString crdt) {
 void KKClient::sendRequest(QString type, QString result, QString body) {
     KKPayload req(type, result, body);
     qDebug() << "Send: " << req.encodeHeader();
+    timer_.start(10000);
     socket_.sendTextMessage(req.encodeHeader());
 }
 
 void KKClient::handleOpenedConnection() {
     qDebug() << "WebSocket connected";
+    state_ = "connected not logged";
     // Gestisco la lettura dei messaggi.
     connect(&socket_, &QWebSocket::textMessageReceived, this, &KKClient::handleResponse);
-    connect(&login_, &LoginWindow::loginBtnClicked, this, &KKClient::sendLoginRequest);
-    connect(&login_, &LoginWindow::signupBtnClicked, this, &KKClient::sendSignupRequest);
-    connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
-    login_.show();
+    timer_.stop();
+    login_.showLoader(false);
+}
+
+void KKClient::handleModalClosed(QString modalType) {
+    if(modalType == "ConnectionTimeout") {
+        QApplication::quit();
+    }
+}
+
+void KKClient::handleModalButtonClick(QString btnText, QString modalType) {
+    if(modalType == "ConnectionTimeout") {
+        timer_.start(5000);
+        socket_.open(QUrl(url_));
+    }
+    modal_.hide();
 }
 
 void KKClient::handleErrorConnection(QAbstractSocket::SocketError error) {
@@ -62,18 +84,35 @@ void KKClient::handleErrorConnection(QAbstractSocket::SocketError error) {
     socket_.close();
 }
 
+void KKClient::handleTimeOutConnection() {
+    qDebug() << "WebSocket timeout connection";
+    timer_.stop();
+    if(state_ == "not connected") {
+        modal_.setModal("Non è stato possibile connettersi al server", "Riprova", "ConnectionTimeout");
+        modal_.show();
+    } else if(state_ == "connected not logged") {
+
+    } else if (state_ == "connected and logged") {
+
+    }
+    socket_.close();
+}
+
 void KKClient::handleResponse(QString message) {
+    timer_.stop();
     qDebug() << "Message received:" << message;
     KKPayload res(message);
     res.decodeHeader();
     if(res.getType() == "login" && res.getResultType() == "ok") {
-       login_.hide();
+        state_="connected and logged";
+        login_.hide();
         QStringList files = res.getBody().split("_");
         for(QString s : files) {
             if(s!="")
                 openFile_.addFile(s);
         }
-       openFile_.show();
+        connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
+        openFile_.show();
     } else if(res.getType() == "openfile" && res.getResultType() == "ok") {
        crdt_ = new KKCrdt(email_.toStdString(), casuale);
        connect(&editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCRDT);
@@ -84,8 +123,6 @@ void KKClient::handleResponse(QString message) {
        editor_.show();
        chat_.show();
        chat_.setNickName(email_);
-
-
     } else if(res.getType() == "crdt" && res.getResultType() == "ok"){
         QStringList bodyList_ = res.getBody().split("_");
         KKCharPtr char_ = KKCharPtr(new KKChar(*bodyList_[2].toLatin1().data(), bodyList_[1].toStdString()));
@@ -122,43 +159,32 @@ void KKClient::handleClosedConnection() {
 }
 
 void KKClient::onInsertTextCRDT(QString diffText, int position) {
-//    std::thread t([=](){
-//        mtxCrdt_.lock();
-        QByteArray ba = diffText.toLocal8Bit();
+    QByteArray ba = diffText.toLocal8Bit();
         QString siteId;
-        char *c_str = ba.data();
-        unsigned long line, col;
-        for(int i = 0; *c_str != '\0'; c_str++, i++) {
-            crdt_->calculateLineCol(position + i, &line, &col);
-            KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col));
-            crdt_->print();
-            QString ids = QString::fromStdString(char_->getIdentifiersString());
-            sendCrdtRequest("insert", QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
-        }
+    char *c_str = ba.data();
+    unsigned long line, col;
+    for(int i = 0; *c_str != '\0'; c_str++, i++) {
+        crdt_->calculateLineCol(position + i, &line, &col);
+        KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col));
+        crdt_->print();
+        QString ids = QString::fromStdString(char_->getIdentifiersString());
+        sendCrdtRequest("insert", QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
+    }
 
 
-//        mtxCrdt_.unlock();
-//    });
-//    t.detach();
 }
 
 void KKClient::onRemoveTextCRDT(int start, int end) {
     unsigned long startLine, endLine, startCol, endCol;
     crdt_->calculateLineCol(start, &startLine, &startCol);
     crdt_->calculateLineCol(end, &endLine, &endCol);
-//    std::thread t([=](){
-//        mtxCrdt_.lock();
-//        qDebug() << startLine << " " << startCol << " - " << endLine << " " << endCol;   
-        list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
-                            KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
-        crdt_->print();
-//        mtxCrdt_.unlock();
-        std::for_each(deletedChars.begin(), deletedChars.end(),[&](KKCharPtr char_){
-            QString ids = QString::fromStdString(char_->getIdentifiersString());
-            sendCrdtRequest("delete",QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
-        });
-//    });
-//    t.detach();
+    list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
+                        KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
+    crdt_->print();
+    std::for_each(deletedChars.begin(), deletedChars.end(),[&](KKCharPtr char_){
+        QString ids = QString::fromStdString(char_->getIdentifiersString());
+        sendCrdtRequest("delete",QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
+    });
 }
 
 void KKClient::onSiteIdClicked(QString siteId){

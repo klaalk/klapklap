@@ -17,7 +17,7 @@
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Seleziona File</string>
   </property>
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
@@ -83,12 +83,12 @@
     <rect>
      <x>10</x>
      <y>260</y>
-     <width>190</width>
-     <height>30</height>
+     <width>170</width>
+     <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>Ottieni Link</string>
+    <string>Ottieni il link di condivisione</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">

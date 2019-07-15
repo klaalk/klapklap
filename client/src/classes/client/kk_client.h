@@ -17,6 +17,7 @@
 #include <QtNetwork/QSslError>
 #include <QCoreApplication>
 #include <QMap>
+#include<QTimer>
 
 #include "../../../../libs/src/constants/kk_constants.h"
 #include "../../../../libs/src/classes/payload/kk_payload.h"
@@ -28,7 +29,7 @@
 #include "../chat/chatdialog.h"
 #include "../openfile/openfiledialog.h"
 #include "../textedit/textedit.h"
-
+#include "../modal/modaldialog.h"
 
 
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -41,7 +42,10 @@ public:
 
 private slots:
     void handleOpenedConnection();
+    void handleModalButtonClick(QString btnText, QString modalType);
+    void handleModalClosed(QString modalType);
     void handleErrorConnection(QAbstractSocket::SocketError error);
+    void handleTimeOutConnection();
     void handleResponse(QString message);
     void handleSslErrors(const QList<QSslError> &errors);
     void handleClosedConnection();
@@ -60,12 +64,20 @@ private slots:
 private:
     void sendRequest(QString type, QString result, QString body);
     QString email_;
+    QString state_;
+
+    QUrl url_;
     QWebSocket socket_;
+    QTimer timer_;
+
     LoginWindow login_;
     TextEdit editor_;
     ChatDialog chat_;
     OpenFileDialog openFile_;
+    ModalDialog modal_;
+
     KKCrdt* crdt_;
+
     QByteArray bufferCrdt_;
     std::mutex mtxCrdt_;
 };

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>792</width>
-    <height>426</height>
+    <width>380</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,10 +20,10 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>150</y>
+      <x>78</x>
+      <y>180</y>
       <width>221</width>
-      <height>171</height>
+      <height>182</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="loginLayout">
@@ -84,13 +84,40 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>oppure</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Registrati</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QLabel" name="title1">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>-40</y>
+      <x>98</x>
+      <y>-10</y>
       <width>141</width>
       <height>141</height>
      </rect>
@@ -107,10 +134,10 @@
    <widget class="QLabel" name="title2">
     <property name="geometry">
      <rect>
-      <x>342</x>
-      <y>30</y>
+      <x>150</x>
+      <y>60</y>
       <width>151</width>
-      <height>121</height>
+      <height>101</height>
      </rect>
     </property>
     <property name="font">
@@ -122,156 +149,21 @@
      <string>Klap</string>
     </property>
    </widget>
-   <widget class="Line" name="line">
+   <widget class="QLabel" name="gifViewer">
     <property name="geometry">
      <rect>
-      <x>332</x>
-      <y>150</y>
-      <width>21</width>
-      <height>140</height>
+      <x>70</x>
+      <y>174</y>
+      <width>231</width>
+      <height>191</height>
      </rect>
     </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
+    <property name="autoFillBackground">
+     <bool>false</bool>
     </property>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_4">
-    <property name="geometry">
-     <rect>
-      <x>359</x>
-      <y>150</y>
-      <width>401</width>
-      <height>171</height>
-     </rect>
+    <property name="text">
+     <string/>
     </property>
-    <layout class="QVBoxLayout" name="signupLayout">
-     <item>
-      <layout class="QGridLayout" name="singupGridLayout">
-       <item row="0" column="1">
-        <layout class="QVBoxLayout" name="anagraphicLayout">
-         <item>
-          <widget class="QLabel" name="signup_name_label">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizeIncrement">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Name</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="signup_name_input">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="signup_surname_label">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Surname</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="signup_surname_input">
-           <property name="sizeIncrement">
-            <size>
-             <width>4</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="2">
-        <layout class="QVBoxLayout" name="userLayout">
-         <item>
-          <widget class="QLabel" name="signup_email_label">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Email</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="signup_email_input">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="signup_password_label">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Password</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="signup_password_input">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QPushButton" name="signupBtn">
-       <property name="font">
-        <font>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Signup</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </widget>
   </widget>
  </widget>
