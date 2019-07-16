@@ -70,3 +70,5 @@ EXAMPLE_FILES = textedit.qdoc
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/klapklap
 INSTALLS += target
+
+DISTFILES +=

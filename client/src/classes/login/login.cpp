@@ -8,7 +8,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui_(new Ui::LoginWindow) {
     ui_->setupUi(this);
 
-    gif = new QMovie(":/gif/basic-loader.gif");
+    gif = new QMovie(":/gif/animation.gif");
     ui_->gifViewer->setMovie(gif);
     ui_->gifViewer->setStyleSheet("background-color: white;");
     QSizePolicy p;

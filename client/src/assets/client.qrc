@@ -41,5 +41,6 @@
         <file>images/win/zoomout.png</file>
         <file>bg/MainPic.jpg</file>
         <file>gif/basic-loader.gif</file>
+        <file>gif/animation.gif</file>
     </qresource>
 </RCC>
