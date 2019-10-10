@@ -52,13 +52,21 @@ void KKSession::handleRequest(QString message) {
         KKPayload req(message);
         req.decodeHeader();
         if(req.getType() == "login") {
+#ifdef ENV
+            this->sendResponse("login","ok","Response mocked");
+#else
             handleLoginRequest(req);
+#endif
         }
         else if(req.getType() == "signup") {
             handleSignupRequest(req);
         }
         else if(req.getType() == "openfile") {
+#ifdef ENV
+            this->sendResponse("openfile", "ok", "nomeFile");
+#else
             handleOpenFileRequest(req);
+#endif
         }
         else if(req.getType() == "sharefile") {
             handleShareFileRequest(req);
