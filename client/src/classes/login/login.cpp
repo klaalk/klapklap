@@ -1,42 +1,105 @@
 #include "login.h"
-#include "ui_loginwindow.h"
+#include "ui_accessdialog.h"
 
 #include <QSizePolicy>
 
-LoginWindow::LoginWindow(QWidget *parent) :
+AccessDialog::AccessDialog(QWidget *parent) :
     QMainWindow(parent),
-    ui_(new Ui::LoginWindow) {
-    ui_->setupUi(this);
+    ui_(new Ui::AccessDialog),
+    gif_(new QMovie(":/gif/animation.gif")),
+    logo_(new QPixmap(":/images/logo.jpg")),
+    emailRegexp_(new QRegularExpression("^\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b")){
 
-    gif = new QMovie(":/gif/animation.gif");
-    ui_->gifViewer->setMovie(gif);
-    ui_->gifViewer->setStyleSheet("background-color: white;");
-    QSizePolicy p;
+    ui_->setupUi(this);
     setFixedSize(this->size());
-    setStyleSheet("LoginWindow {background-color: white;}");
+    setStyleSheet("AccessDialog {background-color: white;}");
+
+    ui_->gif_viewer->setStyleSheet("background-color: white;");
+    ui_->gif_viewer->setMovie(gif_);
+    ui_->logo_view->setPixmap((*logo_).scaled(200,190,Qt::KeepAspectRatio));
+    ui_->signup_widget->hide();
 }
 
-LoginWindow::~LoginWindow(){
+AccessDialog::~AccessDialog(){
     delete ui_;
 }
 
-void LoginWindow::enableLoginBtn() {
-    ui_->loginBtn->setEnabled(true);
+void AccessDialog::enableLoginBtn() {
+    ui_->login_btn->setEnabled(true);
 }
 
-void LoginWindow::showLoader(bool show) {
+void AccessDialog::showLoader(bool show) {
     if(show) {
-        ui_->gifViewer->show();
-        gif->start();
+        ui_->login_widget->hide();
+        ui_->gif_viewer->show();
+        gif_->start();
     } else {
-        ui_->gifViewer->hide();
-        gif->stop();
+        ui_->gif_viewer->hide();
+        gif_->stop();
+        ui_->login_widget->show();
     }
 }
 
-void LoginWindow::on_loginBtn_clicked() {
-    QString username = ui_->login_email_input->text();
+void AccessDialog::on_login_btn_clicked() {
+    QString email = ui_->login_email_input->text();
     QString password = ui_->login_password_input->text();
-    emit loginBtnClicked(username, password);
+    emit loginBtnClicked(email, password);
 }
+
+void AccessDialog::on_show_signup_btn_clicked()
+{
+    ui_->login_widget->hide();
+    ui_->signup_widget->show();
+}
+
+void AccessDialog::on_signup_btn_clicked()
+{
+
+}
+
+void AccessDialog::on_back_link_btn_clicked()
+{
+    ui_->login_widget->show();
+    ui_->signup_widget->hide();
+}
+
+void AccessDialog::on_login_email_input_editingFinished()
+{
+    bool isValid = checkLoginForm();
+    ui_->login_btn->setEnabled(isValid);
+}
+
+void AccessDialog::on_login_email_input_textChanged(const QString &arg1)
+{
+    if (!canCheckEmail) return;
+    bool isValid = checkLoginForm();
+    ui_->login_btn->setEnabled(isValid);
+}
+
+void AccessDialog::on_login_password_input_editingFinished()
+{
+    bool isValid = checkLoginForm();
+    ui_->login_btn->setEnabled(isValid);
+
+    canCheckEmail = !isValid;
+}
+
+bool AccessDialog::checkLoginForm() {
+    QString email = ui_->login_email_input->text();
+    QString password = ui_->login_password_input->text();
+
+    bool isValidEmail = false;
+
+    if (!(*emailRegexp_).match(email).hasMatch()) {
+       ui_->login_hint_label->setText("Email inserita non valida");
+       isValidEmail = false;
+    } else {
+       ui_->login_hint_label->setText("");
+       isValidEmail = true;
+    }
+
+    return isValidEmail;
+}
+
+
 

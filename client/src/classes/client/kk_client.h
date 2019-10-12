@@ -50,7 +50,7 @@ private slots:
     void handleSslErrors(const QList<QSslError> &errors);
     void handleClosedConnection();
 
-    void sendSignupRequest(QString email, QString password, QString name, QString surname);
+    void sendSignupRequest(QString email, QString password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, QString password);
     void sendOpenFileRequest(QString fileName);
     void sendCrdtRequest(QString crdtType, QString crdt);
@@ -70,7 +70,7 @@ private:
     QWebSocket socket_;
     QTimer timer_;
 
-    LoginWindow login_;
+    AccessDialog login_;
     TextEdit editor_;
     ChatDialog chat_;
     OpenFileDialog openFile_;
@@ -83,6 +83,5 @@ private:
 };
 
 typedef std::shared_ptr<KKClient> KKClientPtr;
-
 
 #endif //CLIENT_CHAT_CLIENT_H

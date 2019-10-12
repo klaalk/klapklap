@@ -55,9 +55,9 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
 RESOURCES += assets/client.qrc
 
 FORMS += \
+        ui/accessdialog.ui \
         ui/modaldialog.ui \
         ui/chatdialog.ui \
-        ui/loginwindow.ui \
         ui/openfiledialog.ui
 
 build_all:!build_pass {

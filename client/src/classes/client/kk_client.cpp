@@ -11,29 +11,31 @@ KKClient::KKClient(const QUrl &url, QObject *parent)
     connect(&socket_, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors), this, &KKClient::handleSslErrors);
     connect(&modal_, &ModalDialog::modalButtonClicked, this, &KKClient::handleModalButtonClick);
     connect(&modal_, &ModalDialog::modalClosed, this, &KKClient::handleModalClosed);
-    connect(&login_, &LoginWindow::loginBtnClicked, this, &KKClient::sendLoginRequest);
-    connect(&login_, &LoginWindow::signupBtnClicked, this, &KKClient::sendSignupRequest);
+    connect(&login_, &AccessDialog::loginBtnClicked, this, &KKClient::sendLoginRequest);
+    connect(&login_, &AccessDialog::signupBtnClicked, this, &KKClient::sendSignupRequest);
     connect(&timer_, &QTimer::timeout, this, &KKClient::handleTimeOutConnection);
 
     state_ = "not connected";
     timer_.start(5000);
     socket_.open(QUrl(url_));
-    login_.showLoader(true);
     login_.show();
+    login_.showLoader(true);
 }
 
 void KKClient::sendLoginRequest(QString email, QString password) {
     email_ = email;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
+    login_.showLoader(true);
     sendRequest("login", "req", email + "_" + psw);
 }
 
-void KKClient::sendSignupRequest(QString email, QString password, QString name, QString surname) {
+void KKClient::sendSignupRequest(QString email, QString password, QString name, QString surname, QString username) {
     email_ = email;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
-    sendRequest("signup", "req", email + "_" + psw + "_" + name + "_" + surname);
+    login_.showLoader(true);
+    sendRequest("signup", "req", email + "_" + psw + "_" + name + "_" + surname + "_" + username);
 }
 
 void KKClient::sendOpenFileRequest(QString fileName) {
