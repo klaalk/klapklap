@@ -314,7 +314,7 @@
            <string extracomment="Inserisci il tuo nome"/>
           </property>
           <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
+           <enum>QLineEdit::Normal</enum>
           </property>
          </widget>
         </item>
@@ -350,7 +350,7 @@
            <string extracomment="Inserisci il tuo cognome"/>
           </property>
           <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
+           <enum>QLineEdit::Normal</enum>
           </property>
          </widget>
         </item>
@@ -367,7 +367,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="signup_password_input">
+         <widget class="QLineEdit" name="signup_email_input">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -380,10 +380,10 @@
            </font>
           </property>
           <property name="toolTip">
-           <string extracomment="Inserisci la tua email"/>
+           <string extracomment="Insersci la tua password. Deve contenere almeno 8 caratteri"/>
           </property>
           <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
+           <enum>QLineEdit::Normal</enum>
           </property>
          </widget>
         </item>
@@ -416,7 +416,7 @@
            <string extracomment="Inserisci il tuo username"/>
           </property>
           <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
+           <enum>QLineEdit::Normal</enum>
           </property>
          </widget>
         </item>
@@ -433,7 +433,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="signup_email_input">
+         <widget class="QLineEdit" name="signup_password_input">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -446,7 +446,10 @@
            </font>
           </property>
           <property name="toolTip">
-           <string extracomment="Insersci la tua password. Deve contenere almeno 8 caratteri"/>
+           <string extracomment="Inserisci la tua email"/>
+          </property>
+          <property name="echoMode">
+           <enum>QLineEdit::Password</enum>
           </property>
          </widget>
         </item>
@@ -519,9 +522,9 @@
      </item>
     </layout>
    </widget>
-   <zorder>signup_widget</zorder>
    <zorder>login_widget</zorder>
    <zorder>gif_viewer</zorder>
+   <zorder>signup_widget</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
