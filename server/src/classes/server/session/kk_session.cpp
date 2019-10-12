@@ -75,15 +75,22 @@ void KKSession::handleRequest(QString message) {
 void KKSession::handleLoginRequest(KKPayload request) {
     QStringList _body = request.getBody().split("_");
     id = _body[0];
+#ifndef ENV
     fileSystem->writeFile("log","Client info (\"" + id + "\" " + socket->peerAddress().toString()+":" + QString::number(socket->peerPort()) + ")");
+#endif
     KKTask *mytask = new KKTask([=]() {
+        #ifndef ENV
         bool result = db->login(_body[0],_body[1]);
+        #endif
+        bool result = true;
         if(result) {
-            QStringList q=db->getUserFile(_body[0]);
             QString message ="";
+            #ifndef ENV
+            QStringList q=db->getUserFile(_body[0]);
             std::for_each(q.begin(), q.end(), [&](QString msg){
                 message += msg + "_";
             });
+            #endif
             this->sendResponse("login","ok", message);
         } else {
             this->sendResponse("login","ko","Invalid credentials");
@@ -117,22 +124,28 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     QString result = "ok";
     auto search = files->find(completeFileName);
     if (search != files->end()) {
-        // il file era già aperto ed è nella mappa globale
+#ifndef ENV
+         il file era già aperto ed è nella mappa globale
         fileSystem->openFile(id, completeFileName);
+#endif
         file = files->value(completeFileName);
         file->join(sharedFromThis());
         message = "File esistente, sei stato aggiunto correttamente";
     } else {
-        // Apro il file. Con i dovuti controlli
+#ifndef ENV
+         Apro il file. Con i dovuti controlli
         completeFileName = fileSystem->createFile(id, fileName);
+#endif
         if(completeFileName != "ERR_CREATEFILE") {
             file = QSharedPointer<KKFile>(new KKFile());
             file->join(sharedFromThis());
             files->insert(completeFileName, file);
             auto search = files->find(completeFileName);
             if (search != files->end()) {
+#ifndef ENV
                 //sto aprendo un file condiviso/privato
                 fileSystem->openFile(id, completeFileName);
+#endif
                 message = "File creato, sei stato aggiunto correttamente";
             } else {
                 message = "Non è stato possibile creare il file";
@@ -143,8 +156,10 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
             result = "ko";
         }
     }
+#ifndef ENV
     fileSystem->writeFile("log", completeFileName + ": " + message);
     //mando al client la risposta della request.
+#endif
     sendResponse("openfile", result, message);
     if(result == "ok") {
         // Mi aggiorno con gli ultimi messaggi mandati.
