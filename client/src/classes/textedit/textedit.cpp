@@ -657,7 +657,7 @@ void TextEdit::cursorPositionChanged()
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
 
-    alignmentChanged(textEdit->alignment());
+//    alignmentChanged(textEdit->alignment());
 
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor cursor = textEdit->textCursor();
@@ -831,11 +831,11 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for(kk_cursor* c : cursors_.values()) {
-        if(c->getGlobalPositon() >= globalPos && c!=remoteCurs){
+        if(c->getGlobalPositon() > globalPos && c!=remoteCurs){
             if(operation == "insert") {
-                 c->setGlobalPositon(c->getGlobalPositon()+text.length());
+                 c->setGlobalPositon(c->getGlobalPositon()+(text.length()-1));
             } else if(operation == "delete") {
-                 c->setGlobalPositon(c->getGlobalPositon()-text.length());
+                 c->setGlobalPositon(c->getGlobalPositon()-(text.length()-1));
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
@@ -877,12 +877,10 @@ void TextEdit::onTextChange() {
     } else if(s.length() - lastLength >= 1) {
         //inserito 1 o più
        diffText=s.mid(lastCursorPos, s.length() - lastLength);//salva in diff text le cose nuove scritte
-
-       qDebug()<<"stringa di differenza:"<< diffText <<"\n";
        emit insertTextToCRDT(diffText, lastCursorPos);
     }
 
-    qDebug() << "\tDiff: " << diffText << "in " << cursorPos;
+    qDebug() << "Diff: " << diffText << "in " << cursorPos;
     //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
 
     QTextCursor editorCurs = textEdit->textCursor();

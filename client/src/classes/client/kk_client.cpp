@@ -88,17 +88,20 @@ void KKClient::handleResponse(QString message) {
 
     } else if(res.getType() == "crdt" && res.getResultType() == "ok"){
         QStringList bodyList_ = res.getBody().split("_");
-        KKCharPtr char_ = KKCharPtr(new KKChar(*bodyList_[2].toLatin1().data(), bodyList_[1].toStdString()));
+        int increment = bodyList_[0] == "insert" ? 0 : 1;
 
-        for(int i = 3; i<bodyList_.size(); i++){
+        QString siteId = bodyList_[1 + increment];
+        QString text = bodyList_[2 + increment];
+        KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
+        for(int i = 3 + increment; i<bodyList_.size(); i++){
             unsigned long digit = bodyList_[i].toULong();
-            KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, bodyList_[1].toStdString()));
+            KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
             char_->pushIdentifier(ptr);
         }
-
         unsigned long remotePos = bodyList_[0] == "insert" ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
-        crdt_->print();
-        editor_.applyRemoteChanges(bodyList_[0], bodyList_[1], bodyList_[2], static_cast<int>(remotePos));
+        QString labelName = bodyList_[0] == "insert" ? siteId : bodyList_[1];
+        qDebug() << "Label Name: " << labelName;
+        editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos));
     } else if(res.getType() == "chat" && res.getResultType() == "ok") {
         QStringList res_ = res.getBody().split('_');
         chat_.appendMessage(res_[0], res_[1]);
@@ -122,44 +125,30 @@ void KKClient::handleClosedConnection() {
 }
 
 void KKClient::onInsertTextCRDT(QString diffText, int position) {
-//    std::thread t([=](){
-//        mtxCrdt_.lock();
-        QByteArray ba = diffText.toLocal8Bit();
-        QString siteId;
-        char *c_str = ba.data();
-        unsigned long line, col;
-        for(int i = 0; *c_str != '\0'; c_str++, i++) {
-            crdt_->calculateLineCol(position + i, &line, &col);
-            KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col));
-            crdt_->print();
-            QString ids = QString::fromStdString(char_->getIdentifiersString());
-            sendCrdtRequest("insert", QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
-        }
-
-
-//        mtxCrdt_.unlock();
-//    });
-//    t.detach();
+    QByteArray ba = diffText.toLocal8Bit();
+    QString siteId;
+    char *c_str = ba.data();
+    unsigned long line, col;
+    for(int i = 0; *c_str != '\0'; c_str++, i++) {
+        crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
+        KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col));
+        crdt_->print();
+        QString ids = QString::fromStdString(char_->getIdentifiersString());
+        sendCrdtRequest("insert", QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
+    }
 }
 
 void KKClient::onRemoveTextCRDT(int start, int end) {
     unsigned long startLine, endLine, startCol, endCol;
-    crdt_->calculateLineCol(start, &startLine, &startCol);
-    crdt_->calculateLineCol(end, &endLine, &endCol);
-//    std::thread t([=](){
-//        mtxCrdt_.lock();
-//        qDebug() << startLine << " " << startCol << " - " << endLine << " " << endCol;   
-        list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
-                            KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
-        crdt_->print();
-//        mtxCrdt_.unlock();
-        std::for_each(deletedChars.begin(), deletedChars.end(),[&](KKCharPtr char_){
-            QString ids = QString::fromStdString(char_->getIdentifiersString());
-            sendCrdtRequest("delete",QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
-        });
-//    });
-//    t.detach();
-}
+    crdt_->calculateLineCol(static_cast<unsigned long>(start), &startLine, &startCol);
+    crdt_->calculateLineCol(static_cast<unsigned long>(end), &endLine, &endCol);
+    list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
+                        KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
+    crdt_->print();
+    std::for_each(deletedChars.begin(), deletedChars.end(),[&](KKCharPtr char_){
+        QString ids = QString::fromStdString(char_->getIdentifiersString());
+        sendCrdtRequest("delete", email_ + "_"+QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
+    });}
 
 void KKClient::onSiteIdClicked(QString siteId){
     QSharedPointer<QList<int>> myList=QSharedPointer<QList<int>>(new QList<int>());
