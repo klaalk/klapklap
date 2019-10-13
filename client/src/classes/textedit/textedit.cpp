@@ -63,7 +63,7 @@ TextEdit::TextEdit(QWidget *parent)
 
     this->setMouseTracking(true);
     textEdit = new QTextEdit(this);
-//Collega funzioni nostre a funzioni di QTextEdit
+    //Collega funzioni nostre a funzioni di QTextEdit
     connect(textEdit, &QTextEdit::currentCharFormatChanged,
             this, &TextEdit::currentCharFormatChanged);
     connect(textEdit, &QTextEdit::cursorPositionChanged,
@@ -372,6 +372,23 @@ bool TextEdit::load(const QString &f)
 
     setCurrentFileName(f);
     return true;
+}
+
+void TextEdit::resetState() {
+    blockCursor = false;
+    isTextSelected = false;
+    lastLength = 0;
+    cursorPos=0;
+    lastCursorPos=0;
+    fontSize=0;
+    selection_start=0;
+    selection_end=0;
+    lastText = "";
+    diffText = "";
+    fileName = "";
+    cursors_.clear();
+    siteIds_.clear();
+    textEdit->clear();
 }
 
 bool TextEdit::maybeSave()

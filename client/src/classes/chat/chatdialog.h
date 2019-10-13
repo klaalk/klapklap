@@ -60,6 +60,7 @@ class ChatDialog : public QDialog, private Ui::ChatDialog
 
 public:
     ChatDialog(QWidget *parent = 0);
+    void resetState();
     void setNickName(QString nick);
     void appendMessage(const QString &from, const QString &message);
     void addParticipant(const QString &nick);

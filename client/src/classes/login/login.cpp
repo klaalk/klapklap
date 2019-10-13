@@ -8,7 +8,7 @@ AccessDialog::AccessDialog(QWidget *parent) :
     ui_(new Ui::AccessDialog),
     gif_(new QMovie(":/gif/animation.gif")),
     logo_(new QPixmap(":/images/logo.jpg")),
-    emailRegexp_(new QRegularExpression("^\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b")){
+    emailRegexp_(new QRegularExpression("^\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}\\b")){
 
     ui_->setupUi(this);
     setFixedSize(this->size());
@@ -30,13 +30,13 @@ void AccessDialog::enableLoginBtn() {
 
 void AccessDialog::showLoader(bool show) {
     if(show) {
-        ui_->login_widget->hide();
+        ui_->access_frame->hide();
         ui_->gif_viewer->show();
         gif_->start();
     } else {
         ui_->gif_viewer->hide();
         gif_->stop();
-        ui_->login_widget->show();
+        ui_->access_frame->show();
     }
 }
 

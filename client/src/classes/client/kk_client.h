@@ -42,13 +42,14 @@ public:
 
 private slots:
     void handleOpenedConnection();
+    void handleTimeOutConnection();
+    void handleErrorConnection(QAbstractSocket::SocketError error);
+    void handleSslErrors(const QList<QSslError> &errors);
+
+    void handleResponse(QString message);
+
     void handleModalButtonClick(QString btnText, QString modalType);
     void handleModalClosed(QString modalType);
-    void handleErrorConnection(QAbstractSocket::SocketError error);
-    void handleTimeOutConnection();
-    void handleResponse(QString message);
-    void handleSslErrors(const QList<QSslError> &errors);
-    void handleClosedConnection();
 
     void sendSignupRequest(QString email, QString password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, QString password);
@@ -60,9 +61,14 @@ private slots:
     void onRemoveTextCRDT(int start, int end);
 
     void onSiteIdClicked(QString siteId);
-
 private:
-    void sendRequest(QString type, QString result, QString body);
+    void setInitState();
+
+    void handleLoginResponse(KKPayload res);
+    void handleOpenfileResponse();
+    void handleCrdtResponse(KKPayload res);
+
+    bool sendRequest(QString type, QString result, QString body);
 
     QString email_;
     QString state_;

@@ -23,6 +23,8 @@ public:
 
     QString getBody();
 
+    int getTotalLength();
+
     QString getType();
 
     QString getResultType();

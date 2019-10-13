@@ -17,7 +17,13 @@ using std::shared_ptr;
 
 
 KKCrdt::KKCrdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(strategy), base(32) {
+
 };
+
+KKCrdt::~KKCrdt() {
+    text.clear();
+    strategy_cache.clear();
+}
 
 KKCharPtr KKCrdt::localInsert(char val, KKPosition pos) {
     KKCharPtr newChar = this->generateChar(val, pos);

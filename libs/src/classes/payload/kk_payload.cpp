@@ -17,6 +17,10 @@ QString KKPayload::getBody(){
     return msg;
 }
 
+int KKPayload::getTotalLength() {
+    return data.toLatin1().length();
+}
+
 QString KKPayload::getType() {
     return type;
 }

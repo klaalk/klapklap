@@ -7,7 +7,9 @@
 using std::string;
 
 KKChar::KKChar(char value, string siteId) : siteId(siteId), value(value) {};
-
+KKChar::~KKChar() {
+    position.clear();
+}
 void KKChar::pushIdentifier(KKIdentifierPtr id) {
     position.push_back(id);
 }
