@@ -82,14 +82,11 @@ void KKClient::handleResponse(QString message) {
        connect(&chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
        openFile_.hide();
        editor_.show();
-       chat_.show();
        chat_.setNickName(email_);
-
-
+       chat_.show();
     } else if(res.getType() == "crdt" && res.getResultType() == "ok"){
         QStringList bodyList_ = res.getBody().split("_");
         int increment = bodyList_[0] == "insert" ? 0 : 1;
-
         QString siteId = bodyList_[1 + increment];
         QString text = bodyList_[2 + increment];
         KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));

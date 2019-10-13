@@ -59,6 +59,7 @@ private slots:
 
 private:
     void sendRequest(QString type, QString result, QString body);
+
     QString email_;
     QWebSocket socket_;
     LoginWindow login_;

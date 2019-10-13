@@ -858,47 +858,50 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
 void TextEdit::onTextChange() {
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
+    // Restituisce il testo presente nell'editor.
+    QString s = textEdit->toPlainText();
 
-    QString s = textEdit->toPlainText();//prende testo che sta scritto e lo mette in stringa
-    qDebug()<<"PLAIN TEXT"<< s<<"\n";
+    qDebug()<<"PLAIN TEXT"<< s <<"\n";
 
     if(lastLength - s.length() >= 1) {
-        //cancellato 1 o più
-//        qDebug()<<"LASTTEXT:"<< lastText <<"\n";
-//        qDebug()<<"stringa di differenza:"<< diffText <<"\n";
+        // Cancellato 1 o più
         if(isTextSelected){
-          emit removeTextFromCRDT( this->selection_start, this->selection_end);
+            qDebug()<<"Rimuovo da CRDT il testo selezionato\n";
+            emit removeTextFromCRDT( this->selection_start, this->selection_end);
         }
         else{
-             diffText=lastText.mid(cursorPos, lastLength - s.length());
-             emit removeTextFromCRDT(cursorPos, lastCursorPos);
+            qDebug()<<"Rimuovo da CRDT il carattere cancellato\n";
+            diffText=lastText.mid(cursorPos, lastLength - s.length());
+            emit removeTextFromCRDT(cursorPos, lastCursorPos);
         }
 
     } else if(s.length() - lastLength >= 1) {
-        //inserito 1 o più
-       diffText=s.mid(lastCursorPos, s.length() - lastLength);//salva in diff text le cose nuove scritte
-       emit insertTextToCRDT(diffText, lastCursorPos);
+        // Inserito 1 o più
+        //salva in diff text le cose nuove scritte
+        diffText=s.mid(lastCursorPos, s.length() - lastLength);
+        emit insertTextToCRDT(diffText, lastCursorPos);
     }
 
     qDebug() << "Diff: " << diffText << "in " << cursorPos;
-    //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
 
+    // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
 
-    int curPos_ = editorCurs.position();//da la posizione x,y di coordinate sullo schermo del tuo cursore
+    // Restituisce la posizione x,y di coordinate sullo schermo del tuo cursore
+    int curPos_ = editorCurs.position();
 
-    for(kk_cursor* c : cursors_.values()) {
-        if(c->getGlobalPositon()>=editorCurs.position()){
-            if(s.length() - lastLength >= 1) {
+    for (kk_cursor* c : cursors_.values()) {
+        if (c->getGlobalPositon() >= editorCurs.position()) {
+            if (s.length() - lastLength > 0) {
                  c->setGlobalPositon(c->getGlobalPositon()+diffText.length());
-            } else if(lastLength - s.length() >= 1) {
+            } else if(lastLength - s.length() > 0) {
                  c->setGlobalPositon(c->getGlobalPositon()-diffText.length());
             }
-
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
         }
     }
+
     // Riporto il cursore dell'editor alla posizione di partenza.
     editorCurs.setPosition(curPos_);
     lastLength = s.length();
