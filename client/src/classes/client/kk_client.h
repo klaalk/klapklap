@@ -63,6 +63,7 @@ private slots:
 
 private:
     void sendRequest(QString type, QString result, QString body);
+
     QString email_;
     QString state_;
 
