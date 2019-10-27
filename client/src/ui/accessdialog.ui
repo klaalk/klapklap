@@ -112,7 +112,7 @@
           </property>
           <layout class="QVBoxLayout" name="loginLayout_4">
            <item>
-            <widget class="QLabel" name="name_label">
+            <widget class="QLabel" name="signup_name_label">
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -127,7 +127,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="name_input">
+            <widget class="QLineEdit" name="signup_name_input">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -148,7 +148,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="surname_label">
+            <widget class="QLabel" name="signup_surname_label">
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -163,7 +163,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="surname_input">
+            <widget class="QLineEdit" name="signup_surname_input">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -217,7 +217,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="username_label">
+            <widget class="QLabel" name="signup_username_label">
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -229,7 +229,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="username_input">
+            <widget class="QLineEdit" name="signup_username_input">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -284,13 +284,25 @@
            </item>
            <item>
             <widget class="QLabel" name="signup_hint_label">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
+               <pointsize>8</pointsize>
               </font>
              </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -454,6 +466,22 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="login_hint_label_2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -495,6 +523,12 @@
            </item>
            <item>
             <widget class="QLabel" name="choise_label">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -534,8 +568,6 @@
      </item>
     </layout>
    </widget>
-   <zorder>access_frame</zorder>
-   <zorder>gif_viewer</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
