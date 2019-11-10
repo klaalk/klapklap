@@ -104,7 +104,7 @@ void ChatDialog::returnPressed()
                          .arg(text.left(text.indexOf(' '))));
         textEdit->setTextColor(color);
     } else {
-        emit sendMessageEvent(myNickName+"_"+text);
+        emit sendMessageEvent(myNickName, text);
     }
     lineEdit->clear();
 }

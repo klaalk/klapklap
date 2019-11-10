@@ -9,6 +9,8 @@
 #include <QSharedPointer>
 #include <QStringList>
 #include <QVector>
+#include <QtCore/QDebug>
+
 #include "../../constants/kk_constants.h"
 
 class KKPayload {
@@ -16,27 +18,26 @@ public:
     enum {
         max_body_length = 512
     };
-
     /// Costruttuore.
     KKPayload(QString data);
-    KKPayload(QString type, QString result, QString message);
+    KKPayload(QString type, QString result, QStringList bodyList);
 
+    QString getData();
     QString getBody();
-
+    QStringList getBodyList();
+    QString getHeader();
+    QString getRequestType();
+    QString getResultType();
     int getTotalLength();
 
-    QString getType();
-
-    QString getResultType();
-
-    QString decodeHeader();
-
-    QString encodeHeader();
+    QString decode();
+    QString encode();
 
 private:
     QString data;
-    QString msg;
-    QString type;
+    QString header;
+    QString body;
+    QString request;
     QString result;
     size_t bodyLength;
 };

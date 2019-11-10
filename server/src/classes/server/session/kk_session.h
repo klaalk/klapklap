@@ -32,7 +32,7 @@ public:
     KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files, QObject *parent = 0);
     ~KKSession();
     void deliver(KKPayloadPtr msg);
-    void sendResponse(QString type, QString result, QString body);
+    void sendResponse(QString type, QString result, QStringList values);
     void setSocket(QWebSocket* Descriptor);
 public slots:
     void handleRequest(QString message);

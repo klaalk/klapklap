@@ -1,7 +1,5 @@
 #include <QApplication>
 #include <QPalette>
-
-
 #include "classes/client/kk_client.h"
 
 int main(int argc, char* argv[])

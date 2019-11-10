@@ -54,8 +54,8 @@ private slots:
     void sendSignupRequest(QString email, QString password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, QString password);
     void sendOpenFileRequest(QString fileName);
-    void sendCrdtRequest(QString crdtType, QString crdt);
-    void sendMessageRequest(QString message);
+    void sendCrdtRequest(QStringList crdt);
+    void sendMessageRequest(QString username, QString message);
 
     void onInsertTextCRDT(QString diffText, int position);
     void onRemoveTextCRDT(int start, int end);
@@ -63,12 +63,11 @@ private slots:
     void onSiteIdClicked(QString siteId);
 private:
     void setInitState();
-
     void handleLoginResponse(KKPayload res);
     void handleOpenfileResponse();
     void handleCrdtResponse(KKPayload res);
-
-    bool sendRequest(QString type, QString result, QString body);
+    void handleErrorResponse();
+    bool sendRequest(QString type, QString result, QStringList body);
 
     QString email_;
     QString state_;
@@ -77,7 +76,7 @@ private:
     QWebSocket socket_;
     QTimer timer_;
 
-    AccessDialog login_;
+    AccessDialog access_;
     TextEdit editor_;
     ChatDialog chat_;
     OpenFileDialog openFile_;

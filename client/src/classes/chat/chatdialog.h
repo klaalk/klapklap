@@ -66,7 +66,7 @@ public:
     void addParticipant(const QString &nick);
     void removeParticipant(const QString &nick);
 signals:
-    void sendMessageEvent(QString message);
+    void sendMessageEvent(QString username, QString message);
     void siteIdClicked(QString nickname);
 
 private slots:

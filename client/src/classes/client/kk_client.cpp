@@ -20,8 +20,8 @@ KKClient::KKClient(const QUrl &url, QObject *parent)
     connect(&modal_, &ModalDialog::modalClosed, this, &KKClient::handleModalClosed);
 
     // Gestisco le richieste di login o di registrazione
-    connect(&login_, &AccessDialog::loginBtnClicked, this, &KKClient::sendLoginRequest);
-    connect(&login_, &AccessDialog::signupBtnClicked, this, &KKClient::sendSignupRequest);
+    connect(&access_, &AccessDialog::loginBtnClicked, this, &KKClient::sendLoginRequest);
+    connect(&access_, &AccessDialog::signupBtnClicked, this, &KKClient::sendSignupRequest);
 
     // Gestisco le richieste di apertura file
     connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
@@ -41,8 +41,8 @@ KKClient::KKClient(const QUrl &url, QObject *parent)
 }
 
 void KKClient::setInitState() {
-    state_ = "NotConnected";
-    timer_.start(5000);
+    state_ = NOT_CONNECTED;
+    timer_.start(TIMEOUT_VALUE);
     socket_.open(QUrl(url_));
 
     chat_.hide();
@@ -50,64 +50,64 @@ void KKClient::setInitState() {
     openFile_.hide();
     modal_.hide();
 
-    login_.show();
-    login_.showLoader(true);
+    access_.show();
+    access_.showLoader(true);
 }
 
 void KKClient::sendLoginRequest(QString email, QString password) {
     email_ = email;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
-    login_.showLoader(true);
+    access_.showLoader(true);
     if (!timer_.isActive())
-        timer_.start(5000);
-    sendRequest("login", "req", email + "_" + psw);
+        timer_.start(TIMEOUT_VALUE);
+    sendRequest(LOGIN, NONE, {email, psw});
 }
 
 void KKClient::sendSignupRequest(QString email, QString password, QString name, QString surname, QString username) {
     email_ = email;
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
-    login_.showLoader(true);
+    access_.showLoader(true);
     if (!timer_.isActive())
-        timer_.start(5000);
-    sendRequest("signup", "req", email + "_" + psw + "_" + name + "_" + surname + "_" + username);
+        timer_.start(TIMEOUT_VALUE);
+    sendRequest(SIGNUP, NONE, {email, psw, name, surname, username});
 }
 
 void KKClient::sendOpenFileRequest(QString fileName) {
     if (!timer_.isActive())
-        timer_.start(5000);
-    sendRequest("openfile", "req", fileName);
+        timer_.start(TIMEOUT_VALUE);
+    sendRequest(OPENFILE, NONE, {fileName});
 }
 
-void KKClient::sendMessageRequest(QString message) {
-    bool result = sendRequest("chat", "req", message);
+void KKClient::sendMessageRequest(QString username, QString message) {
+    bool result = sendRequest(CHAT, NONE, {username, message});
     if (!result || !socket_.isValid()) {
-        modal_.setModal("Attenzione! Sembra che tu non sia connesso alla rete.", "Riprova", "ChatError");
+        modal_.setModal("Attenzione! Sembra che tu non sia connesso alla rete.", "Riprova", CHAT_ERROR);
         modal_.show();
     }
 }
 
-void KKClient::sendCrdtRequest(QString crdtType, QString crdt) {
-    bool result = sendRequest("crdt", "req", crdtType + "_" + crdt);
+void KKClient::sendCrdtRequest(QStringList crdt) {
+    bool result = sendRequest(CRDT, NONE, crdt);
     if (!result || !socket_.isValid()) {
-        modal_.setModal("Non è stato possibile aggiornare il file dal server!", "Riprova", "CrdtError");
+        modal_.setModal("Non è stato possibile aggiornare il file dal server!", "Riprova", CRDT_ERROR);
         modal_.show();
     }
 }
 
-bool KKClient::sendRequest(QString type, QString result, QString body) {
-    KKPayload req(type, result, body);
-    qDebug() << "[send] -" << req.encodeHeader();
-    int size = static_cast<int>(socket_.sendTextMessage(req.encodeHeader()));
+bool KKClient::sendRequest(QString type, QString result, QStringList values) {
+    KKPayload req(type, result, values);
+    qDebug() << "[send] -" << req.encode();
+    int size = static_cast<int>(socket_.sendTextMessage(req.getData()));
     return size = req.getTotalLength();
 }
 
 void KKClient::handleOpenedConnection() {
     qDebug() << "[websocket connected]";
-    state_ = "ConnectedNotLogged";
+    state_ = CONNECTED_NOT_LOGGED;
     timer_.stop();
-    login_.showLoader(false);
+    access_.showLoader(false);
 }
 
 void KKClient::handleModalClosed(QString modalType) {
@@ -115,13 +115,16 @@ void KKClient::handleModalClosed(QString modalType) {
 }
 
 void KKClient::handleModalButtonClick(QString btnText, QString modalType) {
-    if(modalType == "ConnectionTimeout") {
+    if(modalType == CONNECTION_TIMEOUT) {
         setInitState();
-    } else if (modalType == "LogginTimeout") {
+    } else if (modalType == LOGIN_TIMEOUT) {
         setInitState();
-    } else if (modalType == "OpenfileTimeout") {
+    } else if (modalType == OPENFILE_TIMEOUT) {
         setInitState();
-    } else if (modalType == "CrdtError") {
+    } else  if (modalType == LOGIN_ERROR) {
+        modal_.hide();
+        access_.showLoader(false);
+    } else if (modalType == CRDT_ERROR) {
         delete crdt_;
         editor_.resetState();
         chat_.resetState();
@@ -138,59 +141,81 @@ void KKClient::handleErrorConnection(QAbstractSocket::SocketError error) {
 void KKClient::handleTimeOutConnection() {
     qDebug() << "[websocket timeout connection]";
     timer_.stop();
-    if(state_ == "NotConnected") {
-        modal_.setModal("Non è stato possibile connettersi al server!", "Riprova", "ConnectionTimeout");
+    if(state_ == NOT_CONNECTED) {
+        modal_.setModal("Non è stato possibile connettersi al server!", "Riprova", CONNECTION_TIMEOUT);
         modal_.show();
-    } else if(state_ == "ConnectedNotLogged") {
-        modal_.setModal("Connessione al server non riuscita!", "Riprova", "LogginTimeout");
+    } else if(state_ == CONNECTED_NOT_LOGGED) {
+        modal_.setModal("Connessione al server non riuscita!", "Riprova", LOGIN_TIMEOUT);
         modal_.show();
-    } else if (state_ == "ConnectedAndLogged") {
-        modal_.setModal("Non è stato possibile scaricare il file dal server!", "Riprova", "OpenfileTimeout");
+    } else if (state_ == CONNECTED_AND_LOGGED) {
+        modal_.setModal("Non è stato possibile scaricare il file dal server!", "Riprova", OPENFILE_TIMEOUT);
         modal_.show();
     }
     socket_.close();
+}
+
+void KKClient::handleErrorResponse() {
+    if(state_ == CONNECTED_NOT_LOGGED) {
+        modal_.setModal("Hai inserito delle credenziali non valide.\nControlla che email e/o password siano corretti.", "Chiudi", LOGIN_ERROR);
+        modal_.show();
+    } else if (state_ == CONNECTED_AND_LOGGED) {
+        modal_.setModal("Non è stato possibile scaricare il file dal server!", "Chiudi", OPENFILE_ERROR);
+        modal_.show();
+    } else if (state_ == CONNECTED_AND_OPENED) {
+        modal_.setModal("Non è stato possibile aggiornare il file dal server!", "Chiudi", CRDT_ERROR);
+        modal_.show();
+    }
 }
 
 void KKClient::handleResponse(QString message) {
     timer_.stop();
     qDebug() << "[message received] -" << message;
     KKPayload res(message);
-    res.decodeHeader();
-    if(res.getType() == "login") {
-        if (res.getResultType() == "ok")
+    res.decode();
+    // TODO: gestire response signup
+    if(res.getRequestType() == LOGIN) {
+        if (res.getResultType() == SUCCESS)
             handleLoginResponse(res);
-        // TODO: mostrare modale di errore
-    } else if(res.getType() == "openfile") {
-        if (res.getResultType() == "ok")
+        else
+            handleErrorResponse();
+    } else if(res.getRequestType() == OPENFILE) {
+        if (res.getResultType() == SUCCESS)
             handleOpenfileResponse();
-        // TODO: mostrare modale di errore
-    } else if(res.getType() == "crdt"){
-        if (res.getResultType() == "ok")
+        else
+            handleErrorResponse();
+    } else if(res.getRequestType() == CRDT) {
+        if (res.getResultType() == SUCCESS)
             handleCrdtResponse(res);
-        // TODO: mostrare modale di errore
-    } else if(res.getType() == "chat" && res.getResultType() == "ok") {
-        QStringList res_ = res.getBody().split('_');
+        else
+            handleErrorResponse();
+    } else if(res.getRequestType() == CHAT && res.getResultType() == SUCCESS) {
+        QStringList res_ = res.getBodyList();
         chat_.appendMessage(res_[0], res_[1]);
-     } else if(res.getType() == "addedpartecipant" && res.getResultType() == "ok") {
-        chat_.addParticipant(res.getBody());
-     } else if(res.getType() == "removedpartecipant" && res.getResultType() == "ok") {
-        chat_.removeParticipant(res.getBody());
-     }
+     } else if(res.getRequestType() == ADDED_PARTECIPANT && res.getResultType() == SUCCESS) {
+        QStringList list = res.getBodyList();
+        chat_.addParticipant(list[0]);
+     } else if(res.getRequestType() == REMOVED_PARTECIPANT && res.getResultType() == SUCCESS) {
+        QStringList list = res.getBodyList();
+        chat_.removeParticipant(list[0]);
+     } else {
+        modal_.setModal("Errore generico", "Chiudi", GENERIC_ERROR);
+        modal_.show();
+    }
 }
 
 void KKClient::handleLoginResponse(KKPayload res) {
-    state_="ConnectedAndLogged";
-    QStringList files = res.getBody().split("_");
+    state_= CONNECTED_AND_LOGGED;
+    QStringList files = res.getBodyList();
     for(QString s : files) {
         if(s!="")
             openFile_.addFile(s);
     }
-    login_.hide();
+    access_.hide();
     openFile_.show();
 }
 
 void KKClient::handleOpenfileResponse() {
-    state_="ConnectedAndLoggedWithFile";
+    state_= CONNECTED_AND_OPENED;
     crdt_ = new KKCrdt(email_.toStdString(), casuale);
     openFile_.hide();
     editor_.show();
@@ -200,26 +225,30 @@ void KKClient::handleOpenfileResponse() {
 
 void KKClient::handleCrdtResponse(KKPayload res) {
     // Ottengo i campi della risposta
-    QStringList bodyList_ = res.getBody().split("_");
+    QStringList bodyList_ = res.getBodyList();
+    for(QString l : bodyList_)
+        qDebug() << l;
 
-    int increment = bodyList_[0] == "insert" ? 0 : 1;
+    int increment = bodyList_[0] == CRDT_INSERT ? 0 : 1;
     QString siteId = bodyList_[1 + increment];
     QString text = bodyList_[2 + increment];
+    QStringList ids = bodyList_[3 + increment].split(" ");
 
     KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
-    for(int i = 3 + increment; i<bodyList_.size(); i++){
-        unsigned long digit = bodyList_[i].toULong();
+    // size() - 1 per non considerare l'elemento vuoto della string list ids
+    for(int i = 0; i < ids.size() - 1; i++){
+        unsigned long digit = ids[i].toULong();
         KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
         char_->pushIdentifier(ptr);
     }
-    unsigned long remotePos = bodyList_[0] == "insert" ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
-    QString labelName = bodyList_[0] == "insert" ? siteId : bodyList_[1];
+    unsigned long remotePos = bodyList_[0] == CRDT_INSERT ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
+    QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
 
     editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos));
 }
 
 void KKClient::handleSslErrors(const QList<QSslError> &errors) {
-    Q_UNUSED(errors);
+    Q_UNUSED(errors)
     // WARNING: Never ignore SSL errors in production code.
     // The proper way to handle self-signed certificates is to add a custom root
     // to the CA store.
@@ -235,7 +264,7 @@ void KKClient::onInsertTextCRDT(QString diffText, int position) {
         crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
         KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col));
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendCrdtRequest("insert", QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
+        sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids });
     }
 }
 
@@ -247,8 +276,9 @@ void KKClient::onRemoveTextCRDT(int start, int end) {
                         KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
     std::for_each(deletedChars.begin(), deletedChars.end(),[&](KKCharPtr char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendCrdtRequest("delete", email_ + "_"+QString::fromStdString(char_->getSiteId())+ "_" + QString(char_->getValue())+ ids);
-    });}
+        sendCrdtRequest({ CRDT_DELETE, email_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids});
+    });
+}
 
 void KKClient::onSiteIdClicked(QString siteId){
     QSharedPointer<QList<int>> myList=QSharedPointer<QList<int>>(new QList<int>());

@@ -76,7 +76,7 @@ std::string KKChar::getIdentifiersString() {
     std::for_each(position.begin(), position.end(),[&](KKIdentifierPtr i){
         char str[sizeof(unsigned long)+1];
         sprintf(str, "%lu", i->getDigit());
-        identifiers_= identifiers_ + "_" + str;
+        identifiers_= identifiers_ + str + " ";
     });
     return identifiers_;
 }

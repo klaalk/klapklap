@@ -694,9 +694,6 @@ void TextEdit::cursorPositionChanged()
 
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
-    qDebug() << "last cursor: " << lastCursorPos << "current cursor: " << cursorPos;
-    qDebug() << "selected:" << text;
-
     if (list) {
         switch (list->format().style()) {
             case QTextListFormat::ListDisc:
@@ -831,11 +828,11 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     qDebug() << "Remote global:" << globalPos;
     editorCurs.setPosition(globalPos);
     // Eseguo l'operazione
-    if(operation == "insert") {
+    if(operation == CRDT_INSERT) {
         editorCurs.insertText(text);
         //Aggiorno la length.
         lastLength = lastLength + text.length();
-    } else if(operation == "delete") {
+    } else if(operation == CRDT_DELETE) {
         editorCurs.deleteChar();
         //Aggiorno la length.
         lastLength = lastLength - text.length();
@@ -847,9 +844,9 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for(kk_cursor* c : cursors_.values()) {
         if(c->getGlobalPositon() > globalPos && c!=remoteCurs){
-            if(operation == "insert") {
+            if(operation == CRDT_INSERT) {
                  c->setGlobalPositon(c->getGlobalPositon()+(text.length()-1));
-            } else if(operation == "delete") {
+            } else if(operation == CRDT_DELETE) {
                  c->setGlobalPositon(c->getGlobalPositon()-(text.length()-1));
             }
             editorCurs.setPosition(c->getGlobalPositon());
@@ -858,9 +855,9 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     }
     // Riporto il cursore dell'editor alla posizione di partenza.
     if(cursorPos >= globalPos){
-        if(operation == "insert") {
+        if(operation == CRDT_INSERT) {
             cursorPos = cursorPos +text.length();
-        } else if(operation == "delete") {
+        } else if(operation == CRDT_DELETE) {
             cursorPos = cursorPos -text.length();
         }
     }
@@ -880,19 +877,19 @@ void TextEdit::onTextChange() {
         // Cancellato 1 o più
         if(isTextSelected){
             diffText=lastText.mid(selection_start, selection_end);
-            qDebug() << "Testo cancellato: " << diffText << " {" << selection_end << "} {" << selection_end << "}";
+            qDebug() << "Testo cancellato: " << diffText << "start: {" << selection_start << "} end: {" << selection_end << "}";
             emit removeTextFromCRDT( selection_start, selection_end);
         }
         else{
             diffText=lastText.mid(cursorPos, lastLength - s.length());
-            qDebug() << "Testo cancellato:" << diffText << " {" << cursorPos << "} {" << lastCursorPos << "}";
+            qDebug() << "Testo cancellato:" << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
             emit removeTextFromCRDT(cursorPos, lastCursorPos);
         }
     } else if(s.length() - lastLength >= 1) {
         // Inserito 1 o più
         //salva in diff text le cose nuove scritte
         diffText=s.mid(lastCursorPos, s.length() - lastLength);
-        qDebug() << "Testo inserito: " << diffText << " {" << cursorPos << "} {" << lastCursorPos << "}";
+        qDebug() << "Testo inserito: " << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
         emit insertTextToCRDT(diffText, lastCursorPos);
     }
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.

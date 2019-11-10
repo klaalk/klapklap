@@ -12,6 +12,8 @@
 #include <QLabel>
 #include <QListWidgetItem>
 
+#include "../../../../libs/src/constants/kk_constants.h"
+
 class QAction;
 class QComboBox;
 class QFontComboBox;
