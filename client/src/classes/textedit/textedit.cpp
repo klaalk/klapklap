@@ -805,23 +805,33 @@ void TextEdit::modifyLabels(){
 }
 
 void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos) {
+    QBrush color;
     //Blocco il cursore dell'editor.
     blockCursor = true;
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
     //Prelevo il cursore remoto.
     kk_cursor* remoteCurs = cursors_.value(name);
-    // Faccio dei controlli sulla fattibilità dell'operazione.
+    //Faccio dei controlli sulla fattibilità dell'operazione.
     globalPos = globalPos > lastLength ? lastLength : globalPos;
     globalPos = globalPos < 0 ? 0 : globalPos;
-    // Se non esiste lo creo e lo memorizzo.
+    //Se non esiste lo creo e lo memorizzo.
     if(remoteCurs == nullptr) {
         //Creo il cursore per l'utente se non esiste.
         QLabel* qLbl = new QLabel(name, textEdit);
         QLabel* qLbl2 = new QLabel("|", textEdit);
         remoteCurs = new kk_cursor(globalPos);
         remoteCurs->setLabels(qLbl, qLbl2);
-        remoteCurs->setLabelsStyle("rgb(196, 232, 255)", fontSize);
+        //Seleziono randomicamente un colore dalla lista dei colori, controllo se era già stato usato
+        do{
+            int index=rand() % colors_.size();
+            color= colors_.at(index);
+        }
+        while (siteIdsColors_.values().contains(color));
+        //Inserisco nella mappa dei colori
+        siteIdsColors_.insert(name,color);
+        //Modifico la label
+        remoteCurs->setLabelsStyle(color, fontSize);
         remoteCurs->showLabels();
         cursors_.insert(name, remoteCurs);
     }
@@ -928,14 +938,27 @@ void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list)
     if(siteIds_.contains(siteId))
         siteIds_.remove(siteId);
     siteIds_.insert(siteId,list);
-    colorText(siteId);
+    if(siteIdsClicked_.contains(siteId))
+        clearColorText(siteId);
+    else colorText(siteId);
 }
 
 void TextEdit::colorText(QString siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat fmt;
-    fmt.setBackground(QBrush(Qt::yellow));
+    QBrush color;
+    //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
+    if(!siteIdsColors_.contains(siteId)){
+        do{
+            int index=rand() % colors_.size();
+            color= colors_.at(index);
+        }
+        while (siteIdsColors_.values().contains(color));
+        siteIdsColors_.insert(siteId,color);
+    }
+
+    fmt.setBackground(siteIdsColors_.value(siteId));
     int last = cursor.position();
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
@@ -944,7 +967,37 @@ void TextEdit::colorText(QString siteId){
     }
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
+
+    siteIdsClicked_.push_front(siteId);
     blockCursor=false;
 }
+
+void TextEdit::clearColorText(QString siteId){
+    blockCursor=true;
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat fmt;
+
+    fmt.setBackground(Qt::white);
+    int last = cursor.position();
+    for(int pos : *siteIds_.value(siteId)){
+        cursor.setPosition(pos);
+        cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(fmt);
+    }
+    cursor.setPosition(last);
+    textEdit->setTextCursor(cursor);
+
+    //Elimino il siteId dalla lista di siteId cliccati (sto ricliccando)
+    for(int i=0; i<siteIdsClicked_.size(); i++)
+        if(siteIdsClicked_.at(i)==siteId)
+            siteIdsClicked_.removeAt(i);
+
+    blockCursor=false;
+}
+
+
+
+
+
 
 
