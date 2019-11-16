@@ -76,9 +76,9 @@ int KKDataBase::insertUserInfo(QString username, QString password, QString email
         QSqlQuery res = db.exec(queryStr);
         QString mex = sender.messageBuilder("Welcome in KlapKlap Soft :)",
                                     destName,
-                                    username + " complete your registration now!",
-                                    "You are signed in!",
-                                    "http://www.facebook.it"
+                                    username + "Your registration is complete!",
+                                    "You are signed up!",
+                                    "blank"
                                     );
         sender.sendMessage(mex, destName, email, "KlapKlap Registration");
         db.close();
@@ -233,14 +233,19 @@ QStringList  KKDataBase::getUserFile(QString username){
         return tmp;
     }
 
-    QSqlQuery res = db.exec("SELECT `FILENAME` FROM `FILES_OWNERS` WHERE `ID`='" + user1->id + "';");
-
-    while(res.next()){
-        tmp.push_back( res.value(0).toString());
+    try {
+        QSqlQuery res = db.exec("SELECT `FILENAME` FROM `FILES_OWNERS` WHERE `ID`='" + user1->id + "';");
+        db.close();
+        while(res.next()){
+            tmp.push_back( res.value(0).toString());
+        }
+        return tmp;
+    } catch (QException &e) {
+        QString _str(e.what());
+        db.close();
+        return tmp;
     }
 
-
-    return tmp;
 }
 
 bool KKDataBase::checkUserInfo(QString username) {

@@ -137,7 +137,7 @@ vector<KKIdentifierPtr> KKCrdt::generatePositionBetween(vector<KKIdentifierPtr> 
     return vector<KKIdentifierPtr>();
 }
 
-strategy KKCrdt::findStrategy(unsigned long level/*FORSE DA TOGLIERE*/) {
+strategy KKCrdt::findStrategy() {
     //    if (!strategy_cache.empty() && strategy_cache[level]) {
     //        return strategy_cache[level];
     //    }
@@ -315,6 +315,7 @@ unsigned long KKCrdt::findInsertIndexInLine(KKCharPtr _char, list<KKCharPtr> lin
             return cnt;}}}
         cnt++;
     }
+    return 0;
 }
 
 void KKCrdt::print() {

@@ -68,6 +68,7 @@ public:
 
     vector<KKIdentifierPtr> slice(vector<KKIdentifierPtr> const &v,int i);//FORSE DA TOGLIERE
     void print();
-    strategy findStrategy(unsigned long level);//trova la strategia migliore per assegnare un identifier alla position della nuova Char
+//    strategy findStrategy(unsigned long level);//trova la strategia migliore per assegnare un identifier alla position della nuova Char
+    strategy findStrategy();//trova la strategia migliore per assegnare un identifier alla position della nuova Char
 };
 #endif //KK_CRDT_H

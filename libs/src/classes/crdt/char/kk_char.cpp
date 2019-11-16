@@ -20,7 +20,7 @@ void KKChar::pushIdentifier(KKIdentifierPtr id) {
 }*/
 
 int KKChar::compareTo(const KKChar &other) {
-    int comp;
+//    int comp;
     unsigned long min;
 
     if (this->position.size() <= other.position.size()) {
