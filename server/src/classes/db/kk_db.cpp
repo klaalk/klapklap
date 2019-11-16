@@ -74,10 +74,10 @@ int KKDataBase::insertUserInfo(QString username, QString password, QString email
     }
     try {
         QSqlQuery res = db.exec(queryStr);
-        QString mex = sender.messageBuilder("Welcome in KlapKlap Soft :)",
+        QString mex = sender.messageBuilder("Welcome to KlapKlap Soft :)",
                                     destName,
-                                    username + "Your registration is complete!",
-                                    "You are signed up!",
+                                    username + "\nYour registration is now complete!",
+                                    "You are signed-up!",
                                     "blank"
                                     );
         sender.sendMessage(mex, destName, email, "KlapKlap Registration");
