@@ -694,6 +694,7 @@ void TextEdit::cursorPositionChanged()
 
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
+    qDebug() << " current: {"<< cursorPos << "} last: {" << lastCursorPos << "}";
     if (list) {
         switch (list->format().style()) {
             case QTextListFormat::ListDisc:
@@ -881,9 +882,16 @@ void TextEdit::onTextChange() {
             emit removeTextFromCRDT( selection_start, selection_end);
         }
         else{
-            diffText=lastText.mid(cursorPos, lastLength - s.length());
-            qDebug() << "Testo cancellato:" << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
-            emit removeTextFromCRDT(cursorPos, lastCursorPos);
+            if (cursorPos < lastCursorPos) {
+                diffText = lastText.mid(cursorPos, lastLength - s.length());
+                qDebug() << "Testo cancellato:" << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
+                emit removeTextFromCRDT(cursorPos, lastCursorPos);
+            } else {
+                int diffLength = lastLength - s.length();
+                diffText = lastText.mid(cursorPos, diffLength);
+                qDebug() << "Testo cancellato:" << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
+                emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
+            }
         }
     } else if(s.length() - lastLength >= 1) {
         // Inserito 1 o più

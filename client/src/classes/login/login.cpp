@@ -51,6 +51,12 @@ void AccessDialog::showLoader(bool show) {
     }
 }
 
+void AccessDialog::showLogin() {
+    on_back_link_btn_clicked();
+}
+void AccessDialog::showSignup() {
+    on_show_signup_btn_clicked();
+}
 void AccessDialog::on_login_btn_clicked() {
     QString email = ui_->login_email_input->text();
     QString password = ui_->login_password_input->text();

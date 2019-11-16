@@ -178,6 +178,11 @@ void KKClient::handleResponse(QString message) {
             handleLoginResponse(res);
         else
             handleErrorResponse();
+    } else if(res.getRequestType() == SIGNUP) {
+        if (res.getResultType() == SUCCESS)
+            handleSignupResponse();
+        else
+            handleErrorResponse();
     } else if(res.getRequestType() == OPENFILE) {
         if (res.getResultType() == SUCCESS)
             handleOpenfileResponse();
@@ -191,13 +196,13 @@ void KKClient::handleResponse(QString message) {
     } else if(res.getRequestType() == CHAT && res.getResultType() == SUCCESS) {
         QStringList res_ = res.getBodyList();
         chat_.appendMessage(res_[0], res_[1]);
-     } else if(res.getRequestType() == ADDED_PARTECIPANT && res.getResultType() == SUCCESS) {
+    } else if(res.getRequestType() == ADDED_PARTECIPANT && res.getResultType() == SUCCESS) {
         QStringList list = res.getBodyList();
         chat_.addParticipant(list[0]);
-     } else if(res.getRequestType() == REMOVED_PARTECIPANT && res.getResultType() == SUCCESS) {
+    } else if(res.getRequestType() == REMOVED_PARTECIPANT && res.getResultType() == SUCCESS) {
         QStringList list = res.getBodyList();
         chat_.removeParticipant(list[0]);
-     } else {
+    } else {
         modal_.setModal("Errore generico", "Chiudi", GENERIC_ERROR);
         modal_.show();
     }
@@ -212,6 +217,11 @@ void KKClient::handleLoginResponse(KKPayload res) {
     }
     access_.hide();
     openFile_.show();
+}
+
+void KKClient::handleSignupResponse() {
+    access_.showLoader(false);
+    access_.showLogin();
 }
 
 void KKClient::handleOpenfileResponse() {

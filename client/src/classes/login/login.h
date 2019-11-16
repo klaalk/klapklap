@@ -21,7 +21,8 @@ public:
     ~AccessDialog();
     void enableLoginBtn();
     void showLoader(bool show);
-
+    void showLogin();
+    void showSignup();
 signals:
     void loginBtnClicked(QString email, QString password);
     void signupBtnClicked(QString email, QString password, QString name, QString surname, QString username);

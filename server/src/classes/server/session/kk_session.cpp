@@ -123,7 +123,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     auto search = files->find(completeFileName);
     if (search != files->end()) {
 #ifndef ENV
-         il file era già aperto ed è nella mappa globale
+        // il file era già aperto ed è nella mappa globale
         fileSystem->openFile(id, completeFileName);
 #endif
         file = files->value(completeFileName);
@@ -131,7 +131,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         message = "File esistente, sei stato aggiunto correttamente";
     } else {
 #ifndef ENV
-         Apro il file. Con i dovuti controlli
+        // Apro il file. Con i dovuti controlli
         completeFileName = fileSystem->createFile(id, fileName);
 #endif
         if(completeFileName != "ERR_CREATEFILE") {

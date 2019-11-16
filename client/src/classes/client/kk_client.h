@@ -64,6 +64,7 @@ private slots:
 private:
     void setInitState();
     void handleLoginResponse(KKPayload res);
+    void handleSignupResponse();
     void handleOpenfileResponse();
     void handleCrdtResponse(KKPayload res);
     void handleErrorResponse();
