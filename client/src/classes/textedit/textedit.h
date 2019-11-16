@@ -12,6 +12,8 @@
 #include <QLabel>
 #include <QListWidgetItem>
 
+#include "../../../../libs/src/constants/kk_constants.h"
+
 class QAction;
 class QComboBox;
 class QFontComboBox;
@@ -130,6 +132,7 @@ public:
     TextEdit(QWidget *parent = 0);
     QTextEdit *textEdit;
     bool load(const QString &f);
+    void resetState();
     void applyRemoteChanges(QString operation, QString name, QString text, int globalPos);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
@@ -201,14 +204,19 @@ private:
 #endif
     bool blockCursor = false;
     bool isTextSelected = false;
-    int lastLength = 0, cursorPos=0, lastCursorPos=0, fontSize=0;
+    int lastLength = 0;
+    int cursorPos=0;
+    int lastCursorPos=0;
+    int fontSize=0;
     int selection_start=0;
     int selection_end=0;
+    QString lastText;
+    QString diffText;
+    QString fileName;
     QMap <QString,kk_cursor*> cursors_;
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
-    QString lastText="",diffText="",fileName;
     QToolBar *tb;
     QMap<QString,QSharedPointer<QList<int>>> siteIds_;
 };

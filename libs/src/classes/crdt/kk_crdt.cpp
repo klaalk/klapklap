@@ -17,7 +17,13 @@ using std::shared_ptr;
 
 
 KKCrdt::KKCrdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(strategy), base(32) {
+
 };
+
+KKCrdt::~KKCrdt() {
+    text.clear();
+    strategy_cache.clear();
+}
 
 KKCharPtr KKCrdt::localInsert(char val, KKPosition pos) {
     KKCharPtr newChar = this->generateChar(val, pos);
@@ -222,7 +228,6 @@ unsigned long KKCrdt::remoteInsert(KKCharPtr _char){
     KKPosition pos = findInsertPosition(_char);
     insertChar(_char, pos);
     global_pos= generateGlobalPos(pos);
-    std::cout<<"GB:" <<global_pos<<std::endl;
     return global_pos;
 }
 
@@ -452,7 +457,6 @@ unsigned long KKCrdt::remoteDelete(KKCharPtr _Char){
     removeEmptyLines();
     text.push_back(list<KKCharPtr>());
     global_pos= generateGlobalPos(pos);
-    std::cout<<"GB:" <<global_pos<<std::endl;
     return global_pos;
 }
 

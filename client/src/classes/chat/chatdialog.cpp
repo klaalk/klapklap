@@ -65,6 +65,13 @@ ChatDialog::ChatDialog(QWidget *parent)
     connect(lineEdit, &QLineEdit::returnPressed, this, &ChatDialog::returnPressed);
 }
 
+void ChatDialog::resetState(){
+    lineEdit->clear();
+    textEdit->clear();
+    listWidget->clear();
+    myNickName = "";
+}
+
 void ChatDialog::setNickName(QString nick) {
     myNickName = nick;
     tableFormat.setBorder(0);
@@ -97,7 +104,7 @@ void ChatDialog::returnPressed()
                          .arg(text.left(text.indexOf(' '))));
         textEdit->setTextColor(color);
     } else {
-        emit sendMessageEvent(myNickName+"_"+text);
+        emit sendMessageEvent(myNickName, text);
     }
     lineEdit->clear();
 }

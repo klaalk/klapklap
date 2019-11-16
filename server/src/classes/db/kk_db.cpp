@@ -269,12 +269,17 @@ bool KKDataBase::insertUserImage(QString username, QString image_path){
      QByteArray inByteArray = file.readAll();
      db.open();
      QSqlQuery query = QSqlQuery( db );
-
-
-     query.prepare( "UPDATE `USERS` SET `IMAGE` = :imageData WHERE `USERNAME`='" + username + "';" );
+     try {
+         query.prepare( "UPDATE `USERS` SET `IMAGE` = :imageData WHERE `USERNAME`='" + username + "';" );
          query.bindValue( ":imageData", inByteArray );
-         if( !query.exec() )
-             qDebug() << "Error inserting image into table:\n" << query.lastError();
+         query.exec();
+         return true;
+     } catch (QException &e) {
+         QString _str(e.what());
+         qDebug() << "Error inserting image into table:\n" << query.lastError();
+         db.close();
+         return false;
+     }
 
 }
 

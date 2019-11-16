@@ -20,7 +20,7 @@ KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr fil
 KKSession::~KKSession() {}
 
 void KKSession::deliver(KKPayloadPtr msg) {
-    socket->sendTextMessage(msg->encodeHeader());
+    socket->sendTextMessage(msg->encode());
 }
 
 void KKSession::setSocket(QWebSocket* descriptor) {
@@ -30,7 +30,7 @@ void KKSession::setSocket(QWebSocket* descriptor) {
     connect(socket, &QWebSocket::binaryMessageReceived, this, &KKSession::handleBinaryRequests);
     connect(socket, &QWebSocket::disconnected, this, &KKSession::handleDisconnection);
     qDebug() << "Client connected at " << descriptor;
-    fileSystem->writeFile("log","Client (\""+id+"\" "
+    fileSystem->writeFile("log", "Client (\""+id+"\" "
                                       +descriptor->peerAddress().toString()+":"
                                       +QString::number(descriptor->peerPort())+" ) connected at "
                                       + descriptor->localAddress().toString() +":"
@@ -38,11 +38,11 @@ void KKSession::setSocket(QWebSocket* descriptor) {
 }
 
 
-void KKSession::sendResponse(QString type, QString result, QString body) {
-    KKPayload res(type, result, body);
-    qDebug() << "Server send: " << res.encodeHeader();
-    fileSystem->writeFile("log", "Server send: " + res.encodeHeader());
-    socket->sendTextMessage(res.encodeHeader());
+void KKSession::sendResponse(QString type, QString result, QStringList values) {
+    KKPayload res(type, result, values);
+    qDebug() << "Server send: " << res.encode();
+    fileSystem->writeFile("log", "Server send: " + res.encode());
+    socket->sendTextMessage(res.encode());
 }
 
 void KKSession::handleRequest(QString message) {
@@ -50,43 +50,47 @@ void KKSession::handleRequest(QString message) {
     fileSystem->writeFile("log", "Client send: " + message);
     if (socket){
         KKPayload req(message);
-        req.decodeHeader();
-        if(req.getType() == "login") {
+        req.decode();
+        if(req.getRequestType() == LOGIN) {
             handleLoginRequest(req);
         }
-        else if(req.getType() == "signup") {
+        else if(req.getRequestType() == SIGNUP) {
             handleSignupRequest(req);
         }
-        else if(req.getType() == "openfile") {
+        else if(req.getRequestType() == OPENFILE) {
             handleOpenFileRequest(req);
         }
-        else if(req.getType() == "sharefile") {
+        else if(req.getRequestType() == "sharefile") {
             handleShareFileRequest(req);
         }
-        else if(req.getType() == "crdt") {
+        else if(req.getRequestType() == CRDT) {
             handleCrdtRequest(req);
         }
-        else if(req.getType() == "chat") {
+        else if(req.getRequestType() == CHAT) {
             handleChatRequest(req);
         }
     }
 }
 
 void KKSession::handleLoginRequest(KKPayload request) {
-    QStringList _body = request.getBody().split("_");
+    QStringList _body = request.getBodyList();
     id = _body[0];
+#ifndef ENV
     fileSystem->writeFile("log","Client info (\"" + id + "\" " + socket->peerAddress().toString()+":" + QString::number(socket->peerPort()) + ")");
+#endif
     KKTask *mytask = new KKTask([=]() {
-        bool result = db->login(_body[0],_body[1]);
+        bool result = true;
+        #ifndef ENV
+        result = db->login(_body[0],_body[1]);
+        #endif
         if(result) {
-            QStringList q=db->getUserFile(_body[0]);
-            QString message ="";
-            std::for_each(q.begin(), q.end(), [&](QString msg){
-                message += msg + "_";
-            });
-            this->sendResponse("login","ok", message);
+            QStringList files;
+            #ifndef ENV
+            files = db->getUserFile(_body[0]);
+            #endif
+            this->sendResponse(LOGIN,SUCCESS, files);
         } else {
-            this->sendResponse("login","ko","Invalid credentials");
+            this->sendResponse(LOGIN,FAILED, {"Invalid credentials"});
         }
     });
     mytask->setAutoDelete(true);
@@ -94,15 +98,15 @@ void KKSession::handleLoginRequest(KKPayload request) {
 }
 
 void KKSession::handleSignupRequest(KKPayload request) {
-    QStringList _body = request.getBody().split("_");
+    QStringList _body = request.getBodyList();
     id = _body[0];
     KKTask *mytask = new KKTask([=]() {
 
         int result = db->insertUserInfo(_body[0],_body[1],_body[0],_body[2], _body[3]);
         if(result == 0) {
-            this->sendResponse("signup","ok", "Succes");
+            this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
         } else {
-            this->sendResponse("signup","ko","Invalid Parameters");
+            this->sendResponse(SIGNUP,FAILED, {"Invalid Parameters"});
         }
 
     });
@@ -111,64 +115,73 @@ void KKSession::handleSignupRequest(KKPayload request) {
 }
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
-    QString fileName = request.getBody();
+    QStringList list = request.getBodyList();
+    QString fileName = list[0];
     QString completeFileName = fileName;
     QString message;
-    QString result = "ok";
+    QString result = SUCCESS;
     auto search = files->find(completeFileName);
     if (search != files->end()) {
-        // il file era già aperto ed è nella mappa globale
+#ifndef ENV
+         il file era già aperto ed è nella mappa globale
         fileSystem->openFile(id, completeFileName);
+#endif
         file = files->value(completeFileName);
         file->join(sharedFromThis());
         message = "File esistente, sei stato aggiunto correttamente";
     } else {
-        // Apro il file. Con i dovuti controlli
+#ifndef ENV
+         Apro il file. Con i dovuti controlli
         completeFileName = fileSystem->createFile(id, fileName);
+#endif
         if(completeFileName != "ERR_CREATEFILE") {
             file = QSharedPointer<KKFile>(new KKFile());
             file->join(sharedFromThis());
             files->insert(completeFileName, file);
             auto search = files->find(completeFileName);
             if (search != files->end()) {
+#ifndef ENV
                 //sto aprendo un file condiviso/privato
                 fileSystem->openFile(id, completeFileName);
+#endif
                 message = "File creato, sei stato aggiunto correttamente";
             } else {
                 message = "Non è stato possibile creare il file";
-                result = "ko";
+                result = FAILED;
             }
         } else {
             message = "Non è stato possibile creare il file";
-            result = "ko";
+            result = FAILED;
         }
     }
+#ifndef ENV
     fileSystem->writeFile("log", completeFileName + ": " + message);
     //mando al client la risposta della request.
-    sendResponse("openfile", result, message);
-    if(result == "ok") {
+#endif
+    sendResponse(OPENFILE, result, {message});
+    if(result == SUCCESS) {
         // Mi aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
         if(queue->length() > 0) {
             std::for_each(queue->begin(), queue->end(), [&](KKPayloadPtr d){
-                socket->sendTextMessage(d->encodeHeader());
+                socket->sendTextMessage(d->encode());
             });
         }
         // Dico a tutti che c'è un nuovo partecipante.
-        file->deliver("addedpartecipant", "ok", id, "All");
+        file->deliver(ADDED_PARTECIPANT, SUCCESS, {id}, "All");
     }
 }
 
 void KKSession::handleShareFileRequest(KKPayload request) {
-    qDebug() << "TODO: Share file - " << request.getBody();
+    qDebug() << "TODO: Share file - " << request.getData();
 }
 
 void KKSession::handleChatRequest(KKPayload request) {
-    file->deliver("chat", "ok", request.getBody(), "All");
+    file->deliver(CHAT, SUCCESS, request.getBodyList(), "All");
 }
 
 void KKSession::handleCrdtRequest(KKPayload request) {
-    file->deliver("crdt", "ok", request.getBody(), id);
+    file->deliver(CRDT, SUCCESS, request.getBodyList(), id);
 }
 
 void KKSession::handleBinaryRequests(QByteArray message) {
@@ -186,7 +199,7 @@ void KKSession::handleDisconnection() {
     if (socket)
     {
         if(file.get() != nullptr) {
-            file->deliver("removedpartecipant", "ok", id, "All");
+            file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
             file->leave(sharedFromThis());
         }
         socket->deleteLater();

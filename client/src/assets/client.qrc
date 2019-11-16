@@ -1,6 +1,6 @@
-<!DOCTYPE RCC><RCC version="1.0">
+<RCC>
     <qresource prefix="/">
-        <file>images/logo32.png</file>
+        <file>images/logo.jpg</file>
         <file>images/mac/editcopy.png</file>
         <file>images/mac/editcut.png</file>
         <file>images/mac/editpaste.png</file>
@@ -39,6 +39,9 @@
         <file>images/win/textunder.png</file>
         <file>images/win/zoomin.png</file>
         <file>images/win/zoomout.png</file>
-		<file>bg/MainPic.jpg</file>
+        <file>bg/MainPic.jpg</file>
+        <file>gif/basic-loader.gif</file>
+        <file>gif/animation.gif</file>
+		<file>klapklap.icns</file>
     </qresource>
 </RCC>

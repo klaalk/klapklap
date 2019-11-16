@@ -26,7 +26,7 @@ public:
 
     void leave(QSharedPointer<KKParticipant> participant);
 
-    void deliver(QString type, QString result, QString message, QString myNick);
+    void deliver(QString type, QString result, QStringList values, QString myNick);
 
     KKVectorPayloadPtr getRecentMessages();
 private:

@@ -23,7 +23,7 @@ class KKChar {
     char value; //valore (es 'a')
 public:
     KKChar(char value, string siteId);//costruttore
-
+    ~KKChar();
     char getValue();
     string getSiteId();
     int compareTo(const KKChar &other); //torna: 1 - questa > l'altra, -1 l'altra > questa, 0 se no

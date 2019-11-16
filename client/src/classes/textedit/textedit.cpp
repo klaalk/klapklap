@@ -63,7 +63,7 @@ TextEdit::TextEdit(QWidget *parent)
 
     this->setMouseTracking(true);
     textEdit = new QTextEdit(this);
-//Collega funzioni nostre a funzioni di QTextEdit
+    //Collega funzioni nostre a funzioni di QTextEdit
     connect(textEdit, &QTextEdit::currentCharFormatChanged,
             this, &TextEdit::currentCharFormatChanged);
     connect(textEdit, &QTextEdit::cursorPositionChanged,
@@ -374,6 +374,23 @@ bool TextEdit::load(const QString &f)
     return true;
 }
 
+void TextEdit::resetState() {
+    blockCursor = false;
+    isTextSelected = false;
+    lastLength = 0;
+    cursorPos=0;
+    lastCursorPos=0;
+    fontSize=0;
+    selection_start=0;
+    selection_end=0;
+    lastText = "";
+    diffText = "";
+    fileName = "";
+    cursors_.clear();
+    siteIds_.clear();
+    textEdit->clear();
+}
+
 bool TextEdit::maybeSave()
 {
     if (!textEdit->document()->isModified())
@@ -655,33 +672,28 @@ void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 void TextEdit::cursorPositionChanged()
 {
     // IMPORTANTE per le modifiche da remoto.
-    if(blockCursor) return;
-
-    alignmentChanged(textEdit->alignment());
-
+    if (blockCursor) return;
+//    alignmentChanged(textEdit->alignment());
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor cursor = textEdit->textCursor();
     QString text = cursor.selectedText();
 
-    if(textEdit->textCursor().selectedText().size()!=0){
+    if (textEdit->textCursor().selectedText().size()!=0) {
         isTextSelected = true;
-    }else {
+    } else {
         isTextSelected=false;
-}
+    }
 
-    if(cursor.selectionStart()<cursor.selectionEnd()){
-        this->selection_end=cursor.selectionEnd();
-        this->selection_start=cursor.selectionStart();
-    }else if(cursor.selectionStart()>cursor.selectionEnd()){
-        this->selection_end=cursor.selectionStart();
-        this->selection_start=cursor.selectionEnd();
+    if (cursor.selectionStart() < cursor.selectionEnd()) {
+        selection_end = cursor.selectionEnd();
+        selection_start = cursor.selectionStart();
+    } else if (cursor.selectionStart() > cursor.selectionEnd()) {
+        selection_end = cursor.selectionStart();
+        selection_start = cursor.selectionEnd();
     }
 
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
-    qDebug() << "last: " << lastCursorPos << "cur: " << cursorPos;
-    qDebug() << "selected:" << text;
-
     if (list) {
         switch (list->format().style()) {
             case QTextListFormat::ListDisc:
@@ -816,11 +828,11 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     qDebug() << "Remote global:" << globalPos;
     editorCurs.setPosition(globalPos);
     // Eseguo l'operazione
-    if(operation == "insert") {
+    if(operation == CRDT_INSERT) {
         editorCurs.insertText(text);
         //Aggiorno la length.
         lastLength = lastLength + text.length();
-    } else if(operation == "delete") {
+    } else if(operation == CRDT_DELETE) {
         editorCurs.deleteChar();
         //Aggiorno la length.
         lastLength = lastLength - text.length();
@@ -831,11 +843,11 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for(kk_cursor* c : cursors_.values()) {
-        if(c->getGlobalPositon() >= globalPos && c!=remoteCurs){
-            if(operation == "insert") {
-                 c->setGlobalPositon(c->getGlobalPositon()+text.length());
-            } else if(operation == "delete") {
-                 c->setGlobalPositon(c->getGlobalPositon()-text.length());
+        if(c->getGlobalPositon() > globalPos && c!=remoteCurs){
+            if(operation == CRDT_INSERT) {
+                 c->setGlobalPositon(c->getGlobalPositon()+(text.length()-1));
+            } else if(operation == CRDT_DELETE) {
+                 c->setGlobalPositon(c->getGlobalPositon()-(text.length()-1));
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
@@ -843,9 +855,9 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     }
     // Riporto il cursore dell'editor alla posizione di partenza.
     if(cursorPos >= globalPos){
-        if(operation == "insert") {
+        if(operation == CRDT_INSERT) {
             cursorPos = cursorPos +text.length();
-        } else if(operation == "delete") {
+        } else if(operation == CRDT_DELETE) {
             cursorPos = cursorPos -text.length();
         }
     }
@@ -858,49 +870,46 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
 void TextEdit::onTextChange() {
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
-
-    QString s = textEdit->toPlainText();//prende testo che sta scritto e lo mette in stringa
-    qDebug()<<"PLAIN TEXT"<< s<<"\n";
+    // Restituisce il testo presente nell'editor.
+    QString s = textEdit->toPlainText();
 
     if(lastLength - s.length() >= 1) {
-        //cancellato 1 o più
-//        qDebug()<<"LASTTEXT:"<< lastText <<"\n";
-//        qDebug()<<"stringa di differenza:"<< diffText <<"\n";
+        // Cancellato 1 o più
         if(isTextSelected){
-          emit removeTextFromCRDT( this->selection_start, this->selection_end);
+            diffText=lastText.mid(selection_start, selection_end);
+            qDebug() << "Testo cancellato: " << diffText << "start: {" << selection_start << "} end: {" << selection_end << "}";
+            emit removeTextFromCRDT( selection_start, selection_end);
         }
         else{
-             diffText=lastText.mid(cursorPos, lastLength - s.length());
-             emit removeTextFromCRDT(cursorPos, lastCursorPos);
+            diffText=lastText.mid(cursorPos, lastLength - s.length());
+            qDebug() << "Testo cancellato:" << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
+            emit removeTextFromCRDT(cursorPos, lastCursorPos);
         }
-
     } else if(s.length() - lastLength >= 1) {
-        //inserito 1 o più
-       diffText=s.mid(lastCursorPos, s.length() - lastLength);//salva in diff text le cose nuove scritte
-
-       qDebug()<<"stringa di differenza:"<< diffText <<"\n";
-       emit insertTextToCRDT(diffText, lastCursorPos);
+        // Inserito 1 o più
+        //salva in diff text le cose nuove scritte
+        diffText=s.mid(lastCursorPos, s.length() - lastLength);
+        qDebug() << "Testo inserito: " << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
+        emit insertTextToCRDT(diffText, lastCursorPos);
     }
-
-    qDebug() << "\tDiff: " << diffText << "in " << cursorPos;
-    //Aggiorno e muovo tutti i cursori sulla base dell'operazione.
-
+    // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
-
-    int curPos_ = editorCurs.position();//da la posizione x,y di coordinate sullo schermo del tuo cursore
-
-    for(kk_cursor* c : cursors_.values()) {
-        if(c->getGlobalPositon()>=editorCurs.position()){
-            if(s.length() - lastLength >= 1) {
-                 c->setGlobalPositon(c->getGlobalPositon()+diffText.length());
-            } else if(lastLength - s.length() >= 1) {
-                 c->setGlobalPositon(c->getGlobalPositon()-diffText.length());
+    // Restituisce la posizione x,y di coordinate sullo schermo del tuo cursore
+    int curPos_ = editorCurs.position();
+    for (kk_cursor* c : cursors_.values()) {
+        if (c->getGlobalPositon() > editorCurs.position()) {
+            qDebug() << "Cursor global: " << c->getGlobalPositon();
+            qDebug() << "Editor global: " << editorCurs.position();
+            if (s.length() - lastLength > 0) {
+                 c->setGlobalPositon(c->getGlobalPositon() + diffText.length());
+            } else if(lastLength - s.length() > 0) {
+                 c->setGlobalPositon(c->getGlobalPositon() - diffText.length());
             }
-
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
         }
     }
+
     // Riporto il cursore dell'editor alla posizione di partenza.
     editorCurs.setPosition(curPos_);
     lastLength = s.length();

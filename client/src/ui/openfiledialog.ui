@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="cursor">
-   <cursorShape>IBeamCursor</cursorShape>
+   <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="mouseTracking">
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Seleziona File</string>
   </property>
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
@@ -30,6 +30,9 @@
    </property>
   </widget>
   <widget class="QListWidget" name="listWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -79,16 +82,22 @@
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>260</y>
-     <width>190</width>
-     <height>30</height>
+     <width>170</width>
+     <height>25</height>
     </rect>
    </property>
+   <property name="cursor">
+    <cursorShape>ArrowCursor</cursorShape>
+   </property>
    <property name="text">
-    <string>Ottieni Link</string>
+    <string>Ottieni il link di condivisione</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -105,11 +114,17 @@
      <pointsize>10</pointsize>
     </font>
    </property>
+   <property name="cursor">
+    <cursorShape>IBeamCursor</cursorShape>
+   </property>
    <property name="mouseTracking">
     <bool>true</bool>
    </property>
    <property name="text">
     <string/>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
    <property name="textInteractionFlags">
     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>

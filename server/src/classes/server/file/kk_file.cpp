@@ -23,7 +23,7 @@ void KKFile::leave(QSharedPointer<KKParticipant> participant) {
     participants.erase(participant);
 }
 
-void KKFile::deliver(QString type, QString result, QString message, QString myNick) {
+void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
     KKPayloadPtr data = QSharedPointer<KKPayload>(new KKPayload(type,result, message));
     recentMessages->push_back(data);
 

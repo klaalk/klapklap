@@ -36,7 +36,7 @@ public:
     unsigned long base;
 
     KKCrdt(string siteid, strategy strategy); //costruttore
-
+    ~KKCrdt();//distruttore
     void insertChar(KKCharPtr _char, KKPosition pos);
     KKCharPtr localInsert(char val, KKPosition pos);
     KKCharPtr generateChar(char val, KKPosition pos); //genera la Char partendo dal valore e dalla posizione nel local text
@@ -70,6 +70,4 @@ public:
     void print();
     strategy findStrategy(unsigned long level);//trova la strategia migliore per assegnare un identifier alla position della nuova Char
 };
-
-
 #endif //KK_CRDT_H
