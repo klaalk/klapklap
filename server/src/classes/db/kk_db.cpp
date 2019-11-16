@@ -233,14 +233,19 @@ QStringList  KKDataBase::getUserFile(QString username){
         return tmp;
     }
 
-    QSqlQuery res = db.exec("SELECT `FILENAME` FROM `FILES_OWNERS` WHERE `ID`='" + user1->id + "';");
-
-    while(res.next()){
-        tmp.push_back( res.value(0).toString());
+    try {
+        QSqlQuery res = db.exec("SELECT `FILENAME` FROM `FILES_OWNERS` WHERE `ID`='" + user1->id + "';");
+        db.close();
+        while(res.next()){
+            tmp.push_back( res.value(0).toString());
+        }
+        return tmp;
+    } catch (QException &e) {
+        QString _str(e.what());
+        db.close();
+        return tmp;
     }
 
-
-    return tmp;
 }
 
 bool KKDataBase::checkUserInfo(QString username) {
