@@ -810,6 +810,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     blockCursor = true;
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
+    editorCurs.charFormat().setBackground(Qt::white);
     //Prelevo il cursore remoto.
     kk_cursor* remoteCurs = cursors_.value(name);
     //Faccio dei controlli sulla fattibilità dell'operazione.
@@ -822,15 +823,15 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         QLabel* qLbl2 = new QLabel("|", textEdit);
         remoteCurs = new kk_cursor(globalPos);
         remoteCurs->setLabels(qLbl, qLbl2);
-        //Seleziono randomicamente un colore dalla lista dei colori, controllo se era già stato usato
+        //Seleziono randomicamente un colore dalla lista dei colori, controllo se era già stato usato.
         do{
             int index=rand() % colors_.size();
             color= colors_.at(index);
         }
         while (siteIdsColors_.values().contains(color));
-        //Inserisco nella mappa dei colori
+        //Inserisco nella mappa dei colori.
         siteIdsColors_.insert(name,color);
-        //Modifico la label
+        //Modifico la label.
         remoteCurs->setLabelsStyle(color, fontSize);
         remoteCurs->showLabels();
         cursors_.insert(name, remoteCurs);
@@ -838,7 +839,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     // Muovo il cursore dell'editor.
     qDebug() << "Remote global:" << globalPos;
     editorCurs.setPosition(globalPos);
-    // Eseguo l'operazione
+    // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
         editorCurs.insertText(text);
         //Aggiorno la length.
@@ -925,11 +926,13 @@ void TextEdit::onTextChange() {
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
+            editorCurs.charFormat().setBackground(Qt::white);
         }
     }
 
     // Riporto il cursore dell'editor alla posizione di partenza.
     editorCurs.setPosition(curPos_);
+    textEdit->textCursor().charFormat().setBackground(Qt::white);
     lastLength = s.length();
     lastText = s;
 }
