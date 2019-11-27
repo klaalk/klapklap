@@ -55,9 +55,9 @@ public:
         earpiece = earpiece_;
     }
 
-    void setLabelsStyle(QString fontColor, int fontSize) {
+    void setLabelsStyle(QBrush fontColor, int fontSize) {
         this->fontSize = fontSize;
-        this->backgorundColor = fontColor;
+        this->backgorundColor = fontColor.color().name();
         setLabelsStyleSheet(this->backgorundColor, this->fontSize);
     }
 
@@ -185,6 +185,7 @@ private:
     void alignmentChanged(Qt::Alignment a);
 
     void colorText(QString name);
+    void clearColorText(QString name);
 
     QAction *actionSave;
     QAction *actionTextBold;
@@ -219,6 +220,9 @@ private:
     QComboBox *comboSize;
     QToolBar *tb;
     QMap<QString,QSharedPointer<QList<int>>> siteIds_;
+    QMap<QString,QBrush> siteIdsColors_;
+    QList<QString> siteIdsClicked_;
+    QList<QBrush> colors_={Qt::yellow, Qt::gray, Qt::green, Qt::blue, Qt::cyan, Qt::magenta};
 };
 typedef QSharedPointer<TextEdit> textedit_ptr;
 #endif // TEXTEDIT_H
