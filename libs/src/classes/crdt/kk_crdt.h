@@ -4,6 +4,8 @@
 #ifndef KK_CRDT_H
 #define KK_CRDT_H
 
+#include <Qchar>
+#include <QString>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -68,7 +70,8 @@ public:
 
     vector<KKIdentifierPtr> slice(vector<KKIdentifierPtr> const &v,int i);//FORSE DA TOGLIERE
     void print();
-//    strategy findStrategy(unsigned long level);//trova la strategia migliore per assegnare un identifier alla position della nuova Char
     strategy findStrategy();//trova la strategia migliore per assegnare un identifier alla position della nuova Char
+    QString saveCrdt(); //ritorna una stringa dove è "salvato" il crdt
+    void loadCrdt(string stringCrdt); //carica il testo del crdt partendo da una stringa
 };
 #endif //KK_CRDT_H
