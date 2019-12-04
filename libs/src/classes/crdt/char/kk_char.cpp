@@ -61,6 +61,10 @@ string KKChar::getSiteId() {
     return siteId;
 }
 
+void KKChar::insertSiteId(string siteId) {
+    this->siteId = siteId;
+    return;
+}
 
 void KKChar::insertPosition(vector<KKIdentifierPtr> position) {
     this->position = position;

@@ -7,6 +7,8 @@ QT += core \
       websockets
 
 CONFIG += c++11
+CONFIG+=sdk_no_version_check
+
 ## Location of SMTP Library
 #KK_LIBRARY_LOCATION = $$PWD/../../build-kklib-Desktop_Qt_5_12_2_MinGW_64_bit-Debug
 

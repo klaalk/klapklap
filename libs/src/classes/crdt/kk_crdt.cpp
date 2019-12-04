@@ -8,7 +8,9 @@
 #include <cstdlib>
 #include <ctime>
 #include <random>
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 
 
@@ -317,6 +319,106 @@ unsigned long KKCrdt::findInsertIndexInLine(KKCharPtr _char, list<KKCharPtr> lin
     }
     return 0;
 }
+
+QString KKCrdt::saveCrdt(){ //scrive il crdt su un file, esempio formato: d(albo)[10;90;2;34]f(klaus)[2;3;89]
+
+    string strTmp;
+
+    for (unsigned long i = 0; i < text.size(); i++) {
+
+        for (auto x : text[i]) {
+
+            strTmp.push_back(x->getValue());
+            strTmp.push_back('(');
+            strTmp.append(x->getSiteId());
+            strTmp.push_back(')');
+            strTmp.push_back('[');
+
+            for (auto y: x->getPosition() ) {
+                std::stringstream strstream;
+                string app;
+                strstream<<y->getDigit();
+                strstream>>app;
+                strTmp.append(app);
+                strTmp.push_back(';');
+
+            }
+            strTmp.pop_back();
+            strTmp.push_back(']');
+        }
+    }
+    QString stringCrdt = QString::fromStdString(strTmp);
+    return stringCrdt;
+}
+
+void KKCrdt::loadCrdt(string stdStringCrdt){
+    char ch;
+    int gettingSeq=1,i=0; //flag per quando stai prendendo gli identifier/i siteId
+
+//    string stdStringCrdt = stringCrdt.toStdString();
+    KKIdentifierPtr new_id;
+    text.insert(text.end(), list<KKCharPtr>());
+
+    for(i=0;i<stdStringCrdt.length();i++){
+            ch=stdStringCrdt[i];
+            string tmpSiteId;
+            KKCharPtr new_Char = KKCharPtr(new KKChar(ch,"")); //creo kkChar partendo dal carattere e siteId nullo
+            gettingSeq=1;
+            while(gettingSeq){
+                i++;
+                ch=stdStringCrdt[i];
+                if(ch=='('){
+                    continue;
+                } else if(ch!='(' && ch!=')'){
+                    tmpSiteId.push_back(ch); //metto valore nella string di siteId
+
+                    continue;
+
+                } else if(ch==')'){
+                    new_Char->insertSiteId(tmpSiteId);
+                    gettingSeq=0;
+                }
+             }
+             gettingSeq=1;
+
+             while(gettingSeq){
+                 i++;
+                 ch=stdStringCrdt[i];
+
+                 if (ch=='[' || ch==';'){
+                     continue;
+
+                 } else if (ch!=']'){//prendo l'identifier
+                     string num;
+
+                     while(stdStringCrdt[i]!=';' && stdStringCrdt[i]!=']'){
+                         ch=stdStringCrdt[i];
+                         num.push_back(ch);
+                         i++;
+                     }
+                         unsigned long val;
+                         val=stoul(num,nullptr,0);
+                         new_id = shared_ptr<KKIdentifier>(new KKIdentifier(val, tmpSiteId));
+                         new_Char->pushIdentifier(new_id);
+                     }if(stdStringCrdt[i]==']'){
+
+                     int size = text.size();
+
+                     text[size-1].push_back(new_Char);
+
+                     if(new_Char->getValue()=='\n'){ //se il carattere era un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
+                         text.insert(text.end(), list<KKCharPtr>());
+                     }
+                     gettingSeq=0;
+                  }
+             }
+
+    }
+
+
+}
+
+
 
 void KKCrdt::print() {
     for (unsigned long i = 0; i < text.size(); i++) {
