@@ -448,21 +448,23 @@ void TextEdit::fileOpen()
 
 bool TextEdit::fileSave()
 {
-    if (fileName.isEmpty())
-        return fileSaveAs();
-    if (fileName.startsWith(QStringLiteral(":/")))
-        return fileSaveAs();
+//    if (fileName.isEmpty())
+//        return fileSaveAs();
+//    if (fileName.startsWith(QStringLiteral(":/")))
+//        return fileSaveAs();
 
-    QTextDocumentWriter writer(fileName);
-    bool success = writer.write(textEdit->document());
-    if (success) {
-        textEdit->document()->setModified(false);
-        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
-    } else {
-        statusBar()->showMessage(tr("Could not write to file \"%1\"")
-                                         .arg(QDir::toNativeSeparators(fileName)));
-    }
-    return success;
+//    QTextDocumentWriter writer(fileName);
+//    bool success = writer.write(textEdit->document());
+//    if (success) {
+//        textEdit->document()->setModified(false);
+//        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
+//    } else {
+//        statusBar()->showMessage(tr("Could not write to file \"%1\"")
+//                                         .arg(QDir::toNativeSeparators(fileName)));
+//    }
+//    return success;
+
+  emit saveCRDTtoFile();
 }
 
 bool TextEdit::fileSaveAs()

@@ -59,7 +59,7 @@ private slots:
 
     void onInsertTextCRDT(QString diffText, int position);
     void onRemoveTextCRDT(int start, int end);
-
+    void onsaveCRDTtoFile();
     void onSiteIdClicked(QString siteId);
 private:
     void setInitState();
@@ -72,6 +72,9 @@ private:
 
     QString email_;
     QString state_;
+    QString currentfile;
+    bool currentfileValid;
+
 
     QUrl url_;
     QWebSocket socket_;

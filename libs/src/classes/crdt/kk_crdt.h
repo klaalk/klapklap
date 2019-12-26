@@ -36,7 +36,7 @@ public:
     strategy _strategy;
     vector<strategy> strategy_cache;
     unsigned long base;
-
+    QString getSiteId(){return QString::fromStdString(siteid);}
     KKCrdt(string siteid, strategy strategy); //costruttore
     ~KKCrdt();//distruttore
     void insertChar(KKCharPtr _char, KKPosition pos);

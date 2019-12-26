@@ -29,6 +29,7 @@ KKClient::KKClient(const QUrl &url, QObject *parent)
     // Gestisco le richieste dell'editor
     connect(&editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCRDT);
     connect(&editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCRDT);
+    connect(&editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onsaveCRDTtoFile);
 
     // Gestisco le richieste della chat
     connect(&chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
@@ -77,6 +78,8 @@ void KKClient::sendSignupRequest(QString email, QString password, QString name, 
 void KKClient::sendOpenFileRequest(QString fileName) {
     if (!timer_.isActive())
         timer_.start(TIMEOUT_VALUE);
+    currentfile=fileName;
+    currentfileValid=false;
     sendRequest(OPENFILE, NONE, {fileName});
 }
 
@@ -225,6 +228,7 @@ void KKClient::handleSignupResponse() {
 }
 
 void KKClient::handleOpenfileResponse() {
+    currentfileValid = true;
     state_= CONNECTED_AND_OPENED;
     crdt_ = new KKCrdt(email_.toStdString(), casuale);
     openFile_.hide();
@@ -288,6 +292,14 @@ void KKClient::onRemoveTextCRDT(int start, int end) {
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_DELETE, email_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids});
     });
+}
+
+void KKClient::onsaveCRDTtoFile() {
+    QString message=crdt_->saveCrdt();
+    QString username = crdt_->getSiteId();
+    QString filename = currentfile;
+    if(currentfileValid==true)
+        sendRequest("savefile", NONE, {username,filename,message});
 }
 
 void KKClient::onSiteIdClicked(QString siteId){
