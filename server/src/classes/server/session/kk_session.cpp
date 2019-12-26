@@ -69,6 +69,9 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == CHAT) {
             handleChatRequest(req);
         }
+        else if(req.getRequestType() == "savefile") {
+            handleSaveFileRequest(req);
+        }
     }
 }
 
@@ -109,6 +112,19 @@ void KKSession::handleSignupRequest(KKPayload request) {
             this->sendResponse(SIGNUP,FAILED, {"Invalid Parameters"});
         }
 
+    });
+    mytask->setAutoDelete(true);
+    QThreadPool::globalInstance()->start(mytask);
+}
+
+void KKSession::handleSaveFileRequest(KKPayload request) {
+    QStringList _body = request.getBodyList();
+    id = _body[0];
+    KKTask *mytask = new KKTask([=]() {
+////  Creo il file, supponendo che non esista, se esiste questo va evitato
+//    QString filename = fileSystem->createFile(_body[1],_body[2]);
+//  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
+    fileSystem->writeFile(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/"+_body[2],_body[3]);
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);
