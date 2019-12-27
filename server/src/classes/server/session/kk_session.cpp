@@ -51,6 +51,7 @@ void KKSession::handleRequest(QString message) {
     if (socket){
         KKPayload req(message);
         req.decode();
+        qDebug() << req.getRequestType() ;
         if(req.getRequestType() == LOGIN) {
             handleLoginRequest(req);
         }
@@ -69,7 +70,7 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == CHAT) {
             handleChatRequest(req);
         }
-        else if(req.getRequestType() == "savefile") {
+        else if(req.getRequestType() == SAVEFILE) {
             handleSaveFileRequest(req);
         }
     }
@@ -120,11 +121,12 @@ void KKSession::handleSignupRequest(KKPayload request) {
 void KKSession::handleSaveFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
+    qDebug() << "salvo file\n"<< _body[2];
     KKTask *mytask = new KKTask([=]() {
 ////  Creo il file, supponendo che non esista, se esiste questo va evitato
 //    QString filename = fileSystem->createFile(_body[1],_body[2]);
 //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
-    fileSystem->writeFile(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/"+_body[2],_body[3]);
+    fileSystem->writeFile(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/"+_body[1],_body[2]);
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);

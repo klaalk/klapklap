@@ -299,7 +299,7 @@ void KKClient::onsaveCRDTtoFile() {
     QString username = crdt_->getSiteId();
     QString filename = currentfile;
     if(currentfileValid==true)
-        sendRequest("savefile", NONE, {username,filename,message});
+        sendRequest(SAVEFILE, NONE, {username,filename,message});
 }
 
 void KKClient::onSiteIdClicked(QString siteId){
