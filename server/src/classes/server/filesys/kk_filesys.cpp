@@ -103,7 +103,7 @@ QString KKFileSystem::readFile(QString filename){
 
     QTextStream stream(&file);
 
-    while (stream.atEnd()) {
+    while (!stream.atEnd()) {
         text+= stream.readLine();
         text+= " ";
     }

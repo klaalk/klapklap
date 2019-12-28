@@ -141,6 +141,7 @@ signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
     void saveCRDTtoFile();
+    void loadCRDTtoFile();
 
 public slots:
     void fileNew();

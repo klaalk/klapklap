@@ -433,17 +433,19 @@ void TextEdit::fileNew()
 
 void TextEdit::fileOpen()
 {
-    QFileDialog fileDialog(this, tr("Open File..."));
-    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-    fileDialog.setFileMode(QFileDialog::ExistingFile);
-    fileDialog.setMimeTypeFilters(QStringList() << "text/html" << "text/plain");
-    if (fileDialog.exec() != QDialog::Accepted)
-        return;
-    const QString fn = fileDialog.selectedFiles().first();
-    if (load(fn))
-        statusBar()->showMessage(tr("Opened \"%1\"").arg(QDir::toNativeSeparators(fn)));
-    else
-        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
+//    QFileDialog fileDialog(this, tr("Open File..."));
+//    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+//    fileDialog.setFileMode(QFileDialog::ExistingFile);
+//    fileDialog.setMimeTypeFilters(QStringList() << "text/html" << "text/plain");
+//    if (fileDialog.exec() != QDialog::Accepted)
+//        return;
+//    const QString fn = fileDialog.selectedFiles().first();
+//    if (load(fn))
+//        statusBar()->showMessage(tr("Opened \"%1\"").arg(QDir::toNativeSeparators(fn)));
+//    else
+//        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
+
+    emit loadCRDTtoFile();
 }
 
 bool TextEdit::fileSave()

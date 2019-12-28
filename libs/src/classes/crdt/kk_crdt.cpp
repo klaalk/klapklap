@@ -415,7 +415,7 @@ void KKCrdt::loadCrdt(string stdStringCrdt){
 
     }
 
-
+this->print();
 }
 
 
