@@ -433,36 +433,40 @@ void TextEdit::fileNew()
 
 void TextEdit::fileOpen()
 {
-    QFileDialog fileDialog(this, tr("Open File..."));
-    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-    fileDialog.setFileMode(QFileDialog::ExistingFile);
-    fileDialog.setMimeTypeFilters(QStringList() << "text/html" << "text/plain");
-    if (fileDialog.exec() != QDialog::Accepted)
-        return;
-    const QString fn = fileDialog.selectedFiles().first();
-    if (load(fn))
-        statusBar()->showMessage(tr("Opened \"%1\"").arg(QDir::toNativeSeparators(fn)));
-    else
-        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
+//    QFileDialog fileDialog(this, tr("Open File..."));
+//    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+//    fileDialog.setFileMode(QFileDialog::ExistingFile);
+//    fileDialog.setMimeTypeFilters(QStringList() << "text/html" << "text/plain");
+//    if (fileDialog.exec() != QDialog::Accepted)
+//        return;
+//    const QString fn = fileDialog.selectedFiles().first();
+//    if (load(fn))
+//        statusBar()->showMessage(tr("Opened \"%1\"").arg(QDir::toNativeSeparators(fn)));
+//    else
+//        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
+
+    emit loadCRDTtoFile();
 }
 
 bool TextEdit::fileSave()
 {
-    if (fileName.isEmpty())
-        return fileSaveAs();
-    if (fileName.startsWith(QStringLiteral(":/")))
-        return fileSaveAs();
+//    if (fileName.isEmpty())
+//        return fileSaveAs();
+//    if (fileName.startsWith(QStringLiteral(":/")))
+//        return fileSaveAs();
 
-    QTextDocumentWriter writer(fileName);
-    bool success = writer.write(textEdit->document());
-    if (success) {
-        textEdit->document()->setModified(false);
-        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
-    } else {
-        statusBar()->showMessage(tr("Could not write to file \"%1\"")
-                                         .arg(QDir::toNativeSeparators(fileName)));
-    }
-    return success;
+//    QTextDocumentWriter writer(fileName);
+//    bool success = writer.write(textEdit->document());
+//    if (success) {
+//        textEdit->document()->setModified(false);
+//        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
+//    } else {
+//        statusBar()->showMessage(tr("Could not write to file \"%1\"")
+//                                         .arg(QDir::toNativeSeparators(fileName)));
+//    }
+//    return success;
+
+  emit saveCRDTtoFile();
 }
 
 bool TextEdit::fileSaveAs()

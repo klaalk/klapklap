@@ -29,6 +29,8 @@ KKClient::KKClient(const QUrl &url, QObject *parent)
     // Gestisco le richieste dell'editor
     connect(&editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCRDT);
     connect(&editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCRDT);
+    connect(&editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onsaveCRDTtoFile);
+    connect(&editor_, &TextEdit::loadCRDTtoFile, this, &KKClient::onloadCRDTtoFile);
 
     // Gestisco le richieste della chat
     connect(&chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
@@ -77,6 +79,8 @@ void KKClient::sendSignupRequest(QString email, QString password, QString name, 
 void KKClient::sendOpenFileRequest(QString fileName) {
     if (!timer_.isActive())
         timer_.start(TIMEOUT_VALUE);
+    currentfile=fileName;
+    currentfileValid=false;
     sendRequest(OPENFILE, NONE, {fileName});
 }
 
@@ -202,6 +206,9 @@ void KKClient::handleResponse(QString message) {
     } else if(res.getRequestType() == REMOVED_PARTECIPANT && res.getResultType() == SUCCESS) {
         QStringList list = res.getBodyList();
         chat_.removeParticipant(list[0]);
+    } else if(res.getRequestType() == LOADFILE && res.getResultType() == SUCCESS) {
+        QStringList bodyList_ = res.getBodyList();
+        crdt_->loadCrdt(bodyList_[0].toStdString());
     } else {
         modal_.setModal("Errore generico", "Chiudi", GENERIC_ERROR);
         modal_.show();
@@ -225,6 +232,7 @@ void KKClient::handleSignupResponse() {
 }
 
 void KKClient::handleOpenfileResponse() {
+    currentfileValid = true;
     state_= CONNECTED_AND_OPENED;
     crdt_ = new KKCrdt(email_.toStdString(), casuale);
     openFile_.hide();
@@ -288,6 +296,25 @@ void KKClient::onRemoveTextCRDT(int start, int end) {
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_DELETE, email_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids});
     });
+}
+
+void KKClient::onsaveCRDTtoFile() {
+    QString message=crdt_->saveCrdt();
+    QString username = crdt_->getSiteId();
+    QString filename = currentfile;
+    if(currentfileValid==true)
+        sendRequest(SAVEFILE, NONE, {username,filename,message});
+}
+
+void KKClient::onloadCRDTtoFile() {
+    QString username = crdt_->getSiteId();
+    bool ok;
+    QWidget tmp ;
+    QString filename = QInputDialog::getText(&tmp, tr("QInputDialog::getText()"),
+                                            tr("User name:"), QLineEdit::Normal,
+                                            QDir::home().dirName(), &ok);
+    if (ok && !filename.isEmpty())
+       sendRequest(LOADFILE, NONE, {username,filename});
 }
 
 void KKClient::onSiteIdClicked(QString siteId){

@@ -20,6 +20,8 @@
 #define SIGNUP "SGNP"
 #define SIGNOUT "SOUT"
 #define OPENFILE "OPNF"
+#define SAVEFILE "SAVF"
+#define LOADFILE "LODF"
 #define CRDT "CRDT"
 #define CHAT "CHAT"
 #define ADDED_PARTECIPANT "ADPR"

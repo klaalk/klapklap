@@ -16,6 +16,8 @@
 #include <QtWebSockets/QWebSocket>
 #include <QtNetwork/QSslError>
 #include <QCoreApplication>
+#include <QInputDialog>
+#include <QDir>
 #include <QMap>
 #include<QTimer>
 
@@ -59,7 +61,8 @@ private slots:
 
     void onInsertTextCRDT(QString diffText, int position);
     void onRemoveTextCRDT(int start, int end);
-
+    void onsaveCRDTtoFile();
+    void onloadCRDTtoFile();
     void onSiteIdClicked(QString siteId);
 private:
     void setInitState();
@@ -72,6 +75,9 @@ private:
 
     QString email_;
     QString state_;
+    QString currentfile;
+    bool currentfileValid;
+
 
     QUrl url_;
     QWebSocket socket_;
