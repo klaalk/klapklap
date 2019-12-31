@@ -31,9 +31,10 @@ QString KKFileSystem::createFile(QString username, QString filename){
     QString _filename = jump+"@"+tmp+"@"+filename;
     QFile file(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +_filename);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
-
-    bool result = db->insertUserFile(username,_filename,QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +_filename) == 0 ? true : false;
-    if(result) {
+    UserInfo *user = new UserInfo;
+    int result = db->insertUserFile(username, _filename, QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +_filename, user);
+    if(result == DB_INSERT_FILE_SUCCESS) {
+        db->sendInsertUserFileEmail(user->username,user->email,user->name, user->surname, _filename);
         return _filename;
     }
     return "ERR_CREATEFILE";
@@ -46,14 +47,19 @@ bool KKFileSystem::openFile(QString username, QString filename){
     QStringList body = filename.split("@");
     QString _username=crypt.decryptToString(body[1]);
 
-    if (db->checkUserInfo(_username)==false)
-        return false;
-    //Gia presente nella tabella, avendo
-    if(username==_username)
-        return true;
+    if (db->checkUserInfoByUsername(_username) != DB_USER_FOUND) return false;
 
-    //    sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
-    return db->insertUserFile(username, filename,QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" + filename) == 0 ? true:false;
+    //Gia presente nella tabella, avendo
+    if(username==_username) return true;
+
+    UserInfo *user = new UserInfo;
+    // Sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
+    int result = db->insertUserFile(username, filename,QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" + filename, user);
+    if (result == DB_INSERT_FILE_SUCCESS) {
+        db->sendInsertUserFileEmail(user->username,user->email,user->name, user->surname, filename);
+        return true;
+    }
+    return false;
 }
 
 bool KKFileSystem::sendFile(QString filename){
@@ -63,8 +69,6 @@ bool KKFileSystem::sendFile(QString filename){
 
     //@klaus
     //va inviato il file tramite la sock
-
-
     return true;
 }
 
@@ -77,11 +81,13 @@ bool KKFileSystem::sendFile(QString filename){
 // SendFile prene il file e lo invia sulla sock che usiamo per comunicare
 // con header "file_response" e payload "<binary file content>"
 
-bool KKFileSystem::writeFile(QString filename, QString toPrint){
-    if(filename=="log"){
-        filename=this->logFileName;
-        toPrint.insert(0,QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
+bool KKFileSystem::writeFile(QString filename, QString toPrint) {
+    if(filename == "log") {
+        filename = this->logFileName;
+        toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
+        qDebug() << "[log] " + toPrint;
     }
+
     QFile file(filename);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
         return false;
