@@ -87,17 +87,27 @@ void KKSession::handleLoginRequest(KKPayload request) {
         result = db->login(_body[0],_body[1], user);
         #endif
         if(result == DB_LOGIN_SUCCESS) {
-            QStringList* files = new QStringList();
+            QStringList* output = new QStringList();
+            output->append(user->name);
+            output->append(user->surname);
+            output->append(user->email);
+            output->append(user->password);
+            output->append(user->username);
+            output->append(user->image);
+            output->append(user->registrationDate);
+
             #ifndef ENV
-            db->getUserFile(user, files);
+            db->getUserFile(user, output);
             #endif
-            this->sendResponse(LOGIN, SUCCESS, *files);
+//          TODO: Aggiungere info utente
+//          this->sendResponse(LOGIN, SUCCESS, );
+            this->sendResponse(LOGIN, SUCCESS, *output);
         } else if (result == DB_LOGIN_FAILED) {
             this->sendResponse(LOGIN, FAILED, {"Credenziali non valide"});
         } else if (result == DB_ERR_USER_NOT_FOUND) {
             this->sendResponse(LOGIN, FAILED, {"Account non esistente"});
         } else {
-            this->sendResponse(LOGIN, FAILED, {"Errore interno. Non è stato possibile effettuare il login!"});
+            this->sendResponse(LOGIN, INTERNAL_ERROR, {"Errore interno. Non è stato possibile effettuare il login!"});
         }
     });
     mytask->setAutoDelete(true);
@@ -115,7 +125,7 @@ void KKSession::handleSignupRequest(KKPayload request) {
         } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
             this->sendResponse(SIGNUP, FAILED, {"Non e' stato possibile procedere con la registrazione. Username e/o Email esistenti!"});
         } else {
-            this->sendResponse(SIGNUP, FAILED, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
+            this->sendResponse(SIGNUP, INTERNAL_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
         }
     });
     mytask->setAutoDelete(true);
@@ -182,11 +192,11 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
                 message = "File creato, sei stato aggiunto correttamente";
             } else {
                 message = "Non è stato possibile aggiungere il file nel database";
-                result = FAILED;
+                result = INTERNAL_ERROR;
             }
         } else {
             message = "Non è stato possibile creare il file nel file system";
-            result = FAILED;
+            result = INTERNAL_ERROR;
         }
     }
 #ifndef ENV

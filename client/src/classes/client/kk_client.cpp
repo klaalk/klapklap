@@ -10,8 +10,10 @@ KKClient::KKClient(const QUrl &url, QObject *parent)
 
     // Gestisco l' apertura della connessione al socket
     connect(&socket_, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);
+
     // Gestisco la lettura dei messaggi.
     connect(&socket_, &QWebSocket::textMessageReceived, this, &KKClient::handleResponse);
+
     // Gestisco eventuali errorri sulla connessione al socket
     connect(&socket_, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors), this, &KKClient::handleSslErrors);
 
@@ -133,6 +135,10 @@ void KKClient::handleModalButtonClick(QString btnText, QString modalType) {
         editor_.resetState();
         chat_.resetState();
         setInitState();
+    } else if (modalType == GENERIC_ERROR) {
+        handleModalClosed(modalType);
+    } else  if (modalType == SERVER_ERROR) {
+        handleModalClosed(modalType);
     }
 }
 
@@ -158,7 +164,7 @@ void KKClient::handleTimeOutConnection() {
     socket_.close();
 }
 
-void KKClient::handleErrorResponse() {
+void KKClient::handleClientErrorResponse() {
     if(state_ == CONNECTED_NOT_LOGGED) {
         modal_.setModal("Hai inserito delle credenziali non valide.\nControlla che email e/o password siano corretti.", "Chiudi", LOGIN_ERROR);
         modal_.show();
@@ -171,6 +177,11 @@ void KKClient::handleErrorResponse() {
     }
 }
 
+void KKClient::handleServerErrorResponse() {
+    modal_.setModal("Errore interno al server. Non è possibile procedere.", "Chiudi", SERVER_ERROR);
+    modal_.show();
+}
+
 void KKClient::handleResponse(QString message) {
     timer_.stop();
     qDebug() << "[message received] -" << message;
@@ -180,23 +191,25 @@ void KKClient::handleResponse(QString message) {
     if(res.getRequestType() == LOGIN) {
         if (res.getResultType() == SUCCESS)
             handleLoginResponse(res);
+        else if (res.getResultType() == FAILED)
+            handleClientErrorResponse();
         else
-            handleErrorResponse();
+            handleServerErrorResponse();
     } else if(res.getRequestType() == SIGNUP) {
         if (res.getResultType() == SUCCESS)
             handleSignupResponse();
         else
-            handleErrorResponse();
+            handleClientErrorResponse();
     } else if(res.getRequestType() == OPENFILE) {
         if (res.getResultType() == SUCCESS)
             handleOpenfileResponse();
         else
-            handleErrorResponse();
+            handleClientErrorResponse();
     } else if(res.getRequestType() == CRDT) {
         if (res.getResultType() == SUCCESS)
             handleCrdtResponse(res);
         else
-            handleErrorResponse();
+            handleClientErrorResponse();
     } else if(res.getRequestType() == CHAT && res.getResultType() == SUCCESS) {
         QStringList res_ = res.getBodyList();
         chat_.appendMessage(res_[0], res_[1]);
@@ -217,11 +230,9 @@ void KKClient::handleResponse(QString message) {
 
 void KKClient::handleLoginResponse(KKPayload res) {
     state_= CONNECTED_AND_LOGGED;
-    QStringList files = res.getBodyList();
-    for(QString s : files) {
-        if(s!="")
-            openFile_.addFile(s);
-    }
+    // La risposta dovrebbe contenere le info dell'utente e poi i suoi file
+    QStringList info = res.getBodyList();
+    openFile_.initInfo(info);
     access_.hide();
     openFile_.show();
 }

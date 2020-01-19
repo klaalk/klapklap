@@ -88,6 +88,7 @@
 #define CRDT_ERROR "CrdtError"
 #define CHAT_ERROR "ChatError"
 #define GENERIC_ERROR "GenericError"
+#define SERVER_ERROR "ServerError"
 
 #define CRDT_INSERT "INSERT"
 #define CRDT_DELETE "DELETE"

@@ -70,7 +70,8 @@ private:
     void handleSignupResponse();
     void handleOpenfileResponse();
     void handleCrdtResponse(KKPayload res);
-    void handleErrorResponse();
+    void handleClientErrorResponse();
+    void handleServerErrorResponse();
     bool sendRequest(QString type, QString result, QStringList body);
 
     QString email_;

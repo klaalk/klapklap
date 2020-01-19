@@ -6,7 +6,7 @@
 
 QString KKFileSystem::createFile(QString username, QString filename){
 
-    if(username=="root" && filename == "log") {
+    if(username == "root" && filename == "log") {
         QString log_name = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
 
         QFile file(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +log_name);
@@ -20,7 +20,7 @@ QString KKFileSystem::createFile(QString username, QString filename){
 
     // Serve ad evitare che il carattere "/" dia problemi nei path
     do{
-        tmp= crypt.encryptToString(username);
+        tmp = crypt.encryptToString(username);
     }
     while(crypt.containLetter('/',tmp));
 
@@ -31,12 +31,14 @@ QString KKFileSystem::createFile(QString username, QString filename){
     QString _filename = jump+"@"+tmp+"@"+filename;
     QFile file(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +_filename);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
+
     UserInfo *user = new UserInfo;
     int result = db->insertUserFile(username, _filename, QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" +_filename, user);
     if(result == DB_INSERT_FILE_SUCCESS) {
-        db->sendInsertUserFileEmail(user->username,user->email,user->name, user->surname, _filename);
+        db->sendInsertUserFileEmail(user->username, user->email, user->name, user->surname, _filename);
         return _filename;
     }
+
     return "ERR_CREATEFILE";
 }
 
