@@ -2,11 +2,14 @@
 // Created by Alberto Bruno on 2019-05-15.
 //
 #include "../identifier/kk_identifier.h"
+#include <QTextCharFormat>
 #include "kk_char.h"
 
 using std::string;
 
-KKChar::KKChar(char value, string siteId) : siteId(siteId), value(value) {};
+KKChar::KKChar(char value, string siteId) : siteId(siteId), value(value) {
+
+};
 KKChar::~KKChar() {
     position.clear();
 }
@@ -83,4 +86,11 @@ std::string KKChar::getIdentifiersString() {
         identifiers_= identifiers_ + str + " ";
     });
     return identifiers_;
+}
+
+QTextCharFormat KKChar::getKKCharFormat(){
+    return KKCharFormat;
+}
+void KKChar::setKKCharFormat(QTextCharFormat format){
+    KKCharFormat=format;
 }

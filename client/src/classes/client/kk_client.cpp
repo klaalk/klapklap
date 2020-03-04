@@ -259,6 +259,7 @@ void KKClient::handleCrdtResponse(KKPayload res) {
         KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
         char_->pushIdentifier(ptr);
     }
+
     unsigned long remotePos = bodyList_[0] == CRDT_INSERT ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
     QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
 
@@ -309,7 +310,7 @@ void KKClient::onsaveCRDTtoFile() {
 void KKClient::onloadCRDTtoFile() {
     QString username = crdt_->getSiteId();
     bool ok;
-    QWidget tmp ;
+    QWidget tmp;
     QString filename = QInputDialog::getText(&tmp, tr("QInputDialog::getText()"),
                                             tr("User name:"), QLineEdit::Normal,
                                             QDir::home().dirName(), &ok);

@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <string.h>
 #include <memory>
+#include <QTextCharFormat>
 
 using std::vector;
 using std::string;
@@ -21,6 +22,8 @@ class KKChar {
     vector<KKIdentifierPtr> position; // array di identifier, serve per dare come posizioni univoche numeri anche con la virgola (es 0,5 -> [identifier1.digit=0][identifier2.digit=5])
     string siteId; //univoco per il client
     char value; //valore (es 'a')
+    QTextCharFormat KKCharFormat;
+
 public:
     KKChar(char value, string siteId);//costruttore
     ~KKChar();
@@ -33,6 +36,9 @@ public:
     void insertPosition(vector<KKIdentifierPtr> position);
     vector<KKIdentifierPtr> getPosition();
     std::string getIdentifiersString();
+
+     QTextCharFormat getKKCharFormat();
+     void setKKCharFormat(QTextCharFormat);
 };
 
 typedef std::shared_ptr<KKChar> KKCharPtr;

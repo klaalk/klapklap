@@ -31,6 +31,7 @@
 #include <QFontMetrics>
 #include <QFont>
 #include <QListWidgetItem>
+#include <QTextCharFormat>
 
 #if defined(QT_PRINTSUPPORT_LIB)
 #include <QtPrintSupport/qtprintsupportglobal.h>
@@ -894,7 +895,7 @@ void TextEdit::onTextChange() {
         if(isTextSelected){
             diffText=lastText.mid(selection_start, selection_end);
             qDebug() << "Testo cancellato: " << diffText << "start: {" << selection_start << "} end: {" << selection_end << "}";
-            emit removeTextFromCRDT( selection_start, selection_end);
+            emit removeTextFromCRDT(selection_start, selection_end);
         }
         else{
             if (cursorPos < lastCursorPos) {
