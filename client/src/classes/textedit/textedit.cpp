@@ -53,6 +53,8 @@ const QString rsrcPath = ":/images/mac";
 const QString rsrcPath = ":/images/win";
 #endif
 
+
+
 TextEdit::TextEdit(QWidget *parent)
         : QMainWindow(parent)
 {
@@ -496,7 +498,7 @@ void TextEdit::filePrint()
     if (dlg->exec() == QDialog::Accepted)
         textEdit->print(&printer);
     delete dlg;
-#endif
+    #endif
 }
 
 void TextEdit::filePrintPreview()
