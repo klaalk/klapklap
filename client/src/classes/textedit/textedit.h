@@ -133,13 +133,16 @@ public:
     QTextEdit *textEdit;
     bool load(const QString &f);
     void resetState();
-    void applyRemoteChanges(QString operation, QString name, QString text, int globalPos);
+    void applyRemoteChanges(QString operation, QString name, QString text, int globalPos,QString font);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
     void updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list);
+    QTextEdit* getTextEdit();
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
+    void saveCRDTtoFile();
+    void loadCRDTtoFile();
 
 public slots:
     void fileNew();
@@ -223,6 +226,7 @@ private:
     QMap<QString,QBrush> siteIdsColors_;
     QList<QString> siteIdsClicked_;
     QList<QBrush> colors_={Qt::yellow, Qt::gray, Qt::green, Qt::blue, Qt::cyan, Qt::magenta};
+
 };
 typedef QSharedPointer<TextEdit> textedit_ptr;
 #endif // TEXTEDIT_H

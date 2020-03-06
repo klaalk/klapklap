@@ -52,7 +52,7 @@ bool KKFileSystem::openFile(QString username, QString filename){
     if(username==_username)
         return true;
 
-    //    sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
+    //sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
     return db->insertUserFile(username, filename,QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/" + filename) == 0 ? true:false;
 }
 
@@ -74,7 +74,7 @@ bool KKFileSystem::sendFile(QString filename){
 // se user è proprietario del file da true, non c'e bisogno di fare altre operazioni,
 // se l'user non è proprietario vuol dire che è stato invitato, quindi va aggiunto,
 // il valore ritornato dipende da se riesce o meno la query nel db.
-// SendFile prene il file e lo invia sulla sock che usiamo per comunicare
+// SendFile prende il file e lo invia sulla sock che usiamo per comunicare
 // con header "file_response" e payload "<binary file content>"
 
 bool KKFileSystem::writeFile(QString filename, QString toPrint){
@@ -103,7 +103,7 @@ QString KKFileSystem::readFile(QString filename){
 
     QTextStream stream(&file);
 
-    while (stream.atEnd()) {
+    while (!stream.atEnd()) {
         text+= stream.readLine();
         text+= " ";
     }

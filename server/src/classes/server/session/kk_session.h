@@ -45,6 +45,8 @@ private:
     void handleShareFileRequest(KKPayload request);
     void handleChatRequest(KKPayload request);
     void handleCrdtRequest(KKPayload request);
+    void handleSaveFileRequest(KKPayload request);
+    void handleLoadFileRequest(KKPayload request);
 
     QWebSocket*  socket;
     KKDataBasePtr db;
