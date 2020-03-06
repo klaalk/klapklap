@@ -851,16 +851,18 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         //xxx qui devo mettere il font di quello che ha scritto, scrivere e poi rimettere il mio font vecchio
 
         QFont fontNuovo;
-        QFont fontVecchio = textEdit->font();
+        QTextCharFormat formatVecchio = editorCurs.charFormat();
+
 
 
 
         fontNuovo.fromString(font);
-
         QTextCharFormat format;
         format.setFont(fontNuovo);
+        qDebug() << "fn:"<<fontNuovo;
         editorCurs.insertText(text,format);
-        editorCurs.charFormat().setFont(fontVecchio);
+
+        editorCurs.setCharFormat(formatVecchio);
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
