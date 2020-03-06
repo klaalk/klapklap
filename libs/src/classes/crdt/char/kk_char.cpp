@@ -87,10 +87,10 @@ std::string KKChar::getIdentifiersString() {
     });
     return identifiers_;
 }
-QFont KKChar::getKKCharFont(){
+QString KKChar::getKKCharFont(){
     return KKCharFont;
 }
-void KKChar::setKKCharFont(QFont font){
+void KKChar::setKKCharFont(QString font){
     this->KKCharFont=font;
 }
 

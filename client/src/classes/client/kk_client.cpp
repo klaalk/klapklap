@@ -251,8 +251,11 @@ void KKClient::handleCrdtResponse(KKPayload res) {
     QString siteId = bodyList_[1 + increment];
     QString text = bodyList_[2 + increment];
     QStringList ids = bodyList_[3 + increment].split(" ");
+    QString fontStr = bodyList_[4 + increment];
+
 
     KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
+    char_->setKKCharFont(fontStr);
     // size() - 1 per non considerare l'elemento vuoto della string list ids
     for(int i = 0; i < ids.size() - 1; i++){
         unsigned long digit = ids[i].toULong();
@@ -262,8 +265,9 @@ void KKClient::handleCrdtResponse(KKPayload res) {
 
     unsigned long remotePos = bodyList_[0] == CRDT_INSERT ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
     QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
-
-    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos));
+//xxx
+    qDebug() << "FONTmandato:"<<char_->getKKCharFont();
+    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont());
 }
 
 void KKClient::handleSslErrors(const QList<QSslError> &errors) {
@@ -282,8 +286,13 @@ void KKClient::onInsertTextCRDT(QString diffText, int position) {
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
         crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
         KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col));
+        QString font_;
+
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids });
+        //xxx
+        font_=editor_.getTextEdit()->textCursor().charFormat().font().toString();
+        char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar
+        sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_});
     }
 }
 

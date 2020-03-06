@@ -23,7 +23,7 @@ class KKChar {
     string siteId; //univoco per il client
     char value; //valore (es 'a')
     //QTextCharFormat KKCharFormat;
-    QFont KKCharFont;
+    QString KKCharFont;
 
 public:
     KKChar(char value, string siteId);//costruttore
@@ -37,8 +37,8 @@ public:
     void insertPosition(vector<KKIdentifierPtr> position);
     vector<KKIdentifierPtr> getPosition();
     std::string getIdentifiersString();
-    QFont getKKCharFont();
-    void setKKCharFont(QFont font);
+    QString getKKCharFont();
+    void setKKCharFont(QString font);
      /*QTextCharFormat getKKCharFormat();
      void setKKCharFormat(QTextCharFormat);*/
 };
