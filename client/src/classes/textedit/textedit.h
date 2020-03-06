@@ -137,6 +137,7 @@ public:
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
     void updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list);
+    void setMySiteId(QString mySiteId);
     QTextEdit* getTextEdit();
 signals:
     void insertTextToCRDT(QString text, int position);
@@ -215,6 +216,7 @@ private:
     int selection_start=0;
     int selection_end=0;
     QString lastText;
+    QString mySiteId_;
     QString diffText;
     QString fileName;
     QMap <QString,kk_cursor*> cursors_;
