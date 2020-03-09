@@ -99,8 +99,6 @@ void KKSession::handleLoginRequest(KKPayload request) {
             #ifndef ENV
             db->getUserFile(user, output);
             #endif
-//          TODO: Aggiungere info utente
-//          this->sendResponse(LOGIN, SUCCESS, );
             this->sendResponse(LOGIN, SUCCESS, *output);
         } else if (result == DB_LOGIN_FAILED) {
             this->sendResponse(LOGIN, FAILED, {"Credenziali non valide"});

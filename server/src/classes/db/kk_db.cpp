@@ -12,6 +12,9 @@
 #define  PSW  ""
 #define  PORT 3306
 
+#define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) VALUES (?, ?, ?, ?, ?)"
+
+
 KKDataBase::KKDataBase(){
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName(HOST);
@@ -52,6 +55,7 @@ int KKDataBase::getUserInfo(QString username, UserInfo* userInfo) {
 int KKDataBase::insertUserInfo(QString username, QString password, QString email, QString name, QString surname) {
     int resCode = DB_SIGNUP_FAILED;
     if(!db.open()) {
+        qDebug() << "DB non open";
         resCode = DB_ERR_NOT_OPEN_CONNECTION;
     } else {
         if (checkUserInfoByUsername(username) == DB_USER_FOUND)
@@ -59,14 +63,23 @@ int KKDataBase::insertUserInfo(QString username, QString password, QString email
         else if (checkUserInfoByEmail(email) == DB_USER_FOUND)
             resCode = DB_ERR_INSERT_EMAIL;
         else  {
-            QString queryStr = "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) VALUES('" +
-                    username + "','" + password + "','" + email + "','" + name + "','" + surname + "');";
             try {
-                QSqlQuery res = db.exec(queryStr);
+                QSqlQuery query;
+                query.prepare(INSERT_USER);
+                query.bindValue(0, username);
+                query.bindValue(1, password);
+                query.bindValue(2, email);
+                query.bindValue(3, name);
+                query.bindValue(4, surname);
+                query.exec();
+                bool success = query.next();
+                if (success) {
+                    resCode = DB_SIGNUP_SUCCESS;
+                }
                 db.close();
-                resCode = DB_SIGNUP_SUCCESS;
             } catch (QException &e) {
                 QString _str(e.what());
+                qDebug() << "Errore inserimento user: " << _str;
                 db.close();
                 if (_str.contains("EMAIL"))
                     resCode = DB_ERR_INSERT_EMAIL;
