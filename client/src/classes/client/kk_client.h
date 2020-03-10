@@ -20,6 +20,8 @@
 #include <QDir>
 #include <QMap>
 #include<QTimer>
+#include <QTextCursor>
+#include <QTextEdit>
 
 #include "../../../../libs/src/constants/kk_constants.h"
 #include "../../../../libs/src/classes/payload/kk_payload.h"

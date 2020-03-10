@@ -31,6 +31,7 @@
 #include <QFontMetrics>
 #include <QFont>
 #include <QListWidgetItem>
+#include <QTextCharFormat>
 
 #if defined(QT_PRINTSUPPORT_LIB)
 #include <QtPrintSupport/qtprintsupportglobal.h>
@@ -51,6 +52,8 @@ const QString rsrcPath = ":/images/mac";
 #else
 const QString rsrcPath = ":/images/win";
 #endif
+
+
 
 TextEdit::TextEdit(QWidget *parent)
         : QMainWindow(parent)
@@ -495,7 +498,7 @@ void TextEdit::filePrint()
     if (dlg->exec() == QDialog::Accepted)
         textEdit->print(&printer);
     delete dlg;
-#endif
+    #endif
 }
 
 void TextEdit::filePrintPreview()
@@ -808,7 +811,7 @@ void TextEdit::modifyLabels(){
     blockCursor = false;
 }
 
-void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos) {
+void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font) {
     QBrush color;
     //Blocco il cursore dell'editor.
     blockCursor = true;
@@ -820,7 +823,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     //Faccio dei controlli sulla fattibilità dell'operazione.
     globalPos = globalPos > lastLength ? lastLength : globalPos;
     globalPos = globalPos < 0 ? 0 : globalPos;
-    //Se non esiste lo creo e lo memorizzo.
+    //Se non esiste quel cursore lo creo e lo memorizzo.
     if(remoteCurs == nullptr) {
         //Creo il cursore per l'utente se non esiste.
         QLabel* qLbl = new QLabel(name, textEdit);
@@ -845,7 +848,22 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     editorCurs.setPosition(globalPos);
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
-        editorCurs.insertText(text);
+        //xxx qui devo mettere il font di quello che ha scritto, scrivere e poi rimettere il mio font vecchio
+
+        QFont fontNuovo;
+        QTextCharFormat formatVecchio = editorCurs.charFormat();
+
+
+
+
+        fontNuovo.fromString(font);
+        QTextCharFormat format;
+        format.setFont(fontNuovo);
+        qDebug() << "fn:"<<fontNuovo;
+        editorCurs.insertText(text,format);
+
+        editorCurs.setCharFormat(formatVecchio);
+
         //Aggiorno la length.
         lastLength = lastLength + text.length();
     } else if(operation == CRDT_DELETE) {
@@ -894,7 +912,7 @@ void TextEdit::onTextChange() {
         if(isTextSelected){
             diffText=lastText.mid(selection_start, selection_end);
             qDebug() << "Testo cancellato: " << diffText << "start: {" << selection_start << "} end: {" << selection_end << "}";
-            emit removeTextFromCRDT( selection_start, selection_end);
+            emit removeTextFromCRDT(selection_start, selection_end);
         }
         else{
             if (cursorPos < lastCursorPos) {
@@ -931,6 +949,7 @@ void TextEdit::onTextChange() {
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
             editorCurs.charFormat().setBackground(Qt::white);
+
         }
     }
 
@@ -1002,7 +1021,9 @@ void TextEdit::clearColorText(QString siteId){
     blockCursor=false;
 }
 
-
+QTextEdit* TextEdit::getTextEdit(){
+    return this->textEdit;
+}
 
 
 

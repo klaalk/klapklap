@@ -29,6 +29,9 @@ KKCrdt::~KKCrdt() {
 
 KKCharPtr KKCrdt::localInsert(char val, KKPosition pos) {
     KKCharPtr newChar = this->generateChar(val, pos);
+    //xxx DA TOGLIERE
+    //newChar->setKKCharFont("Helvetica 01 23 12");
+
     this->insertChar(newChar, pos);
     return newChar;
 }
@@ -345,6 +348,8 @@ QString KKCrdt::saveCrdt(){ //scrive il crdt su un file, esempio formato: d(albo
             }
             strTmp.pop_back();
             strTmp.push_back(']');
+            strTmp.append(x->getKKCharFont().toStdString());
+            strTmp.push_back('*');
         }
     }
     QString stringCrdt = QString::fromStdString(strTmp);
@@ -363,6 +368,7 @@ void KKCrdt::loadCrdt(string stdStringCrdt){
             ch=stdStringCrdt[i];
             string tmpSiteId;
             KKCharPtr new_Char = KKCharPtr(new KKChar(ch,"")); //creo kkChar partendo dal carattere e siteId nullo
+            QString font;
             gettingSeq=1;
             while(gettingSeq){
                 i++;
@@ -381,14 +387,19 @@ void KKCrdt::loadCrdt(string stdStringCrdt){
              }
              gettingSeq=1;
 
-             while(gettingSeq){
+             while(gettingSeq){ //inizia a prendere gli identifiers
                  i++;
                  ch=stdStringCrdt[i];
 
                  if (ch=='[' || ch==';'){
                      continue;
 
-                 } else if (ch!=']'){//prendo l'identifier
+                 } else if (stdStringCrdt[i]==']'){
+
+                     gettingSeq=0;
+                     break;
+
+                 }else {//prendo l'identifier
                      string num;
 
                      while(stdStringCrdt[i]!=';' && stdStringCrdt[i]!=']'){
@@ -400,22 +411,33 @@ void KKCrdt::loadCrdt(string stdStringCrdt){
                          val=stoul(num,nullptr,0);
                          new_id = shared_ptr<KKIdentifier>(new KKIdentifier(val, tmpSiteId));
                          new_Char->pushIdentifier(new_id);
-                     }if(stdStringCrdt[i]==']'){
+                         i--;
 
+
+                 }
+             }
+             gettingSeq=1;
+             while(gettingSeq){ //inizia a prendere il font
+                 i++;
+                 ch=stdStringCrdt[i];
+
+                 if(ch=='*'){
                      int size = text.size();
-
+                     new_Char->setKKCharFont(font);
                      text[size-1].push_back(new_Char);
 
                      if(new_Char->getValue()=='\n'){ //se il carattere era un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
                          text.insert(text.end(), list<KKCharPtr>());
                      }
                      gettingSeq=0;
-                  }
-             }
+                  }else{
+                     font.push_back(ch);
 
-    }
+                 }
 
+             }}
 this->print();
+
 }
 
 
