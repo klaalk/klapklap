@@ -217,6 +217,7 @@ void KKClient::handleResponse(QString message) {
 
 void KKClient::handleLoginResponse(KKPayload res) {
     state_= CONNECTED_AND_LOGGED;
+    editor_.setMySiteId(email_);
     QStringList files = res.getBodyList();
     for(QString s : files) {
         if(s!="")

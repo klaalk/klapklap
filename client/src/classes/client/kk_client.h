@@ -44,6 +44,7 @@ class KKClient : public QObject
 public:
     explicit KKClient(const QUrl &url, QObject *parent = nullptr);
 
+
 private slots:
     void handleOpenedConnection();
     void handleTimeOutConnection();

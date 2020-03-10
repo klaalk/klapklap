@@ -817,7 +817,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     blockCursor = true;
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
-    editorCurs.charFormat().setBackground(Qt::white);
+    //editorCurs.charFormat().setBackground(Qt::white);
     //Prelevo il cursore remoto.
     kk_cursor* remoteCurs = cursors_.value(name);
     //Faccio dei controlli sulla fattibilità dell'operazione.
@@ -928,7 +928,7 @@ void TextEdit::onTextChange() {
         }
     } else if(s.length() - lastLength >= 1) {
         // Inserito 1 o più
-        //salva in diff text le cose nuove scritte
+        //salva in diffText le cose nuove scritte
         diffText=s.mid(lastCursorPos, s.length() - lastLength);
         qDebug() << "Testo inserito: " << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
         emit insertTextToCRDT(diffText, lastCursorPos);
@@ -948,16 +948,42 @@ void TextEdit::onTextChange() {
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
+<<<<<<<
             editorCurs.charFormat().setBackground(Qt::white);
 
+=======
+
+>>>>>>>
+        }
+    }
+
+    //Coloro (o decoloro) il mio testo se necessario
+    //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
+
+    if(s.length() - lastLength >= 1){ // Ho inserito del testo
+       if(siteIds_.contains(mySiteId_)){
+          for(int i=0; i<s.length(); i++)
+          siteIds_.value(mySiteId_)->append(curPos_+i);
+       }
+       if(siteIdsClicked_.contains(mySiteId_))
+          colorText(mySiteId_);
+
+       else
+            clearColorText(mySiteId_);
+      }
+
+    else{ // Ho cancellato del testo
+        if(siteIds_.contains(mySiteId_)){
+           for(int i=0; i<s.length(); i++)
+           siteIds_.value(mySiteId_)->
         }
     }
 
     // Riporto il cursore dell'editor alla posizione di partenza.
     editorCurs.setPosition(curPos_);
-    textEdit->textCursor().charFormat().setBackground(Qt::white);
     lastLength = s.length();
     lastText = s;
+
 }
 
 void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list){
@@ -972,7 +998,7 @@ void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list)
 void TextEdit::colorText(QString siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
-    QTextCharFormat fmt;
+    QTextCharFormat fmt=cursor.charFormat();
     QBrush color;
     //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
@@ -1001,7 +1027,7 @@ void TextEdit::colorText(QString siteId){
 void TextEdit::clearColorText(QString siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
-    QTextCharFormat fmt;
+    QTextCharFormat fmt=cursor.charFormat();
 
     fmt.setBackground(Qt::white);
     int last = cursor.position();
@@ -1021,9 +1047,15 @@ void TextEdit::clearColorText(QString siteId){
     blockCursor=false;
 }
 
+<<<<<<<
 QTextEdit* TextEdit::getTextEdit(){
     return this->textEdit;
 }
+=======
+void TextEdit::setMySiteId(QString mySiteId){
+    mySiteId_=mySiteId;
+}
+>>>>>>>
 
 
 
