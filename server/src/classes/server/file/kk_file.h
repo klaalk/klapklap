@@ -35,6 +35,10 @@ private:
         MaxRecentMessages = 100
     };
     KKVectorPayloadPtr recentMessages;
+    KKVectorPayloadPtr crdtMessages;
+    QVector<long long> crdtIndexMessages;
+
+    long long messageIndex;
 };
 
 typedef QSharedPointer<KKFile> KKFilePtr;
