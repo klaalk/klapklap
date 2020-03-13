@@ -854,15 +854,16 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         QTextCharFormat formatVecchio = editorCurs.charFormat();
 
 
-
-
         fontNuovo.fromString(font);
         QTextCharFormat format;
         format.setFont(fontNuovo);
-        qDebug() << "fn:"<<fontNuovo;
-        editorCurs.insertText(text,format);
+
+        editorCurs.setCharFormat(format);
+
+        editorCurs.insertText(text);
 
         editorCurs.setCharFormat(formatVecchio);
+
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
