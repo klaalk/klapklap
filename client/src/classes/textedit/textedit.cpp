@@ -948,12 +948,7 @@ void TextEdit::onTextChange() {
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
-<<<<<<<
             editorCurs.charFormat().setBackground(Qt::white);
-
-=======
-
->>>>>>>
         }
     }
 
@@ -975,7 +970,7 @@ void TextEdit::onTextChange() {
     else{ // Ho cancellato del testo
         if(siteIds_.contains(mySiteId_)){
            for(int i=0; i<s.length(); i++)
-           siteIds_.value(mySiteId_)->
+           siteIds_.value(mySiteId_);
         }
     }
 
@@ -1047,15 +1042,13 @@ void TextEdit::clearColorText(QString siteId){
     blockCursor=false;
 }
 
-<<<<<<<
 QTextEdit* TextEdit::getTextEdit(){
     return this->textEdit;
 }
-=======
+
 void TextEdit::setMySiteId(QString mySiteId){
     mySiteId_=mySiteId;
 }
->>>>>>>
 
 
 

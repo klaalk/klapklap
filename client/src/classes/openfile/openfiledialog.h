@@ -18,6 +18,7 @@ signals:
 
 public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
+    void initInfo(QStringList info);
     void addFile(QString fileName);
     ~OpenFileDialog();
 
@@ -26,6 +27,10 @@ private slots:
     void on_openBtn_clicked();
 
     void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_3_clicked();
 
 private:
     Ui::OpenFileDialog *ui;

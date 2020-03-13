@@ -230,10 +230,18 @@ void KKClient::handleResponse(QString message) {
 
 void KKClient::handleLoginResponse(KKPayload res) {
     state_= CONNECTED_AND_LOGGED;
+<<<<<<< HEAD
     // La risposta dovrebbe contenere le info dell'utente e poi i suoi file
-    editor_.setMySiteId(email_);
     QStringList info = res.getBodyList();
     openFile_.initInfo(info);
+=======
+    editor_.setMySiteId(email_);
+    QStringList files = res.getBodyList();
+    for(QString s : files) {
+        if(s!="")
+            openFile_.addFile(s);
+    }
+>>>>>>> origin/Michele
     access_.hide();
     openFile_.show();
 }

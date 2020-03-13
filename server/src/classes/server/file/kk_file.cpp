@@ -27,6 +27,13 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
     KKPayloadPtr data = QSharedPointer<KKPayload>(new KKPayload(type,result, message));
     recentMessages->push_back(data);
 
+    if (type == CRDT) {
+        crdtMessages->push_back(data);
+        crdtIndexMessages.push_back(messageIndex);
+    }
+
+    messageIndex++;
+
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
 
