@@ -948,31 +948,31 @@ void TextEdit::onTextChange() {
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
-            editorCurs.charFormat().setBackground(Qt::white);
+//            editorCurs.charFormat().setBackground(Qt::white);
         }
     }
 
     //Coloro (o decoloro) il mio testo se necessario
     //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
 
-    if(s.length() - lastLength >= 1){ // Ho inserito del testo
-       if(siteIds_.contains(mySiteId_)){
-          for(int i=0; i<s.length(); i++)
-          siteIds_.value(mySiteId_)->append(curPos_+i);
-       }
-       if(siteIdsClicked_.contains(mySiteId_))
-          colorText(mySiteId_);
+//    if(s.length() - lastLength >= 1){ // Ho inserito del testo
+//       if(siteIds_.contains(mySiteId_)){
+//          for(int i=0; i<s.length(); i++)
+//          siteIds_.value(mySiteId_)->append(curPos_+i);
+//       }
+//       if(siteIdsClicked_.contains(mySiteId_))
+//          colorText(mySiteId_);
 
-       else
-            clearColorText(mySiteId_);
-      }
+//       else
+//            clearColorText(mySiteId_);
+//      }
 
-    else{ // Ho cancellato del testo
-        if(siteIds_.contains(mySiteId_)){
-           for(int i=0; i<s.length(); i++)
-           siteIds_.value(mySiteId_);
-        }
-    }
+//    else{ // Ho cancellato del testo
+//        if(siteIds_.contains(mySiteId_)){
+//           for(int i=0; i<s.length(); i++)
+//           siteIds_.value(mySiteId_)->
+//        }
+//    }
 
     // Riporto il cursore dell'editor alla posizione di partenza.
     editorCurs.setPosition(curPos_);
@@ -1045,7 +1045,6 @@ void TextEdit::clearColorText(QString siteId){
 QTextEdit* TextEdit::getTextEdit(){
     return this->textEdit;
 }
-
 void TextEdit::setMySiteId(QString mySiteId){
     mySiteId_=mySiteId;
 }
