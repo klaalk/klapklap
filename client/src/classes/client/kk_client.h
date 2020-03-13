@@ -20,6 +20,8 @@
 #include <QDir>
 #include <QMap>
 #include<QTimer>
+#include <QTextCursor>
+#include <QTextEdit>
 
 #include "../../../../libs/src/constants/kk_constants.h"
 #include "../../../../libs/src/classes/payload/kk_payload.h"
@@ -41,6 +43,7 @@ class KKClient : public QObject
     Q_OBJECT
 public:
     explicit KKClient(const QUrl &url, QObject *parent = nullptr);
+
 
 private slots:
     void handleOpenedConnection();
