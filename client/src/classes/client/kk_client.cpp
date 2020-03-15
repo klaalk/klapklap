@@ -295,6 +295,7 @@ void KKClient::onInsertTextCRDT(QString diffText, int position) {
         char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_});
     }
+    editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
 }
 
 void KKClient::onRemoveTextCRDT(int start, int end) {
@@ -307,6 +308,7 @@ void KKClient::onRemoveTextCRDT(int start, int end) {
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_DELETE, email_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids});
     });
+    editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
 }
 
 void KKClient::onsaveCRDTtoFile() {
@@ -328,7 +330,7 @@ void KKClient::onloadCRDTtoFile() {
        sendRequest(LOADFILE, NONE, {username,filename});
 }
 
-void KKClient::onSiteIdClicked(QString siteId){
+QSharedPointer<QList<int>> KKClient::findPositions(QString siteId){
     QSharedPointer<QList<int>> myList=QSharedPointer<QList<int>>(new QList<int>());
     int global = 0;
     for(list<KKCharPtr> linea: crdt_->text){
@@ -339,6 +341,12 @@ void KKClient::onSiteIdClicked(QString siteId){
             global++;
         }
     }
+    return myList;
+}
+
+void KKClient::onSiteIdClicked(QString siteId){
+    QSharedPointer<QList<int>> myList=findPositions(siteId);
     editor_.updateSiteIdsMap(siteId, myList);
+    editor_.siteIdClicked(siteId);
 }
 

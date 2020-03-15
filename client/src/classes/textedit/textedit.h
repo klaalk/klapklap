@@ -137,6 +137,7 @@ public:
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
     void updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list);
+    void siteIdClicked(QString name);
     void setMySiteId(QString mySiteId);
     QTextEdit* getTextEdit();
 signals:
@@ -188,7 +189,7 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
-    void colorText(QString name);
+    void colorText(QString siteId);
     void clearColorText(QString name);
 
     QAction *actionSave;

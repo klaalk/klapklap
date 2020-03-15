@@ -853,8 +853,6 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         QFont fontNuovo;
         QFont fontVecchio = textEdit->font();
 
-
-
         fontNuovo.fromString(font);
 
         QTextCharFormat format;
@@ -894,26 +892,27 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         }
     }
 
-    //Coloro (o decoloro) il mio testo se necessario
-    //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
+//    //Coloro (o decoloro) il mio testo se necessario
+//    //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
 
-    if(siteIdsClicked_.contains(name)){
-        if(operation == CRDT_INSERT){ // Ho inserito del testo
-            for(int i=0; i<text.length(); i++)
-               siteIds_.value(name)->append(cursorPos-i);  // Aggiorno la lista di posizioni
-            colorText(name);
-    }
-        else{ // Ho cancellato del testo
-             for(int i=0; i<text.length(); i++)
-                 siteIds_.value(name)->removeOne(cursorPos+i);
-             clearColorText(name);
-             colorText(name);
+//    if(siteIdsClicked_.contains(name)){
+//        if(operation == CRDT_INSERT){ // Ho inserito del testo
+//            for(int i=0; i<text.length(); i++)
+//               siteIds_.value(name)->append(cursorPos-i);  // Aggiorno la lista di posizioni
+//            colorText(name);
+//    }
+//        else{ // Ho cancellato del testo
+//             for(int i=0; i<text.length(); i++)
+//                 siteIds_.value(name)->removeOne(cursorPos+i);
+//             clearColorText(name);
+//             colorText(name);
 
-      }
-    }
+//      }
+//    }
 
     lastCursorPos = cursorPos;
     editorCurs.setPosition(cursorPos);
+
     // Sblocco il cursore dell'editor.
     blockCursor = false;
 }
@@ -943,12 +942,26 @@ void TextEdit::onTextChange() {
                 emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
             }
         }
+
+        //Coloro (o decoloro) il mio testo se necessario
+        //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
+        if(siteIdsClicked_.contains(mySiteId_)){
+            clearColorText(mySiteId_);
+            colorText(mySiteId_);
+        }
+
     } else if(s.length() - lastLength >= 1) {
         // Inserito 1 o più
         //salva in diffText le cose nuove scritte
         diffText=s.mid(lastCursorPos, s.length() - lastLength);
         qDebug() << "Testo inserito: " << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
         emit insertTextToCRDT(diffText, lastCursorPos);
+
+        //Coloro (o decoloro) il mio testo se necessario
+        //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
+        if(siteIdsClicked_.contains(mySiteId_))
+                colorText(mySiteId_);
+
     }
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
@@ -970,24 +983,6 @@ void TextEdit::onTextChange() {
         }
     }
 
-    //Coloro (o decoloro) il mio testo se necessario
-    //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
-
-    if(siteIdsClicked_.contains(mySiteId_)){
-        if(s.length() - lastLength >= 1){ // Ho inserito del testo
-            for(int i=0; i<s.length(); i++)
-               siteIds_.value(mySiteId_)->append(curPos_-i);  // Aggiorno la lista di posizioni
-            colorText(mySiteId_);
-    }
-        else{ // Ho cancellato del testo
-             for(int i=0; i<s.length(); i++)
-                 siteIds_.value(mySiteId_)->removeOne(curPos_+i);
-             clearColorText(mySiteId_);
-             colorText(mySiteId_);
-
-      }
-    }
-
     // Riporto il cursore dell'editor alla posizione di partenza.
     editorCurs.setPosition(curPos_);
     lastLength = s.length();
@@ -996,10 +991,13 @@ void TextEdit::onTextChange() {
 }
 
 void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list){
-//    if(siteIds_.contains(siteId))
-//        siteIds_.remove(siteId);
-//    siteIds_.insert(siteId,list);
-    if(siteIdsClicked_.contains(siteId))
+    if(siteIds_.contains(siteId))
+        siteIds_.remove(siteId);
+    siteIds_.insert(siteId,list);
+}
+
+void TextEdit::siteIdClicked(QString siteId){
+    if(siteIdsClicked_.contains(siteId))  // 2 clicks
         clearColorText(siteId);
     else colorText(siteId);
 }
@@ -1021,6 +1019,7 @@ void TextEdit::colorText(QString siteId){
 
     fmt.setBackground(siteIdsColors_.value(siteId));
     int last = cursor.position();
+//    siteIds_.value(siteId)->toSet().toList();  // Elimino i duplicati
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
         cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
@@ -1029,7 +1028,8 @@ void TextEdit::colorText(QString siteId){
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
 
-    siteIdsClicked_.push_front(siteId);
+    if(!siteIdsClicked_.contains(siteId))
+        siteIdsClicked_.push_front(siteId);
     blockCursor=false;
 }
 
@@ -1040,7 +1040,9 @@ void TextEdit::clearColorText(QString siteId){
 
     fmt.setBackground(Qt::white);
     int last = cursor.position();
+//    siteIds_.value(siteId)->toSet().toList();  // Elimino i duplicati
     for(int pos : *siteIds_.value(siteId)){
+        qDebug()<<pos<<  " ";
         cursor.setPosition(pos);
         cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
         cursor.setCharFormat(fmt);
@@ -1049,7 +1051,8 @@ void TextEdit::clearColorText(QString siteId){
     textEdit->setTextCursor(cursor);
 
     //Elimino il siteId dalla lista di siteId cliccati (sto ricliccando)
-    siteIdsClicked_.removeOne(siteId);
+    if(siteIdsClicked_.contains(siteId))
+        siteIdsClicked_.removeOne(siteId);
 
     blockCursor=false;
 }

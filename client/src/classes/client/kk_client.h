@@ -75,6 +75,7 @@ private:
     void handleCrdtResponse(KKPayload res);
     void handleErrorResponse();
     bool sendRequest(QString type, QString result, QStringList body);
+    QSharedPointer<QList<int>>findPositions(QString siteId);
 
     QString email_;
     QString state_;
