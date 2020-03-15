@@ -6,10 +6,11 @@
 #include <QtSql>
 #include <QDebug>
 
-#define  HOST "tcp://130.192.163.109:3000"
+#define  HOST "127.0.0.1"
 #define  USR  "server"
 #define  DBN  "KLAPKLAP_DB"
-#define  PSW  "password" //TODO:change
+#define  PSW  "password"
+#define  PORT 8889
 
 struct record {
     QString id;
