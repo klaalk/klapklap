@@ -893,6 +893,25 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
             cursorPos = cursorPos -text.length();
         }
     }
+
+    //Coloro (o decoloro) il mio testo se necessario
+    //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
+
+    if(siteIdsClicked_.contains(name)){
+        if(operation == CRDT_INSERT){ // Ho inserito del testo
+            for(int i=0; i<text.length(); i++)
+               siteIds_.value(name)->append(cursorPos-i);  // Aggiorno la lista di posizioni
+            colorText(name);
+    }
+        else{ // Ho cancellato del testo
+             for(int i=0; i<text.length(); i++)
+                 siteIds_.value(name)->removeOne(cursorPos+i);
+             clearColorText(name);
+             colorText(name);
+
+      }
+    }
+
     lastCursorPos = cursorPos;
     editorCurs.setPosition(cursorPos);
     // Sblocco il cursore dell'editor.
@@ -946,12 +965,8 @@ void TextEdit::onTextChange() {
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
-<<<<<<<
             editorCurs.charFormat().setBackground(Qt::white);
 
-=======
-
->>>>>>>
         }
     }
 
@@ -962,13 +977,12 @@ void TextEdit::onTextChange() {
         if(s.length() - lastLength >= 1){ // Ho inserito del testo
             for(int i=0; i<s.length(); i++)
                siteIds_.value(mySiteId_)->append(curPos_-i);  // Aggiorno la lista di posizioni
-            if(siteIdsClicked_.contains(mySiteId_))
-                siteIdsClicked_.removeOne(mySiteId_);  // Altrimenti lo decolora nella updateSiteIdsMap
-            updateSiteIdsMap(mySiteId_,siteIds_.value(mySiteId_));
+            colorText(mySiteId_);
     }
         else{ // Ho cancellato del testo
              for(int i=0; i<s.length(); i++)
                  siteIds_.value(mySiteId_)->removeOne(curPos_+i);
+             clearColorText(mySiteId_);
              colorText(mySiteId_);
 
       }
@@ -982,9 +996,9 @@ void TextEdit::onTextChange() {
 }
 
 void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list){
-    if(siteIds_.contains(siteId))
-        siteIds_.remove(siteId);
-    siteIds_.insert(siteId,list);
+//    if(siteIds_.contains(siteId))
+//        siteIds_.remove(siteId);
+//    siteIds_.insert(siteId,list);
     if(siteIdsClicked_.contains(siteId))
         clearColorText(siteId);
     else colorText(siteId);
@@ -1035,22 +1049,19 @@ void TextEdit::clearColorText(QString siteId){
     textEdit->setTextCursor(cursor);
 
     //Elimino il siteId dalla lista di siteId cliccati (sto ricliccando)
-    for(int i=0; i<siteIdsClicked_.size(); i++)
-        if(siteIdsClicked_.at(i)==siteId)
-            siteIdsClicked_.removeAt(i);
+    siteIdsClicked_.removeOne(siteId);
 
     blockCursor=false;
 }
 
-<<<<<<<
+
 QTextEdit* TextEdit::getTextEdit(){
     return this->textEdit;
 }
-=======
+
 void TextEdit::setMySiteId(QString mySiteId){
     mySiteId_=mySiteId;
 }
->>>>>>>
 
 
 
