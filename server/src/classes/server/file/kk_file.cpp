@@ -6,6 +6,7 @@
 
 KKFile::KKFile(){
     recentMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
+    crdtMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
 }
 
 KKFile::~KKFile() {
