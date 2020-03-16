@@ -817,7 +817,6 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     blockCursor = true;
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
-    //editorCurs.charFormat().setBackground(Qt::white);
     //Prelevo il cursore remoto.
     kk_cursor* remoteCurs = cursors_.value(name);
     //Faccio dei controlli sulla fattibilità dell'operazione.
@@ -892,24 +891,6 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         }
     }
 
-//    //Coloro (o decoloro) il mio testo se necessario
-//    //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
-
-//    if(siteIdsClicked_.contains(name)){
-//        if(operation == CRDT_INSERT){ // Ho inserito del testo
-//            for(int i=0; i<text.length(); i++)
-//               siteIds_.value(name)->append(cursorPos-i);  // Aggiorno la lista di posizioni
-//            colorText(name);
-//    }
-//        else{ // Ho cancellato del testo
-//             for(int i=0; i<text.length(); i++)
-//                 siteIds_.value(name)->removeOne(cursorPos+i);
-//             clearColorText(name);
-//             colorText(name);
-
-//      }
-//    }
-
     lastCursorPos = cursorPos;
     editorCurs.setPosition(cursorPos);
 
@@ -944,7 +925,6 @@ void TextEdit::onTextChange() {
         }
 
         //Coloro (o decoloro) il mio testo se necessario
-        //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
         if(siteIdsClicked_.contains(mySiteId_)){
             clearColorText(mySiteId_);
             colorText(mySiteId_);
@@ -958,9 +938,8 @@ void TextEdit::onTextChange() {
         emit insertTextToCRDT(diffText, lastCursorPos);
 
         //Coloro (o decoloro) il mio testo se necessario
-        //Se il mio siteId è cliccato coloro il difftext (solo se ho inserito), altrimenti seleziono il difftext e lo faccio bianco
         if(siteIdsClicked_.contains(mySiteId_))
-                colorText(mySiteId_);
+           colorText(mySiteId_);
 
     }
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.

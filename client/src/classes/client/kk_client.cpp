@@ -281,7 +281,7 @@ void KKClient::handleSslErrors(const QList<QSslError> &errors) {
 
 void KKClient::onInsertTextCRDT(QString diffText, int position) {
     QByteArray ba = diffText.toLocal8Bit();
-    QString siteId;
+    QString siteId=crdt_->getSiteId();
     char *c_str = ba.data();
     unsigned long line, col;
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
@@ -295,7 +295,7 @@ void KKClient::onInsertTextCRDT(QString diffText, int position) {
         char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_});
     }
-    editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
+    editor_.updateSiteIdsMap(siteId,findPositions(siteId));
 }
 
 void KKClient::onRemoveTextCRDT(int start, int end) {
@@ -335,8 +335,8 @@ QSharedPointer<QList<int>> KKClient::findPositions(QString siteId){
     int global = 0;
     for(list<KKCharPtr> linea: crdt_->text){
         for(KKCharPtr carattere: linea){
-            if(carattere->getSiteId()==siteId.toStdString()){
-                myList->push_back(global);
+            if(carattere->getSiteId().compare(siteId.toStdString())==0){
+                myList->push_front(global);
             }
             global++;
         }
