@@ -118,7 +118,10 @@ void KKSession::handleSignupRequest(KKPayload request) {
     KKTask *mytask = new KKTask([=]() {
         int result = db->insertUserInfo(_body[0],_body[1],_body[0],_body[2], _body[3]);
         if(result == DB_SIGNUP_SUCCESS) {
-            db->sendInsertUserInfoEmail(_body[0], _body[0],_body[2], _body[3]);
+            int emailResult = db->sendInsertUserInfoEmail(_body[0], _body[0],_body[2], _body[3]);
+            if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
+                fileSystem->writeFile("log", "Non è stato possibile inivare l'email a " + _body[0]);
+            }
             this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
         } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
             this->sendResponse(SIGNUP, BAD_REQUEST, {"Non e' stato possibile procedere con la registrazione. Username e/o Email esistenti!"});

@@ -192,7 +192,7 @@ void KKClient::handleClientErrorResponse() {
         modal_.setModal("Hai inserito delle credenziali non valide.\nControlla che email e/o password siano corretti.", "Chiudi", LOGIN_ERROR);
         modal_.show();
     } else if (state_ == CONNECTED_NOT_SIGNED) {
-        modal_.setModal("La registrazione non è andata a buon fine.", "Riprova", SIGNUP_ERROR);
+        modal_.setModal("La registrazione non è andata a buon fine. Username e/o Email esistenti!", "Riprova", SIGNUP_ERROR);
         modal_.show();
     } else if (state_ == CONNECTED_NOT_OPENFILE) {
         modal_.setModal("Non è stato possibile scaricare il file dal server!", "Chiudi", OPENFILE_ERROR);

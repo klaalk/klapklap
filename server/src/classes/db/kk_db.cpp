@@ -54,29 +54,21 @@ int KKDataBase::getUserInfo(QString username, UserInfo* userInfo) {
 
 int KKDataBase::insertUserInfo(QString username, QString password, QString email, QString name, QString surname) {
     int resCode = DB_SIGNUP_FAILED;
-    if(!db.open()) {
-        qDebug() << "DB non open";
-        resCode = DB_ERR_NOT_OPEN_CONNECTION;
-    } else {
-        if (checkUserInfoByUsername(username) == DB_USER_FOUND)
-            resCode = DB_ERR_INSERT_USERNAME;
-        else if (checkUserInfoByEmail(email) == DB_USER_FOUND)
-            resCode = DB_ERR_INSERT_EMAIL;
-        else  {
+
+    if (checkUserInfoByUsername(username) == DB_USER_FOUND)
+        resCode = DB_ERR_INSERT_USERNAME;
+    else if (checkUserInfoByEmail(email) == DB_USER_FOUND)
+        resCode = DB_ERR_INSERT_EMAIL;
+    else {
+        if(!db.open()) {
+            resCode = DB_ERR_NOT_OPEN_CONNECTION;
+        } else  {
             try {
-                QSqlQuery query;
-                query.prepare(INSERT_USER);
-                query.bindValue(0, username);
-                query.bindValue(1, password);
-                query.bindValue(2, email);
-                query.bindValue(3, name);
-                query.bindValue(4, surname);
-                query.exec();
-                bool success = query.next();
-                if (success) {
-                    resCode = DB_SIGNUP_SUCCESS;
-                }
+                QString queryStr = "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`)"
+                                   " VALUES('" +username + "','" + password + "','" + email + "','" + name + "','" + surname + "');";
+                QSqlQuery res = db.exec(queryStr);
                 db.close();
+                resCode = DB_SIGNUP_SUCCESS;
             } catch (QException &e) {
                 QString _str(e.what());
                 qDebug() << "Errore inserimento user: " << _str;
