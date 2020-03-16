@@ -31,8 +31,8 @@
 /// Payload results
 #define NONE "000"
 #define SUCCESS "200"
-#define FAILED "400"
-#define INTERNAL_ERROR "500"
+#define BAD_REQUEST "400"
+#define INTERNAL_SERVER_ERROR "500"
 #define INVALID_CREDENTIALS "401"
 
 //DB errors
@@ -69,11 +69,12 @@
 #define SEND_EMAIL_NOT_SUCCESS -50
 
 /// Client States
-#define NOT_CONNECTED "NotConnected"
-#define CONNECTED "Connected"
+#define NOT_CONNECTED "SocketNotConnected"
+#define CONNECTED "SocketConnected"
 #define CONNECTED_NOT_LOGGED "ConnectedNotLogged"
+#define CONNECTED_NOT_SIGNED "ConnectedNotSigned"
 #define CONNECTED_AND_LOGGED "ConnectedAndLogged"
-#define CONNECTED_NOT_OPENED "ConnectedNotOpened"
+#define CONNECTED_NOT_OPENFILE "ConnectedNotOpened"
 #define CONNECTED_AND_OPENED "ConnectedAndOpened"
 
 /// Timeout Modal Types
@@ -84,6 +85,7 @@
 
 /// Error Modal Types
 #define LOGIN_ERROR "LogginError"
+#define SIGNUP_ERROR "LogginError"
 #define OPENFILE_ERROR "OpenfileError"
 #define CRDT_ERROR "CrdtError"
 #define CHAT_ERROR "ChatError"

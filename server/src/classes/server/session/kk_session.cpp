@@ -101,11 +101,11 @@ void KKSession::handleLoginRequest(KKPayload request) {
             #endif
             this->sendResponse(LOGIN, SUCCESS, *output);
         } else if (result == DB_LOGIN_FAILED) {
-            this->sendResponse(LOGIN, FAILED, {"Credenziali non valide"});
+            this->sendResponse(LOGIN, BAD_REQUEST, {"Credenziali non valide"});
         } else if (result == DB_ERR_USER_NOT_FOUND) {
-            this->sendResponse(LOGIN, FAILED, {"Account non esistente"});
+            this->sendResponse(LOGIN, BAD_REQUEST, {"Account non esistente"});
         } else {
-            this->sendResponse(LOGIN, INTERNAL_ERROR, {"Errore interno. Non è stato possibile effettuare il login!"});
+            this->sendResponse(LOGIN, INTERNAL_SERVER_ERROR, {"Errore interno. Non è stato possibile effettuare il login!"});
         }
     });
     mytask->setAutoDelete(true);
@@ -121,9 +121,9 @@ void KKSession::handleSignupRequest(KKPayload request) {
             db->sendInsertUserInfoEmail(_body[0], _body[0],_body[2], _body[3]);
             this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
         } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
-            this->sendResponse(SIGNUP, FAILED, {"Non e' stato possibile procedere con la registrazione. Username e/o Email esistenti!"});
+            this->sendResponse(SIGNUP, BAD_REQUEST, {"Non e' stato possibile procedere con la registrazione. Username e/o Email esistenti!"});
         } else {
-            this->sendResponse(SIGNUP, INTERNAL_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
+            this->sendResponse(SIGNUP, INTERNAL_SERVER_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
         }
     });
     mytask->setAutoDelete(true);
@@ -190,11 +190,11 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
                 message = "File creato, sei stato aggiunto correttamente";
             } else {
                 message = "Non è stato possibile aggiungere il file nel database";
-                result = INTERNAL_ERROR;
+                result = INTERNAL_SERVER_ERROR;
             }
         } else {
             message = "Non è stato possibile creare il file nel file system";
-            result = INTERNAL_ERROR;
+            result = INTERNAL_SERVER_ERROR;
         }
     }
 #ifndef ENV
