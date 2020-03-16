@@ -50,7 +50,7 @@ void OpenFileDialog::on_listWidget_itemClicked(QListWidgetItem *item)
 void OpenFileDialog::on_openBtn_clicked()
 {
     QString completeFileName = files_.value(selectedFile);
-    if(selectedFile == "") {
+    if(completeFileName == "" || completeFileName == nullptr) {
         completeFileName = ui->lineEdit->text();
     }
     emit openFileRequest(completeFileName);
@@ -74,4 +74,10 @@ void OpenFileDialog::on_pushButton_3_clicked()
 {
     ui->verticalWidget_2->show();
     ui->verticalWidget_4->hide();
+}
+
+void OpenFileDialog::on_lineEdit_textChanged(const QString &arg1)
+{
+    Q_UNUSED(arg1);
+    selectedFile = ui->lineEdit->text();
 }
