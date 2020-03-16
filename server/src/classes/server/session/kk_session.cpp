@@ -93,9 +93,9 @@ void KKSession::handleLoginRequest(KKPayload request) {
             output->append(user->email);
             output->append(user->password);
             output->append(user->username);
-            output->append(user->image);
+//          TODO: inserire immagine
+//            output->append(user->image);
             output->append(user->registrationDate);
-
             #ifndef ENV
             db->getUserFile(user, output);
             #endif
@@ -128,33 +128,6 @@ void KKSession::handleSignupRequest(KKPayload request) {
         } else {
             this->sendResponse(SIGNUP, INTERNAL_SERVER_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
         }
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
-}
-
-void KKSession::handleSaveFileRequest(KKPayload request) {
-    QStringList _body = request.getBodyList();
-    id = _body[0];
-    KKTask *mytask = new KKTask([=]() {
-    ////  Creo il file, supponendo che non esista, se esiste questo va evitato
-    //    QString filename = fileSystem->createFile(_body[1],_body[2]);
-    //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
-        fileSystem->writeFile(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/"+_body[1],_body[2]);
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
-}
-
-void KKSession::handleLoadFileRequest(KKPayload request) {
-    QStringList _body = request.getBodyList();
-    id = _body[0];
-    KKTask *mytask = new KKTask([=]() {
-    ////  Apro il file, supponendo che esista, se non esiste questo va evitato
-    //    QString filename = fileSystem->createFile(_body[1],_body[2]);
-    //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
-        QString message = fileSystem->readFile(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/"+_body[1]);
-        this->sendResponse(LOADFILE, SUCCESS, {message});
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);
@@ -228,6 +201,33 @@ void KKSession::handleChatRequest(KKPayload request) {
 
 void KKSession::handleCrdtRequest(KKPayload request) {
     file->deliver(CRDT, SUCCESS, request.getBodyList(), id);
+}
+
+void KKSession::handleSaveFileRequest(KKPayload request) {
+    QStringList _body = request.getBodyList();
+    id = _body[0];
+    KKTask *mytask = new KKTask([=]() {
+    ////  Creo il file, supponendo che non esista, se esiste questo va evitato
+    //    QString filename = fileSystem->createFile(_body[1],_body[2]);
+    //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
+        fileSystem->writeFile(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/"+_body[1],_body[2]);
+    });
+    mytask->setAutoDelete(true);
+    QThreadPool::globalInstance()->start(mytask);
+}
+
+void KKSession::handleLoadFileRequest(KKPayload request) {
+    QStringList _body = request.getBodyList();
+    id = _body[0];
+    KKTask *mytask = new KKTask([=]() {
+    ////  Apro il file, supponendo che esista, se non esiste questo va evitato
+    //    QString filename = fileSystem->createFile(_body[1],_body[2]);
+    //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
+        QString message = fileSystem->readFile(QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/"+_body[1]);
+        this->sendResponse(LOADFILE, SUCCESS, {message});
+    });
+    mytask->setAutoDelete(true);
+    QThreadPool::globalInstance()->start(mytask);
 }
 
 void KKSession::handleBinaryRequests(QByteArray message) {

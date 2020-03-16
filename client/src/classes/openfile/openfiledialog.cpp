@@ -22,10 +22,9 @@ void OpenFileDialog::initInfo(QStringList info) {
     ui->lineEdit_pass->insert(info.value(3));
     ui->lineEdit_user->insert(info.value(4));
 
-    QString image = info.value(5);
-    QString registrationData = info.value(6);
+    QString registrationData = info.value(5);
 
-    for(QString s : info.mid(7, info.size()-1)) {
+    for(QString s : info.mid(6, info.size()-1)) {
         if(s!="")
             addFile(s);
     }

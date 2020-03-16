@@ -120,7 +120,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
     state_= CONNECTED;
     // La risposta dovrebbe contenere le info dell'utente e poi i suoi file
     QStringList bodyList = res.getBodyList();
-    mySiteId_ = bodyList.at(2);
+    mySiteId_ = bodyList.value(2);
     editor_.setMySiteId(mySiteId_);
     access_.hide();
 
