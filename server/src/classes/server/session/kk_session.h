@@ -21,7 +21,7 @@
 #include "../room/kk_room.h"
 #include "../../db/kk_db.h"
 
-#define ENV
+//#define ENV
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -31,6 +31,7 @@ class KKSession : public QObject, public KKParticipant, public QEnableSharedFrom
 public:
     KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files, QObject *parent = 0);
     ~KKSession();
+
     void deliver(KKPayloadPtr msg);
     void sendResponse(QString type, QString result, QStringList values);
     void setSocket(QWebSocket* Descriptor);
