@@ -849,15 +849,15 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     if(operation == CRDT_INSERT) {
         //xxx qui devo mettere il font di quello che ha scritto, scrivere e poi rimettere il mio font vecchio
 
-        QFont fontNuovo;
-        QFont fontVecchio = textEdit->font();
+//        QFont fontNuovo;
+//        QFont fontVecchio = textEdit->font();
 
-        fontNuovo.fromString(font);
+//        fontNuovo.fromString(font);
 
-        QTextCharFormat format;
-        format.setFont(fontNuovo);
-        editorCurs.insertText(text,format);
-        editorCurs.charFormat().setFont(fontVecchio);
+//        QTextCharFormat format;
+//        format.setFont(fontNuovo);
+//        editorCurs.insertText(text,format);
+//        editorCurs.charFormat().setFont(fontVecchio);
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
@@ -968,11 +968,14 @@ void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list)
 
     if(siteIdsClicked_.contains(siteId))
         colorText(siteId);
+    else clearColorText(siteId);
 }
 
 void TextEdit::siteIdClicked(QString siteId){
-    if(siteIdsClicked_.contains(siteId))  // 2 clicks
+    if(siteIdsClicked_.contains(siteId)){  // 2 clicks
         clearColorText(siteId);
+        siteIdsClicked_.removeOne(siteId);
+    }
     else colorText(siteId);
 }
 
@@ -1023,10 +1026,6 @@ void TextEdit::clearColorText(QString siteId){
     }
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
-
-//Elimino il siteId dalla lista di siteId cliccati (sto ricliccando)
-    if(siteIdsClicked_.contains(siteId))
-        siteIdsClicked_.removeOne(siteId);
 
     blockCursor=false;
 }
