@@ -924,12 +924,6 @@ void TextEdit::onTextChange() {
             }
         }
 
-        //Coloro (o decoloro) il mio testo se necessario
-        if(siteIdsClicked_.contains(mySiteId_)){
-            clearColorText(mySiteId_);
-            colorText(mySiteId_);
-        }
-
     } else if(s.length() - lastLength >= 1) {
         // Inserito 1 o più
         //salva in diffText le cose nuove scritte
@@ -937,11 +931,8 @@ void TextEdit::onTextChange() {
         qDebug() << "Testo inserito: " << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
         emit insertTextToCRDT(diffText, lastCursorPos);
 
-        //Coloro (o decoloro) il mio testo se necessario
-        if(siteIdsClicked_.contains(mySiteId_))
-           colorText(mySiteId_);
-
     }
+
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
     // Restituisce la posizione x,y di coordinate sullo schermo del tuo cursore
@@ -970,9 +961,13 @@ void TextEdit::onTextChange() {
 }
 
 void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list){
+
     if(siteIds_.contains(siteId))
         siteIds_.remove(siteId);
     siteIds_.insert(siteId,list);
+
+    if(siteIdsClicked_.contains(siteId))
+        colorText(siteId);
 }
 
 void TextEdit::siteIdClicked(QString siteId){
@@ -986,7 +981,7 @@ void TextEdit::colorText(QString siteId){
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat fmt=cursor.charFormat();
     QBrush color;
-    //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
+//Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
         do{
             int index=rand() % colors_.size();
@@ -998,7 +993,7 @@ void TextEdit::colorText(QString siteId){
 
     fmt.setBackground(siteIdsColors_.value(siteId));
     int last = cursor.position();
-//    siteIds_.value(siteId)->toSet().toList();  // Elimino i duplicati
+
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
         cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
@@ -1019,7 +1014,7 @@ void TextEdit::clearColorText(QString siteId){
 
     fmt.setBackground(Qt::white);
     int last = cursor.position();
-//    siteIds_.value(siteId)->toSet().toList();  // Elimino i duplicati
+
     for(int pos : *siteIds_.value(siteId)){
         qDebug()<<pos<<  " ";
         cursor.setPosition(pos);
@@ -1029,7 +1024,7 @@ void TextEdit::clearColorText(QString siteId){
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
 
-    //Elimino il siteId dalla lista di siteId cliccati (sto ricliccando)
+//Elimino il siteId dalla lista di siteId cliccati (sto ricliccando)
     if(siteIdsClicked_.contains(siteId))
         siteIdsClicked_.removeOne(siteId);
 
