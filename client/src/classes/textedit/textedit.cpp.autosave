@@ -817,6 +817,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     blockCursor = true;
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
+    //editorCurs.charFormat().setBackground(Qt::white);
     //Prelevo il cursore remoto.
     kk_cursor* remoteCurs = cursors_.value(name);
     //Faccio dei controlli sulla fattibilità dell'operazione.
@@ -852,18 +853,16 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         QFont fontNuovo;
         QTextCharFormat formatVecchio = editorCurs.charFormat();
 
-//        fontNuovo.fromString(font);
+
+
 
         fontNuovo.fromString(font);
         QTextCharFormat format;
         format.setFont(fontNuovo);
-
-        editorCurs.setCharFormat(format);
-
-        editorCurs.insertText(text);
+        qDebug() << "fn:"<<fontNuovo;
+        editorCurs.insertText(text,format);
 
         editorCurs.setCharFormat(formatVecchio);
-
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
@@ -896,10 +895,8 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
             cursorPos = cursorPos -text.length();
         }
     }
-
     lastCursorPos = cursorPos;
     editorCurs.setPosition(cursorPos);
-
     // Sblocco il cursore dell'editor.
     blockCursor = false;
 }
@@ -929,16 +926,13 @@ void TextEdit::onTextChange() {
                 emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
             }
         }
-
     } else if(s.length() - lastLength >= 1) {
         // Inserito 1 o più
         //salva in diffText le cose nuove scritte
         diffText=s.mid(lastCursorPos, s.length() - lastLength);
         qDebug() << "Testo inserito: " << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
         emit insertTextToCRDT(diffText, lastCursorPos);
-
     }
-
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
     // Restituisce la posizione x,y di coordinate sullo schermo del tuo cursore
@@ -955,8 +949,6 @@ void TextEdit::onTextChange() {
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
 //            editorCurs.charFormat().setBackground(Qt::white);
-            editorCurs.charFormat().setBackground(Qt::white);
-
         }
     }
 
@@ -990,21 +982,11 @@ void TextEdit::onTextChange() {
 }
 
 void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list){
-
     if(siteIds_.contains(siteId))
         siteIds_.remove(siteId);
     siteIds_.insert(siteId,list);
-
     if(siteIdsClicked_.contains(siteId))
-        colorText(siteId);
-    else clearColorText(siteId);
-}
-
-void TextEdit::siteIdClicked(QString siteId){
-    if(siteIdsClicked_.contains(siteId)){  // 2 clicks
         clearColorText(siteId);
-        siteIdsClicked_.removeOne(siteId);
-    }
     else colorText(siteId);
 }
 
@@ -1013,7 +995,7 @@ void TextEdit::colorText(QString siteId){
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat fmt=cursor.charFormat();
     QBrush color;
-//Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
+    //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
         do{
             int index=rand() % colors_.size();
@@ -1025,7 +1007,6 @@ void TextEdit::colorText(QString siteId){
 
     fmt.setBackground(siteIdsColors_.value(siteId));
     int last = cursor.position();
-
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
         cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
@@ -1034,8 +1015,7 @@ void TextEdit::colorText(QString siteId){
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
 
-    if(!siteIdsClicked_.contains(siteId))
-        siteIdsClicked_.push_front(siteId);
+    siteIdsClicked_.push_front(siteId);
     blockCursor=false;
 }
 
@@ -1046,15 +1026,18 @@ void TextEdit::clearColorText(QString siteId){
 
     fmt.setBackground(Qt::white);
     int last = cursor.position();
-
     for(int pos : *siteIds_.value(siteId)){
-        qDebug()<<pos<<  " ";
         cursor.setPosition(pos);
         cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
         cursor.setCharFormat(fmt);
     }
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
+
+    //Elimino il siteId dalla lista di siteId cliccati (sto ricliccando)
+    for(int i=0; i<siteIdsClicked_.size(); i++)
+        if(siteIdsClicked_.at(i)==siteId)
+            siteIdsClicked_.removeAt(i);
 
     blockCursor=false;
 }
