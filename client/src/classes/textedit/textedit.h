@@ -129,7 +129,7 @@ class TextEdit : public QMainWindow
 Q_OBJECT
 
 public:
-    TextEdit(QWidget *parent = 0);
+    TextEdit(QWidget *parent = nullptr);
     QTextEdit *textEdit;
     bool load(const QString &f);
     void resetState();
@@ -151,7 +151,7 @@ public slots:
 
 protected:
     void closeEvent(QCloseEvent *e) override;
-    void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent* event) override;
 private slots:
     void fileOpen();
     bool fileSave();
