@@ -8,7 +8,9 @@
 #include <cstdlib>
 #include <ctime>
 #include <random>
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 
 
@@ -17,10 +19,19 @@ using std::shared_ptr;
 
 
 KKCrdt::KKCrdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(strategy), base(32) {
+
 };
+
+KKCrdt::~KKCrdt() {
+    text.clear();
+    strategy_cache.clear();
+}
 
 KKCharPtr KKCrdt::localInsert(char val, KKPosition pos) {
     KKCharPtr newChar = this->generateChar(val, pos);
+    //xxx DA TOGLIERE
+    //newChar->setKKCharFont("Helvetica 01 23 12");
+
     this->insertChar(newChar, pos);
     return newChar;
 }
@@ -106,10 +117,11 @@ vector<KKIdentifierPtr> KKCrdt::generatePositionBetween(vector<KKIdentifierPtr> 
         KKIdentifierPtr new_id;
 
         if(position2.empty()){
-            new_digit = this->generateIdentifierBetween(id1->getDigit(), id2->getDigit(), _strategy, level);}
+            new_digit = this->generateIdentifierBetween(id1->getDigit(), id2->getDigit(), _strategy, level);
+        }
         else{
             new_digit = this->generateIdentifierBetween(id1->getDigit(), id2->getDigit()-1, _strategy, level);
-        };
+        }
 
         new_id = shared_ptr<KKIdentifier>(new KKIdentifier(new_digit, this->siteid));
         new_position->insert(new_position->end(), new_id);
@@ -131,7 +143,7 @@ vector<KKIdentifierPtr> KKCrdt::generatePositionBetween(vector<KKIdentifierPtr> 
     return vector<KKIdentifierPtr>();
 }
 
-strategy KKCrdt::findStrategy(unsigned long level/*FORSE DA TOGLIERE*/) {
+strategy KKCrdt::findStrategy() {
     //    if (!strategy_cache.empty() && strategy_cache[level]) {
     //        return strategy_cache[level];
     //    }
@@ -216,20 +228,13 @@ void KKCrdt::insertChar(KKCharPtr _char, KKPosition pos) {
     }
 }
 
-KKPosition KKCrdt::remoteInsert(KKCharPtr _char){
+unsigned long KKCrdt::remoteInsert(KKCharPtr _char){
     unsigned long global_pos;
 
     KKPosition pos = findInsertPosition(_char);
     insertChar(_char, pos);
     global_pos= generateGlobalPos(pos);
-//    std::cout<<"GB:" <<global_pos<<std::endl;
-//    unsigned long line;
-//    unsigned long col;
-//    calculate_Line_Col(global_pos,&line,&col);
-//    std::cout<<"kk_line: " <<pos.get_line()<<"    kk_col: " <<pos.get_ch()<<std::endl;
-//    std::cout<<"line: " <<line<<"    col: " <<col<<std::endl;
-
-    return pos;
+    return global_pos;
 }
 
 KKPosition KKCrdt::findInsertPosition(KKCharPtr _char){
@@ -308,7 +313,7 @@ unsigned long KKCrdt::findInsertIndexInLine(KKCharPtr _char, list<KKCharPtr> lin
     for (it = line.begin(); it!= line.end(); it++) {
         if(_char.get()->compareTo(*it->get())<0){
             return cnt;
-        };
+        }
         //caso non possibile (una remote insert di una Char esattamente identica a una esistente)
         if(_char.get()->compareTo(*it->get())==0){
             if(_char.get()->getValue()==it->get()->getValue()){
@@ -316,7 +321,127 @@ unsigned long KKCrdt::findInsertIndexInLine(KKCharPtr _char, list<KKCharPtr> lin
             return cnt;}}}
         cnt++;
     }
+    return 0;
 }
+
+QString KKCrdt::saveCrdt(){ //scrive il crdt su un file, esempio formato: d(albo)[10;90;2;34]f(klaus)[2;3;89]
+
+    string strTmp;
+
+    for (unsigned long i = 0; i < text.size(); i++) {
+
+        for (auto x : text[i]) {
+
+            strTmp.push_back(x->getValue());
+            strTmp.push_back('(');
+            strTmp.append(x->getSiteId());
+            strTmp.push_back(')');
+            strTmp.push_back('[');
+
+            for (auto y: x->getPosition() ) {
+                std::stringstream strstream;
+                string app;
+                strstream<<y->getDigit();
+                strstream>>app;
+                strTmp.append(app);
+                strTmp.push_back(';');
+
+            }
+            strTmp.pop_back();
+            strTmp.push_back(']');
+            strTmp.append(x->getKKCharFont().toStdString());
+            strTmp.push_back('*');
+        }
+    }
+    QString stringCrdt = QString::fromStdString(strTmp);
+    return stringCrdt;
+}
+
+void KKCrdt::loadCrdt(string stdStringCrdt){
+    char ch;
+    int gettingSeq=1; //flag per quando stai prendendo gli identifier/i siteId
+
+//    string stdStringCrdt = stringCrdt.toStdString();
+    KKIdentifierPtr new_id;
+    text.insert(text.end(), list<KKCharPtr>());
+
+    for(unsigned long i=0;i<stdStringCrdt.length();i++){
+            ch=stdStringCrdt[i];
+            string tmpSiteId;
+            KKCharPtr new_Char = KKCharPtr(new KKChar(ch,"")); //creo kkChar partendo dal carattere e siteId nullo
+            QString font;
+            gettingSeq=1;
+            while(gettingSeq){
+                i++;
+                ch=stdStringCrdt[i];
+                if(ch=='('){
+                    continue;
+                } else if(ch!='(' && ch!=')'){
+                    tmpSiteId.push_back(ch); //metto valore nella string di siteId
+
+                    continue;
+
+                } else if(ch==')'){
+                    new_Char->insertSiteId(tmpSiteId);
+                    gettingSeq=0;
+                }
+             }
+             gettingSeq=1;
+
+             while(gettingSeq){ //inizia a prendere gli identifiers
+                 i++;
+                 ch=stdStringCrdt[i];
+
+                 if (ch=='[' || ch==';'){
+                     continue;
+
+                 } else if (stdStringCrdt[i]==']'){
+
+                     gettingSeq=0;
+                     break;
+
+                 }else {//prendo l'identifier
+                     string num;
+
+                     while(stdStringCrdt[i]!=';' && stdStringCrdt[i]!=']'){
+                         ch=stdStringCrdt[i];
+                         num.push_back(ch);
+                         i++;
+                     }
+                         unsigned long val;
+                         val=stoul(num,nullptr,0);
+                         new_id = shared_ptr<KKIdentifier>(new KKIdentifier(val, tmpSiteId));
+                         new_Char->pushIdentifier(new_id);
+                         i--;
+
+
+                 }
+             }
+             gettingSeq=1;
+             while(gettingSeq){ //inizia a prendere il font
+                 i++;
+                 ch=stdStringCrdt[i];
+
+                 if(ch=='*'){
+                     unsigned long size = text.size();
+                     new_Char->setKKCharFont(font);
+                     text[size-1].push_back(new_Char);
+
+                     if(new_Char->getValue()=='\n'){ //se il carattere era un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
+                         text.insert(text.end(), list<KKCharPtr>());
+                     }
+                     gettingSeq=0;
+                  }else{
+                     font.push_back(ch);
+
+                 }
+
+             }}
+this->print();
+
+}
+
+
 
 void KKCrdt::print() {
     for (unsigned long i = 0; i < text.size(); i++) {
@@ -440,13 +565,13 @@ void KKCrdt::mergeLines(unsigned long line){
     return;
 }
 
-KKPosition KKCrdt::remoteDelete(KKCharPtr _Char){
+unsigned long KKCrdt::remoteDelete(KKCharPtr _Char){
     bool flag = true;
     unsigned long global_pos;
     KKPosition pos(findPos(_Char, &flag));
 
     if(flag==false){
-        return pos;
+        return generateGlobalPos(pos);
     }
 
     text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())));
@@ -458,8 +583,7 @@ KKPosition KKCrdt::remoteDelete(KKCharPtr _Char){
     removeEmptyLines();
     text.push_back(list<KKCharPtr>());
     global_pos= generateGlobalPos(pos);
-     std::cout<<"GB:" <<global_pos<<std::endl;
-    return pos;
+    return global_pos;
 }
 
 KKPosition KKCrdt::findPos (KKCharPtr _Char, bool *flag){
@@ -546,7 +670,7 @@ unsigned long KKCrdt::generateGlobalPos(KKPosition pos){
 
     for (unsigned long i=0; i <  pos.getLine(); i++) {
          global_pos = global_pos + text[i].size();
-    };
+    }
 
     global_pos = global_pos + pos.getCh();
     return global_pos;

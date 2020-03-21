@@ -7,6 +7,8 @@ QT += core \
       websockets
 
 CONFIG += c++11
+CONFIG+=sdk_no_version_check
+
 ## Location of SMTP Library
 #KK_LIBRARY_LOCATION = $$PWD/../../build-kklib-Desktop_Qt_5_12_2_MinGW_64_bit-Debug
 
@@ -35,7 +37,8 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/client/kk_client.h \
                 classes/chat/chatdialog.h\
                 classes/login/login.h\
-                classes/openfile/openfiledialog.h
+                classes/openfile/openfiledialog.h \
+                classes/modal/modaldialog.h
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/crdt/char/kk_char.cpp \
@@ -48,13 +51,15 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 classes/chat/chatdialog.cpp\
                 classes/login/login.cpp \
                 main.cpp \
-                classes/openfile/openfiledialog.cpp
+                classes/openfile/openfiledialog.cpp \
+                classes/modal/modaldialog.cpp
 
 RESOURCES += assets/client.qrc
 
 FORMS += \
+        ui/accessdialog.ui \
+        ui/modaldialog.ui \
         ui/chatdialog.ui \
-        ui/loginwindow.ui \
         ui/openfiledialog.ui
 
 build_all:!build_pass {
@@ -67,3 +72,5 @@ EXAMPLE_FILES = textedit.qdoc
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/klapklap
 INSTALLS += target
+
+DISTFILES +=

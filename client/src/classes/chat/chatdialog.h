@@ -52,6 +52,7 @@
 #define CHATDIALOG_H
 
 #include "ui_chatdialog.h"
+#include "../textedit/textedit.h"
 
 class ChatDialog : public QDialog, private Ui::ChatDialog
 {
@@ -59,16 +60,19 @@ class ChatDialog : public QDialog, private Ui::ChatDialog
 
 public:
     ChatDialog(QWidget *parent = 0);
+    void resetState();
     void setNickName(QString nick);
     void appendMessage(const QString &from, const QString &message);
     void addParticipant(const QString &nick);
     void removeParticipant(const QString &nick);
 signals:
-    void sendMessageEvent(QString message);
+    void sendMessageEvent(QString username, QString message);
+    void siteIdClicked(QString nickname);
 
 private slots:
     void returnPressed();
     void showInformation();
+    void onItemClicked(QListWidgetItem *item);
 
 private:
     QString myNickName;

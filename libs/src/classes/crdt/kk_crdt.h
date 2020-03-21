@@ -4,6 +4,8 @@
 #ifndef KK_CRDT_H
 #define KK_CRDT_H
 
+#include <QCharRef>
+#include <QString>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -34,15 +36,15 @@ public:
     strategy _strategy;
     vector<strategy> strategy_cache;
     unsigned long base;
-
+    QString getSiteId(){return QString::fromStdString(siteid);}
     KKCrdt(string siteid, strategy strategy); //costruttore
-
+    ~KKCrdt();//distruttore
     void insertChar(KKCharPtr _char, KKPosition pos);
     KKCharPtr localInsert(char val, KKPosition pos);
     KKCharPtr generateChar(char val, KKPosition pos); //genera la Char partendo dal valore e dalla posizione nel local text
     vector<KKIdentifierPtr> generatePositionBetween(vector<KKIdentifierPtr> position_1, vector<KKIdentifierPtr> position_2, vector<KKIdentifierPtr> *new_position, unsigned long livello); //partendo dalle position di due Char(adiacenti) genera la posizione della Char
     unsigned long generateIdentifierBetween(unsigned long min, unsigned long max, strategy _strategy, unsigned long level); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
-    KKPosition remoteInsert(KKCharPtr _char);
+    unsigned long remoteInsert(KKCharPtr _char);
 
     vector<KKIdentifierPtr> findPositionBefore(KKPosition pos); //trova la position della Char immediatamente prima di quella passata
     vector<KKIdentifierPtr> findPositionAfter(KKPosition pos);//trova la position della Char immediatamente dopo di quella passata
@@ -55,7 +57,7 @@ public:
     list<KKCharPtr> localDelete(KKPosition start_pos, KKPosition end_pos);
     list<KKCharPtr> deleteMultipleLines(KKPosition start_pos, KKPosition end_pos);
     list<KKCharPtr> deleteSingleLine(KKPosition start_pos, KKPosition end_pos);
-    KKPosition remoteDelete(KKCharPtr _Char);
+    unsigned long remoteDelete(KKCharPtr _Char);
 
     KKPosition findInsertPosition(KKCharPtr _char);
     KKPosition findPos (KKCharPtr _Char,bool *flag);
@@ -68,8 +70,8 @@ public:
 
     vector<KKIdentifierPtr> slice(vector<KKIdentifierPtr> const &v,int i);//FORSE DA TOGLIERE
     void print();
-    strategy findStrategy(unsigned long level);//trova la strategia migliore per assegnare un identifier alla position della nuova Char
+    strategy findStrategy();//trova la strategia migliore per assegnare un identifier alla position della nuova Char
+    QString saveCrdt(); //ritorna una stringa dove è "salvato" il crdt
+    void loadCrdt(string stringCrdt); //carica il testo del crdt partendo da una stringa
 };
-
-
 #endif //KK_CRDT_H

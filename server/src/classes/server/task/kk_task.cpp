@@ -7,7 +7,7 @@
 
 KKTask::KKTask(std::function<void()> f): function(f)
 {
-    qDebug() << "kk_task()";
+    qDebug() << "Task created";
 }
 
 // When the thread pool kicks up
@@ -23,6 +23,6 @@ void KKTask::run()
 
     function();
 
-    qDebug() << "Task done";
+    qDebug() << "Task completed";
 
 }

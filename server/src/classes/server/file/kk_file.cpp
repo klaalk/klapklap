@@ -6,6 +6,7 @@
 
 KKFile::KKFile(){
     recentMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
+    crdtMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
 }
 
 KKFile::~KKFile() {
@@ -23,9 +24,16 @@ void KKFile::leave(QSharedPointer<KKParticipant> participant) {
     participants.erase(participant);
 }
 
-void KKFile::deliver(QString type, QString result, QString message, QString myNick) {
+void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
     KKPayloadPtr data = QSharedPointer<KKPayload>(new KKPayload(type,result, message));
     recentMessages->push_back(data);
+
+    if (type == CRDT) {
+        crdtMessages->push_back(data);
+        crdtIndexMessages.push_back(messageIndex);
+    }
+
+    messageIndex++;
 
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();

@@ -61,8 +61,15 @@ ChatDialog::ChatDialog(QWidget *parent)
     textEdit->setFocusPolicy(Qt::NoFocus);
     textEdit->setReadOnly(true);
     listWidget->setFocusPolicy(Qt::NoFocus);
-
+    connect(listWidget, &QListWidget::itemClicked, this, &ChatDialog::onItemClicked);
     connect(lineEdit, &QLineEdit::returnPressed, this, &ChatDialog::returnPressed);
+}
+
+void ChatDialog::resetState(){
+    lineEdit->clear();
+    textEdit->clear();
+    listWidget->clear();
+    myNickName = "";
 }
 
 void ChatDialog::setNickName(QString nick) {
@@ -97,7 +104,7 @@ void ChatDialog::returnPressed()
                          .arg(text.left(text.indexOf(' '))));
         textEdit->setTextColor(color);
     } else {
-        emit sendMessageEvent(myNickName+"_"+text);
+        emit sendMessageEvent(myNickName, text);
     }
     lineEdit->clear();
 }
@@ -139,3 +146,12 @@ void ChatDialog::showInformation()
                                     "start chatting!"));
     }
 }
+
+void ChatDialog::onItemClicked(QListWidgetItem *item) {
+    if(!item) {
+        return;
+    }
+    QString siteId = item->text();
+    emit siteIdClicked(siteId);
+}
+

@@ -10,6 +10,9 @@
 #include <QPointer>
 #include <QTextCursor>
 #include <QLabel>
+#include <QListWidgetItem>
+
+#include "../../../../libs/src/constants/kk_constants.h"
 
 class QAction;
 class QComboBox;
@@ -52,9 +55,9 @@ public:
         earpiece = earpiece_;
     }
 
-    void setLabelsStyle(QString fontColor, int fontSize) {
+    void setLabelsStyle(QBrush fontColor, int fontSize) {
         this->fontSize = fontSize;
-        this->backgorundColor = fontColor;
+        this->backgorundColor = fontColor.color().name();
         setLabelsStyleSheet(this->backgorundColor, this->fontSize);
     }
 
@@ -98,27 +101,56 @@ public:
 //      }
 };
 
+//DEPRECATED
+//class kk_couple{
+//private:
+//    int startPos=0;
+//    int endPos=0;
+
+//public:
+//    kk_couple(int startPos, int endPos): startPos(startPos), endPos(endPos){}
+
+//    int getStartPos() {
+//        return this->startPos;
+//    }
+//    void setStartPos(int position) {
+//        this->startPos = position;
+//    }
+//    int getEndPos() {
+//        return this->endPos;
+//    }
+//    void setEndPos(int position) {
+//        this->endPos = position;
+//    }
+//};
+
 class TextEdit : public QMainWindow
 {
 Q_OBJECT
 
 public:
-    TextEdit(QWidget *parent = 0);
+    TextEdit(QWidget *parent = nullptr);
     QTextEdit *textEdit;
     bool load(const QString &f);
-    void applyRemoteChanges(QString operation, QString name, QString text, int line, int col);
+    void resetState();
+    void applyRemoteChanges(QString operation, QString name, QString text, int globalPos,QString font);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
+    void updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list);
+    void setMySiteId(QString mySiteId);
+    QTextEdit* getTextEdit();
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
+    void saveCRDTtoFile();
+    void loadCRDTtoFile();
 
 public slots:
     void fileNew();
 
 protected:
     void closeEvent(QCloseEvent *e) override;
-    void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent* event) override;
 private slots:
     void fileOpen();
     bool fileSave();
@@ -156,6 +188,9 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
+    void colorText(QString name);
+    void clearColorText(QString name);
+
     QAction *actionSave;
     QAction *actionTextBold;
     QAction *actionTextUnderline;
@@ -174,15 +209,26 @@ private:
 #endif
     bool blockCursor = false;
     bool isTextSelected = false;
-    int lastLength = 0, cursorPos=0, lastCursorPos=0, fontSize=0;
+    int lastLength = 0;
+    int cursorPos=0;
+    int lastCursorPos=0;
+    int fontSize=0;
     int selection_start=0;
     int selection_end=0;
+    QString lastText;
+    QString mySiteId_;
+    QString diffText;
+    QString fileName;
     QMap <QString,kk_cursor*> cursors_;
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
-    QString lastText="",diffText="",fileName;
     QToolBar *tb;
+    QMap<QString,QSharedPointer<QList<int>>> siteIds_;
+    QMap<QString,QBrush> siteIdsColors_;
+    QList<QString> siteIdsClicked_;
+    QList<QBrush> colors_={Qt::yellow, Qt::gray, Qt::green, Qt::blue, Qt::cyan, Qt::magenta};
+
 };
 typedef QSharedPointer<TextEdit> textedit_ptr;
 #endif // TEXTEDIT_H

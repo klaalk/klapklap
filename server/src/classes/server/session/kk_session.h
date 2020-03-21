@@ -21,16 +21,19 @@
 #include "../room/kk_room.h"
 #include "../../db/kk_db.h"
 
+//#define ENV
+
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
 class KKSession : public QObject, public KKParticipant, public QEnableSharedFromThis<KKSession> {
     Q_OBJECT
 public:
-    KKSession(kk_db_ptr db, KKFileSystemPtr filesys, KKMapFilePtr files, QObject *parent = 0);
+    KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files, QObject *parent = nullptr);
     ~KKSession();
+
     void deliver(KKPayloadPtr msg);
-    void sendResponse(QString type, QString result, QString body);
+    void sendResponse(QString type, QString result, QStringList values);
     void setSocket(QWebSocket* Descriptor);
 public slots:
     void handleRequest(QString message);
@@ -43,12 +46,16 @@ private:
     void handleShareFileRequest(KKPayload request);
     void handleChatRequest(KKPayload request);
     void handleCrdtRequest(KKPayload request);
+    void handleSaveFileRequest(KKPayload request);
+    void handleLoadFileRequest(KKPayload request);
 
     QWebSocket*  socket;
-    kk_db_ptr db;
+    KKDataBasePtr db;
     KKMapFilePtr files;
     KKFilePtr file;
     KKFileSystemPtr fileSystem;
+
+    int taskNumerator = 0;
 };
 
 typedef QSharedPointer<KKSession> KKSessionPtr;
