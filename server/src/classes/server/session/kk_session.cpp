@@ -85,6 +85,13 @@ void KKSession::handleLoginRequest(KKPayload request) {
         UserInfo *user = new UserInfo;
         #ifndef ENV
         result = db->login(_body[0],_body[1], user);
+        #else
+        user->name = "JHON";
+        user->surname= "SNOW";
+        user->email = id;
+        user->password = "PSW";
+        user->username = id;
+        user->registrationDate = "BOH";
         #endif
         if(result == DB_LOGIN_SUCCESS) {
             QStringList* output = new QStringList();
