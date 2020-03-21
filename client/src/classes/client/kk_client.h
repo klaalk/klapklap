@@ -44,14 +44,13 @@ class KKClient : public QObject
 public:
     explicit KKClient(const QUrl &url, QObject *parent = nullptr);
 
+
 private slots:
     void handleOpenedConnection();
+    void handleResponse(QString message);
     void handleTimeOutConnection();
     void handleErrorConnection(QAbstractSocket::SocketError error);
     void handleSslErrors(const QList<QSslError> &errors);
-
-    void handleResponse(QString message);
-
     void handleModalButtonClick(QString btnText, QString modalType);
     void handleModalClosed(QString modalType);
 
@@ -61,24 +60,30 @@ private slots:
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
 
-    void onInsertTextCRDT(QString diffText, int position);
-    void onRemoveTextCRDT(int start, int end);
-    void onsaveCRDTtoFile();
-    void onloadCRDTtoFile();
+    void onInsertTextCrdt(QString diffText, int position);
+    void onRemoveTextCrdt(int start, int end);
+    void onSaveCrdtToFile();
+    void onLoadCrdtToFile();
     void onSiteIdClicked(QString siteId);
 private:
     void setInitState();
+
+    void handleSuccessResponse(KKPayload res);
     void handleLoginResponse(KKPayload res);
     void handleSignupResponse();
     void handleOpenfileResponse();
     void handleCrdtResponse(KKPayload res);
-    void handleErrorResponse();
+
+    void handleErrorResponse(KKPayload res);
+    void handleClientErrorResponse();
+    void handleServerErrorResponse();
+
     bool sendRequest(QString type, QString result, QStringList body);
 
-    QString email_;
+    QString mySiteId_;
     QString state_;
-    QString currentfile;
-    bool currentfileValid;
+    QString currentfile_;
+    bool currentfileValid_;
 
 
     QUrl url_;

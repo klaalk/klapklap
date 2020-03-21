@@ -17,12 +17,16 @@
 #include "../../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../../db/kk_db.h"
 
-#define FILE_PATH "./filefolder/"
+#define SERVER_ROOT QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/KKServer"
+#define LOG_ROOT SERVER_ROOT + "/log/"
+#define APPLICATION_ROOT SERVER_ROOT + "/application/"
 
 class KKFileSystem {
 public:
-    KKFileSystem(KKDataBasePtr db): db(db){}
+    KKFileSystem(KKDataBasePtr db);
     KKFileSystem(){}
+    ~KKFileSystem();
+
     QString createFile(QString username, QString filename);
     bool openFile(QString username, QString filename);
     bool sendFile(QString filename);

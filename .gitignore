@@ -50,6 +50,8 @@ client/build-client-Qt_5_12_3_for_iOS-Debug/
 /.vscode/ipch/cb3d8171f781087a/mmap_address.bin
 
 server/build-server-Qt_5_12_3_for_iOS-Debug/
+server/build-GDB
 
 client/build-client-Desktop_Qt_5_12_3_MinGW_64_bit-Release/
+client/build-GDB
 

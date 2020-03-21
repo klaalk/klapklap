@@ -136,7 +136,6 @@ void TextEdit::closeEvent(QCloseEvent *e)
 }
 
 void TextEdit::resizeEvent(QResizeEvent *event){
-    Q_UNUSED(event)
     modifyLabels();
 }
 
@@ -454,22 +453,23 @@ void TextEdit::fileOpen()
 
 bool TextEdit::fileSave()
 {
-    if (fileName.isEmpty())
-        return fileSaveAs();
-    if (fileName.startsWith(QStringLiteral(":/")))
-        return fileSaveAs();
+//    if (fileName.isEmpty())
+//        return fileSaveAs();
+//    if (fileName.startsWith(QStringLiteral(":/")))
+//        return fileSaveAs();
 
-    QTextDocumentWriter writer(fileName);
-    bool success = writer.write(textEdit->document());
-    if (success) {
-        textEdit->document()->setModified(false);
-        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
-    } else {
-        statusBar()->showMessage(tr("Could not write to file \"%1\"")
-                                         .arg(QDir::toNativeSeparators(fileName)));
-    }
-    emit saveCRDTtoFile();
-    return success;
+//    QTextDocumentWriter writer(fileName);
+//    bool success = writer.write(textEdit->document());
+//    if (success) {
+//        textEdit->document()->setModified(false);
+//        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
+//    } else {
+//        statusBar()->showMessage(tr("Could not write to file \"%1\"")
+//                                         .arg(QDir::toNativeSeparators(fileName)));
+//    }
+//    return success;
+
+  emit saveCRDTtoFile();
 }
 
 bool TextEdit::fileSaveAs()
@@ -569,7 +569,7 @@ void TextEdit::textFamily(const QString &f)
 
 void TextEdit::textSize(const QString &p)
 {
-    qreal pointSize = p.toDouble();
+    qreal pointSize = p.toFloat();
     if (p.toFloat() > 0) {
         QTextCharFormat fmt;
         fmt.setFontPointSize(pointSize);
@@ -854,16 +854,15 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         QTextCharFormat formatVecchio = editorCurs.charFormat();
 
 
+
+
         fontNuovo.fromString(font);
         QTextCharFormat format;
         format.setFont(fontNuovo);
-
-        editorCurs.setCharFormat(format);
-
-        editorCurs.insertText(text);
+        qDebug() << "fn:"<<fontNuovo;
+        editorCurs.insertText(text,format);
 
         editorCurs.setCharFormat(formatVecchio);
-
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
