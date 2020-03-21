@@ -811,7 +811,7 @@ void TextEdit::modifyLabels(){
     blockCursor = false;
 }
 
-void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font) {
+void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font,QSharedPointer<QList<int>> myList) {
     QBrush color;
     //Blocco il cursore dell'editor.
     blockCursor = true;
@@ -888,6 +888,10 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
             c->moveLabels(textEdit->cursorRect(editorCurs));
         }
     }
+
+    updateSiteIdsMap(name,myList);
+
+
     // Riporto il cursore dell'editor alla posizione di partenza.
     if(cursorPos >= globalPos){
         if(operation == CRDT_INSERT) {
@@ -902,6 +906,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
 
     // Sblocco il cursore dell'editor.
     blockCursor = false;
+
 }
 
 void TextEdit::onTextChange() {

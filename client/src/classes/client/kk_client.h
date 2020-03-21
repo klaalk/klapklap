@@ -43,6 +43,7 @@ class KKClient : public QObject
     Q_OBJECT
 public:
     explicit KKClient(const QUrl &url, QObject *parent = nullptr);
+    QSharedPointer<QList<int>>findPositions(QString siteId);
 
 
 private slots:
@@ -79,7 +80,6 @@ private:
     void handleServerErrorResponse();
 
     bool sendRequest(QString type, QString result, QStringList body);
-    QSharedPointer<QList<int>>findPositions(QString siteId);
 
     QString mySiteId_;
     QString state_;
