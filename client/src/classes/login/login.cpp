@@ -100,6 +100,7 @@ void AccessDialog::on_login_email_input_editingFinished()
 
 void AccessDialog::on_login_email_input_textChanged(const QString &arg1)
 {
+    Q_UNUSED( arg1 )
     bool isValid = checkLoginForm();
     ui_->login_btn->setEnabled(isValid);
 }
@@ -113,6 +114,7 @@ void AccessDialog::on_login_password_input_editingFinished()
 
 void AccessDialog::on_login_password_input_textChanged(const QString &arg1)
 {
+    Q_UNUSED( arg1 )
     bool isValid = checkLoginForm();
     ui_->login_btn->setEnabled(isValid);
 }
@@ -126,6 +128,7 @@ void AccessDialog::on_signup_email_input_editingFinished()
 
 void AccessDialog::on_signup_email_input_textChanged(const QString &arg1)
 {
+    Q_UNUSED( arg1 )
     bool isValid = checkSingupForm();
     ui_->signup_btn->setEnabled(isValid);
 }
@@ -139,6 +142,7 @@ void AccessDialog::on_signup_password_input_editingFinished()
 
 void AccessDialog::on_signup_password_input_textChanged(const QString &arg1)
 {
+    Q_UNUSED( arg1 )
     bool isValid = checkSingupForm();
     ui_->signup_btn->setEnabled(isValid);
 }
@@ -152,6 +156,7 @@ void AccessDialog::on_signup_name_input_editingFinished()
 
 void AccessDialog::on_signup_name_input_textChanged(const QString &arg1)
 {
+    Q_UNUSED( arg1 )
     bool isValid = checkSingupForm();
     ui_->signup_btn->setEnabled(isValid);
 }
@@ -165,6 +170,7 @@ void AccessDialog::on_signup_surname_input_editingFinished()
 
 void AccessDialog::on_signup_surname_input_textChanged(const QString &arg1)
 {
+    Q_UNUSED( arg1 )
     bool isValid = checkSingupForm();
     ui_->signup_btn->setEnabled(isValid);
 }
@@ -178,6 +184,7 @@ void AccessDialog::on_signup_username_input_editingFinished()
 
 void AccessDialog::on_signup_username_input_textChanged(const QString &arg1)
 {
+    Q_UNUSED( arg1 )
     bool isValid = checkSingupForm();
     ui_->signup_btn->setEnabled(isValid);
 }

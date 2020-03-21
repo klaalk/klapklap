@@ -4,7 +4,7 @@
 #ifndef KK_CRDT_H
 #define KK_CRDT_H
 
-#include <Qchar>
+#include <QCharRef>
 #include <QString>
 #include <stdio.h>
 #include <stdlib.h>

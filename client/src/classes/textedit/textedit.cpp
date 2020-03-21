@@ -136,6 +136,7 @@ void TextEdit::closeEvent(QCloseEvent *e)
 }
 
 void TextEdit::resizeEvent(QResizeEvent *event){
+    Q_UNUSED(event)
     modifyLabels();
 }
 
@@ -453,23 +454,22 @@ void TextEdit::fileOpen()
 
 bool TextEdit::fileSave()
 {
-//    if (fileName.isEmpty())
-//        return fileSaveAs();
-//    if (fileName.startsWith(QStringLiteral(":/")))
-//        return fileSaveAs();
+    if (fileName.isEmpty())
+        return fileSaveAs();
+    if (fileName.startsWith(QStringLiteral(":/")))
+        return fileSaveAs();
 
-//    QTextDocumentWriter writer(fileName);
-//    bool success = writer.write(textEdit->document());
-//    if (success) {
-//        textEdit->document()->setModified(false);
-//        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
-//    } else {
-//        statusBar()->showMessage(tr("Could not write to file \"%1\"")
-//                                         .arg(QDir::toNativeSeparators(fileName)));
-//    }
-//    return success;
-
-  emit saveCRDTtoFile();
+    QTextDocumentWriter writer(fileName);
+    bool success = writer.write(textEdit->document());
+    if (success) {
+        textEdit->document()->setModified(false);
+        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
+    } else {
+        statusBar()->showMessage(tr("Could not write to file \"%1\"")
+                                         .arg(QDir::toNativeSeparators(fileName)));
+    }
+    emit saveCRDTtoFile();
+    return success;
 }
 
 bool TextEdit::fileSaveAs()
@@ -569,7 +569,7 @@ void TextEdit::textFamily(const QString &f)
 
 void TextEdit::textSize(const QString &p)
 {
-    qreal pointSize = p.toFloat();
+    qreal pointSize = p.toDouble();
     if (p.toFloat() > 0) {
         QTextCharFormat fmt;
         fmt.setFontPointSize(pointSize);
