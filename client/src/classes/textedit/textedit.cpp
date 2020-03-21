@@ -1050,6 +1050,8 @@ void TextEdit::setMySiteId(QString mySiteId){
 }
 
 
-
+bool TextEdit::getIfIsClicked(QString siteId){
+    return siteIdsClicked_.contains(siteId);
+}
 
 

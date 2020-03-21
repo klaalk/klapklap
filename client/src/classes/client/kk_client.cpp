@@ -399,9 +399,14 @@ QSharedPointer<QList<int>> KKClient::findPositions(QString siteId){
     return myList;
 }
 
-void KKClient::onSiteIdClicked(QString siteId){
+void KKClient::onSiteIdClicked(QString siteId, bool logout){
     QSharedPointer<QList<int>> myList=findPositions(siteId);
-    editor_.updateSiteIdsMap(siteId, myList);
-    editor_.siteIdClicked(siteId);
+    if(logout==false){
+        editor_.updateSiteIdsMap(siteId, myList);
+        editor_.siteIdClicked(siteId);
+    }else {
+    if(editor_.getIfIsClicked(siteId))
+        editor_.siteIdClicked(siteId);
+    }
 }
 

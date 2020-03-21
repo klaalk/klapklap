@@ -67,7 +67,7 @@ public:
     void removeParticipant(const QString &nick);
 signals:
     void sendMessageEvent(QString username, QString message);
-    void siteIdClicked(QString nickname);
+    void siteIdClicked(QString nickname,bool logout);
 
 private slots:
     void returnPressed();

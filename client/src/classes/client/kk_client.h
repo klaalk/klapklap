@@ -46,6 +46,7 @@ public:
     QSharedPointer<QList<int>>findPositions(QString siteId);
 
 
+
 private slots:
     void handleOpenedConnection();
     void handleResponse(QString message);
@@ -65,7 +66,7 @@ private slots:
     void onRemoveTextCrdt(int start, int end);
     void onSaveCrdtToFile();
     void onLoadCrdtToFile();
-    void onSiteIdClicked(QString siteId);
+    void onSiteIdClicked(QString siteId,bool logout);
 private:
     void setInitState();
 

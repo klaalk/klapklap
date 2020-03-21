@@ -129,6 +129,7 @@ class TextEdit : public QMainWindow
 Q_OBJECT
 
 public:
+        bool getIfIsClicked(QString siteId);
     TextEdit(QWidget *parent = nullptr);
     QTextEdit *textEdit;
     bool load(const QString &f);
