@@ -6,7 +6,8 @@
 #include <QtSql>
 #include <QDebug>
 
-#define  HOST "tcp://130.192.163.109:3000"
+#define  HOST "tcp://130.192.163.109"
+#define  PORT 3000
 #define  USR  "server"
 #define  DBN  "KLAPKLAP_DB"
 #define  PSW  "password" //TODO:change
