@@ -910,6 +910,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
 }
 
 void TextEdit::onTextChange() {
+
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
     // Restituisce il testo presente nell'editor.
