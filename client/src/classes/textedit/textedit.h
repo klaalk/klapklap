@@ -57,7 +57,7 @@ public:
 
     void setLabelsStyle(QBrush fontColor, int fontSize) {
         this->fontSize = fontSize;
-        this->backgorundColor = fontColor.color().name();
+        this->backgorundColor = fontColor.color().name(QColor::HexArgb);
         setLabelsStyleSheet(this->backgorundColor, this->fontSize);
     }
 
@@ -129,8 +129,8 @@ class TextEdit : public QMainWindow
 Q_OBJECT
 
 public:
-        bool getIfIsClicked(QString siteId);
-        void setCurrentFileName(const QString &fileName);
+    bool getIfIsClicked(QString siteId);
+    void setCurrentFileName(const QString &fileName);
     TextEdit(QWidget *parent = nullptr);
     QTextEdit *textEdit;
     bool load(const QString &f);
@@ -250,7 +250,7 @@ private:
                            QColor(121,85,72,114),
                            QColor(158,158,158,102),
                            QColor(96,125,139,102)
-};
+                          };
 
 };
 typedef QSharedPointer<TextEdit> textedit_ptr;
