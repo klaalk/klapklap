@@ -6,7 +6,7 @@
 #include <QtSql>
 #include <QDebug>
 
-#define  HOST "tcp://130.192.163.109"
+#define  HOST "127.0.0.1"
 #define  PORT 3306
 #define  USR  "root"
 #define  DBN  "klapklap"
