@@ -156,10 +156,12 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     QString text = bodyList_[2 + increment];
     QStringList ids = bodyList_[3 + increment].split(" ");
     QString fontStr = bodyList_[4 + increment];
+    QString colorStr = bodyList_[5 + increment];
 
 
     KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
     char_->setKKCharFont(fontStr);
+    char_->setKKCharColor(colorStr);
     // size() - 1 per non considerare l'elemento vuoto della string list ids
     for(int i = 0; i < ids.size() - 1; i++){
         unsigned long digit = ids[i].toULong();
@@ -171,7 +173,7 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
 //xxx
     qDebug() << "FONTmandato:"<<char_->getKKCharFont();
-    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont());
+    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor());
 }
 
 void KKClient::handleErrorResponse(KKPayload response){
@@ -346,8 +348,14 @@ void KKClient::onInsertTextCrdt(QString diffText, int position) {
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         //xxx
         font_=editor_.getTextEdit()->textCursor().charFormat().font().toString();
+
+        QString color_;
+        color_=editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
+        QColor colo(color_);
+
+
         char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar POTREBBE NON SERVIRE xxx
-        sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_});
+        sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_,color_});
     }
 }
 
@@ -358,10 +366,12 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
     list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                         KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
     QString font_;
+    QString color_;
   font_=editor_.getTextEdit()->textCursor().charFormat().font().toString();
+  color_=editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
     std::for_each(deletedChars.begin(), deletedChars.end(),[&](KKCharPtr char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,font_});
+        sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,font_,color_});
     });
 }
 

@@ -801,17 +801,19 @@ void TextEdit::modifyLabels(){
     blockCursor = true;
     QTextCursor editorCurs = textEdit->textCursor();
     int editorPos = editorCurs.position();
+
     for(kk_cursor* c : cursors_.values()){
         editorCurs.setPosition(c->getGlobalPositon());
         font=editorCurs.charFormat().font().pointSize();
         c->setLabelsSize(font);
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
+
     editorCurs.setPosition(editorPos);
     blockCursor = false;
 }
 
-void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font) {
+void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font, QString colorRecived) {
     QBrush color;
     //Blocco il cursore dell'editor.
     blockCursor = true;
@@ -851,18 +853,20 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         //xxx qui devo mettere il font di quello che ha scritto, scrivere e poi rimettere il mio font vecchio
 
         QFont fontNuovo;
+        QColor coloreNuovo(colorRecived);
         QTextCharFormat formatVecchio = editorCurs.charFormat();
 
 
         fontNuovo.fromString(font);
         QTextCharFormat format;
         format.setFont(fontNuovo);
+        format.setForeground(coloreNuovo);
 
-        editorCurs.setCharFormat(format);
+        //fontChanged(fontNuovo);
 
+        editorCurs.mergeCharFormat(format);
         editorCurs.insertText(text);
-
-        editorCurs.setCharFormat(formatVecchio);
+        editorCurs.mergeCharFormat(formatVecchio);
 
 
         //Aggiorno la length.
