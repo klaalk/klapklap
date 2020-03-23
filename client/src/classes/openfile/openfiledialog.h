@@ -3,8 +3,8 @@
 
 #include <QDialog>
 #include <QDebug>
-#include <QListWidgetItem>
 #include <QAbstractButton>
+#include <QTableWidgetItem>
 
 namespace Ui {
 class OpenFileDialog;
@@ -18,22 +18,23 @@ signals:
 
 public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
-    void initInfo(QStringList info);
-    void addFile(QString fileName);
     ~OpenFileDialog();
 
+    void setUserInfo(QStringList info);
+    void addFile(int fileIndex, QString fileName);
+
 private slots:
-    void on_listWidget_itemClicked(QListWidgetItem *item);
-    void on_openBtn_clicked();
+    void on_filesTableWidget_itemClicked(QTableWidgetItem *item);
+    void on_openFileButton_clicked();
+    void on_createFileButton_clicked();
+    void on_accountBtn_clicked();
+    void on_documentiBtn_clicked();
 
-    void on_pushButton_clicked();
+    void on_shareFileButton_clicked();
 
-    void on_pushButton_2_clicked();
-
-    void on_pushButton_3_clicked();
-
-    void on_lineEdit_textChanged(const QString &arg1);
 private:
+    void initializeFilesTableView();
+
     Ui::OpenFileDialog *ui;
     QMap<QString, QString> files_;
     QString selectedFile;

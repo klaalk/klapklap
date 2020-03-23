@@ -124,7 +124,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
     editor_.setMySiteId(mySiteId_);
     access_.hide();
 
-    openFile_.initInfo(bodyList);
+    openFile_.setUserInfo(bodyList);
     openFile_.show();
 }
 
@@ -289,7 +289,7 @@ bool KKClient::sendRequest(QString type, QString result, QStringList values) {
     KKPayload req(type, result, values);
     qDebug() << "[send] -" << req.encode();
     int size = static_cast<int>(socket_.sendTextMessage(req.getData()));
-    return size = req.getTotalLength();
+    return size == req.getTotalLength();
 }
 
 /// MODAL ACTIONS

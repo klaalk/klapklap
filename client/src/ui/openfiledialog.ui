@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>432</width>
-    <height>312</height>
+    <width>752</width>
+    <height>359</height>
    </rect>
   </property>
   <property name="cursor">
@@ -19,104 +19,7 @@
   <property name="windowTitle">
    <string>Seleziona File</string>
   </property>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>220</y>
-     <width>221</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="cursor">
-    <cursorShape>IBeamCursor</cursorShape>
-   </property>
-   <property name="mouseTracking">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-   <property name="textInteractionFlags">
-    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-   </property>
-  </widget>
-  <widget class="QWidget" name="verticalWidget_2" native="true">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>10</y>
-     <width>271</width>
-     <height>291</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QLabel" name="label_3">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Non sono presenti file</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QListWidget" name="listWidget">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Inserisci il nome del file o il link di condivisione:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit"/>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="cursor">
-         <cursorShape>ArrowCursor</cursorShape>
-        </property>
-        <property name="text">
-         <string>Ottieni il link di condivisione</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="openBtn">
-        <property name="text">
-         <string>Apri</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="accountBtn">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -129,7 +32,7 @@
     <string>Account</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="documentiBtn">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -142,129 +45,351 @@
     <string>Documenti</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_4">
+  <widget class="Line" name="verticalLine">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>220</y>
-     <width>221</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="cursor">
-    <cursorShape>IBeamCursor</cursorShape>
-   </property>
-   <property name="mouseTracking">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-   <property name="textInteractionFlags">
-    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-   </property>
-  </widget>
-  <widget class="QWidget" name="verticalWidget_4" native="true">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>10</y>
-     <width>271</width>
-     <height>291</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout_4">
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_6">
-      <item>
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Nome</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_name"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Cognome</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_surname"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Email</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_email"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Username</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_user"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Password</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_pass"/>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QPushButton" name="openBtn_3">
-      <property name="text">
-       <string>Modifica</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="Line" name="line">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
+     <x>156</x>
      <y>10</y>
      <width>3</width>
-     <height>290</height>
+     <height>340</height>
     </rect>
    </property>
    <property name="orientation">
     <enum>Qt::Vertical</enum>
    </property>
   </widget>
-  <zorder>label_2</zorder>
-  <zorder>pushButton_2</zorder>
-  <zorder>pushButton_3</zorder>
-  <zorder>label_4</zorder>
-  <zorder>verticalWidget_2</zorder>
-  <zorder>verticalWidget_4</zorder>
-  <zorder>line</zorder>
+  <widget class="QWidget" name="accountLayout" native="true">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>-10</y>
+     <width>571</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QWidget" name="userLayout" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QLabel" name="imageTitleLabel">
+         <property name="text">
+          <string>Profilo</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGraphicsView" name="imageViewer">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>256</width>
+           <height>256</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="changeImageButton">
+         <property name="text">
+          <string>Cambia foto</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="usernameLabel">
+         <property name="text">
+          <string>Username</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="usernameLineEdit"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="saveChangesButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Salva le modifiche</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="infoLayout" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="infoTitleLabel">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>10</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Informazioni sul tuo account:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="nameLabel">
+         <property name="text">
+          <string>Nome</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="nameLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="surnameLabel">
+         <property name="text">
+          <string>Cognome</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="surnameLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="emailLabel">
+         <property name="text">
+          <string>Email</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="emailLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="passwordLabel">
+         <property name="text">
+          <string>Password</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="passwordLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="registrationDateLabel">
+         <property name="text">
+          <string>Data di registrazione: </string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="documentsLayout" native="true">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>-10</y>
+     <width>571</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QWidget" name="listFilesLayout" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="listFilesTitleLabel">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>I tuoi file:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="filesTableWidget">
+         <property name="minimumSize">
+          <size>
+           <width>256</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>256</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="openFileButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Apri</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="manageFileLayout" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="shareFileTitleLabel">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>12</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Codice di condivisione:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="shareFileTextEdit">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>128</height>
+          </size>
+         </property>
+         <property name="cursor" stdset="0">
+          <cursorShape>IBeamCursor</cursorShape>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="html">
+          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Menlo','Monaco','Consolas','Courier New','monospace'; font-size:8pt; font-weight:600; color:#707070; background-color:#ffffff;&quot;&gt;Nessun file selezionato&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="shareFileButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="cursor">
+          <cursorShape>ArrowCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>Condividi</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="horizontalLine">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="createFileTitleLabel">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>10</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Crea un nuovo file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="createFileNameLabel">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>90</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Nome file:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="createFileNameLineEdit">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>20</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="createFileButton">
+         <property name="text">
+          <string>Crea</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <zorder>accountBtn</zorder>
+  <zorder>documentiBtn</zorder>
+  <zorder>verticalLine</zorder>
+  <zorder>documentsLayout</zorder>
+  <zorder>accountLayout</zorder>
  </widget>
  <resources/>
  <connections/>
