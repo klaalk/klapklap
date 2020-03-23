@@ -163,7 +163,6 @@ void TextEdit::setupFileActions()
     actionSave->setShortcut(QKeySequence::Save);
     actionSave->setEnabled(false);
     tb->addAction(actionSave);
-
     a = menu->addAction(tr("Save &As..."), this, &TextEdit::fileSaveAs);
     a->setPriority(QAction::LowPriority);
     menu->addSeparator();
@@ -354,6 +353,7 @@ void TextEdit::setupTextActions()
     comboSize->setCurrentIndex(standardSizes.indexOf(QApplication::font().pointSize()));
 
     connect(comboSize, QOverload<const QString &>::of(&QComboBox::activated), this, &TextEdit::textSize);
+
 }
 
 bool TextEdit::load(const QString &f)
@@ -419,7 +419,7 @@ void TextEdit::setCurrentFileName(const QString &fileName)
 
     QString shownName;
     if (fileName.isEmpty())
-        shownName = "untitled.txt";
+        shownName = fileName;
     else
         shownName = QFileInfo(fileName).fileName();
 

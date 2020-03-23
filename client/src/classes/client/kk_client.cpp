@@ -140,6 +140,10 @@ void KKClient::handleOpenfileResponse() {
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
     openFile_.hide();
     editor_.show();
+    if(currentfile_.contains('@'))
+        editor_.setCurrentFileName(currentfile_.split("@")[2]);
+    else
+        editor_.setCurrentFileName(currentfile_);
     chat_.setNickName(mySiteId_);
     chat_.show();
 }
