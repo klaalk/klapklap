@@ -177,7 +177,7 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
 //xxx
     qDebug() << "FONTmandato:"<<char_->getKKCharFont();
-    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor());
+    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor(),findPositions(labelName));
 }
 
 void KKClient::handleErrorResponse(KKPayload response){

@@ -814,7 +814,7 @@ void TextEdit::modifyLabels(){
     blockCursor = false;
 }
 
-void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font, QString colorRecived) {
+void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font, QString colorRecived, QSharedPointer<QList<int>> myList) {
     QBrush color;
     //Blocco il cursore dell'editor.
     blockCursor = true;
