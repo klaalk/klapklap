@@ -756,8 +756,9 @@ void TextEdit::about()
 void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
 {
     QTextCursor cursor = textEdit->textCursor();
-    if (!cursor.hasSelection())
-        cursor.select(QTextCursor::WordUnderCursor);
+    //xxx
+    //if (!cursor.hasSelection())
+        //cursor.select(QTextCursor::WordUnderCursor);
     cursor.mergeCharFormat(format);
     textEdit->mergeCurrentCharFormat(format);
 }
@@ -861,12 +862,19 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         QTextCharFormat format;
         format.setFont(fontNuovo);
         format.setForeground(coloreNuovo);
-
-        //fontChanged(fontNuovo);
-
-        editorCurs.mergeCharFormat(format);
+        //editorCurs.mergeCharFormat(format);
+        QTextCursor tempCurs=editorCurs;
         editorCurs.insertText(text);
-        editorCurs.mergeCharFormat(formatVecchio);
+        tempCurs.setPosition(globalPos);
+        tempCurs.setPosition(globalPos+1, QTextCursor::KeepAnchor);
+        tempCurs.setCharFormat(format);
+
+       // editorCurs.select(QTextCursor::WordUnderCursor);
+        //QTextCursor tempCursor=editorCurs;
+
+       // editorCurs.setPosition(editorCurs.position()-1);
+        //tempCursor.setPosition(editorCurs.position()+1, QTextCursor::KeepAnchor);
+       // tempCursor.setCharFormat(format);
 
 
         //Aggiorno la length.
@@ -904,6 +912,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     editorCurs.setPosition(cursorPos);
     // Sblocco il cursore dell'editor.
     blockCursor = false;
+
 }
 
 void TextEdit::onTextChange() {
@@ -999,7 +1008,7 @@ void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list)
 void TextEdit::colorText(QString siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
-    QTextCharFormat fmt=cursor.charFormat();
+    QTextCharFormat fmt = cursor.charFormat();
     QBrush color;
     //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
@@ -1013,6 +1022,7 @@ void TextEdit::colorText(QString siteId){
 
     fmt.setBackground(siteIdsColors_.value(siteId));
     int last = cursor.position();
+
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
         cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
