@@ -135,6 +135,7 @@ void ChatDialog::removeParticipant(const QString &nick)
     textEdit->setTextColor(Qt::gray);
     textEdit->append(tr("* %1 has left").arg(nick));
     textEdit->setTextColor(color);
+    emit siteIdClicked(nick, true);
 }
 
 void ChatDialog::showInformation()
@@ -152,6 +153,6 @@ void ChatDialog::onItemClicked(QListWidgetItem *item) {
         return;
     }
     QString siteId = item->text();
-    emit siteIdClicked(siteId);
+    emit siteIdClicked(siteId, false);
 }
 

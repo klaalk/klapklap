@@ -140,6 +140,10 @@ void KKClient::handleOpenfileResponse() {
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
     openFile_.hide();
     editor_.show();
+    if(currentfile_.contains('@'))
+        editor_.setCurrentFileName(currentfile_.split("@")[2]);
+    else
+        editor_.setCurrentFileName(currentfile_);
     chat_.setNickName(mySiteId_);
     chat_.show();
 }
@@ -337,7 +341,7 @@ void KKClient::handleModalClosed(QString modalType) {
 
 void KKClient::onInsertTextCrdt(QString diffText, int position) {
     QByteArray ba = diffText.toLocal8Bit();
-    QString siteId;
+    QString siteId=crdt_->getSiteId();
     char *c_str = ba.data();
     unsigned long line, col;
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
@@ -357,6 +361,7 @@ void KKClient::onInsertTextCrdt(QString diffText, int position) {
         char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar POTREBBE NON SERVIRE xxx
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_,color_});
     }
+    editor_.updateSiteIdsMap(siteId,findPositions(siteId));
 }
 
 void KKClient::onRemoveTextCrdt(int start, int end) {
@@ -373,6 +378,7 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,font_,color_});
     });
+    editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
 }
 
 void KKClient::onSaveCrdtToFile() {
@@ -394,17 +400,28 @@ void KKClient::onLoadCrdtToFile() {
        sendRequest(LOADFILE, NONE, {username,filename});
 }
 
-void KKClient::onSiteIdClicked(QString siteId){
+QSharedPointer<QList<int>> KKClient::findPositions(QString siteId){
     QSharedPointer<QList<int>> myList=QSharedPointer<QList<int>>(new QList<int>());
     int global = 0;
     for(list<KKCharPtr> linea: crdt_->text){
         for(KKCharPtr carattere: linea){
-            if(carattere->getSiteId()==siteId.toStdString()){
-                myList->push_back(global);
+            if(carattere->getSiteId().compare(siteId.toStdString())==0){
+                myList->push_front(global);
             }
             global++;
         }
     }
-    editor_.updateSiteIdsMap(siteId, myList);
+    return myList;
+}
+
+void KKClient::onSiteIdClicked(QString siteId, bool logout){
+    QSharedPointer<QList<int>> myList=findPositions(siteId);
+    if(logout==false){
+        editor_.updateSiteIdsMap(siteId, myList);
+        editor_.siteIdClicked(siteId);
+    }else {
+    if(editor_.getIfIsClicked(siteId))
+        editor_.siteIdClicked(siteId);
+    }
 }
 

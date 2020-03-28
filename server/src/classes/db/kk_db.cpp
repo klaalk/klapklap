@@ -6,11 +6,11 @@
 #include <QtSql>
 #include <QDebug>
 
-#define  HOST "127.0.0.1"
-#define  USR  "root"
-#define  DBN  "klapklap"
-#define  PSW  ""
-#define  PORT 3306
+#define  HOST "tcp://130.192.163.109"
+#define  PORT 3000
+#define  USR  "server"
+#define  DBN  "KLAPKLAP_DB"
+#define  PSW  "password" //TODO:change
 
 #define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) VALUES (?, ?, ?, ?, ?)"
 
