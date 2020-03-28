@@ -60,7 +60,7 @@ void OpenFileDialog::on_openBtn_clicked()
 void OpenFileDialog::on_pushButton_clicked()
 {
     if(selectedFile != "") {
-        ui->label_2->setText(files_.value(selectedFile));
+        ui->lineEdit->setText(files_.value(selectedFile));
     }
 }
 
