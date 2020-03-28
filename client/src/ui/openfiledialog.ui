@@ -95,13 +95,16 @@
       <item>
        <widget class="QPushButton" name="pushButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="cursor">
          <cursorShape>ArrowCursor</cursorShape>
         </property>
         <property name="text">
          <string>Ottieni il link di condivisione</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
