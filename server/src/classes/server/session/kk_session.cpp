@@ -161,7 +161,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         // Apro il file. Con i dovuti controlli
         completeFileName = fileSystem->createFile(id, fileName);
 #endif
-        if(completeFileName != "ERR_CREATEFILE") {
+        if(completeFileName != FILE_SYSTEM_CREATE_ERROR) {
             file = QSharedPointer<KKFile>(new KKFile());
             file->join(sharedFromThis());
             files->insert(completeFileName, file);

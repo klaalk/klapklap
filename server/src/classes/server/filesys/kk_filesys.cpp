@@ -46,12 +46,13 @@ QString KKFileSystem::createFile(QString username, QString filename){
 
     UserInfo *user = new UserInfo;
     int result = db->insertUserFile(username, _filename, APPLICATION_ROOT + _filename, user);
+
     if(result == DB_INSERT_FILE_SUCCESS) {
         db->sendInsertUserFileEmail(user->username, user->email, user->name, user->surname, _filename);
         return _filename;
     }
 
-    return "ERR_CREATEFILE";
+    return FILE_SYSTEM_CREATE_ERROR;
 }
 
 bool KKFileSystem::openFile(QString username, QString filename){

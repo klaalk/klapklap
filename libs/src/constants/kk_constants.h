@@ -99,4 +99,8 @@
 /// File system costants
 #define LOG_FILE "log"
 #define FILE_SYSTEM_USER "root"
+
+/// File system errors
+#define FILE_SYSTEM_CREATE_ERROR "ERROR_CREATE_FILE"
+
 #endif //SERVER_KK_CONSTANTS_H
