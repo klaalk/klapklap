@@ -1,10 +1,10 @@
 #include "openfiledialog.h"
 #include "ui_openfiledialog.h"
 
-#define MAX_TABLE_SIZE 256
+#define MAX_TABLE_SIZE 534
 
-#define COLUMN_NAME_SIZE (double) 2/3 * MAX_TABLE_SIZE
-#define COLUMN_CREATOR_SIZE (double) 1/3 * MAX_TABLE_SIZE
+#define COLUMN_NAME_SIZE 250
+#define COLUMN_CREATOR_SIZE 150
 
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
     QDialog(parent),
@@ -28,8 +28,8 @@ OpenFileDialog::~OpenFileDialog()
 }
 
 void OpenFileDialog::initializeFilesTableView() {
-    ui->filesTableWidget->setColumnCount(2);
-    ui->filesTableWidget->setHorizontalHeaderLabels({"Nome", "Creato da"});
+    ui->filesTableWidget->setColumnCount(3);
+    ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Creato da", "Creato il"});
     ui->filesTableWidget->verticalHeader()->setVisible(false);
 
     ui->filesTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -37,8 +37,9 @@ void OpenFileDialog::initializeFilesTableView() {
 
     ui->filesTableWidget->setMinimumWidth(MAX_TABLE_SIZE);
     ui->filesTableWidget->setMaximumWidth(MAX_TABLE_SIZE);
-    ui->filesTableWidget->setColumnWidth(0, COLUMN_NAME_SIZE - 1);
+    ui->filesTableWidget->setColumnWidth(0, COLUMN_NAME_SIZE);
     ui->filesTableWidget->setColumnWidth(1, COLUMN_CREATOR_SIZE);
+    ui->filesTableWidget->horizontalHeader()->setStretchLastSection(true);
 }
 
 void OpenFileDialog::setUserInfo(QStringList info) {
@@ -62,39 +63,39 @@ void OpenFileDialog::setUserInfo(QStringList info) {
 }
 
 void OpenFileDialog::addFile(int fileIndex, QString fileName) {
+    SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QStringList splittedName = fileName.split("@");
     files_.insert(splittedName[2], fileName);
     ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedName[2]));
-    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(splittedName[1]));
+    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt.decryptToString(splittedName[1])));
 }
 
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 {
     int rowIndex = item->row();
-    selectedFile = ui->filesTableWidget->item(rowIndex, 0)->text();
-    ui->shareFileTextEdit->setText(files_.value(selectedFile));
+    QString fileName = ui->filesTableWidget->item(rowIndex, 0)->text();
+    ui->createFileNameLineEdit->setText(fileName);
+
     ui->openFileButton->setEnabled(true);
-    // TODO: abilitare modale condivisione file
-    // TODO: ui->shareFileButton->setEnabled(true);
+    ui->shareFileButton->setEnabled(true);
 }
 
 void OpenFileDialog::on_openFileButton_clicked()
 {
-    QString completeFileName = ui->shareFileTextEdit->toPlainText();
-    if(completeFileName == "" || completeFileName == nullptr) {
-        emit openFileRequest(completeFileName);
-    } else {
-        qDebug() << "ERRORE NESSUNO FILE TROVATO";
-    }
-}
-
-void OpenFileDialog::on_createFileButton_clicked()
-{
     QString newFileName = ui->createFileNameLineEdit->text();
-    if (newFileName != "" && newFileName != nullptr) {
-        emit openFileRequest(newFileName);
+    QString completeFileName = files_.value(newFileName);
+
+    if(completeFileName != "" || completeFileName != nullptr) {
+        emit openFileRequest(completeFileName);
+        qDebug() << "APRO FILE ESISTENTE";
     } else {
-        qDebug() << "ERRORE NOME FILE DA CREARE VUOTO";
+        qDebug() << "CREO UN NUOVO FILE";
+
+        if (newFileName != "" && newFileName != nullptr) {
+            emit openFileRequest(newFileName);
+        } else {
+            qDebug() << "ERRORE NOME FILE DA CREARE VUOTO";
+        }
     }
 }
 
@@ -113,4 +114,10 @@ void OpenFileDialog::on_documentiBtn_clicked()
 void OpenFileDialog::on_shareFileButton_clicked()
 {
     // TODO: aprire modale per inserire email destinatari
+}
+
+void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &arg1)
+{
+    Q_UNUSED(arg1)
+    ui->openFileButton->setEnabled(ui->createFileNameLineEdit->text().size() > 0);
 }

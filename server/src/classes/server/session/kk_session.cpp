@@ -141,12 +141,12 @@ void KKSession::handleSignupRequest(KKPayload request) {
 }
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
-    QStringList list = request.getBodyList();
-    QString fileName = list[0];
+    QString fileName = request.getBodyList()[0];
     QString completeFileName = fileName;
     QString message;
     QString result = SUCCESS;
     auto search = files->find(completeFileName);
+
     if (search != files->end()) {
 #ifndef ENV
         // il file era già aperto ed è nella mappa globale
@@ -156,6 +156,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         file->join(sharedFromThis());
         message = "File esistente, sei stato aggiunto correttamente";
     } else {
+
 #ifndef ENV
         // Apro il file. Con i dovuti controlli
         completeFileName = fileSystem->createFile(id, fileName);
@@ -182,9 +183,10 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     }
 #ifndef ENV
     fileSystem->writeFile("log", completeFileName + ": " + message);
-    //mando al client la risposta della request.
 #endif
+    // invio al client la risposta della request.
     sendResponse(OPENFILE, result, {message});
+
     if(result == SUCCESS) {
         // Mi aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
