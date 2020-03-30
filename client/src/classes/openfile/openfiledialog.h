@@ -5,6 +5,10 @@
 #include <QDebug>
 #include <QAbstractButton>
 #include <QTableWidgetItem>
+#include <QFileDialog>
+#include <QLabel>
+#include <QScrollArea>
+#include <QImageReader>
 #include "../../libs/src/classes/crypt/kk_crypt.h"
 
 namespace Ui {
@@ -31,14 +35,25 @@ private slots:
     void on_filesTableWidget_itemClicked(QTableWidgetItem *item);
     void on_openFileButton_clicked();
     void on_shareFileButton_clicked();
+    void on_changeImageButton_clicked();
 
     void on_createFileNameLineEdit_textChanged(const QString &arg1);
 
+
 private:
     void initializeFilesTableView();
+    void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
+
+    void setImage(const QImage &newImage);
+    bool loadFile(const QString &fileName);
 
     Ui::OpenFileDialog *ui;
     QMap<QString, QString> files_;
+
+    QImage image;
+    QLabel *imageLabel;
+    QScrollArea *scrollArea;
+    double scaleFactor;
 };
 
 #endif // OPENFILEDIALOG_H

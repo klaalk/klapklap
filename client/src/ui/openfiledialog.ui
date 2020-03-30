@@ -79,15 +79,21 @@
         </widget>
        </item>
        <item>
-        <widget class="QGraphicsView" name="imageViewer">
-         <property name="enabled">
-          <bool>true</bool>
+        <widget class="QLabel" name="imageViewer">
+         <property name="minimumSize">
+          <size>
+           <width>256</width>
+           <height>206</height>
+          </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>256</width>
            <height>256</height>
           </size>
+         </property>
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
