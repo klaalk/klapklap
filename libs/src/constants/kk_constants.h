@@ -7,7 +7,7 @@
 
 #define TIMEOUT_VALUE 5000
 
-//Payload format
+/// Payload format
 #define PAYLOAD_HEAD_LENGTH 8
 #define PAYLOAD_REQUEST_LENGTH 4
 #define PAYLOAD_RESULT_LENGTH 3
@@ -15,7 +15,7 @@
 #define PAYLOAD_FORMAT "%1"
 #define PAYLOAD_END "000"
 
-///Payload requests
+/// Payload requests
 #define LOGIN "LOGN"
 #define LOGOUT "LOUT"
 #define SIGNUP "SGNP"
@@ -28,6 +28,10 @@
 #define ADDED_PARTECIPANT "ADPR"
 #define REMOVED_PARTECIPANT "RMPR"
 
+/// Payload CRDT Action
+#define CRDT_INSERT "INSERT"
+#define CRDT_DELETE "DELETE"
+
 /// Payload results
 #define NONE "000"
 #define SUCCESS "200"
@@ -35,7 +39,7 @@
 #define INTERNAL_SERVER_ERROR "500"
 #define INVALID_CREDENTIALS "401"
 
-//DB errors
+/// DB errors
 #define EMPTY_USER_INFO nullptr
 
 #define DB_USER_FOUND 1
@@ -64,7 +68,7 @@
 #define DB_ERR_SHARE_FILE_USERS -8
 #define DB_ERR_USER_FILES -9
 
-// Sender email errors
+/// Sender email errors
 #define SEND_EMAIL_SUCCESS 50
 #define SEND_EMAIL_NOT_SUCCESS -50
 
@@ -92,7 +96,7 @@
 #define GENERIC_ERROR "GenericError"
 #define SERVER_ERROR "ServerError"
 
-#define CRDT_INSERT "INSERT"
-#define CRDT_DELETE "DELETE"
-
+/// File system costants
+#define LOG_FILE "log"
+#define FILE_SYSTEM_USER "root"
 #endif //SERVER_KK_CONSTANTS_H

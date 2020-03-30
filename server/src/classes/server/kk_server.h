@@ -17,6 +17,7 @@
 #include "session/kk_session.h"
 #include "classes/server/filesys/kk_filesys.h"
 #include "file/kk_file.h"
+#include "../../libs/src/constants/kk_constants.h"
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)

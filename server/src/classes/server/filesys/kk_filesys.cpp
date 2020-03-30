@@ -21,7 +21,7 @@ KKFileSystem::KKFileSystem(KKDataBasePtr db): db(db){
 KKFileSystem::~KKFileSystem() {}
 
 QString KKFileSystem::createFile(QString username, QString filename){
-    if(username == "root" && filename == "log") {
+    if(username == FILE_SYSTEM_USER && filename == LOG_FILE) {
         this->logFileName = LOG_ROOT + QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
         QFile file(this->logFileName);
         file.open(QIODevice::ReadWrite | QIODevice::Text);
@@ -42,7 +42,7 @@ QString KKFileSystem::createFile(QString username, QString filename){
 
     QString _filename = jump + "@" + tmp + "@" + filename;
     QFile file(APPLICATION_ROOT + _filename);
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    file.open(QIODevice::ReadWrite | QIODevice::Text);
 
     UserInfo *user = new UserInfo;
     int result = db->insertUserFile(username, _filename, APPLICATION_ROOT + _filename, user);
@@ -97,7 +97,7 @@ bool KKFileSystem::sendFile(QString filename){
 
 bool KKFileSystem::writeFile(QString filename, QString toPrint) {
 
-    if(filename == "log") {
+    if(filename == LOG_FILE) {
         filename = this->logFileName;
         toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
         qDebug() << "[log] " + toPrint;

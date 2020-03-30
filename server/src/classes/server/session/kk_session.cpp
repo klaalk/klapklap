@@ -29,7 +29,7 @@ void KKSession::setSocket(QWebSocket* descriptor) {
     connect(socket, &QWebSocket::textMessageReceived, this, &KKSession::handleRequest);
     connect(socket, &QWebSocket::binaryMessageReceived, this, &KKSession::handleBinaryRequests);
     connect(socket, &QWebSocket::disconnected, this, &KKSession::handleDisconnection);
-    fileSystem->writeFile("log", "Client "+id+", "
+    fileSystem->writeFile(LOG_FILE, "Client "+id+", "
                                       +descriptor->peerAddress().toString()+", "
                                       +QString::number(descriptor->peerPort())+" connected at "
                                       + descriptor->localAddress().toString() +", "
@@ -38,12 +38,12 @@ void KKSession::setSocket(QWebSocket* descriptor) {
 
 void KKSession::sendResponse(QString type, QString result, QStringList values) {
     KKPayload res(type, result, values);
-    fileSystem->writeFile("log", "Server send (" + res.encode() +")");
+    fileSystem->writeFile(LOG_FILE, "Server send (" + res.encode() +")");
     socket->sendTextMessage(res.encode());
 }
 
 void KKSession::handleRequest(QString message) {
-    fileSystem->writeFile("log", "Client send " + message);
+    fileSystem->writeFile(LOG_FILE, "Client send " + message);
     if (socket){
         KKPayload req(message);
         req.decode();
@@ -78,7 +78,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
 #ifndef ENV
-    fileSystem->writeFile("log", "Client info " + id +", " + socket->peerAddress().toString()+", " + QString::number(socket->peerPort()));
+    fileSystem->writeFile(LOG_FILE, "Client info " + id +", " + socket->peerAddress().toString()+", " + QString::number(socket->peerPort()));
 #endif
     KKTask *mytask = new KKTask([=]() {
         int result = DB_LOGIN_SUCCESS;
@@ -127,7 +127,7 @@ void KKSession::handleSignupRequest(KKPayload request) {
         if(result == DB_SIGNUP_SUCCESS) {
             int emailResult = db->sendInsertUserInfoEmail(_body[0], _body[0],_body[2], _body[3]);
             if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
-                fileSystem->writeFile("log", "Non è stato possibile inivare l'email a " + _body[0]);
+                fileSystem->writeFile(LOG_FILE, "Non è stato possibile inivare l'email a " + _body[0]);
             }
             this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
         } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
@@ -182,7 +182,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         }
     }
 #ifndef ENV
-    fileSystem->writeFile("log", completeFileName + ": " + message);
+    fileSystem->writeFile(LOG_FILE, completeFileName + ": " + message);
 #endif
     // invio al client la risposta della request.
     sendResponse(OPENFILE, result, {message});
@@ -246,7 +246,7 @@ void KKSession::handleBinaryRequests(QByteArray message) {
 }
 
 void KKSession::handleDisconnection() {
-    fileSystem->writeFile("log", "Client: "+id+", "+socket->peerName()+", "
+    fileSystem->writeFile(LOG_FILE, "Client: "+id+", "+socket->peerName()+", "
                                       +socket->peerAddress().toString()+", "
                                       +QString::number(socket->peerPort())+" disconnected");
 
