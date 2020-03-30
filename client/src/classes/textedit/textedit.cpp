@@ -163,7 +163,6 @@ void TextEdit::setupFileActions()
     actionSave->setShortcut(QKeySequence::Save);
     actionSave->setEnabled(false);
     tb->addAction(actionSave);
-
     a = menu->addAction(tr("Save &As..."), this, &TextEdit::fileSaveAs);
     a->setPriority(QAction::LowPriority);
     menu->addSeparator();
@@ -354,6 +353,7 @@ void TextEdit::setupTextActions()
     comboSize->setCurrentIndex(standardSizes.indexOf(QApplication::font().pointSize()));
 
     connect(comboSize, QOverload<const QString &>::of(&QComboBox::activated), this, &TextEdit::textSize);
+
 }
 
 bool TextEdit::load(const QString &f)
@@ -419,7 +419,7 @@ void TextEdit::setCurrentFileName(const QString &fileName)
 
     QString shownName;
     if (fileName.isEmpty())
-        shownName = "untitled.txt";
+        shownName = fileName;
     else
         shownName = QFileInfo(fileName).fileName();
 
@@ -756,8 +756,9 @@ void TextEdit::about()
 void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
 {
     QTextCursor cursor = textEdit->textCursor();
-    if (!cursor.hasSelection())
-        cursor.select(QTextCursor::WordUnderCursor);
+    //xxx
+    //if (!cursor.hasSelection())
+        //cursor.select(QTextCursor::WordUnderCursor);
     cursor.mergeCharFormat(format);
     textEdit->mergeCurrentCharFormat(format);
 }
@@ -801,17 +802,19 @@ void TextEdit::modifyLabels(){
     blockCursor = true;
     QTextCursor editorCurs = textEdit->textCursor();
     int editorPos = editorCurs.position();
+
     for(kk_cursor* c : cursors_.values()){
         editorCurs.setPosition(c->getGlobalPositon());
         font=editorCurs.charFormat().font().pointSize();
         c->setLabelsSize(font);
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
+
     editorCurs.setPosition(editorPos);
     blockCursor = false;
 }
 
-void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font,QSharedPointer<QList<int>> myList) {
+void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font, QString colorRecived, QSharedPointer<QList<int>> myList) {
     QBrush color;
     //Blocco il cursore dell'editor.
     blockCursor = true;
@@ -850,6 +853,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         //xxx qui devo mettere il font di quello che ha scritto, scrivere e poi rimettere il mio font vecchio
 
         QFont fontNuovo;
+        QColor coloreNuovo(colorRecived);
         QTextCharFormat formatVecchio = editorCurs.charFormat();
 
 //        fontNuovo.fromString(font);
@@ -857,12 +861,20 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         fontNuovo.fromString(font);
         QTextCharFormat format;
         format.setFont(fontNuovo);
-
-//        editorCurs.setCharFormat(format);
-
+        format.setForeground(coloreNuovo);
+        //editorCurs.mergeCharFormat(format);
+        QTextCursor tempCurs=editorCurs;
         editorCurs.insertText(text);
+        tempCurs.setPosition(globalPos);
+        tempCurs.setPosition(globalPos+1, QTextCursor::KeepAnchor);
+        tempCurs.setCharFormat(format);
 
-//        editorCurs.setCharFormat(formatVecchio);
+       // editorCurs.select(QTextCursor::WordUnderCursor);
+        //QTextCursor tempCursor=editorCurs;
+
+       // editorCurs.setPosition(editorCurs.position()-1);
+        //tempCursor.setPosition(editorCurs.position()+1, QTextCursor::KeepAnchor);
+       // tempCursor.setCharFormat(format);
 
 
         //Aggiorno la length.
@@ -995,7 +1007,7 @@ void TextEdit::siteIdClicked(QString siteId){
 void TextEdit::colorText(QString siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
-    QTextCharFormat fmt=cursor.charFormat();
+    QTextCharFormat fmt = cursor.charFormat();
     QBrush color;
 //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
@@ -1032,7 +1044,6 @@ void TextEdit::clearColorText(QString siteId){
     int last = cursor.position();
 
     for(int pos : *siteIds_.value(siteId)){
-        qDebug()<<pos<<  " ";
         cursor.setPosition(pos);
         cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
         cursor.setCharFormat(fmt);

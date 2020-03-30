@@ -111,10 +111,13 @@
        <item>
         <widget class="QPushButton" name="saveChangesButton">
          <property name="enabled">
-          <bool>false</bool>
+         <bool>true</bool>
          </property>
          <property name="text">
           <string>Salva le modifiche</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
          </property>
         </widget>
        </item>

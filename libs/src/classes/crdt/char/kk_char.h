@@ -24,6 +24,7 @@ class KKChar {
     char value; //valore (es 'a')
     //QTextCharFormat KKCharFormat;
     QString KKCharFont;
+    QString KKCharColor;
 
 public:
     KKChar(char value, string siteId);//costruttore
@@ -39,8 +40,9 @@ public:
     std::string getIdentifiersString();
     QString getKKCharFont();
     void setKKCharFont(QString font);
-     /*QTextCharFormat getKKCharFormat();
-     void setKKCharFormat(QTextCharFormat);*/
+    QString getKKCharColor();
+    void setKKCharColor(QString color);
+
 };
 
 typedef std::shared_ptr<KKChar> KKCharPtr;

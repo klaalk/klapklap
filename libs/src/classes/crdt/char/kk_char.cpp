@@ -94,11 +94,11 @@ void KKChar::setKKCharFont(QString font){
     this->KKCharFont=font;
 }
 
-/*QTextCharFormat KKChar::getKKCharFormat(){
-    return KKCharFormat;
+QString KKChar::getKKCharColor(){
+    return KKCharColor;
 }
-void KKChar::setKKCharFormat(QTextCharFormat format){
-    KKCharFormat=format;
-}*/
+void KKChar::setKKCharColor(QString color){
+    this->KKCharColor=color;
+}
 
 
