@@ -72,6 +72,8 @@ void OpenFileDialog::addFile(int fileIndex, QString fileName) {
     files_.insert(splittedName[2], fileName);
     ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedName[2]));
     ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt.decryptToString(splittedName[1])));
+    ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(splittedName[3]));
+
 }
 
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
