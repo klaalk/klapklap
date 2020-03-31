@@ -21,6 +21,7 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
 
     // Setting up table view
     initializeFilesTableView();
+
     // Start showing layouts
     ui->accountLayout->show();
     ui->documentsLayout->hide();
@@ -169,12 +170,14 @@ bool OpenFileDialog::loadFile(const QString &fileName)
                                  .arg(QDir::toNativeSeparators(fileName), reader.errorString()));
         return false;
     }
-//! [2]
 
-    ui->imageViewer->setPixmap(QPixmap::fromImage(newImage));
+    ui->imageViewer->setScaledContents(false);
+
+    QPixmap pixmap = QPixmap::fromImage(newImage);
+    pixmap = pixmap.scaled(ui->imageViewer->width(), ui->imageViewer->height(), Qt::KeepAspectRatio);
+    ui->imageViewer->setPixmap(pixmap);
 
     setWindowFilePath(fileName);
-
     const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
         .arg(QDir::toNativeSeparators(fileName)).arg(newImage.width()).arg(newImage.height()).arg(newImage.depth());
     return true;

@@ -42,6 +42,7 @@
         <file>bg/MainPic.jpg</file>
         <file>gif/basic-loader.gif</file>
         <file>gif/animation.gif</file>
-		<file>klapklap.icns</file>
+        <file>klapklap.icns</file>
+        <file>images/profile.jpg</file>
     </qresource>
 </RCC>

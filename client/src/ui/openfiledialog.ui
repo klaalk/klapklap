@@ -74,7 +74,7 @@
        <item>
         <widget class="QLabel" name="imageTitleLabel">
          <property name="text">
-          <string>Profilo</string>
+          <string>Immagine profilo:</string>
          </property>
         </widget>
        </item>
@@ -94,6 +94,12 @@
          </property>
          <property name="text">
           <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="../assets/client.qrc">:/images/profile.jpg</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -324,6 +330,8 @@
   <zorder>documentsLayout</zorder>
   <zorder>accountLayout</zorder>
  </widget>
- <resources/>
+ <resources>
+  <include location="../assets/client.qrc"/>
+ </resources>
  <connections/>
 </ui>
