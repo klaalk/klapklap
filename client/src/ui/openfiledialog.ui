@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>740</width>
+    <width>731</width>
     <height>351</height>
    </rect>
   </property>
@@ -48,10 +48,10 @@
   <widget class="Line" name="verticalLine">
    <property name="geometry">
     <rect>
-     <x>156</x>
+     <x>152</x>
      <y>10</y>
-     <width>3</width>
-     <height>320</height>
+     <width>10</width>
+     <height>326</height>
     </rect>
    </property>
    <property name="orientation">
@@ -61,7 +61,7 @@
   <widget class="QWidget" name="accountLayout" native="true">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>160</x>
      <y>-10</y>
      <width>571</width>
      <height>361</height>
@@ -91,6 +91,9 @@
            <width>256</width>
            <height>256</height>
           </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border: 3px solid gray</string>
          </property>
          <property name="text">
           <string/>
@@ -229,7 +232,7 @@
   <widget class="QWidget" name="documentsLayout" native="true">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>160</x>
      <y>-10</y>
      <width>571</width>
      <height>361</height>
@@ -294,10 +297,19 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="optionLayout">
+         <property name="leftMargin">
+          <number>267</number>
+         </property>
          <item>
           <widget class="QPushButton" name="openFileButton">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
            </property>
            <property name="text">
             <string>Apri</string>
@@ -308,6 +320,12 @@
           <widget class="QPushButton" name="shareFileButton">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
            </property>
            <property name="cursor">
             <cursorShape>ArrowCursor</cursorShape>

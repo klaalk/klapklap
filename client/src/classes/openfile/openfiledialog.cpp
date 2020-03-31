@@ -12,13 +12,13 @@
 
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::OpenFileDialog)
+    ui(new Ui::OpenFileDialog),
+    crypt(new SimpleCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023)))
 {
     // Setting up window
     ui->setupUi(this);
     setFixedSize(this->size());
     setStyleSheet("OpenFileDialog {background-color: white;}");
-
     // Setting up table view
     initializeFilesTableView();
 
@@ -51,7 +51,7 @@ void OpenFileDialog::setUserInfo(QStringList info) {
     ui->nameLineEdit->insert(info.value(0));
     ui->surnameLineEdit->insert(info.value(1));
     ui->emailLineEdit->insert(info.value(2));
-    ui->passwordLineEdit->insert(info.value(3));
+    ui->passwordLineEdit->insert(crypt->decryptToString(info.value(3)));
     ui->usernameLineEdit->insert(info.value(4));
 
     QString registrationDate = info.value(5);
@@ -68,11 +68,10 @@ void OpenFileDialog::setUserInfo(QStringList info) {
 }
 
 void OpenFileDialog::addFile(int fileIndex, QString fileName) {
-    SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QStringList splittedName = fileName.split("@");
     files_.insert(splittedName[2], fileName);
     ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedName[2]));
-    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt.decryptToString(splittedName[1])));
+    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt->decryptToString(splittedName[1])));
     ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(splittedName[3]));
 
 }

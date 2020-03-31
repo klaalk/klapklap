@@ -49,7 +49,7 @@ private:
 
     Ui::OpenFileDialog *ui;
     QMap<QString, QString> files_;
-
+    SimpleCrypt* crypt;
     QImage image;
     QLabel *imageLabel;
     QScrollArea *scrollArea;
