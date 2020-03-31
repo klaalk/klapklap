@@ -1,6 +1,7 @@
 #include "openfiledialog.h"
 #include "ui_openfiledialog.h"
 
+#include <QDateTime>
 #include <QImageWriter>
 #include <QMessageBox>
 #include <QStandardPaths>
@@ -9,6 +10,7 @@
 
 #define COLUMN_NAME_SIZE 250
 #define COLUMN_CREATOR_SIZE 150
+#define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
 
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
     QDialog(parent),
@@ -19,6 +21,7 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
     ui->setupUi(this);
     setFixedSize(this->size());
     setStyleSheet("OpenFileDialog {background-color: white;}");
+
     // Setting up table view
     initializeFilesTableView();
 
@@ -55,7 +58,8 @@ void OpenFileDialog::setUserInfo(QStringList info) {
     ui->usernameLineEdit->insert(info.value(4));
 
     QString registrationDate = info.value(5);
-    ui->registrationDateLabel->setText("Data di registrazione: " + registrationDate);
+    QDateTime registrationDateTime = QDateTime::fromString(registrationDate, Qt::ISODate);
+    ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
 
     QStringList filesList = info.mid(6, info.size()-1);
     ui->filesTableWidget->setRowCount(filesList.size());
@@ -72,7 +76,8 @@ void OpenFileDialog::addFile(int fileIndex, QString fileName) {
     files_.insert(splittedName[2], fileName);
     ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedName[2]));
     ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt->decryptToString(splittedName[1])));
-    ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(splittedName[3]));
+    QDateTime creationDateTime = QDateTime::fromString(splittedName[3], Qt::ISODate);
+    ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
 
 }
 
@@ -133,7 +138,10 @@ void OpenFileDialog::on_changeImageButton_clicked()
 void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1)
-    ui->openFileButton->setEnabled(ui->createFileNameLineEdit->text().size() > 0);
+    bool disabled = ui->createFileNameLineEdit->text().size() > 0;
+
+    ui->openFileButton->setEnabled(disabled);
+    ui->shareFileButton->setEnabled(disabled);
 }
 
 void OpenFileDialog::initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
