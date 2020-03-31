@@ -73,5 +73,6 @@ public:
     strategy findStrategy();//trova la strategia migliore per assegnare un identifier alla position della nuova Char
     QString saveCrdt(); //ritorna una stringa dove è "salvato" il crdt
     void loadCrdt(string stringCrdt); //carica il testo del crdt partendo da una stringa
+
 };
 #endif //KK_CRDT_H
