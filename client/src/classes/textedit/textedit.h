@@ -57,7 +57,7 @@ public:
 
     void setLabelsStyle(QBrush fontColor, int fontSize) {
         this->fontSize = fontSize;
-        this->backgorundColor = fontColor.color().name();
+        this->backgorundColor = fontColor.color().name(QColor::HexArgb);
         setLabelsStyleSheet(this->backgorundColor, this->fontSize);
     }
 
@@ -129,14 +129,17 @@ class TextEdit : public QMainWindow
 Q_OBJECT
 
 public:
+    bool getIfIsClicked(QString siteId);
+    void setCurrentFileName(const QString &fileName);
     TextEdit(QWidget *parent = nullptr);
     QTextEdit *textEdit;
     bool load(const QString &f);
     void resetState();
-    void applyRemoteChanges(QString operation, QString name, QString text, int globalPos,QString font);
+    void applyRemoteChanges(QString operation, QString name, QString text, int globalPos,QString font,QString colorRecived, QSharedPointer<QList<int>> myList);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
     void updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list);
+    void siteIdClicked(QString name);
     void setMySiteId(QString mySiteId);
     QTextEdit* getTextEdit();
 signals:
@@ -181,14 +184,14 @@ private:
     void setupEditActions();
     void setupTextActions();
     bool maybeSave();
-    void setCurrentFileName(const QString &fileName);
+
 
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     void fontChanged(const QFont &f);
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
-    void colorText(QString name);
+    void colorText(QString siteId);
     void clearColorText(QString name);
 
     QAction *actionSave;
@@ -227,7 +230,27 @@ private:
     QMap<QString,QSharedPointer<QList<int>>> siteIds_;
     QMap<QString,QBrush> siteIdsColors_;
     QList<QString> siteIdsClicked_;
-    QList<QBrush> colors_={Qt::yellow, Qt::gray, Qt::green, Qt::blue, Qt::cyan, Qt::magenta};
+    QList<QBrush> colors_={QColor(244,67,54,127),
+                           QColor(240,98,146,71),
+                           QColor(156,39,176,71),
+                           QColor(94,53,177,96),
+                           QColor(140,158,255,127),
+                           QColor(21,101,192,89),
+                           QColor(3,169,244,76),
+                           QColor(0,188,212,102),
+                           QColor(29,233,182,96),
+                           QColor(0,150,136,107),
+                           QColor(76,175,80,104),
+                           QColor(156,204,101,99),
+                           QColor(205,220,57,153),
+                           QColor(255,235,59,153),
+                           QColor(245,124,0,140),
+                           QColor(255,193,7,165),
+                           QColor(255,87,34,102),
+                           QColor(121,85,72,114),
+                           QColor(158,158,158,102),
+                           QColor(96,125,139,102)
+                          };
 
 };
 typedef QSharedPointer<TextEdit> textedit_ptr;

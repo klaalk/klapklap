@@ -6,11 +6,11 @@
 #include <QtSql>
 #include <QDebug>
 
-#define  HOST "127.0.0.1"
-#define  USR  "root"
-#define  DBN  "klapklap"
-#define  PSW  ""
-#define  PORT 3306
+#define  HOST "130.192.163.103"
+#define  PORT 3000
+#define  USR  "server"
+#define  DBN  "KLAPKLAP_DB"
+#define  PSW  "michele" //TODO:change
 
 #define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`) VALUES (?, ?, ?, ?, ?)"
 
@@ -101,6 +101,7 @@ int KKDataBase::sendInsertUserInfoEmail(QString username, QString email, QString
 }
 
 int KKDataBase::insertUserFile(QString username, QString filename, QString path, UserInfo* user) {
+    Q_UNUSED(path)
     int resCode = getUserInfo(username, user);
 
     if (resCode == DB_USER_FOUND) {
@@ -109,7 +110,7 @@ int KKDataBase::insertUserFile(QString username, QString filename, QString path,
         if(!db.open()) {
             resCode = DB_ERR_NOT_OPEN_CONNECTION;
         } else {
-            QString _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) VALUES('" + user->id + "','" + filename + "','" + path + "');";
+            QString _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`, `CREATION_DATE`) VALUES ('" + user->id + "','" + filename + "', CURRENT_TIME());";
             try {
                 db.exec(_queryStr);
                 db.close();
@@ -150,7 +151,7 @@ int KKDataBase::shareUserFile(QString fromUsername, QString toUsername, QString 
                 resCode = DB_ERR_MULTIPLE_SHARE_FILE;
             else {
                 try {
-                    QString _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`,`PATH`) VALUES('" + toUser->id + "','" + filename + "','./" + filename + "');";
+                    QString _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`, `FILENAME`, `CREATION_DATE`) VALUES ('" + toUser->id + "','" + filename + "', CURRENT_TIME());";
                     db.exec(_queryStr);
                     db.close();
                     resCode = DB_SHARE_FILE_SUCCESS;
@@ -206,13 +207,13 @@ int  KKDataBase::getUserFile(UserInfo *user, QStringList* files){
         resCode = DB_ERR_NOT_OPEN_CONNECTION;
     } else {
         try {
-            QSqlQuery res = db.exec("SELECT `FILENAME` FROM `FILES_OWNERS` WHERE `ID`='" + user->id + "';");
+            QSqlQuery res = db.exec("SELECT `FILENAME`, `CREATION_DATE` FROM `FILES_OWNERS` WHERE `ID`='" + user->id + "';");
             db.close();
             if (files == nullptr) {
                 files = new QStringList();
             }
             while(res.next()){
-                (*files).push_back( res.value(0).toString());
+                (*files).push_back(res.value(0).toString() + "@" + res.value(1).toString());
             }
             resCode = DB_USER_FILES_FOUND;
         } catch (QException &e) {
