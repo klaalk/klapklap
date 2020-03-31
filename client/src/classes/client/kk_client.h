@@ -43,6 +43,8 @@ class KKClient : public QObject
     Q_OBJECT
 public:
     explicit KKClient(const QUrl &url, QObject *parent = nullptr);
+    QSharedPointer<QList<int>>findPositions(QString siteId);
+
 
 
 private slots:
@@ -64,7 +66,7 @@ private slots:
     void onRemoveTextCrdt(int start, int end);
     void onSaveCrdtToFile();
     void onLoadCrdtToFile();
-    void onSiteIdClicked(QString siteId);
+    void onSiteIdClicked(QString siteId,bool logout);
 private:
     void setInitState();
 

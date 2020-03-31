@@ -3,8 +3,13 @@
 
 #include <QDialog>
 #include <QDebug>
-#include <QListWidgetItem>
 #include <QAbstractButton>
+#include <QTableWidgetItem>
+#include <QFileDialog>
+#include <QLabel>
+#include <QScrollArea>
+#include <QImageReader>
+#include "../../libs/src/classes/crypt/kk_crypt.h"
 
 namespace Ui {
 class OpenFileDialog;
@@ -18,25 +23,37 @@ signals:
 
 public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
-    void initInfo(QStringList info);
-    void addFile(QString fileName);
     ~OpenFileDialog();
 
+    void setUserInfo(QStringList info);
+    void addFile(int fileIndex, QString fileName);
+
 private slots:
-    void on_listWidget_itemClicked(QListWidgetItem *item);
-    void on_openBtn_clicked();
+    void on_accountBtn_clicked();
+    void on_documentiBtn_clicked();
 
-    void on_pushButton_clicked();
+    void on_filesTableWidget_itemClicked(QTableWidgetItem *item);
+    void on_openFileButton_clicked();
+    void on_shareFileButton_clicked();
+    void on_changeImageButton_clicked();
 
-    void on_pushButton_2_clicked();
+    void on_createFileNameLineEdit_textChanged(const QString &arg1);
 
-    void on_pushButton_3_clicked();
 
-    void on_lineEdit_textChanged(const QString &arg1);
 private:
+    void initializeFilesTableView();
+    void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
+
+    void setImage(const QImage &newImage);
+    bool loadFile(const QString &fileName);
+
     Ui::OpenFileDialog *ui;
     QMap<QString, QString> files_;
-    QString selectedFile;
+
+    QImage image;
+    QLabel *imageLabel;
+    QScrollArea *scrollArea;
+    double scaleFactor;
 };
 
 #endif // OPENFILEDIALOG_H

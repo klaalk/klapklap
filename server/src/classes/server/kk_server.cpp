@@ -43,11 +43,11 @@ KKServer::KKServer(quint16 port, QObject *parent):
     run_info = "RUNNING (Version:" +  QString::number(VERSION_MAJOR) +  "." + QString::number(VERSION_MINOR) + " Build: "
             + QString::number(VERSION_BUILD)+")";
 
-    filesys->createFile("root", "log");
-    filesys->writeFile("log", run_info);
+    filesys->createFile(FILE_SYSTEM_USER, LOG_FILE);
+    filesys->writeFile(LOG_FILE, run_info);
 
     if (socket->listen(QHostAddress::Any, port)) {
-        filesys->writeFile("log", "SSL Server listening on port " + QString::number(port));
+        filesys->writeFile(LOG_FILE, "SSL Server listening on port " + QString::number(port));
         connect(socket, &QWebSocketServer::newConnection, this,&KKServer::onNewConnection);
         connect(socket, &QWebSocketServer::sslErrors, this, &KKServer::onSslErrors);
     }
@@ -77,5 +77,5 @@ void KKServer::onNewConnection() {
 
 void KKServer::onSslErrors(const QList<QSslError> &)
 {
-    filesys->writeFile("log","SSL errors occurred");
+    filesys->writeFile(LOG_FILE,"SSL errors occurred");
 }
