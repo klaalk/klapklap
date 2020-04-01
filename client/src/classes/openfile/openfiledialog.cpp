@@ -96,11 +96,15 @@ void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 void OpenFileDialog::on_openFileButton_clicked()
 {
     QString newFileName = ui->createFileNameLineEdit->text();
+
     if(newFileName == selectedFileName) {
-        emit openFileRequest(selectedFileName);
-        qDebug() << "APRO FILE ESISTENTE";
+        QString link = files_.value(selectedFileName).split("@")[0]+"@"
+                +files_.value(selectedFileName).split("@")[1]+"@"
+                +files_.value(selectedFileName).split("@")[2];
+        emit openFileRequest(link);
+        qDebug() << "APRO FILE ESISTENTE: " << link;
     } else {
-        qDebug() << "CREO UN NUOVO FILE";
+        qDebug() << "CREO UN NUOVO FILE: "<<selectedFileName;
         if (newFileName != "" && newFileName != nullptr) {
             emit openFileRequest(newFileName);
         } else {
@@ -123,7 +127,10 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    QString link = files_.value(selectedFileName);
+    QString link = files_.value(selectedFileName).split("@")[0]+"@"
+            +files_.value(selectedFileName).split("@")[1]+"@"
+            +files_.value(selectedFileName).split("@")[2];
+
     shareFileDialog.setShareFileLink(link);
     shareFileDialog.show();
 }
