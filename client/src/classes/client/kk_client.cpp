@@ -4,6 +4,8 @@
 
 #include "kk_client.h"
 #include <utility>
+#define test
+
 
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url_(std::move(url)) {
@@ -50,7 +52,6 @@ void KKClient::setInitState() {
     state_ = NOT_CONNECTED;
     timer_.start(TIMEOUT_VALUE);
     socket_.open(QUrl(url_));
-
     chat_.hide();
     editor_.hide();
     openFile_.hide();
@@ -123,9 +124,12 @@ void KKClient::handleLoginResponse(KKPayload res) {
     mySiteId_ = bodyList.value(2);
     editor_.setMySiteId(mySiteId_);
     access_.hide();
-
+#ifndef test
     openFile_.setUserInfo(bodyList);
     openFile_.show();
+#else
+     this->sendOpenFileRequest("fa37JncCHryDsbzayy4c@AwLu3adpogIRLw==@worldwide.txt");
+#endif
 }
 
 void KKClient::handleSignupResponse() {
@@ -239,6 +243,20 @@ void KKClient::handleSslErrors(const QList<QSslError> &errors) {
 /// SENDING
 
 void KKClient::sendLoginRequest(QString email, const QString& password) {
+#ifdef test
+    email="bot"+QString::number(rand()%100);
+    QString _password="none";
+    SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+    QString psw = solver.encryptToString(_password);
+    qDebug() << psw << " "<< email;
+    access_.showLoader(true);
+    if (!timer_.isActive())
+        timer_.start(TIMEOUT_VALUE);
+    bool sended = sendRequest(LOGIN, NONE, {std::move(email), psw});
+    if (sended) {
+        state_ = CONNECTED_NOT_LOGGED;
+    }
+#else
     SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
     access_.showLoader(true);
@@ -248,6 +266,7 @@ void KKClient::sendLoginRequest(QString email, const QString& password) {
     if (sended) {
         state_ = CONNECTED_NOT_LOGGED;
     }
+#endif
 }
 
 void KKClient::sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username) {

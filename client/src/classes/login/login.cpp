@@ -1,5 +1,7 @@
 #include "login.h"
 #include "ui_accessdialog.h"
+#define test
+
 
 #include <QSizePolicy>
 
@@ -22,6 +24,9 @@ AccessDialog::AccessDialog(QWidget *parent) :
     ui_->gif_viewer->setMovie(gif_);
     ui_->logo_view->setPixmap((*logo_).scaled(200,190,Qt::KeepAspectRatio));
     ui_->signup_widget->hide();
+#ifdef test
+    ui_->login_btn->setEnabled(true);
+#endif
 }
 
 AccessDialog::~AccessDialog(){
@@ -199,7 +204,11 @@ bool AccessDialog::checkLoginForm() {
     bool isValidPassword = regexMatch(password, passwordRegexp_, showHintPassword, ui_->login_hint_label_2, "*insert password with minimum eight characters, at least one letter and one number");
     if (!isValidPassword) return false;
 
+#ifdef test
+    return true;
+#else
     return isValidEmail && isValidPassword;
+#endif
 }
 
 bool AccessDialog::checkSingupForm() {
