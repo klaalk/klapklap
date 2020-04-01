@@ -63,10 +63,16 @@ QString KKFileSystem::createFile(QString username, QString filename){
 
 bool KKFileSystem::openFile(QString username, QString filename){
 
+    //FIXME: FILE DI TEST PER TEXT EDITOR. TODO: rimuovere una volta finito
+    if (filename == "worldwide.txt") {
+        UserInfo *user = new UserInfo;
+        return db->insertUserFile(username, filename, APPLICATION_ROOT + filename, user);
+    }
+
     SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
     // 0=random_jump, 1=crypted username 2=effective filename
     QStringList body = filename.split("@");
-    QString _username=crypt.decryptToString(body[1]);
+    QString _username = crypt.decryptToString(body[1]);
 
     if (db->checkUserInfoByUsername(_username) != DB_USER_FOUND) return false;
 
