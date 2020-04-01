@@ -842,7 +842,8 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         siteIdsColors_.insert(name,color);
         //Modifico la label.
         remoteCurs->setLabelsStyle(color, fontSize);
-        remoteCurs->showLabels();
+        if (name!=mySiteId_)
+            remoteCurs->showLabels();
         cursors_.insert(name, remoteCurs);
     }
     // Muovo il cursore dell'editor.
@@ -854,28 +855,20 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
 
         QFont fontNuovo;
         QColor coloreNuovo(colorRecived);
-        QTextCharFormat formatVecchio = editorCurs.charFormat();
-
-//        fontNuovo.fromString(font);
-
+//        QTextCharFormat formatVecchio = editorCurs.charFormat();
         fontNuovo.fromString(font);
-        QTextCharFormat format;
+//        editorCurs.setPosition(globalPos);
+
+        editorCurs.insertText(text);
+        int newPos=editorCurs.position();
+
+        editorCurs.setPosition(globalPos);
+        QTextCharFormat format=editorCurs.charFormat();
         format.setFont(fontNuovo);
         format.setForeground(coloreNuovo);
-        //editorCurs.mergeCharFormat(format);
-        QTextCursor tempCurs=editorCurs;
-        editorCurs.insertText(text);
-        tempCurs.setPosition(globalPos);
-        tempCurs.setPosition(globalPos+1, QTextCursor::KeepAnchor);
-        tempCurs.setCharFormat(format);
-
-       // editorCurs.select(QTextCursor::WordUnderCursor);
-        //QTextCursor tempCursor=editorCurs;
-
-       // editorCurs.setPosition(editorCurs.position()-1);
-        //tempCursor.setPosition(editorCurs.position()+1, QTextCursor::KeepAnchor);
-       // tempCursor.setCharFormat(format);
-
+        editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
+        editorCurs.setCharFormat(format);
+        editorCurs.setPosition(newPos);
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
@@ -972,8 +965,6 @@ void TextEdit::onTextChange() {
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
-//            editorCurs.charFormat().setBackground(Qt::white);
-            editorCurs.charFormat().setBackground(Qt::white);
 
         }
     }
@@ -1007,7 +998,7 @@ void TextEdit::siteIdClicked(QString siteId){
 void TextEdit::colorText(QString siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
-    QTextCharFormat fmt = cursor.charFormat();
+    QTextCharFormat fmt;
     QBrush color;
 //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
@@ -1019,12 +1010,13 @@ void TextEdit::colorText(QString siteId){
         siteIdsColors_.insert(siteId,color);
     }
 
-    fmt.setBackground(siteIdsColors_.value(siteId));
     int last = cursor.position();
 
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
-        cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
+        cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
+        fmt=cursor.charFormat();
+        fmt.setBackground(siteIdsColors_.value(siteId));
         cursor.setCharFormat(fmt);
     }
     cursor.setPosition(last);
@@ -1038,14 +1030,15 @@ void TextEdit::colorText(QString siteId){
 void TextEdit::clearColorText(QString siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
-    QTextCharFormat fmt=cursor.charFormat();
+    QTextCharFormat fmt;
 
-    fmt.setBackground(Qt::white);
     int last = cursor.position();
 
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
-        cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
+        cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
+        fmt=cursor.charFormat();
+        fmt.setBackground(Qt::white);
         cursor.setCharFormat(fmt);
     }
     cursor.setPosition(last);
@@ -1060,7 +1053,6 @@ QTextEdit* TextEdit::getTextEdit(){
 void TextEdit::setMySiteId(QString mySiteId){
     mySiteId_=mySiteId;
 }
-
 
 bool TextEdit::getIfIsClicked(QString siteId){
     return siteIdsClicked_.contains(siteId);
