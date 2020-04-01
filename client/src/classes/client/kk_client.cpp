@@ -128,7 +128,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
     openFile_.setUserInfo(bodyList);
     openFile_.show();
 #else
-     this->sendOpenFileRequest("worldwide.txt");
+     this->sendOpenFileRequest("testAlbo.txt");
 #endif
 }
 
