@@ -4,8 +4,8 @@
 
 #include "kk_client.h"
 #include <utility>
-#define test
 
+#define test
 
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url_(std::move(url)) {
@@ -128,7 +128,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
     openFile_.setUserInfo(bodyList);
     openFile_.show();
 #else
-     this->sendOpenFileRequest("fa37JncCHryDsbzayy4c@AwLu3adpogIRLw==@worldwide.txt");
+     this->sendOpenFileRequest("worldwide.txt");
 #endif
 }
 

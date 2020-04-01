@@ -21,11 +21,17 @@ KKFileSystem::KKFileSystem(KKDataBasePtr db): db(db){
 KKFileSystem::~KKFileSystem() {}
 
 QString KKFileSystem::createFile(QString username, QString filename){
+
     if(username == FILE_SYSTEM_USER && filename == LOG_FILE) {
         this->logFileName = LOG_ROOT + QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
         QFile file(this->logFileName);
         file.open(QIODevice::ReadWrite | QIODevice::Text);
         return this->logFileName;
+    }
+
+    //FIXME: FILE DI TEST PER TEXT EDITOR. TODO: rimuovere una volta finito
+    if (filename == "worldwide.txt") {
+        return filename;
     }
 
     SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
