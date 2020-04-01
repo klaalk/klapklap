@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QImageReader>
+#include "classes/openfile/sharefiledialog.h"
 #include "../../libs/src/classes/crypt/kk_crypt.h"
 
 namespace Ui {
@@ -48,12 +49,12 @@ private:
     bool loadFile(const QString &fileName);
 
     Ui::OpenFileDialog *ui;
+    SimpleCrypt* crypt;
+
+    QString selectedFileName;
     QMap<QString, QString> files_;
 
-    QImage image;
-    QLabel *imageLabel;
-    QScrollArea *scrollArea;
-    double scaleFactor;
+    ShareFileDialog shareFileDialog;
 };
 
 #endif // OPENFILEDIALOG_H
