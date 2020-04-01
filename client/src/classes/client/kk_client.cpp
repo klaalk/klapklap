@@ -350,16 +350,13 @@ void KKClient::onInsertTextCrdt(QString diffText, int position) {
         QString font_;
 
         QString ids = QString::fromStdString(char_->getIdentifiersString());
+
         //xxx
         font_=editor_.getTextEdit()->textCursor().charFormat().font().toString();
+        QString color_=editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
+//        char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar POTREBBE NON SERVIRE xxx
 
-        QString color_;
-        color_=editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
-        QColor colo(color_);
-
-
-        char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar POTREBBE NON SERVIRE xxx
-        sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_,color_});
+        sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
     }
     editor_.updateSiteIdsMap(siteId,findPositions(siteId));
 }
@@ -370,13 +367,13 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
     crdt_->calculateLineCol(static_cast<unsigned long>(end), &endLine, &endCol);
     list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                         KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
-    QString font_;
-    QString color_;
-  font_=editor_.getTextEdit()->textCursor().charFormat().font().toString();
-  color_=editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
+
+    QString font_=editor_.getTextEdit()->textCursor().charFormat().font().toString();
+    QString color_=editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
+
     std::for_each(deletedChars.begin(), deletedChars.end(),[&](KKCharPtr char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,font_,color_});
+        sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids, font_, color_});
     });
     editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
 }

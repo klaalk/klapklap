@@ -423,7 +423,7 @@ void KKCrdt::loadCrdt(string stdStringCrdt){
                  ch=stdStringCrdt[i];
 
                  if(ch=='*'){
-                     unsigned long size = text.size();
+                     unsigned long size = static_cast<unsigned long> (text.size());
                      new_Char->setKKCharFont(font);
                      text[size-1].push_back(new_Char);
 

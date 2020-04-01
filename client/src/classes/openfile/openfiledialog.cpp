@@ -123,9 +123,10 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    QString link = files_.value(selectedFileName);
-    shareFileDialog.setShareFileLink(link);
-    shareFileDialog.show();
+    // TODO: aprire modale per inserire email destinatari
+    QString newFileName = ui->createFileNameLineEdit->text();
+    QString completeFileName = files_.value(newFileName);
+    ui->createFileNameLineEdit->setText(completeFileName);
 }
 
 void OpenFileDialog::on_changeImageButton_clicked()
