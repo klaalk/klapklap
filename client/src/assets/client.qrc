@@ -44,5 +44,53 @@
         <file>gif/animation.gif</file>
         <file>klapklap.icns</file>
         <file>images/profile.jpg</file>
+        <file>icon_set/font/_flaticon.scss</file>
+        <file>icon_set/font/flaticon.css</file>
+        <file>icon_set/font/Flaticon.eot</file>
+        <file>icon_set/font/flaticon.html</file>
+        <file>icon_set/font/Flaticon.svg</file>
+        <file>icon_set/font/Flaticon.ttf</file>
+        <file>icon_set/font/Flaticon.woff</file>
+        <file>icon_set/license/license.html</file>
+        <file>icon_set/png/bold.png</file>
+        <file>icon_set/png/broken-link.png</file>
+        <file>icon_set/png/center-align.png</file>
+        <file>icon_set/png/close.png</file>
+        <file>icon_set/png/columns.png</file>
+        <file>icon_set/png/copy.png</file>
+        <file>icon_set/png/eraser.png</file>
+        <file>icon_set/png/export.png</file>
+        <file>icon_set/png/file-1.png</file>
+        <file>icon_set/png/file.png</file>
+        <file>icon_set/png/folder.png</file>
+        <file>icon_set/png/font.png</file>
+        <file>icon_set/png/import.png</file>
+        <file>icon_set/png/indent.png</file>
+        <file>icon_set/png/italic.png</file>
+        <file>icon_set/png/justify.png</file>
+        <file>icon_set/png/left-align.png</file>
+        <file>icon_set/png/link.png</file>
+        <file>icon_set/png/list-1.png</file>
+        <file>icon_set/png/list.png</file>
+        <file>icon_set/png/outdent.png</file>
+        <file>icon_set/png/paperclip.png</file>
+        <file>icon_set/png/paragraph.png</file>
+        <file>icon_set/png/paste.png</file>
+        <file>icon_set/png/preview.png</file>
+        <file>icon_set/png/print.png</file>
+        <file>icon_set/png/redo.png</file>
+        <file>icon_set/png/right-align.png</file>
+        <file>icon_set/png/save-1.png</file>
+        <file>icon_set/png/save.png</file>
+        <file>icon_set/png/scissors.png</file>
+        <file>icon_set/png/strikethrough.png</file>
+        <file>icon_set/png/subscript.png</file>
+        <file>icon_set/png/superscript.png</file>
+        <file>icon_set/png/table-1.png</file>
+        <file>icon_set/png/table.png</file>
+        <file>icon_set/png/text-height.png</file>
+        <file>icon_set/png/text-width.png</file>
+        <file>icon_set/png/underline.png</file>
+        <file>icon_set/png/undo.png</file>
     </qresource>
 </RCC>

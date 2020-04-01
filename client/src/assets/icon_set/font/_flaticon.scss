@@ -1,0 +1,119 @@
+    /*
+    Flaticon icon font: Flaticon
+    Creation date: 22/06/2016 15:39
+    */
+
+    @font-face {
+  font-family: "Flaticon";
+  src: url("./Flaticon.eot");
+  src: url("./Flaticon.eot?#iefix") format("embedded-opentype"),
+       url("./Flaticon.woff") format("woff"),
+       url("./Flaticon.ttf") format("truetype"),
+       url("./Flaticon.svg#Flaticon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon";
+    src: url("./Flaticon.svg#Flaticon") format("svg");
+  }
+}
+
+    .fi:before{
+        display: inline-block;
+  font-family: "Flaticon";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-decoration: inherit;
+  text-rendering: optimizeLegibility;
+  text-transform: none;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+    }
+
+    .flaticon-bold:before { content: "\f100"; }
+.flaticon-broken-link:before { content: "\f101"; }
+.flaticon-center-align:before { content: "\f102"; }
+.flaticon-close:before { content: "\f103"; }
+.flaticon-columns:before { content: "\f104"; }
+.flaticon-copy:before { content: "\f105"; }
+.flaticon-eraser:before { content: "\f106"; }
+.flaticon-export:before { content: "\f107"; }
+.flaticon-file:before { content: "\f108"; }
+.flaticon-file-1:before { content: "\f109"; }
+.flaticon-folder:before { content: "\f10a"; }
+.flaticon-font:before { content: "\f10b"; }
+.flaticon-import:before { content: "\f10c"; }
+.flaticon-indent:before { content: "\f10d"; }
+.flaticon-italic:before { content: "\f10e"; }
+.flaticon-justify:before { content: "\f10f"; }
+.flaticon-left-align:before { content: "\f110"; }
+.flaticon-link:before { content: "\f111"; }
+.flaticon-list:before { content: "\f112"; }
+.flaticon-list-1:before { content: "\f113"; }
+.flaticon-outdent:before { content: "\f114"; }
+.flaticon-paperclip:before { content: "\f115"; }
+.flaticon-paragraph:before { content: "\f116"; }
+.flaticon-paste:before { content: "\f117"; }
+.flaticon-preview:before { content: "\f118"; }
+.flaticon-print:before { content: "\f119"; }
+.flaticon-redo:before { content: "\f11a"; }
+.flaticon-right-align:before { content: "\f11b"; }
+.flaticon-save:before { content: "\f11c"; }
+.flaticon-save-1:before { content: "\f11d"; }
+.flaticon-scissors:before { content: "\f11e"; }
+.flaticon-strikethrough:before { content: "\f11f"; }
+.flaticon-subscript:before { content: "\f120"; }
+.flaticon-superscript:before { content: "\f121"; }
+.flaticon-table:before { content: "\f122"; }
+.flaticon-table-1:before { content: "\f123"; }
+.flaticon-text-height:before { content: "\f124"; }
+.flaticon-text-width:before { content: "\f125"; }
+.flaticon-underline:before { content: "\f126"; }
+.flaticon-undo:before { content: "\f127"; }
+    
+    $font-Flaticon-bold: "\f100";
+    $font-Flaticon-broken-link: "\f101";
+    $font-Flaticon-center-align: "\f102";
+    $font-Flaticon-close: "\f103";
+    $font-Flaticon-columns: "\f104";
+    $font-Flaticon-copy: "\f105";
+    $font-Flaticon-eraser: "\f106";
+    $font-Flaticon-export: "\f107";
+    $font-Flaticon-file: "\f108";
+    $font-Flaticon-file-1: "\f109";
+    $font-Flaticon-folder: "\f10a";
+    $font-Flaticon-font: "\f10b";
+    $font-Flaticon-import: "\f10c";
+    $font-Flaticon-indent: "\f10d";
+    $font-Flaticon-italic: "\f10e";
+    $font-Flaticon-justify: "\f10f";
+    $font-Flaticon-left-align: "\f110";
+    $font-Flaticon-link: "\f111";
+    $font-Flaticon-list: "\f112";
+    $font-Flaticon-list-1: "\f113";
+    $font-Flaticon-outdent: "\f114";
+    $font-Flaticon-paperclip: "\f115";
+    $font-Flaticon-paragraph: "\f116";
+    $font-Flaticon-paste: "\f117";
+    $font-Flaticon-preview: "\f118";
+    $font-Flaticon-print: "\f119";
+    $font-Flaticon-redo: "\f11a";
+    $font-Flaticon-right-align: "\f11b";
+    $font-Flaticon-save: "\f11c";
+    $font-Flaticon-save-1: "\f11d";
+    $font-Flaticon-scissors: "\f11e";
+    $font-Flaticon-strikethrough: "\f11f";
+    $font-Flaticon-subscript: "\f120";
+    $font-Flaticon-superscript: "\f121";
+    $font-Flaticon-table: "\f122";
+    $font-Flaticon-table-1: "\f123";
+    $font-Flaticon-text-height: "\f124";
+    $font-Flaticon-text-width: "\f125";
+    $font-Flaticon-underline: "\f126";
+    $font-Flaticon-undo: "\f127";

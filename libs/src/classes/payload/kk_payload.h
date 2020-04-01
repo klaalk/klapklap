@@ -20,7 +20,7 @@ public:
     };
     /// Costruttuore.
     KKPayload(QString data);
-    KKPayload(QString type, QString result, QStringList bodyList);
+    KKPayload(QString request, QString result, const QStringList& bodyList);
 
     QString getData();
     QString getBody();
@@ -39,7 +39,7 @@ private:
     QString body;
     QString request;
     QString result;
-    size_t bodyLength;
+    size_t bodyLength{};
 };
 
 typedef QSharedPointer<KKPayload> KKPayloadPtr;

@@ -39,12 +39,12 @@ public:
     QString getSiteId(){return QString::fromStdString(siteid);}
     KKCrdt(string siteid, strategy strategy); //costruttore
     ~KKCrdt();//distruttore
-    void insertChar(KKCharPtr _char, KKPosition pos);
+    void insertChar(const KKCharPtr& _char, KKPosition pos);
     KKCharPtr localInsert(char val, KKPosition pos);
     KKCharPtr generateChar(char val, KKPosition pos); //genera la Char partendo dal valore e dalla posizione nel local text
-    vector<KKIdentifierPtr> generatePositionBetween(vector<KKIdentifierPtr> position_1, vector<KKIdentifierPtr> position_2, vector<KKIdentifierPtr> *new_position, unsigned long livello); //partendo dalle position di due Char(adiacenti) genera la posizione della Char
+    vector<KKIdentifierPtr> generatePositionBetween(vector<KKIdentifierPtr> position1, vector<KKIdentifierPtr> position2, vector<KKIdentifierPtr> *new_position, unsigned long level); //partendo dalle position di due Char(adiacenti) genera la posizione della Char
     unsigned long generateIdentifierBetween(unsigned long min, unsigned long max, strategy _strategy, unsigned long level); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
-    unsigned long remoteInsert(KKCharPtr _char);
+    unsigned long remoteInsert(const KKCharPtr& _char);
 
     vector<KKIdentifierPtr> findPositionBefore(KKPosition pos); //trova la position della Char immediatamente prima di quella passata
     vector<KKIdentifierPtr> findPositionAfter(KKPosition pos);//trova la position della Char immediatamente dopo di quella passata
@@ -57,13 +57,13 @@ public:
     list<KKCharPtr> localDelete(KKPosition start_pos, KKPosition end_pos);
     list<KKCharPtr> deleteMultipleLines(KKPosition start_pos, KKPosition end_pos);
     list<KKCharPtr> deleteSingleLine(KKPosition start_pos, KKPosition end_pos);
-    unsigned long remoteDelete(KKCharPtr _Char);
+    unsigned long remoteDelete(const KKCharPtr& _Char);
 
-    KKPosition findInsertPosition(KKCharPtr _char);
-    KKPosition findPos (KKCharPtr _Char,bool *flag);
-    KKPosition findEndPosition (KKChar last_char,  list<KKCharPtr> last_line, unsigned long total_lines);
-    unsigned long findIndexInLine(KKCharPtr _Char, list<KKCharPtr> line,bool *flag);
-    unsigned long findInsertIndexInLine(KKCharPtr _char, list<KKCharPtr> line);
+    KKPosition findInsertPosition(const KKCharPtr& _char);
+    KKPosition findPos (const KKCharPtr& _Char,bool *flag);
+    KKPosition findEndPosition (KKChar last_char,  const list<KKCharPtr>& last_line, unsigned long total_lines);
+    unsigned long findIndexInLine(const KKCharPtr& _Char, list<KKCharPtr> line,bool *flag);
+    unsigned long findInsertIndexInLine(const KKCharPtr& _char, list<KKCharPtr> line);
 
     unsigned long generateGlobalPos(KKPosition pos);
     void calculateLineCol(unsigned long global_pos, unsigned long *line, unsigned long *col);

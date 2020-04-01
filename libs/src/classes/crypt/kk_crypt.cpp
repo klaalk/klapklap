@@ -13,7 +13,7 @@
 #include <QDateTime>
 #include <QCryptographicHash>
 #include <QDataStream>
-
+#include <utility> 
 SimpleCrypt::SimpleCrypt():
     m_key(0),
     m_compressionMode(CompressionAuto),
@@ -67,7 +67,7 @@ QByteArray SimpleCrypt::encryptToByteArray(QByteArray plaintext)
     }
 
 
-    QByteArray ba = plaintext;
+    QByteArray ba = std::move(plaintext);
 
     CryptoFlags flags = CryptoFlagNone;
     if (m_compressionMode == CompressionAlways) {
@@ -128,7 +128,7 @@ QString SimpleCrypt::encryptToString(const QString& plaintext)
 
 QString SimpleCrypt::encryptToString(QByteArray plaintext)
 {
-    QByteArray cypher = encryptToByteArray(plaintext);
+    QByteArray cypher = encryptToByteArray(std::move(plaintext));
     QString cypherString = QString::fromLatin1(cypher.toBase64());
     return cypherString;
 }
@@ -144,7 +144,7 @@ QString SimpleCrypt::decryptToString(const QString &cyphertext)
 
 QString SimpleCrypt::decryptToString(QByteArray cypher)
 {
-    QByteArray ba = decryptToByteArray(cypher);
+    QByteArray ba = decryptToByteArray(std::move(cypher));
     QString plaintext = QString::fromUtf8(ba, ba.size());
 
     return plaintext;
@@ -158,7 +158,7 @@ QByteArray SimpleCrypt::decryptToByteArray(const QString& cyphertext)
     return ba;
 }
 
-QByteArray SimpleCrypt::decryptToByteArray(QByteArray cypher)
+QByteArray SimpleCrypt::decryptToByteArray(const QByteArray& cypher)
 {
     if (m_keyParts.isEmpty()) {
         qWarning() << "No key set.";
@@ -250,7 +250,7 @@ QString SimpleCrypt::random_psw(QString s){
     return s;
 }
 
-bool SimpleCrypt::containLetter(QChar letter, QString myString){
+bool SimpleCrypt::containLetter(QChar letter, const QString& myString){
     foreach(QChar c, myString)
         if(letter==c)
             return true;
