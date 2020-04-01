@@ -120,7 +120,7 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    // TODO: aprire modale per inserire email destinatari
+    // TODO: aprire modale per inserire email destinatari con cui condividere
 }
 
 void OpenFileDialog::on_changeImageButton_clicked()
