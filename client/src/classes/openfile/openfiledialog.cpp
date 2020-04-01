@@ -47,7 +47,7 @@ void OpenFileDialog::initializeFilesTableView() {
     ui->filesTableWidget->horizontalHeader()->setStretchLastSection(true);
 }
 
-void OpenFileDialog::setUserInfo(QStringList info) {
+void OpenFileDialog::setUserInfo(const QStringList& info) {
     ui->nameLineEdit->insert(info.value(0));
     ui->surnameLineEdit->insert(info.value(1));
     ui->emailLineEdit->insert(info.value(2));
@@ -61,13 +61,13 @@ void OpenFileDialog::setUserInfo(QStringList info) {
     ui->filesTableWidget->setRowCount(filesList.size());
 
     int fileIndex = 0;
-    for(QString fileName : filesList) {
+    for(const QString& fileName : filesList) {
         addFile(fileIndex, fileName);
         fileIndex++;
     }
 }
 
-void OpenFileDialog::addFile(int fileIndex, QString fileName) {
+void OpenFileDialog::addFile(int fileIndex, const QString& fileName) {
     SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QStringList splittedName = fileName.split("@");
     files_.insert(splittedName[2], fileName);
@@ -149,7 +149,7 @@ void OpenFileDialog::initializeImageFileDialog(QFileDialog &dialog, QFileDialog:
 
     QStringList mimeTypeFilters;
     const QByteArrayList supportedMimeTypes = acceptMode == QFileDialog::AcceptOpen
-        ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
+            ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
     foreach (const QByteArray &mimeTypeName, supportedMimeTypes)
         mimeTypeFilters.append(mimeTypeName);
     mimeTypeFilters.sort();
@@ -179,6 +179,6 @@ bool OpenFileDialog::loadFile(const QString &fileName)
 
     setWindowFilePath(fileName);
     const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
-        .arg(QDir::toNativeSeparators(fileName)).arg(newImage.width()).arg(newImage.height()).arg(newImage.depth());
+            .arg(QDir::toNativeSeparators(fileName)).arg(newImage.width()).arg(newImage.height()).arg(newImage.depth());
     return true;
 }

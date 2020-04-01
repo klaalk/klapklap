@@ -42,6 +42,7 @@
 #include <QPrinter>
 #if QT_CONFIG(printpreviewdialog)
 #include <QPrintPreviewDialog>
+#include <utility>
 #endif
 #endif
 #endif
@@ -56,7 +57,7 @@ const QString rsrcPath = ":/images/win";
 
 
 TextEdit::TextEdit(QWidget *parent)
-        : QMainWindow(parent)
+    : QMainWindow(parent)
 {
 #ifdef Q_OS_OSX
     setUnifiedTitleAndToolBarOnMac(true);
@@ -289,7 +290,7 @@ void TextEdit::setupTextActions()
     actionAlignJustify->setPriority(QAction::LowPriority);
 
     // Make sure the alignLeft  is always left of the alignRight
-    QActionGroup *alignGroup = new QActionGroup(this);
+    auto *alignGroup = new QActionGroup(this);
     connect(alignGroup, &QActionGroup::triggered, this, &TextEdit::textAlign);
 
     if (QApplication::isLeftToRight()) {
@@ -348,8 +349,8 @@ void TextEdit::setupTextActions()
     comboSize->setEditable(true);
 
     const QList<int> standardSizes = QFontDatabase::standardSizes();
-            foreach (int size, standardSizes)
-            comboSize->addItem(QString::number(size));
+    foreach (int size, standardSizes)
+        comboSize->addItem(QString::number(size));
     comboSize->setCurrentIndex(standardSizes.indexOf(QApplication::font().pointSize()));
 
     connect(comboSize, QOverload<const QString &>::of(&QComboBox::activated), this, &TextEdit::textSize);
@@ -407,7 +408,7 @@ bool TextEdit::maybeSave()
                                  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     if (ret == QMessageBox::Save)
         return fileSave();
-    else if (ret == QMessageBox::Cancel)
+    if (ret == QMessageBox::Cancel)
         return false;
     return true;
 }
@@ -437,17 +438,17 @@ void TextEdit::fileNew()
 
 void TextEdit::fileOpen()
 {
-//    QFileDialog fileDialog(this, tr("Open File..."));
-//    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-//    fileDialog.setFileMode(QFileDialog::ExistingFile);
-//    fileDialog.setMimeTypeFilters(QStringList() << "text/html" << "text/plain");
-//    if (fileDialog.exec() != QDialog::Accepted)
-//        return;
-//    const QString fn = fileDialog.selectedFiles().first();
-//    if (load(fn))
-//        statusBar()->showMessage(tr("Opened \"%1\"").arg(QDir::toNativeSeparators(fn)));
-//    else
-//        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
+    //    QFileDialog fileDialog(this, tr("Open File..."));
+    //    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+    //    fileDialog.setFileMode(QFileDialog::ExistingFile);
+    //    fileDialog.setMimeTypeFilters(QStringList() << "text/html" << "text/plain");
+    //    if (fileDialog.exec() != QDialog::Accepted)
+    //        return;
+    //    const QString fn = fileDialog.selectedFiles().first();
+    //    if (load(fn))
+    //        statusBar()->showMessage(tr("Opened \"%1\"").arg(QDir::toNativeSeparators(fn)));
+    //    else
+    //        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
 
     emit loadCRDTtoFile();
 }
@@ -466,7 +467,7 @@ bool TextEdit::fileSave()
         statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
     } else {
         statusBar()->showMessage(tr("Could not write to file \"%1\"")
-                                         .arg(QDir::toNativeSeparators(fileName)));
+                                 .arg(QDir::toNativeSeparators(fileName)));
     }
     emit saveCRDTtoFile();
     return success;
@@ -491,14 +492,14 @@ void TextEdit::filePrint()
 {
 #if QT_CONFIG(printdialog)
     QPrinter printer(QPrinter::HighResolution);
-    QPrintDialog *dlg = new QPrintDialog(&printer, this);
+    auto *dlg = new QPrintDialog(&printer, this);
     if (textEdit->textCursor().hasSelection())
         dlg->addEnabledOption(QAbstractPrintDialog::PrintSelection);
     dlg->setWindowTitle(tr("Print Document"));
     if (dlg->exec() == QDialog::Accepted)
         textEdit->print(&printer);
     delete dlg;
-    #endif
+#endif
 }
 
 void TextEdit::filePrintPreview()
@@ -535,7 +536,7 @@ void TextEdit::filePrintPdf()
     printer.setOutputFileName(fileName);
     textEdit->document()->print(&printer);
     statusBar()->showMessage(tr("Exported \"%1\"")
-                                     .arg(QDir::toNativeSeparators(fileName)));
+                             .arg(QDir::toNativeSeparators(fileName)));
 #endif
 }
 
@@ -584,32 +585,32 @@ void TextEdit::textStyle(int styleIndex)
     QTextListFormat::Style style = QTextListFormat::ListStyleUndefined;
 
     switch (styleIndex) {
-        case 1:
-            style = QTextListFormat::ListDisc;
-            break;
-        case 2:
-            style = QTextListFormat::ListCircle;
-            break;
-        case 3:
-            style = QTextListFormat::ListSquare;
-            break;
-        case 4:
-            style = QTextListFormat::ListDecimal;
-            break;
-        case 5:
-            style = QTextListFormat::ListLowerAlpha;
-            break;
-        case 6:
-            style = QTextListFormat::ListUpperAlpha;
-            break;
-        case 7:
-            style = QTextListFormat::ListLowerRoman;
-            break;
-        case 8:
-            style = QTextListFormat::ListUpperRoman;
-            break;
-        default:
-            break;
+    case 1:
+        style = QTextListFormat::ListDisc;
+        break;
+    case 2:
+        style = QTextListFormat::ListCircle;
+        break;
+    case 3:
+        style = QTextListFormat::ListSquare;
+        break;
+    case 4:
+        style = QTextListFormat::ListDecimal;
+        break;
+    case 5:
+        style = QTextListFormat::ListLowerAlpha;
+        break;
+    case 6:
+        style = QTextListFormat::ListUpperAlpha;
+        break;
+    case 7:
+        style = QTextListFormat::ListLowerRoman;
+        break;
+    case 8:
+        style = QTextListFormat::ListUpperRoman;
+        break;
+    default:
+        break;
     }
 
     cursor.beginEditBlock();
@@ -680,7 +681,7 @@ void TextEdit::cursorPositionChanged()
 {
     // IMPORTANTE per le modifiche da remoto.
     if (blockCursor) return;
-//    alignmentChanged(textEdit->alignment());
+    //    alignmentChanged(textEdit->alignment());
     QTextList *list = textEdit->textCursor().currentList();
     QTextCursor cursor = textEdit->textCursor();
     QString text = cursor.selectedText();
@@ -704,33 +705,33 @@ void TextEdit::cursorPositionChanged()
     qDebug() << " current: {"<< cursorPos << "} last: {" << lastCursorPos << "}";
     if (list) {
         switch (list->format().style()) {
-            case QTextListFormat::ListDisc:
-                comboStyle->setCurrentIndex(1);
-                break;
-            case QTextListFormat::ListCircle:
-                comboStyle->setCurrentIndex(2);
-                break;
-            case QTextListFormat::ListSquare:
-                comboStyle->setCurrentIndex(3);
-                break;
-            case QTextListFormat::ListDecimal:
-                comboStyle->setCurrentIndex(4);
-                break;
-            case QTextListFormat::ListLowerAlpha:
-                comboStyle->setCurrentIndex(5);
-                break;
-            case QTextListFormat::ListUpperAlpha:
-                comboStyle->setCurrentIndex(6);
-                break;
-            case QTextListFormat::ListLowerRoman:
-                comboStyle->setCurrentIndex(7);
-                break;
-            case QTextListFormat::ListUpperRoman:
-                comboStyle->setCurrentIndex(8);
-                break;
-            default:
-                comboStyle->setCurrentIndex(-1);
-                break;
+        case QTextListFormat::ListDisc:
+            comboStyle->setCurrentIndex(1);
+            break;
+        case QTextListFormat::ListCircle:
+            comboStyle->setCurrentIndex(2);
+            break;
+        case QTextListFormat::ListSquare:
+            comboStyle->setCurrentIndex(3);
+            break;
+        case QTextListFormat::ListDecimal:
+            comboStyle->setCurrentIndex(4);
+            break;
+        case QTextListFormat::ListLowerAlpha:
+            comboStyle->setCurrentIndex(5);
+            break;
+        case QTextListFormat::ListUpperAlpha:
+            comboStyle->setCurrentIndex(6);
+            break;
+        case QTextListFormat::ListLowerRoman:
+            comboStyle->setCurrentIndex(7);
+            break;
+        case QTextListFormat::ListUpperRoman:
+            comboStyle->setCurrentIndex(8);
+            break;
+        default:
+            comboStyle->setCurrentIndex(-1);
+            break;
         }
     } else {
         int headingLevel = textEdit->textCursor().blockFormat().headingLevel();
@@ -758,7 +759,7 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     QTextCursor cursor = textEdit->textCursor();
     //xxx
     //if (!cursor.hasSelection())
-        //cursor.select(QTextCursor::WordUnderCursor);
+    //cursor.select(QTextCursor::WordUnderCursor);
     cursor.mergeCharFormat(format);
     textEdit->mergeCurrentCharFormat(format);
 }
@@ -814,7 +815,7 @@ void TextEdit::modifyLabels(){
     blockCursor = false;
 }
 
-void TextEdit::applyRemoteChanges(QString operation, QString name, QString text, int globalPos, QString font, QString colorRecived, QSharedPointer<QList<int>> myList) {
+void TextEdit::applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos, const QString& font, const QString& colorRecived, QSharedPointer<QList<int>> myList) {
     QBrush color;
     //Blocco il cursore dell'editor.
     blockCursor = true;
@@ -856,7 +857,7 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         QColor coloreNuovo(colorRecived);
         QTextCharFormat formatVecchio = editorCurs.charFormat();
 
-//        fontNuovo.fromString(font);
+        //        fontNuovo.fromString(font);
 
         fontNuovo.fromString(font);
         QTextCharFormat format;
@@ -869,12 +870,12 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
         tempCurs.setPosition(globalPos+1, QTextCursor::KeepAnchor);
         tempCurs.setCharFormat(format);
 
-       // editorCurs.select(QTextCursor::WordUnderCursor);
+        // editorCurs.select(QTextCursor::WordUnderCursor);
         //QTextCursor tempCursor=editorCurs;
 
-       // editorCurs.setPosition(editorCurs.position()-1);
+        // editorCurs.setPosition(editorCurs.position()-1);
         //tempCursor.setPosition(editorCurs.position()+1, QTextCursor::KeepAnchor);
-       // tempCursor.setCharFormat(format);
+        // tempCursor.setCharFormat(format);
 
 
         //Aggiorno la length.
@@ -892,16 +893,16 @@ void TextEdit::applyRemoteChanges(QString operation, QString name, QString text,
     for(kk_cursor* c : cursors_.values()) {
         if(c->getGlobalPositon() > globalPos && c!=remoteCurs){
             if(operation == CRDT_INSERT) {
-                 c->setGlobalPositon(c->getGlobalPositon()+(text.length()-1));
+                c->setGlobalPositon(c->getGlobalPositon()+(text.length()-1));
             } else if(operation == CRDT_DELETE) {
-                 c->setGlobalPositon(c->getGlobalPositon()-(text.length()-1));
+                c->setGlobalPositon(c->getGlobalPositon()-(text.length()-1));
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
         }
     }
 
-    updateSiteIdsMap(name,myList);
+    updateSiteIdsMap(name,std::move(myList));
 
 
     // Riporto il cursore dell'editor alla posizione di partenza.
@@ -966,13 +967,13 @@ void TextEdit::onTextChange() {
             qDebug() << "Cursor global: " << c->getGlobalPositon();
             qDebug() << "Editor global: " << editorCurs.position();
             if (s.length() - lastLength > 0) {
-                 c->setGlobalPositon(c->getGlobalPositon() + diffText.length());
+                c->setGlobalPositon(c->getGlobalPositon() + diffText.length());
             } else if(lastLength - s.length() > 0) {
-                 c->setGlobalPositon(c->getGlobalPositon() - diffText.length());
+                c->setGlobalPositon(c->getGlobalPositon() - diffText.length());
             }
             editorCurs.setPosition(c->getGlobalPositon());
             c->moveLabels(textEdit->cursorRect(editorCurs));
-//            editorCurs.charFormat().setBackground(Qt::white);
+            //            editorCurs.charFormat().setBackground(Qt::white);
             editorCurs.charFormat().setBackground(Qt::white);
 
         }
@@ -985,7 +986,7 @@ void TextEdit::onTextChange() {
 
 }
 
-void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list){
+void TextEdit::updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list){
 
     if(siteIds_.contains(siteId))
         siteIds_.remove(siteId);
@@ -996,7 +997,7 @@ void TextEdit::updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list)
     else clearColorText(siteId);
 }
 
-void TextEdit::siteIdClicked(QString siteId){
+void TextEdit::siteIdClicked(const QString& siteId){
     if(siteIdsClicked_.contains(siteId)){  // 2 clicks
         clearColorText(siteId);
         siteIdsClicked_.removeOne(siteId);
@@ -1004,12 +1005,12 @@ void TextEdit::siteIdClicked(QString siteId){
     else colorText(siteId);
 }
 
-void TextEdit::colorText(QString siteId){
+void TextEdit::colorText(const QString& siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat fmt = cursor.charFormat();
     QBrush color;
-//Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
+    //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
         do{
             int index=rand() % colors_.size();
@@ -1035,7 +1036,7 @@ void TextEdit::colorText(QString siteId){
     blockCursor=false;
 }
 
-void TextEdit::clearColorText(QString siteId){
+void TextEdit::clearColorText(const QString& siteId){
     blockCursor=true;
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat fmt=cursor.charFormat();
@@ -1058,11 +1059,11 @@ QTextEdit* TextEdit::getTextEdit(){
     return this->textEdit;
 }
 void TextEdit::setMySiteId(QString mySiteId){
-    mySiteId_=mySiteId;
+    mySiteId_=std::move(mySiteId);
 }
 
 
-bool TextEdit::getIfIsClicked(QString siteId){
+bool TextEdit::getIfIsClicked(const QString& siteId){
     return siteIdsClicked_.contains(siteId);
 }
 

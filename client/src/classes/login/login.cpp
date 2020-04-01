@@ -8,7 +8,7 @@ AccessDialog::AccessDialog(QWidget *parent) :
     ui_(new Ui::AccessDialog),
     gif_(new QMovie(":/gif/animation.gif")),
     logo_(new QPixmap(":/images/logo.jpg")),
-    emailRegexp_(new QRegularExpression("^\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}\\b")),
+    emailRegexp_(new QRegularExpression(R"(^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b)")),
     passwordRegexp_(new QRegularExpression("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")),
     usernameRegexp_(new QRegularExpression("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$")),
     nameRegexp_(new QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")),
@@ -227,13 +227,13 @@ bool AccessDialog::checkSingupForm() {
     return isValidEmail && isValidPassword && isValidName && isValidSurname && isValidUsername;
 }
 
-bool AccessDialog::regexMatch(QString value, QRegularExpression *regex, bool canShowHint, QLabel* hintLabel, QString hintMessage) {
+bool AccessDialog::regexMatch(const QString& value, QRegularExpression *regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage) {
     if (!(*regex).match(value).hasMatch()) {
         if (canShowHint)
             hintLabel->setText(hintMessage);
         return false;
-    } else {
-        hintLabel->setText("");
-        return true;
     }
+    hintLabel->setText("");
+    return true;
+    
 }

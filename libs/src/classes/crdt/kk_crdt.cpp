@@ -11,14 +11,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <utility> 
 
 
 using std::string;
 using std::shared_ptr;
 
 
-KKCrdt::KKCrdt(string siteid, strategy strategy) : siteid(siteid), boundary(10), _strategy(strategy), base(32) {
+KKCrdt::KKCrdt(string siteid, strategy strategy) : siteid(std::move(siteid)), boundary(10), _strategy(strategy), base(32) {
 
 };
 
@@ -38,7 +38,7 @@ KKCharPtr KKCrdt::localInsert(char val, KKPosition pos) {
 
 KKCharPtr KKCrdt::generateChar(char val, KKPosition pos) {
 
-    vector<KKIdentifierPtr> position_before, position_after, new_position;
+    vector<KKIdentifierPtr> position_before; vector<KKIdentifierPtr> position_after; vector<KKIdentifierPtr> new_position;
 
     KKCharPtr new_Char = KKCharPtr(new KKChar(val, this->siteid));
 
@@ -54,7 +54,7 @@ vector<KKIdentifierPtr> KKCrdt::findPositionBefore(KKPosition pos) {
     if (pos.getCh() == 0 && pos.getLine() == 0) {
         vector<KKIdentifierPtr> vuoto;
         return vuoto;
-    } else if (pos.getCh() == 0 && pos.getLine() != 0) {
+    } if (pos.getCh() == 0 && pos.getLine() != 0) {
         unsigned long line = pos.getLine() - 1;
         unsigned long ch = text[line].size();
         return std::next(text[line].begin(), static_cast<long>(ch) - 1)->get()->getPosition();
@@ -64,7 +64,7 @@ vector<KKIdentifierPtr> KKCrdt::findPositionBefore(KKPosition pos) {
 
 vector<KKIdentifierPtr> KKCrdt::findPositionAfter(KKPosition pos) {
 
-    long num_lines, num_chars;
+    long num_lines; long num_chars;
     vector<KKIdentifierPtr> vuoto;
 
     num_lines = static_cast<long>(text.size()) - 1;
@@ -77,7 +77,7 @@ vector<KKIdentifierPtr> KKCrdt::findPositionAfter(KKPosition pos) {
 
     if (static_cast<long>(pos.getLine()) > num_lines - 1 && pos.getCh() == 0) {
         return vuoto;
-    } else if (static_cast<long>(pos.getLine()) == num_lines - 1 && static_cast<long>(pos.getCh()) == num_chars) { //sei all'ultima riga e all'ultimo char
+    } if (static_cast<long>(pos.getLine()) == num_lines - 1 && static_cast<long>(pos.getCh()) == num_chars) { //sei all'ultima riga e all'ultimo char
         return vuoto;
     } else if (static_cast<long>(pos.getLine()) < num_lines - 1 && static_cast<long>(pos.getCh()) == num_chars) { // sei a fine riga ma non nell'ultima riga
         return text[pos.getLine() + 1].front()->getPosition();
@@ -89,14 +89,14 @@ vector<KKIdentifierPtr> KKCrdt::findPositionAfter(KKPosition pos) {
 }
 
 vector<KKIdentifierPtr> KKCrdt::generatePositionBetween(vector<KKIdentifierPtr> position1, vector<KKIdentifierPtr> position2,
-                                                             vector<KKIdentifierPtr> *new_position, unsigned long level) {
+                                                        vector<KKIdentifierPtr> *new_position, unsigned long level) {
 
     strategy _strategy=casuale;
-    unsigned long elev = static_cast<unsigned long>(pow(2,level));
+    auto elev = static_cast<unsigned long>(pow(2,level));
     unsigned long _base = elev * this->base;
-//    _strategy = this->find_strategy(level);
+    //    _strategy = this->find_strategy(level);
 
-    KKIdentifierPtr id1, id2;
+    KKIdentifierPtr id1; KKIdentifierPtr id2;
 
 
     if (position1.empty()) {
@@ -127,7 +127,7 @@ vector<KKIdentifierPtr> KKCrdt::generatePositionBetween(vector<KKIdentifierPtr> 
         new_position->insert(new_position->end(), new_id);
         return *new_position;
 
-    } else if (id2->getDigit() - id1->getDigit() == 1) {
+    } if (id2->getDigit() - id1->getDigit() == 1) {
 
         new_position->insert(new_position->end(), id1);
 
@@ -136,7 +136,7 @@ vector<KKIdentifierPtr> KKCrdt::generatePositionBetween(vector<KKIdentifierPtr> 
     }else if (id1->getDigit() == id2->getDigit()) {
         new_position->insert(new_position->end(), id1);
         return this->generatePositionBetween(slice(position1, 1), slice(position2, 1), new_position,
-                                               level + 1);
+                                             level + 1);
 
 
     }
@@ -168,8 +168,8 @@ strategy KKCrdt::findStrategy() {
 }
 
 unsigned long KKCrdt::generateIdentifierBetween(unsigned long min, unsigned long max, strategy _strategy,unsigned long level) {
-//    unsigned long elev = static_cast<unsigned long>(pow(2,level));
-//    unsigned long _boundary = elev * this->boundary;
+    //    unsigned long elev = static_cast<unsigned long>(pow(2,level));
+    //    unsigned long _boundary = elev * this->boundary;
     unsigned long _boundary = this->boundary;
     if(level%2)_strategy = plus;
     else _strategy=minus;
@@ -192,14 +192,14 @@ unsigned long KKCrdt::generateIdentifierBetween(unsigned long min, unsigned long
     std::uniform_int_distribution<> distr(static_cast<int>(min), static_cast<int>(max));
     random_number=static_cast<unsigned long>(distr(gen));
 
-//     std::cout<<_strategy<<std::endl;
-//    std::cout<<min<< "\t"<<random_number<<"\t"<< max<<std::endl;
+    //     std::cout<<_strategy<<std::endl;
+    //    std::cout<<min<< "\t"<<random_number<<"\t"<< max<<std::endl;
 
 
     return random_number;
 }
 
-void KKCrdt::insertChar(KKCharPtr _char, KKPosition pos) {
+void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
     // Inizializzo la prima riga.
     if (pos.getLine() == text.size()) {
         text.insert(text.end(), list<KKCharPtr>());
@@ -209,7 +209,7 @@ void KKCrdt::insertChar(KKCharPtr _char, KKPosition pos) {
     if (_char->getValue() == '\n') {
         list<KKCharPtr> line_after(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end());
         text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end());
-        if (line_after.size() == 0) {
+        if (line_after.empty()) {
             list<KKCharPtr> _list_char = {_char};
             text[pos.getLine()].splice(std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh())), _list_char);
         } else {
@@ -228,7 +228,7 @@ void KKCrdt::insertChar(KKCharPtr _char, KKPosition pos) {
     }
 }
 
-unsigned long KKCrdt::remoteInsert(KKCharPtr _char){
+unsigned long KKCrdt::remoteInsert(const KKCharPtr& _char){
     unsigned long global_pos;
 
     KKPosition pos = findInsertPosition(_char);
@@ -237,19 +237,19 @@ unsigned long KKCrdt::remoteInsert(KKCharPtr _char){
     return global_pos;
 }
 
-KKPosition KKCrdt::findInsertPosition(KKCharPtr _char){
+KKPosition KKCrdt::findInsertPosition(const KKCharPtr& _char){
     unsigned long min_line=0;
     unsigned long total_lines = text.size();
     unsigned long mid_line;
     unsigned long max_line = total_lines-2;
     //controlla se la char va messa come primo carattere della prima riga
     if(text.empty() || text.at(0).empty() ||_char.get()->compareTo(*text[0].front().get()) <= 0) {
-        return KKPosition(0,0);
+        return {0,0};
     }
 
     list<KKCharPtr> last_line(text[max_line]);
 
-    KKChar last_char = *std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get();
+    KKChar last_char = **std::next(last_line.begin(),static_cast<long>(last_line.size()-1));
     //controlla se la char va messa come ultimo carattere dell'a prima'ultima riga
     if(_char.get()->compareTo(last_char)>0){
         return findEndPosition(last_char, last_line, total_lines);
@@ -260,11 +260,11 @@ KKPosition KKCrdt::findInsertPosition(KKCharPtr _char){
 
         list<KKCharPtr> current_line (text[mid_line]);
 
-        last_char = *std::next(current_line.begin(),static_cast<long>(current_line.size()-1))->get();
+        last_char = **std::next(current_line.begin(),static_cast<long>(current_line.size()-1));
 
         if(_char.get()->compareTo(last_char)==0){
             return KKPosition(mid_line,current_line.size()-1);
-        }else if(_char.get()->compareTo(last_char)<0) {
+        }if(_char.get()->compareTo(last_char)<0) {
             max_line=mid_line;
         }else{
             min_line=mid_line;
@@ -273,36 +273,36 @@ KKPosition KKCrdt::findInsertPosition(KKCharPtr _char){
 
     //la scelta ora sarà tra massimo due linee
     list<KKCharPtr> min_current_line (text[min_line]);
-    KKChar min_last_char = *std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1))->get();
+    KKChar min_last_char = **std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1));
     list<KKCharPtr> max_current_line (text[max_line]);
-    KKChar max_last_char = *std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1))->get();
+    KKChar max_last_char = **std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1));
 
     //vede se sta nella linea1 o linea2 comparando con l'ultima Char delle linea1
     if(_char.get()->compareTo(min_last_char)<=0){
         unsigned long char_idx = findInsertIndexInLine(_char,min_current_line);
         return KKPosition(min_line,char_idx);
-    }else {
-        unsigned long char_idx = findInsertIndexInLine(_char,max_current_line);
-        return KKPosition(max_line,char_idx);
     }
+    unsigned long char_idx = findInsertIndexInLine(_char,max_current_line);
+    return KKPosition(max_line,char_idx);
+    
 }
 
-KKPosition KKCrdt::findEndPosition (KKChar last_char, list<KKCharPtr> last_line, unsigned long total_lines){
+KKPosition KKCrdt::findEndPosition (KKChar last_char, const list<KKCharPtr>& last_line, unsigned long total_lines){
     if (last_char.getValue() == '\n') {
-        return KKPosition(total_lines-1,0);
-    } else {
-        return KKPosition(total_lines-2,last_line.size());
+        return {total_lines-1,0};
     }
+    return KKPosition(total_lines-2,last_line.size());
+    
 }
 
-unsigned long KKCrdt::findInsertIndexInLine(KKCharPtr _char, list<KKCharPtr> line){
+unsigned long KKCrdt::findInsertIndexInLine(const KKCharPtr& _char, list<KKCharPtr> line){
     unsigned long left=0;
     unsigned long right = line.size()-1;
 
 
-    if(line.size()==0 || _char.get()->compareTo(*line.begin()->get())<0){
+    if(line.empty() || _char.get()->compareTo(**line.begin())<0){
         return left;
-    } else if ( _char.get()->compareTo(*std::next(line.begin(),static_cast<long>(line.size()-1))->get())>0){
+    } if ( _char.get()->compareTo(**std::next(line.begin(),static_cast<long>(line.size()-1)))>0){
         return right;
     }
 
@@ -311,14 +311,14 @@ unsigned long KKCrdt::findInsertIndexInLine(KKCharPtr _char, list<KKCharPtr> lin
     unsigned long cnt=0;
 
     for (it = line.begin(); it!= line.end(); it++) {
-        if(_char.get()->compareTo(*it->get())<0){
+        if(_char.get()->compareTo(**it)<0){
             return cnt;
         }
         //caso non possibile (una remote insert di una Char esattamente identica a una esistente)
-        if(_char.get()->compareTo(*it->get())==0){
+        if(_char.get()->compareTo(**it)==0){
             if(_char.get()->getValue()==it->get()->getValue()){
-                if(_char.get()->getSiteId().compare(it->get()->getSiteId())==0){
-            return cnt;}}}
+                if(_char.get()->getSiteId()==it->get()->getSiteId()){
+                    return cnt;}}}
         cnt++;
     }
     return 0;
@@ -328,9 +328,9 @@ QString KKCrdt::saveCrdt(){ //scrive il crdt su un file, esempio formato: d(albo
 
     string strTmp;
 
-    for (unsigned long i = 0; i < text.size(); i++) {
+    for (auto & i : text) {
 
-        for (auto x : text[i]) {
+        for (const auto& x : i) {
 
             strTmp.push_back(x->getValue());
             strTmp.push_back('(');
@@ -338,7 +338,7 @@ QString KKCrdt::saveCrdt(){ //scrive il crdt su un file, esempio formato: d(albo
             strTmp.push_back(')');
             strTmp.push_back('[');
 
-            for (auto y: x->getPosition() ) {
+            for (const auto& y: x->getPosition() ) {
                 std::stringstream strstream;
                 string app;
                 strstream<<y->getDigit();
@@ -361,97 +361,97 @@ void KKCrdt::loadCrdt(string stdStringCrdt){
     char ch;
     int gettingSeq=1; //flag per quando stai prendendo gli identifier/i siteId
 
-//    string stdStringCrdt = stringCrdt.toStdString();
+    //    string stdStringCrdt = stringCrdt.toStdString();
     KKIdentifierPtr new_id;
     text.insert(text.end(), list<KKCharPtr>());
 
     for(unsigned long i=0;i<stdStringCrdt.length();i++){
+        ch=stdStringCrdt[i];
+        string tmpSiteId;
+        KKCharPtr new_Char = KKCharPtr(new KKChar(ch,"")); //creo kkChar partendo dal carattere e siteId nullo
+        QString font;
+        gettingSeq=1;
+        while(gettingSeq){
+            i++;
             ch=stdStringCrdt[i];
-            string tmpSiteId;
-            KKCharPtr new_Char = KKCharPtr(new KKChar(ch,"")); //creo kkChar partendo dal carattere e siteId nullo
-            QString font;
-            gettingSeq=1;
-            while(gettingSeq){
-                i++;
-                ch=stdStringCrdt[i];
-                if(ch=='('){
-                    continue;
-                } else if(ch!='(' && ch!=')'){
-                    tmpSiteId.push_back(ch); //metto valore nella string di siteId
+            if(ch=='('){
+                continue;
+            } if(ch!='(' && ch!=')'){
+                tmpSiteId.push_back(ch); //metto valore nella string di siteId
 
-                    continue;
+                continue;
 
-                } else if(ch==')'){
-                    new_Char->insertSiteId(tmpSiteId);
-                    gettingSeq=0;
+            } else if(ch==')'){
+                new_Char->insertSiteId(tmpSiteId);
+                gettingSeq=0;
+            }
+        }
+        gettingSeq=1;
+
+        while(gettingSeq){ //inizia a prendere gli identifiers
+            i++;
+            ch=stdStringCrdt[i];
+
+            if (ch=='[' || ch==';'){
+                continue;
+
+            } if (stdStringCrdt[i]==']'){
+
+                gettingSeq=0;
+                break;
+
+            }else {//prendo l'identifier
+                string num;
+
+                while(stdStringCrdt[i]!=';' && stdStringCrdt[i]!=']'){
+                    ch=stdStringCrdt[i];
+                    num.push_back(ch);
+                    i++;
                 }
-             }
-             gettingSeq=1;
-
-             while(gettingSeq){ //inizia a prendere gli identifiers
-                 i++;
-                 ch=stdStringCrdt[i];
-
-                 if (ch=='[' || ch==';'){
-                     continue;
-
-                 } else if (stdStringCrdt[i]==']'){
-
-                     gettingSeq=0;
-                     break;
-
-                 }else {//prendo l'identifier
-                     string num;
-
-                     while(stdStringCrdt[i]!=';' && stdStringCrdt[i]!=']'){
-                         ch=stdStringCrdt[i];
-                         num.push_back(ch);
-                         i++;
-                     }
-                         unsigned long val;
-                         val=stoul(num,nullptr,0);
-                         new_id = shared_ptr<KKIdentifier>(new KKIdentifier(val, tmpSiteId));
-                         new_Char->pushIdentifier(new_id);
-                         i--;
+                unsigned long val;
+                val=stoul(num,nullptr,0);
+                new_id = shared_ptr<KKIdentifier>(new KKIdentifier(val, tmpSiteId));
+                new_Char->pushIdentifier(new_id);
+                i--;
 
 
-                 }
-             }
-             gettingSeq=1;
-             while(gettingSeq){ //inizia a prendere il font
-                 i++;
-                 ch=stdStringCrdt[i];
+            }
+        }
+        gettingSeq=1;
+        while(gettingSeq){ //inizia a prendere il font
+            i++;
+            ch=stdStringCrdt[i];
 
-                 if(ch=='*'){
-                     unsigned long size = text.size();
-                     new_Char->setKKCharFont(font);
-                     text[size-1].push_back(new_Char);
+            if(ch=='*'){
+                unsigned long size = text.size();
+                new_Char->setKKCharFont(font);
+                text[size-1].push_back(new_Char);
 
-                     if(new_Char->getValue()=='\n'){ //se il carattere era un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
-                         text.insert(text.end(), list<KKCharPtr>());
-                     }
-                     gettingSeq=0;
-                  }else{
-                     font.push_back(ch);
+                if(new_Char->getValue()=='\n'){ //se il carattere era un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
+                    text.insert(text.end(), list<KKCharPtr>());
+                }
+                gettingSeq=0;
+            }else{
+                font.push_back(ch);
 
-                 }
+            }
 
-             }}
-this->print();
+        }}
+    this->print();
 
 }
 
 
 
 void KKCrdt::print() {
-    for (unsigned long i = 0; i < text.size(); i++) {
-        for (auto x : text[i]) {
+    for (auto & i : text) {
+        for (const auto& x : i) {
             if(x->getValue() =='\n'){
                 std::cout <<"/n"<< "[ ";
             }else {
                 std::cout << x->getValue() << "[ ";
             }
-            for (auto y: x->getPosition()) {
+            for (const auto& y: x->getPosition()) {
                 std::cout << y->getDigit() << " ";
             }
             std::cout << "] ";
@@ -494,7 +494,7 @@ list<KKCharPtr> KKCrdt::localDelete(KKPosition start_pos, KKPosition end_pos){
     if(new_line_removed && !text[start_pos.getLine()+1].empty()){
         mergeLines(start_pos.getLine());
     }
-    text.push_back(list<KKCharPtr>());
+    text.emplace_back();
     return chars;
 }
 
@@ -536,14 +536,14 @@ void KKCrdt::removeEmptyLines(){
     it=text.begin();
 
     for(unsigned long line=0; line<text.size(); line++){
-        if(text[line].size()==0){
+        if(text[line].empty()){
             text.erase(it);
             line --;
             it--;
         }
         it++;
     }
-    if(text.size()==0){
+    if(text.empty()){
         text[0] = list<KKCharPtr>(); //occhio
 
     }
@@ -562,15 +562,14 @@ void KKCrdt::mergeLines(unsigned long line){
     text.erase(it);
     text.erase(it);
     text.insert(it,merged_line);
-    return;
 }
 
-unsigned long KKCrdt::remoteDelete(KKCharPtr _Char){
+unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
     bool flag = true;
     unsigned long global_pos;
     KKPosition pos(findPos(_Char, &flag));
 
-    if(flag==false){
+    if(!flag){
         return generateGlobalPos(pos);
     }
 
@@ -581,12 +580,12 @@ unsigned long KKCrdt::remoteDelete(KKCharPtr _Char){
     }
 
     removeEmptyLines();
-    text.push_back(list<KKCharPtr>());
+    text.emplace_back();
     global_pos= generateGlobalPos(pos);
     return global_pos;
 }
 
-KKPosition KKCrdt::findPos (KKCharPtr _Char, bool *flag){
+KKPosition KKCrdt::findPos (const KKCharPtr& _Char, bool *flag){
     unsigned long min_line=0;
     unsigned long total_lines = text.size();
     unsigned long max_line = total_lines - 2;
@@ -596,10 +595,10 @@ KKPosition KKCrdt::findPos (KKCharPtr _Char, bool *flag){
     //se il testo è vuoto o la char ha una position inferiore alla prima in assoluto
     if (text.empty() || _Char.get()->compareTo(*text[0].front().get()) < 0) {
         *flag=false;
-        return KKPosition(0,0);
+        return {0,0};
     }
 
-    KKChar last_char (*std::next(last_line.begin(),static_cast<long>(last_line.size()-1))->get());
+    KKChar last_char (**std::next(last_line.begin(),static_cast<long>(last_line.size()-1)));
 
     //se la char ha position maggiore dell'ultima char nel testo
     if(_Char.get()->compareTo(last_char)>0){
@@ -610,10 +609,10 @@ KKPosition KKCrdt::findPos (KKCharPtr _Char, bool *flag){
     while (min_line +1 < max_line) {
         mid_line = static_cast<unsigned long>(floor(min_line + (max_line - min_line)/2));
         list<KKCharPtr> current_line (text[mid_line]);
-        last_char = *std::next(current_line.begin(),static_cast<long>(current_line.size()-1))->get();
+        last_char = **std::next(current_line.begin(),static_cast<long>(current_line.size()-1));
         if(_Char.get()->compareTo(last_char)==0){
             return KKPosition(mid_line,current_line.size()-1);
-        }else if(_Char.get()->compareTo(last_char)<0) {
+        }if(_Char.get()->compareTo(last_char)<0) {
             max_line=mid_line;
         }else{
             min_line=mid_line;
@@ -622,30 +621,30 @@ KKPosition KKCrdt::findPos (KKCharPtr _Char, bool *flag){
 
     //ora la scelta è tra una o massimo due righe
     list<KKCharPtr> min_current_line (text[min_line]);
-    KKChar min_last_char = *std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1))->get();
+    KKChar min_last_char = **std::next(min_current_line.begin(),static_cast<long>(min_current_line.size()-1));
     list<KKCharPtr> max_current_line (text[max_line]);
-    KKChar max_last_char = *std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1))->get();
+    KKChar max_last_char = **std::next(max_current_line.begin(),static_cast<long>(max_current_line.size()-1));
 
     //confronta con l'ultima char della riga1 (per capire se è su quella riga o sulla riga2(se c'è))
     if(_Char.get()->compareTo(min_last_char)<=0){
         unsigned long char_idx = findIndexInLine(_Char,min_current_line,flag);
         return KKPosition(min_line,char_idx);
-    }else {
-        unsigned long char_idx = findIndexInLine(_Char,max_current_line,flag);
-        return KKPosition(max_line,char_idx);
     }
+    unsigned long char_idx = findIndexInLine(_Char,max_current_line,flag);
+    return KKPosition(max_line,char_idx);
+    
 }
 
-unsigned long KKCrdt::findIndexInLine(KKCharPtr _Char, list<KKCharPtr> line, bool *flag){
+unsigned long KKCrdt::findIndexInLine(const KKCharPtr& _Char, list<KKCharPtr> line, bool *flag){
 
     unsigned long left=0;
     unsigned long right = line.size()-1;
 
     //controlla se la linea è vuota o il Char è minore del primo della linea
-    if(line.size()==0 || _Char.get()->compareTo(*line.begin()->get())<0){
+    if(line.empty() || _Char.get()->compareTo(**line.begin())<0){
         return left;
         //controlla se il Char è maggiore dell'ultimo della linea
-    } else if ( _Char.get()->compareTo(*std::next(line.begin(),static_cast<long>(line.size()-1))->get())>0){
+    } if ( _Char.get()->compareTo(**std::next(line.begin(),static_cast<long>(line.size()-1)))>0){
         return right;
     }
 
@@ -654,9 +653,9 @@ unsigned long KKCrdt::findIndexInLine(KKCharPtr _Char, list<KKCharPtr> line, boo
     unsigned long cnt=0;
 
     for (it = line.begin(); it!= line.end(); it++) {
-        if(_Char.get()->compareTo(*it->get())==0 &&
+        if(_Char.get()->compareTo(**it)==0 &&
                 _Char.get()->getValue()==it->get()->getValue() &&
-                _Char.get()->getSiteId().compare(it->get()->getSiteId())==0) {
+                _Char.get()->getSiteId()==it->get()->getSiteId()) {
             return cnt;
         }
         cnt++;
@@ -669,7 +668,7 @@ unsigned long KKCrdt::generateGlobalPos(KKPosition pos){
     unsigned long global_pos=0;
 
     for (unsigned long i=0; i <  pos.getLine(); i++) {
-         global_pos = global_pos + text[i].size();
+        global_pos = global_pos + text[i].size();
     }
 
     global_pos = global_pos + pos.getCh();
@@ -677,7 +676,7 @@ unsigned long KKCrdt::generateGlobalPos(KKPosition pos){
 }
 
 void KKCrdt::calculateLineCol(unsigned long global_pos, unsigned long *line, unsigned long *col){
-    unsigned long tot=0,succ=0;
+    unsigned long tot=0; unsigned long succ=0;
 
     if(global_pos==0){
         *line=0;
@@ -686,13 +685,13 @@ void KKCrdt::calculateLineCol(unsigned long global_pos, unsigned long *line, uns
     }
 
     for(unsigned long i=0;i<text.size();i++){
-         succ+=text[i].size();
-         if(global_pos<=succ){ //linea trovata
-             *line=i;
-             *col=global_pos-tot;
-             return;
-         }
-         tot+=text[i].size();
+        succ+=text[i].size();
+        if(global_pos<=succ){ //linea trovata
+            *line=i;
+            *col=global_pos-tot;
+            return;
+        }
+        tot+=text[i].size();
     }
 
 }

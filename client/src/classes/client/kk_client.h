@@ -42,31 +42,31 @@ class KKClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit KKClient(const QUrl &url, QObject *parent = nullptr);
-    QSharedPointer<QList<int>>findPositions(QString siteId);
+    explicit KKClient(QUrl url, QObject *parent = nullptr);
+    QSharedPointer<QList<int>>findPositions(const QString& siteId);
 
 
 
 private slots:
     void handleOpenedConnection();
-    void handleResponse(QString message);
+    void handleResponse(const QString& message);
     void handleTimeOutConnection();
     void handleErrorConnection(QAbstractSocket::SocketError error);
     void handleSslErrors(const QList<QSslError> &errors);
-    void handleModalButtonClick(QString btnText, QString modalType);
-    void handleModalClosed(QString modalType);
+    void handleModalButtonClick(const QString& btnText, const QString& modalType);
+    void handleModalClosed(const QString& modalType);
 
-    void sendSignupRequest(QString email, QString password, QString name, QString surname, QString username);
-    void sendLoginRequest(QString email, QString password);
-    void sendOpenFileRequest(QString fileName);
+    void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
+    void sendLoginRequest(QString email, const QString& password);
+    void sendOpenFileRequest(const QString& fileName);
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
 
-    void onInsertTextCrdt(QString diffText, int position);
+    void onInsertTextCrdt(const QString& diffText, int position);
     void onRemoveTextCrdt(int start, int end);
     void onSaveCrdtToFile();
     void onLoadCrdtToFile();
-    void onSiteIdClicked(QString siteId,bool logout);
+    void onSiteIdClicked(const QString& siteId,bool logout);
 private:
     void setInitState();
 
@@ -80,12 +80,12 @@ private:
     void handleClientErrorResponse();
     void handleServerErrorResponse();
 
-    bool sendRequest(QString type, QString result, QStringList body);
+    bool sendRequest(QString type, QString result, QStringList values);
 
     QString mySiteId_;
     QString state_;
     QString currentfile_;
-    bool currentfileValid_;
+    bool currentfileValid_{};
 
 
     QUrl url_;
@@ -98,7 +98,7 @@ private:
     OpenFileDialog openFile_;
     ModalDialog modal_;
 
-    KKCrdt* crdt_;
+    KKCrdt* crdt_{};
 
     QByteArray bufferCrdt_;
     std::mutex mtxCrdt_;

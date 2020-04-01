@@ -3,17 +3,18 @@
 //
 #include "../identifier/kk_identifier.h"
 #include <QTextCharFormat>
+#include <utility>
 #include "kk_char.h"
 
 using std::string;
 
-KKChar::KKChar(char value, string siteId) : siteId(siteId), value(value) {
+KKChar::KKChar(char value, string siteId) : siteId(std::move(siteId)), value(value) {
 
 };
 KKChar::~KKChar() {
     position.clear();
 }
-void KKChar::pushIdentifier(KKIdentifierPtr id) {
+void KKChar::pushIdentifier(const KKIdentifierPtr& id) {
     position.push_back(id);
 }
 
@@ -23,7 +24,7 @@ void KKChar::pushIdentifier(KKIdentifierPtr id) {
 }*/
 
 int KKChar::compareTo(const KKChar &other) {
-//    int comp;
+    //    int comp;
     unsigned long min;
 
     if (this->position.size() <= other.position.size()) {
@@ -39,7 +40,7 @@ int KKChar::compareTo(const KKChar &other) {
 
 
         if(id1.getDigit()>id2.getDigit()) return 1;
-        else if (id1.getDigit()<id2.getDigit()) return -1;
+        if (id1.getDigit()<id2.getDigit()) return -1;
 
     }
 
@@ -47,11 +48,11 @@ int KKChar::compareTo(const KKChar &other) {
 
     if (this->position.size() < other.position.size()) {
         return -1;
-    } else if (this->position.size() > other.position.size()) {
+    } if (this->position.size() > other.position.size()) {
         return 1;
     } else {
         if(this->getSiteId()> other.siteId) return 1;
-        else if(this->getSiteId()< other.siteId) return -1;
+        if(this->getSiteId()< other.siteId) return -1;
         else return 0;
     }
 }
@@ -65,13 +66,11 @@ string KKChar::getSiteId() {
 }
 
 void KKChar::insertSiteId(string siteId) {
-    this->siteId = siteId;
-    return;
+    this->siteId = std::move(siteId);
 }
 
 void KKChar::insertPosition(vector<KKIdentifierPtr> position) {
-    this->position = position;
-    return;
+    this->position = std::move(position);
 }
 
 vector<KKIdentifierPtr> KKChar::getPosition() {
@@ -79,8 +78,8 @@ vector<KKIdentifierPtr> KKChar::getPosition() {
 }
 
 std::string KKChar::getIdentifiersString() {
-    std::string identifiers_ = "";
-    std::for_each(position.begin(), position.end(),[&](KKIdentifierPtr i){
+    std::string identifiers_;
+    std::for_each(position.begin(), position.end(),[&](const KKIdentifierPtr& i){
         char str[sizeof(unsigned long)+1];
         sprintf(str, "%lu", i->getDigit());
         identifiers_= identifiers_ + str + " ";
@@ -91,14 +90,14 @@ QString KKChar::getKKCharFont(){
     return KKCharFont;
 }
 void KKChar::setKKCharFont(QString font){
-    this->KKCharFont=font;
+    this->KKCharFont=std::move(font);
 }
 
 QString KKChar::getKKCharColor(){
     return KKCharColor;
 }
 void KKChar::setKKCharColor(QString color){
-    this->KKCharColor=color;
+    this->KKCharColor=std::move(color);
 }
 
 
