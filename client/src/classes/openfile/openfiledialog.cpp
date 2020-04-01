@@ -1,6 +1,7 @@
 #include "openfiledialog.h"
 #include "ui_openfiledialog.h"
 
+#include <QDateTime>
 #include <QImageWriter>
 #include <QMessageBox>
 #include <QStandardPaths>
@@ -9,10 +10,12 @@
 
 #define COLUMN_NAME_SIZE 250
 #define COLUMN_CREATOR_SIZE 150
+#define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
 
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::OpenFileDialog)
+    ui(new Ui::OpenFileDialog),
+    crypt(new SimpleCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023)))
 {
     // Setting up window
     ui->setupUi(this);
@@ -51,11 +54,12 @@ void OpenFileDialog::setUserInfo(const QStringList& info) {
     ui->nameLineEdit->insert(info.value(0));
     ui->surnameLineEdit->insert(info.value(1));
     ui->emailLineEdit->insert(info.value(2));
-    ui->passwordLineEdit->insert(info.value(3));
+    ui->passwordLineEdit->insert(crypt->decryptToString(info.value(3)));
     ui->usernameLineEdit->insert(info.value(4));
 
     QString registrationDate = info.value(5);
-    ui->registrationDateLabel->setText("Data di registrazione: " + registrationDate);
+    QDateTime registrationDateTime = QDateTime::fromString(registrationDate, Qt::ISODate);
+    ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
 
     QStringList filesList = info.mid(6, info.size()-1);
     ui->filesTableWidget->setRowCount(filesList.size());
@@ -68,20 +72,22 @@ void OpenFileDialog::setUserInfo(const QStringList& info) {
 }
 
 void OpenFileDialog::addFile(int fileIndex, const QString& fileName) {
-    SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
-    QStringList splittedName = fileName.split("@");
-    files_.insert(splittedName[2], fileName);
-    ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedName[2]));
-    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt.decryptToString(splittedName[1])));
-    ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(splittedName[3]));
+    QStringList splittedName = fileName.split("#");
+    QStringList splittedLink = splittedName[0].split("@");
+
+    files_.insert(splittedLink[2], splittedName[0]);
+    ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedLink[2]));
+    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt->decryptToString(splittedLink[1])));
+
+    QDateTime creationDateTime = QDateTime::fromString(splittedName[1], Qt::ISODate);
+    ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
 
 }
 
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 {
-    int rowIndex = item->row();
-    QString fileName = ui->filesTableWidget->item(rowIndex, 0)->text();
-    ui->createFileNameLineEdit->setText(fileName);
+    selectedFileName = ui->filesTableWidget->item(item->row(), 0)->text();
+    ui->createFileNameLineEdit->setText(selectedFileName);
 
     ui->openFileButton->setEnabled(true);
     ui->shareFileButton->setEnabled(true);
@@ -90,14 +96,11 @@ void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 void OpenFileDialog::on_openFileButton_clicked()
 {
     QString newFileName = ui->createFileNameLineEdit->text();
-    QString completeFileName = files_.value(newFileName);
-
-    if(completeFileName != "" || completeFileName != nullptr) {
-        emit openFileRequest(completeFileName);
+    if(newFileName == selectedFileName) {
+        emit openFileRequest(selectedFileName);
         qDebug() << "APRO FILE ESISTENTE";
     } else {
         qDebug() << "CREO UN NUOVO FILE";
-
         if (newFileName != "" && newFileName != nullptr) {
             emit openFileRequest(newFileName);
         } else {
@@ -120,7 +123,9 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    // TODO: aprire modale per inserire email destinatari
+    QString link = files_.value(selectedFileName);
+    shareFileDialog.setShareFileLink(link);
+    shareFileDialog.show();
 }
 
 void OpenFileDialog::on_changeImageButton_clicked()
@@ -134,7 +139,10 @@ void OpenFileDialog::on_changeImageButton_clicked()
 void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1)
-    ui->openFileButton->setEnabled(ui->createFileNameLineEdit->text().size() > 0);
+    QString newFileName = ui->createFileNameLineEdit->text();
+
+    ui->openFileButton->setEnabled(newFileName.size() > 0);
+    ui->shareFileButton->setEnabled(selectedFileName == newFileName);
 }
 
 void OpenFileDialog::initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
