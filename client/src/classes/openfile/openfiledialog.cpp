@@ -79,7 +79,7 @@ void OpenFileDialog::addFile(int fileIndex, QString fileName) {
     ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedLink[2]));
     ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt->decryptToString(splittedLink[1])));
 
-    QDateTime creationDateTime = QDateTime::fromString(splittedLink[3], Qt::ISODate);
+    QDateTime creationDateTime = QDateTime::fromString(splittedName[1], Qt::ISODate);
     ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
 
 }
@@ -123,10 +123,9 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    // TODO: aprire modale per inserire email destinatari
-    QString newFileName = ui->createFileNameLineEdit->text();
-    QString completeFileName = files_.value(newFileName);
-    ui->createFileNameLineEdit->setText(completeFileName);
+    QString link = files_.value(selectedFileName);
+    shareFileDialog.setShareFileLink(link);
+    shareFileDialog.show();
 }
 
 void OpenFileDialog::on_changeImageButton_clicked()
