@@ -30,7 +30,7 @@ QString KKFileSystem::createFile(QString username, QString filename){
     }
 
     //FIXME: FILE DI TEST PER TEXT EDITOR. TODO: rimuovere una volta finito
-    if (filename == "worldwide.txt") {
+    if (filename.startsWith("test")) {
         return filename;
     }
 
@@ -64,7 +64,7 @@ QString KKFileSystem::createFile(QString username, QString filename){
 bool KKFileSystem::openFile(QString username, QString filename){
 
     //FIXME: FILE DI TEST PER TEXT EDITOR. TODO: rimuovere una volta finito
-    if (filename == "worldwide.txt") {
+    if (filename.startsWith("test")) {
         UserInfo *user = new UserInfo;
         return db->insertUserFile(username, filename, APPLICATION_ROOT + filename, user);
     }
