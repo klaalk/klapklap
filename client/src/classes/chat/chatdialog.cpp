@@ -49,7 +49,7 @@
 ****************************************************************************/
 
 #include <QtWidgets>
-
+#include <utility> 
 #include "chatdialog.h"
 
 ChatDialog::ChatDialog(QWidget *parent)
@@ -73,7 +73,7 @@ void ChatDialog::resetState(){
 }
 
 void ChatDialog::setNickName(QString nick) {
-    myNickName = nick;
+    myNickName = std::move(nick);
     tableFormat.setBorder(0);
 }
 

@@ -33,7 +33,7 @@ public:
     string getSiteId();
     void insertSiteId(string siteId);
     int compareTo(const KKChar &other); //torna: 1 - questa > l'altra, -1 l'altra > questa, 0 se no
-    void pushIdentifier(KKIdentifierPtr x); //mette l'identifier nuovo come ultimo elemento del vettore posizione(aggiunge una cifra)
+    void pushIdentifier(const KKIdentifierPtr& x); //mette l'identifier nuovo come ultimo elemento del vettore posizione(aggiunge una cifra)
     void insertIdentifier(vector<KKIdentifierPtr>::iterator it, KKIdentifierPtr id);
     void insertPosition(vector<KKIdentifierPtr> position);
     vector<KKIdentifierPtr> getPosition();

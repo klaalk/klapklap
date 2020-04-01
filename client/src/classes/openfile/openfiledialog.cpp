@@ -50,7 +50,7 @@ void OpenFileDialog::initializeFilesTableView() {
     ui->filesTableWidget->horizontalHeader()->setStretchLastSection(true);
 }
 
-void OpenFileDialog::setUserInfo(QStringList info) {
+void OpenFileDialog::setUserInfo(const QStringList& info) {
     ui->nameLineEdit->insert(info.value(0));
     ui->surnameLineEdit->insert(info.value(1));
     ui->emailLineEdit->insert(info.value(2));
@@ -65,13 +65,13 @@ void OpenFileDialog::setUserInfo(QStringList info) {
     ui->filesTableWidget->setRowCount(filesList.size());
 
     int fileIndex = 0;
-    for(QString fileName : filesList) {
+    for(const QString& fileName : filesList) {
         addFile(fileIndex, fileName);
         fileIndex++;
     }
 }
 
-void OpenFileDialog::addFile(int fileIndex, QString fileName) {
+void OpenFileDialog::addFile(int fileIndex, const QString& fileName) {
     QStringList splittedName = fileName.split("#");
     QStringList splittedLink = splittedName[0].split("@");
 
@@ -79,7 +79,7 @@ void OpenFileDialog::addFile(int fileIndex, QString fileName) {
     ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedLink[2]));
     ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt->decryptToString(splittedLink[1])));
 
-    QDateTime creationDateTime = QDateTime::fromString(splittedLink[3], Qt::ISODate);
+    QDateTime creationDateTime = QDateTime::fromString(splittedName[1], Qt::ISODate);
     ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
 
 }
@@ -96,11 +96,15 @@ void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 void OpenFileDialog::on_openFileButton_clicked()
 {
     QString newFileName = ui->createFileNameLineEdit->text();
+
     if(newFileName == selectedFileName) {
-        emit openFileRequest(selectedFileName);
-        qDebug() << "APRO FILE ESISTENTE";
+        QString link = files_.value(selectedFileName).split("@")[0]+"@"
+                +files_.value(selectedFileName).split("@")[1]+"@"
+                +files_.value(selectedFileName).split("@")[2];
+        emit openFileRequest(link);
+        qDebug() << "APRO FILE ESISTENTE: " << link;
     } else {
-        qDebug() << "CREO UN NUOVO FILE";
+        qDebug() << "CREO UN NUOVO FILE: "<<selectedFileName;
         if (newFileName != "" && newFileName != nullptr) {
             emit openFileRequest(newFileName);
         } else {
@@ -123,10 +127,12 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    // TODO: aprire modale per inserire email destinatari
-    QString newFileName = ui->createFileNameLineEdit->text();
-    QString completeFileName = files_.value(newFileName);
-    ui->createFileNameLineEdit->setText(completeFileName);
+    QString link = files_.value(selectedFileName).split("@")[0]+"@"
+            +files_.value(selectedFileName).split("@")[1]+"@"
+            +files_.value(selectedFileName).split("@")[2];
+
+    shareFileDialog.setShareFileLink(link);
+    shareFileDialog.show();
 }
 
 void OpenFileDialog::on_changeImageButton_clicked()
@@ -158,7 +164,7 @@ void OpenFileDialog::initializeImageFileDialog(QFileDialog &dialog, QFileDialog:
 
     QStringList mimeTypeFilters;
     const QByteArrayList supportedMimeTypes = acceptMode == QFileDialog::AcceptOpen
-        ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
+            ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
     foreach (const QByteArray &mimeTypeName, supportedMimeTypes)
         mimeTypeFilters.append(mimeTypeName);
     mimeTypeFilters.sort();
@@ -188,6 +194,6 @@ bool OpenFileDialog::loadFile(const QString &fileName)
 
     setWindowFilePath(fileName);
     const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
-        .arg(QDir::toNativeSeparators(fileName)).arg(newImage.width()).arg(newImage.height()).arg(newImage.depth());
+            .arg(QDir::toNativeSeparators(fileName)).arg(newImage.width()).arg(newImage.height()).arg(newImage.depth());
     return true;
 }

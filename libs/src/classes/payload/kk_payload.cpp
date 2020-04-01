@@ -3,16 +3,16 @@
 //
 
 #include "kk_payload.h"
-
+#include <utility>
 KKPayload::KKPayload(QString data)
-    : data(data) {
+    : data(std::move(data)) {
 }
 
 
-KKPayload::KKPayload(QString request, QString result, QStringList bodyList)
-    : request(request), result(result) {
+KKPayload::KKPayload(QString request, QString result, const QStringList& bodyList)
+    : request(std::move(request)), result(std::move(result)) {
 
-    for (QString value : bodyList){
+    for (const QString& value : bodyList){
         body.append(QString(PAYLOAD_FORMAT).arg(value.length(), PAYLOAD_FORMAT_LENGTH, 10, QChar('0')) +
                     value);
     }
@@ -33,7 +33,7 @@ QStringList KKPayload::getBodyList() {
     int start = 0;
     int nextFieldLenth = 0;
     do {
-        nextFieldLenth = body.mid(start, PAYLOAD_FORMAT_LENGTH).toInt();
+        nextFieldLenth = body.midRef(start, PAYLOAD_FORMAT_LENGTH).toInt();
         start += PAYLOAD_FORMAT_LENGTH;
         QString field = body.mid(start, nextFieldLenth);
         if (field.length() > 0) list.append(field);

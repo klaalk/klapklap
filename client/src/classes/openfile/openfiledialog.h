@@ -26,8 +26,8 @@ public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
     ~OpenFileDialog();
 
-    void setUserInfo(QStringList info);
-    void addFile(int fileIndex, QString fileName);
+    void setUserInfo(const QStringList& info);
+    void addFile(int fileIndex, const QString& fileName);
 
 private slots:
     void on_accountBtn_clicked();

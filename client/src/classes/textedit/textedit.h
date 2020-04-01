@@ -39,8 +39,8 @@ private:
         QString styleName;
         QString styleEarpiece;
         styleName = "background-color: " + fontColor + ";\n"
-                    "font: 75 "+size+"pt \"Calibri\";\n"
-                    "font: bold;";
+                                                       "font: 75 "+size+"pt \"Calibri\";\n"
+                                                                        "font: bold;";
 
         styleEarpiece = "font: 75 "+size+"pt \"Calibri\";\n";
         //Aggiorno le label
@@ -83,22 +83,22 @@ public:
     void setGlobalPositon(int position) {
         this->globalPositon = position;
     }
-   // DA TOGLIERE
-//    int getSelectionStart(){
-//        return this->selection_start;
-//      }
+    // DA TOGLIERE
+    //    int getSelectionStart(){
+    //        return this->selection_start;
+    //      }
 
-//    int getSelectionEnd(){
-//        return this->selection_end;
-//      }
+    //    int getSelectionEnd(){
+    //        return this->selection_end;
+    //      }
 
-//    void setSelectionStart(int start){
-//        this->selection_start=start;
-//      }
+    //    void setSelectionStart(int start){
+    //        this->selection_start=start;
+    //      }
 
-//    void setSelectionEnd(int end){
-//        this->selection_end=end;
-//      }
+    //    void setSelectionEnd(int end){
+    //        this->selection_end=end;
+    //      }
 };
 
 //DEPRECATED
@@ -126,20 +126,20 @@ public:
 
 class TextEdit : public QMainWindow
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    bool getIfIsClicked(QString siteId);
+    bool getIfIsClicked(const QString& siteId);
     void setCurrentFileName(const QString &fileName);
     TextEdit(QWidget *parent = nullptr);
     QTextEdit *textEdit;
     bool load(const QString &f);
     void resetState();
-    void applyRemoteChanges(QString operation, QString name, QString text, int globalPos,QString font,QString colorRecived, QSharedPointer<QList<int>> myList);
+    void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font,const QString& colorRecived, QSharedPointer<QList<int>> myList);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void modifyLabels();
-    void updateSiteIdsMap(QString siteId, QSharedPointer<QList<int>> list);
-    void siteIdClicked(QString name);
+    void updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list);
+    void siteIdClicked(const QString& name);
     void setMySiteId(QString mySiteId);
     QTextEdit* getTextEdit();
 signals:
@@ -191,24 +191,24 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
-    void colorText(QString siteId);
-    void clearColorText(QString name);
+    void colorText(const QString& siteId);
+    void clearColorText(const QString& name);
 
-    QAction *actionSave;
-    QAction *actionTextBold;
-    QAction *actionTextUnderline;
-    QAction *actionTextItalic;
-    QAction *actionTextColor;
-    QAction *actionAlignLeft;
-    QAction *actionAlignCenter;
-    QAction *actionAlignRight;
-    QAction *actionAlignJustify;
-    QAction *actionUndo;
-    QAction *actionRedo;
+    QAction *actionSave{};
+    QAction *actionTextBold{};
+    QAction *actionTextUnderline{};
+    QAction *actionTextItalic{};
+    QAction *actionTextColor{};
+    QAction *actionAlignLeft{};
+    QAction *actionAlignCenter{};
+    QAction *actionAlignRight{};
+    QAction *actionAlignJustify{};
+    QAction *actionUndo{};
+    QAction *actionRedo{};
 #ifndef QT_NO_CLIPBOARD
-    QAction *actionCut;
-    QAction *actionCopy;
-    QAction *actionPaste;
+    QAction *actionCut{};
+    QAction *actionCopy{};
+    QAction *actionPaste{};
 #endif
     bool blockCursor = false;
     bool isTextSelected = false;
@@ -223,10 +223,10 @@ private:
     QString diffText;
     QString fileName;
     QMap <QString,kk_cursor*> cursors_;
-    QComboBox *comboStyle;
-    QFontComboBox *comboFont;
-    QComboBox *comboSize;
-    QToolBar *tb;
+    QComboBox *comboStyle{};
+    QFontComboBox *comboFont{};
+    QComboBox *comboSize{};
+    QToolBar *tb{};
     QMap<QString,QSharedPointer<QList<int>>> siteIds_;
     QMap<QString,QBrush> siteIdsColors_;
     QList<QString> siteIdsClicked_;

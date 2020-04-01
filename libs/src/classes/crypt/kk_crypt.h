@@ -73,7 +73,7 @@ public:
 
     QString decryptToString(QByteArray cypher) ;
 
-    QByteArray decryptToByteArray(QByteArray cypher) ;
+    QByteArray decryptToByteArray(const QByteArray& cypher) ;
 
     QString random_psw(QString s);
 
@@ -85,7 +85,7 @@ public:
                    };
     Q_DECLARE_FLAGS(CryptoFlags, CryptoFlag)
 
-    bool containLetter(QChar letter, QString myString);
+    bool containLetter(QChar letter, const QString& myString);
 private:
 
     void splitKey();

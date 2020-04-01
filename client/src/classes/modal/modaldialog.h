@@ -14,7 +14,7 @@ class ModalDialog : public QDialog
 public:
     explicit ModalDialog(QWidget *parent = nullptr);
     ~ModalDialog();
-    void setModal(QString text, QString btnText, QString modalType);
+    void setModal(const QString& text, const QString& btnText, QString modalType);
 
 signals:
     void modalButtonClicked(QString btnName, QString modalType);

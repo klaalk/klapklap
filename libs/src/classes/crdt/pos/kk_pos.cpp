@@ -13,3 +13,4 @@ unsigned long KKPosition::getCh() {
 unsigned long KKPosition::getLine() {
     return this->line;
 }
+

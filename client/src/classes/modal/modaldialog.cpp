@@ -1,4 +1,5 @@
 #include "modaldialog.h"
+#include <utility>
 #include "ui_modaldialog.h"
 
 ModalDialog::ModalDialog(QWidget *parent) :
@@ -15,10 +16,10 @@ ModalDialog::~ModalDialog()
     delete ui;
 }
 
-void ModalDialog::setModal(QString text, QString btnText, QString modalType) {
+void ModalDialog::setModal(const QString& text, const QString& btnText, QString modalType) {
     ui->content->setText(text);
     ui->confirmBtn->setText(btnText);
-    this->modalType = modalType;
+    this->modalType = std::move(modalType);
 }
 
 void ModalDialog::on_confirmBtn_clicked()

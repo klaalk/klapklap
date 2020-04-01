@@ -67,7 +67,7 @@ private:
 
     bool checkLoginForm();
     bool checkSingupForm();
-    bool regexMatch(QString value, QRegularExpression* regex, bool canShowHint, QLabel* hintLabel, QString hintMessage);
+    bool regexMatch(const QString& value, QRegularExpression* regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage);
 };
 
 #endif // ACCESSDIALOG_H

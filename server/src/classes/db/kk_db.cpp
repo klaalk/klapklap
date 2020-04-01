@@ -213,7 +213,7 @@ int  KKDataBase::getUserFile(UserInfo *user, QStringList* files){
                 files = new QStringList();
             }
             while(res.next()){
-                (*files).push_back(res.value(0).toString() + "@" + res.value(1).toString());
+                (*files).push_back(res.value(0).toString() + "#" + res.value(1).toString());
             }
             resCode = DB_USER_FILES_FOUND;
         } catch (QException &e) {
