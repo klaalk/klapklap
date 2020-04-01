@@ -79,7 +79,7 @@ void OpenFileDialog::addFile(int fileIndex, const QString& fileName) {
     ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedLink[2]));
     ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt->decryptToString(splittedLink[1])));
 
-    QDateTime creationDateTime = QDateTime::fromString(splittedName[1], Qt::ISODate);
+    QDateTime creationDateTime = QDateTime::fromString(splittedLink[3], Qt::ISODate);
     ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
 
 }
