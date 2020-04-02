@@ -142,11 +142,14 @@ public:
     void siteIdClicked(const QString& name);
     void setMySiteId(QString mySiteId);
     QTextEdit* getTextEdit();
+    void alignmentRemoteChange(QString alignment);
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
     void saveCRDTtoFile();
     void loadCRDTtoFile();
+    //xxx
+    void alignChange(QString alignment);
 
 public slots:
     void fileNew();

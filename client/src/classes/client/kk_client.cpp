@@ -35,6 +35,8 @@ KKClient::KKClient(QUrl url, QObject *parent)
     connect(&editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
     connect(&editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
     connect(&editor_, &TextEdit::loadCRDTtoFile, this, &KKClient::onLoadCrdtToFile);
+    //xxx
+    connect(&editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
 
     // Gestisco le richieste della chat
     connect(&chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
@@ -111,6 +113,8 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         QStringList bodyList = response.getBodyList();
         crdt_->loadCrdt(bodyList[0].toStdString());
 
+    }else if(response.getRequestType()==ALICHG){
+       handleAlignmentChange(response);
     } else {
         modal_.setModal("Errore generico. Non è stato possibile gestire la risposta.", "Chiudi", GENERIC_ERROR);
         modal_.show();
@@ -128,7 +132,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
     openFile_.setUserInfo(bodyList);
     openFile_.show();
 #else
-     this->sendOpenFileRequest("testAlbo.txt");
+     this->sendOpenFileRequest("test2.txt");
 #endif
 }
 
@@ -252,7 +256,7 @@ void KKClient::sendLoginRequest(QString email, const QString& password) {
     access_.showLoader(true);
     if (!timer_.isActive())
         timer_.start(TIMEOUT_VALUE);
-    bool sended = sendRequest(LOGIN, NONE, {std::move(email), psw});
+    bool sended = sendRequest(LOGIN,NONE,{std::move(email), psw});
     if (sended) {
         state_ = CONNECTED_NOT_LOGGED;
     }
@@ -440,4 +444,18 @@ void KKClient::onSiteIdClicked(const QString& siteId, bool logout){
             editor_.siteIdClicked(siteId);
     }
 }
+
+void KKClient::onAlignmentChange(QString alignment){
+    QStringList a = {alignment};
+    sendRequest(ALICHG,NONE,a);
+}
+
+void KKClient::handleAlignmentChange(KKPayload response){
+
+    QStringList bodyList = response.getBodyList();
+    QString alignment=bodyList[0];
+    editor_.alignmentRemoteChange(alignment);
+
+}
+
 

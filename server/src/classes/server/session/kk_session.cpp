@@ -71,6 +71,9 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == LOADFILE) {
             handleLoadFileRequest(req);
         }
+        else if(req.getRequestType()==ALICHG){
+            handleAlignChangeRequest(req);
+        }
     }
 }
 
@@ -86,7 +89,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
         #ifndef ENV
         result = db->login(_body[0],_body[1], user);
         #else
-        user->name = "JHON";
+        user->name = "JOHN";
         user->surname= "SNOW";
         user->email = id;
         user->password = "PSW";
@@ -258,4 +261,8 @@ void KKSession::handleDisconnection() {
         }
         socket->deleteLater();
     }
+}
+
+void KKSession::handleAlignChangeRequest(KKPayload request){
+    file->deliver(ALICHG, SUCCESS, request.getBodyList(), id);
 }

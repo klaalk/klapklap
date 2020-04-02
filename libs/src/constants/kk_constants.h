@@ -25,6 +25,7 @@
 #define LOADFILE "LODF"
 #define CRDT "CRDT"
 #define CHAT "CHAT"
+#define ALICHG "ALICHG"
 #define ADDED_PARTECIPANT "ADPR"
 #define REMOVED_PARTECIPANT "RMPR"
 

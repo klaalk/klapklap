@@ -67,6 +67,7 @@ private slots:
     void onSaveCrdtToFile();
     void onLoadCrdtToFile();
     void onSiteIdClicked(const QString& siteId,bool logout);
+    void onAlignmentChange(QString alignment);
 private:
     void setInitState();
 
@@ -75,6 +76,8 @@ private:
     void handleSignupResponse();
     void handleOpenfileResponse();
     void handleCrdtResponse(KKPayload res);
+    void handleAlignmentChange(KKPayload res);
+
 
     void handleErrorResponse(KKPayload res);
     void handleClientErrorResponse();

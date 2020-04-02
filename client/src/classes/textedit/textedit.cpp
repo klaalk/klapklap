@@ -783,17 +783,59 @@ void TextEdit::colorChanged(const QColor &c)
 
 void TextEdit::alignmentChanged(Qt::Alignment a)
 {
-    if (a & Qt::AlignLeft)
+    QString alignment;
+    if (a & Qt::AlignLeft){
         actionAlignLeft->setChecked(true);
-    else if (a & Qt::AlignHCenter)
+        alignment="left";
+    }
+
+    else if (a & Qt::AlignHCenter){
         actionAlignCenter->setChecked(true);
-    else if (a & Qt::AlignRight)
+        alignment="center";
+    }
+    else if (a & Qt::AlignRight){
         actionAlignRight->setChecked(true);
-    else if (a & Qt::AlignJustify)
+        alignment="right";
+    }
+    else if (a & Qt::AlignJustify){
         actionAlignJustify->setChecked(true);
+        alignment="justify";
+
+    }
 
     modifyLabels();
+    //xxx qui deve fare un emit
+    emit(alignChange(alignment));
 }
+ //xxx
+
+void TextEdit::alignmentRemoteChange(QString alignment)
+{
+    if (alignment=="left"){
+        textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
+        actionAlignLeft->setChecked(true);
+    }
+
+    else if (alignment=="center"){
+        textEdit->setAlignment(Qt::AlignHCenter);
+        actionAlignCenter->setChecked(true);
+
+    }
+    else if (alignment=="right"){
+         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
+        actionAlignRight->setChecked(true);
+
+    }
+    else if (alignment=="justify"){
+        textEdit->setAlignment(Qt::AlignJustify);
+        actionAlignJustify->setChecked(true);
+ }
+
+    modifyLabels();
+
+}
+
+
 
 void TextEdit::modifyLabels(){
     int font;
@@ -853,7 +895,7 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
 
         QFont fontNuovo;
         QColor coloreNuovo(colorRecived);
-//        QTextCharFormat formatVecchio = editorCurs.charFormat();
+        QTextCharFormat formatVecchio = editorCurs.charFormat();
         fontNuovo.fromString(font);
 //        editorCurs.setPosition(globalPos);
 
@@ -868,9 +910,6 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
         editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
         editorCurs.setCharFormat(format);
         editorCurs.setPosition(newPos);
-        // editorCurs.select(QTextCursor::WordUnderCursor);
-        // editorCurs.setPosition(editorCurs.position()-1);
-        // tempCursor.setCharFormat(format);
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
@@ -1037,13 +1076,13 @@ void TextEdit::clearColorText(const QString& siteId){
 
     int last = cursor.position();
 
-    for(int pos : *siteIds_.value(siteId)){
+   /* for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
-        fmt=cursor.charFormat();
+        fmt = cursor.charFormat();
         fmt.setBackground(Qt::white);
         cursor.setCharFormat(fmt);
-    }
+    }*/
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
 
