@@ -873,9 +873,6 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
             editorCurs.setCharFormat(format);
         }
         editorCurs.setPosition(newPos);
-        // editorCurs.select(QTextCursor::WordUnderCursor);
-        // editorCurs.setPosition(editorCurs.position()-1);
-        // tempCursor.setCharFormat(format);
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
