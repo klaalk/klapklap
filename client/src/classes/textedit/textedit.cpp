@@ -766,15 +766,12 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
 
 void TextEdit::fontChanged(const QFont &f)
 {
-
     comboFont->setCurrentIndex(comboFont->findText(QFontInfo(f).family()));
     comboSize->setCurrentIndex(comboSize->findText(QString::number(f.pointSize())));
     actionTextBold->setChecked(f.bold());
     actionTextItalic->setChecked(f.italic());
     actionTextUnderline->setChecked(f.underline());
     fontSize=f.pointSize();
-    modifyLabels();
-
 }
 
 void TextEdit::colorChanged(const QColor &c)
@@ -810,7 +807,7 @@ void TextEdit::modifyLabels(){
 
     for(kk_cursor* c : cursors_.values()){
         editorCurs.setPosition(c->getGlobalPositon());
-        font=editorCurs.charFormat().font().pointSize();
+        font = editorCurs.charFormat().font().pointSize();
         c->setLabelsSize(font);
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
