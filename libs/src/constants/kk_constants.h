@@ -68,6 +68,10 @@
 #define DB_ERR_SHARE_FILE_USERS -8
 #define DB_ERR_USER_FILES -9
 
+#define DB_FILE_EXIST -10
+#define DB_FILE_NOT_EXIST -11
+
+
 /// Sender email errors
 #define SEND_EMAIL_SUCCESS 50
 #define SEND_EMAIL_NOT_SUCCESS -50
@@ -101,6 +105,6 @@
 #define FILE_SYSTEM_USER "root"
 
 /// File system errors
-#define FILE_SYSTEM_CREATE_ERROR "ERROR_CREATE_FILE"
+#define FILE_SYSTEM_CREATE_ERROR nullptr
 
 #endif //SERVER_KK_CONSTANTS_H

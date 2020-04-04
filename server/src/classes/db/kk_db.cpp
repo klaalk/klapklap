@@ -88,11 +88,11 @@ int KKDataBase::sendInsertUserInfoEmail(QString username, QString email, QString
     KKSmtp sender;
     QString destName = name + " " + surname;
     QString mex = sender.messageBuilder("Welcome to KlapKlap Soft :)",
-                                destName,
-                                username + "\nYour registration is now complete!",
-                                "You are signed-up!",
-                                "blank"
-                                );
+                                        destName,
+                                        username + "\nYour registration is now complete!",
+                                        "You are signed-up!",
+                                        "blank"
+                                        );
     bool success = sender.sendMessage(mex, destName, email, "KlapKlap Registration");
     if (!success) {
         return SEND_EMAIL_NOT_SUCCESS;
@@ -100,27 +100,24 @@ int KKDataBase::sendInsertUserInfoEmail(QString username, QString email, QString
     return SEND_EMAIL_SUCCESS;
 }
 
-int KKDataBase::insertUserFile(QString username, QString filename, QString path, UserInfo* user) {
+int KKDataBase::insertUserFile(QString filename, QString path, UserInfo* user) {
     Q_UNUSED(path)
-    int resCode = getUserInfo(username, user);
+    int resCode = DB_INSERT_FILE_FAILED;
 
-    if (resCode == DB_USER_FOUND) {
-        resCode = DB_INSERT_FILE_FAILED;
-
-        if(!db.open()) {
-            resCode = DB_ERR_NOT_OPEN_CONNECTION;
-        } else {
-            QString _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`, `CREATION_DATE`) VALUES ('" + user->id + "','" + filename + "', CURRENT_TIME());";
-            try {
-                db.exec(_queryStr);
-                db.close();
-                resCode = DB_INSERT_FILE_SUCCESS;
-            } catch (QException &e) {
-                db.close();
-                qDebug() << e.what();
-            }
+    if(!db.open()) {
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else {
+        QString _queryStr = "INSERT INTO `FILES_OWNERS` (`ID`,`FILENAME`, `CREATION_DATE`) VALUES ('" + user->id + "','" + filename + "', CURRENT_TIME());";
+        try {
+            db.exec(_queryStr);
+            db.close();
+            resCode = DB_INSERT_FILE_SUCCESS;
+        } catch (QException &e) {
+            db.close();
+            qDebug() << e.what();
         }
     }
+
     return resCode;
 }
 
@@ -142,8 +139,8 @@ int KKDataBase::shareUserFile(QString fromUsername, QString toUsername, QString 
 
     if (resFromUser == DB_USER_FOUND && resToUser == DB_USER_FOUND) {
         if(!db.open()) {
-             resCode = DB_ERR_NOT_OPEN_CONNECTION;
-         } else {
+            resCode = DB_ERR_NOT_OPEN_CONNECTION;
+        } else {
             QSqlQuery res = db.exec("SELECT COUNT(`ID`) FROM `FILES_OWNERS` WHERE `ID`='" + toUser->id + "' AND `FILENAME`='" + filename + "';");
             res.next();
 
@@ -176,9 +173,9 @@ int KKDataBase::shareUserFile(QString fromUsername, QString toUsername, QString 
 int KKDataBase::sendShareUserFileEmail(QString filename, UserInfo* fromUser, UserInfo* toUser) {
     KKSmtp sender;
     QString mex = sender.messageBuilder("New file shared: " + filename, "",
-                                       "Sender: " + fromUser->name + " " + fromUser->surname,
-                                       "Open now!",
-                                       "http://www.facebook.it");
+                                        "Sender: " + fromUser->name + " " + fromUser->surname,
+                                        "Open now!",
+                                        "http://www.facebook.it");
     bool success = sender.sendMessage(mex, toUser->name + " " + toUser->surname, toUser->email, "KlapKlap Invite");
 
     if (!success) {
@@ -190,12 +187,12 @@ int KKDataBase::sendShareUserFileEmail(QString filename, UserInfo* fromUser, Use
 int KKDataBase::login(QString username, QString password, UserInfo *user) {
     int resCode = getUserInfo(username, user);
     if(resCode == DB_USER_FOUND) {
-         SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
-         QString userPsw = solver.decryptToString(user->password);
-         QString inputPsw = solver.decryptToString(password);
-         if  (userPsw == inputPsw)
+        SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+        QString userPsw = solver.decryptToString(user->password);
+        QString inputPsw = solver.decryptToString(password);
+        if  (userPsw == inputPsw)
             resCode = DB_LOGIN_SUCCESS;
-         else
+        else
             resCode = DB_LOGIN_FAILED;
     }
     return resCode;
@@ -279,11 +276,11 @@ int  KKDataBase::resetPassword(QString username){
         if(resCode == DB_PASSWORD_UPDATED) {
             KKSmtp sender;
             QString mex = sender.messageBuilder("Reset password for user: " +username, "",
-                                               "Your temporary password is:",
-                                               tempPsw,
-                                               "null");
+                                                "Your temporary password is:",
+                                                tempPsw,
+                                                "null");
             sender.sendMessage(mex, user->name + " " + user->surname,
-                                      user->email, "KlapKlap Reset Password");
+                               user->email, "KlapKlap Reset Password");
         }
     }
     return resCode;
@@ -309,21 +306,63 @@ int KKDataBase::updatePassword(QString username, QString password) {
 
 
 int KKDataBase::insertUserImage(QString username, QString image_path){
-     QFile file(image_path);
-     if (!file.open(QIODevice::ReadOnly)) return false;
-     QByteArray inByteArray = file.readAll();
-     db.open();
-     QSqlQuery query = QSqlQuery( db );
-     try {
-         query.prepare( "UPDATE `USERS` SET `IMAGE` = :imageData WHERE `USERNAME`='" + username + "';" );
-         query.bindValue( ":imageData", inByteArray );
-         query.exec();
-         return true;
-     } catch (QException &e) {
-         QString _str(e.what());
-         qDebug() << "Error inserting image into table:\n" << query.lastError();
-         db.close();
-         return false;
-     }
+    QFile file(image_path);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+    QByteArray inByteArray = file.readAll();
+    db.open();
+    QSqlQuery query = QSqlQuery( db );
+    try {
+        query.prepare( "UPDATE `USERS` SET `IMAGE` = :imageData WHERE `USERNAME`='" + username + "';" );
+        query.bindValue( ":imageData", inByteArray );
+        query.exec();
+        return true;
+    } catch (QException &e) {
+        QString _str(e.what());
+        qDebug() << "Error inserting image into table:\n" << query.lastError();
+        db.close();
+        return false;
+    }
+}
+
+int KKDataBase::existFilename(QString filename)
+{
+    int resCode = DB_FILE_NOT_EXIST;
+    if(!db.open()) {
+        qDebug("Errore in fase di apertura della connessione con il Database");
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else {
+        try {
+            QSqlQuery res = db.exec("SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `FILENAME`='" +filename+ "';");
+            db.close();
+            res.next();
+            if (res.value(0).toInt() > 0)
+                resCode = DB_FILE_EXIST;
+        } catch (QException &e) {
+            QString _str(e.what());
+            db.close();
+        }
+    }
+    return resCode;
+}
+
+int KKDataBase::existFilenameById(QString filename, QString userId)
+{
+    int resCode = DB_FILE_NOT_EXIST;
+    if(!db.open()) {
+        qDebug("Errore in fase di apertura della connessione con il Database");
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else {
+        try {
+            QSqlQuery res = db.exec("SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `FILENAME`='" +filename+ "' AND `ID`='" + userId + "';" );
+            db.close();
+            res.next();
+            if (res.value(0).toInt() > 0)
+                resCode = DB_FILE_EXIST;
+        } catch (QException &e) {
+            QString _str(e.what());
+            db.close();
+        }
+    }
+    return resCode;
 }
 

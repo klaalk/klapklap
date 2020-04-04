@@ -29,7 +29,7 @@ QT_FORWARD_DECLARE_CLASS(QWebSocket)
 class KKSession : public QObject, public KKParticipant, public QEnableSharedFromThis<KKSession> {
     Q_OBJECT
 public:
-    KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files, QObject *parent = nullptr);
+    KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files,KKFilePtr logFile, QObject *parent = nullptr);
     ~KKSession();
 
     void deliver(KKPayloadPtr msg);
@@ -53,7 +53,10 @@ private:
     KKDataBasePtr db;
     KKMapFilePtr files;
     KKFilePtr file;
+    KKFilePtr logFile;
     KKFileSystemPtr fileSystem;
+    UserInfo *user;
+
 
     int taskNumerator = 0;
 };
