@@ -1165,7 +1165,7 @@ bool TextEdit::clickedAny(){
     return !siteIdsClicked_.isEmpty();
 }
 
-QString TextEdit::getCurrentFont(int pos){
+void TextEdit::getCurrentFontAndColor(int pos, QString *font, QString *color){
 
     bool cursorBlocked=false;
     if(blockCursor)
@@ -1176,32 +1176,12 @@ QString TextEdit::getCurrentFont(int pos){
     int oldPos=curs.position();
     curs.setPosition(pos);
     curs.movePosition(curs.Right, QTextCursor::KeepAnchor);
-    QString font= curs.charFormat().font().toString();
+    *font= curs.charFormat().font().toString();
+    *color= curs.charFormat().foreground().color().name();
     curs.setPosition(oldPos);
 
     if(!cursorBlocked)
         blockCursor=false;
-
-    return font;
 }
 
-QString TextEdit::getCurrentColor(int pos){
-
-    bool cursorBlocked=false;
-    if(blockCursor)
-        cursorBlocked=true;
-    else blockCursor=true;
-
-    QTextCursor curs = textEdit->textCursor();
-    int oldPos=curs.position();
-    curs.setPosition(pos);
-    curs.movePosition(curs.Right, QTextCursor::KeepAnchor);
-    QString color= curs.charFormat().foreground().color().name();
-    curs.setPosition(oldPos);
-
-    if(!cursorBlocked)
-        blockCursor=false;
-
-    return color;
-}
 

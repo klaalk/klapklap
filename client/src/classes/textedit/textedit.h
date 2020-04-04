@@ -145,8 +145,7 @@ public:
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
     void siteIdClicked(const QString& name);
     void updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list);
-    QString getCurrentFont(int pos);
-    QString getCurrentColor (int pos);
+    void getCurrentFontAndColor(int pos, QString *font, QString *color);
     void setMySiteId(QString mySiteId);
     QString getMySiteId();
     QTextEdit* getTextEdit();
