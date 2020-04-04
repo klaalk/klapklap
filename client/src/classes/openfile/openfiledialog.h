@@ -50,6 +50,7 @@ private:
 
     Ui::OpenFileDialog *ui;
     SimpleCrypt* crypt;
+    QRegularExpression *fileNameRegexp;
 
     QString selectedFileName;
     QMap<QString, QString> files_;

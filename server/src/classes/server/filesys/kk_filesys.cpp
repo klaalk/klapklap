@@ -22,8 +22,8 @@ KKFileSystem::~KKFileSystem() {}
 
 KKFilePtr KKFileSystem::createFile(QString username, QString filename){
     if(username == FILE_SYSTEM_USER && filename == LOG_FILE) {
-        this->logFileName = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
-        return openFile(logFileName,LOG_ROOT);
+        logFileName = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
+        return openFile(logFileName, LOG_ROOT);
     }
 
     //FIXME: FILE DI TEST PER TEXT EDITOR. TODO: rimuovere una volta finito
@@ -71,7 +71,7 @@ bool KKFileSystem::writeFile(KKFilePtr file, QString toPrint) {
     QFile *tmp = file->getFile().get();
     bool result = tmp->open(QIODevice::ReadWrite | QIODevice::Text);
     if(result){
-        if(file->getFilename().endsWith("_log.txt")) {
+        if(file->getFilename() == logFileName) {
             toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
             qDebug() << "[log] " + toPrint;
         }

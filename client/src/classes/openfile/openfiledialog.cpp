@@ -15,7 +15,8 @@
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OpenFileDialog),
-    crypt(new SimpleCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023)))
+    crypt(new SimpleCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))),
+    fileNameRegexp(new QRegularExpression("[ A-Za-z0-9_\\-()]{3,}$"))
 {
     // Setting up window
     ui->setupUi(this);
@@ -147,9 +148,9 @@ void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1)
     QString newFileName = ui->createFileNameLineEdit->text();
-
-    ui->openFileButton->setEnabled(newFileName.size() > 0);
-    ui->shareFileButton->setEnabled(selectedFileName == newFileName);
+    bool isFileNameValid = fileNameRegexp->match(newFileName).hasMatch();
+    ui->openFileButton->setEnabled(newFileName.size() > 0 && isFileNameValid);
+    ui->shareFileButton->setEnabled(selectedFileName == newFileName && isFileNameValid);
 }
 
 void OpenFileDialog::initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)

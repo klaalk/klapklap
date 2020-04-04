@@ -275,7 +275,7 @@
        <item>
         <widget class="QLabel" name="fileNameTitle">
          <property name="text">
-          <string>Nome file:</string>
+          <string>lnserisci il nome del file oppure il link di condivisione:</string>
          </property>
         </widget>
        </item>

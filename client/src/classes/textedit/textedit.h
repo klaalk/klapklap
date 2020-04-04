@@ -74,8 +74,8 @@ public:
     }
 
     void moveLabels(QRect qRect) {
-        name->move(qRect.x(),qRect.y()-fontSize);
-        earpiece->move(qRect.x()-1, qRect.y());
+        name->move(qRect.x(),qRect.y()-static_cast<int>(1.15*fontSize));
+        earpiece->move(qRect.x()-static_cast<int>(0.35*fontSize), qRect.y());
     }
     int getGlobalPositon() {
         return this->globalPositon;
@@ -83,6 +83,11 @@ public:
     void setGlobalPositon(int position) {
         this->globalPositon = position;
     }
+
+    QString getLabelName(){
+        return this->name->text();
+    }
+
     // DA TOGLIERE
     //    int getSelectionStart(){
     //        return this->selection_start;
@@ -129,18 +134,20 @@ class TextEdit : public QMainWindow
     Q_OBJECT
 
 public:
-    bool getIfIsClicked(const QString& siteId);
+    bool clickedOne(const QString& siteId);
+    bool clickedAny();
     void setCurrentFileName(const QString &fileName);
     TextEdit(QWidget *parent = nullptr);
     QTextEdit *textEdit;
     bool load(const QString &f);
     void resetState();
-    void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font,const QString& colorRecived, QSharedPointer<QList<int>> myList);
+    void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font,const QString& colorRecived);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
-    void modifyLabels();
-    void updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list);
     void siteIdClicked(const QString& name);
+    void updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list);
+    void getCurrentFontAndColor(int pos, QString *font, QString *color);
     void setMySiteId(QString mySiteId);
+    QString getMySiteId();
     QTextEdit* getTextEdit();
 signals:
     void insertTextToCRDT(QString text, int position);
@@ -193,6 +200,7 @@ private:
 
     void colorText(const QString& siteId);
     void clearColorText(const QString& name);
+    void modifyLabels();
 
     QAction *actionSave{};
     QAction *actionTextBold{};
