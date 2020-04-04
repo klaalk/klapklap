@@ -657,17 +657,28 @@ void TextEdit::textColor()
     colorChanged(col);
 }
 
+
 void TextEdit::textAlign(QAction *a)
 {
-    if (a == actionAlignLeft)
+    QString alignment;
+    if (a == actionAlignLeft){
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
-    else if (a == actionAlignCenter)
+        alignment="left";
+    }
+    else if (a == actionAlignCenter){
+         alignment="center";
         textEdit->setAlignment(Qt::AlignHCenter);
-    else if (a == actionAlignRight)
+    }
+    else if (a == actionAlignRight){
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
-    else if (a == actionAlignJustify)
+         alignment="right";
+    }
+    else if (a == actionAlignJustify){
+        alignment="justify";
         textEdit->setAlignment(Qt::AlignJustify);
+    }
     modifyLabels();
+     emit(alignChange(alignment));
 }
 
 void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
@@ -786,32 +797,32 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
     QString alignment;
     if (a & Qt::AlignLeft){
         actionAlignLeft->setChecked(true);
-        alignment="left";
+
     }
 
     else if (a & Qt::AlignHCenter){
         actionAlignCenter->setChecked(true);
-        alignment="center";
+
     }
     else if (a & Qt::AlignRight){
         actionAlignRight->setChecked(true);
-        alignment="right";
+
     }
     else if (a & Qt::AlignJustify){
         actionAlignJustify->setChecked(true);
-        alignment="justify";
+
 
     }
 
     modifyLabels();
-    //xxx qui deve fare un emit
-    emit(alignChange(alignment));
+
 }
  //xxx
 
 void TextEdit::alignmentRemoteChange(QString alignment)
 {
     if (alignment=="left"){
+
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
         actionAlignLeft->setChecked(true);
     }
@@ -906,10 +917,9 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
 
         QFont fontNuovo;
         QColor coloreNuovo(colorRecived);
-<<<<<<< HEAD
+
         QTextCharFormat formatVecchio = editorCurs.charFormat();
-=======
->>>>>>> Paola
+
         fontNuovo.fromString(font);
         //int newSize=fontNuovo.pointSize();
         int newPos=editorCurs.position();
@@ -1123,14 +1133,14 @@ void TextEdit::clearColorText(const QString& siteId){
         fmt.setBackground(Qt::white);
         cursor.setCharFormat(fmt);
     }*/
-=======
+
         if (cursor.charFormat().background()!=Qt::white){
              fmt=cursor.charFormat();
              fmt.setBackground(Qt::white);
              cursor.setCharFormat(fmt);
         }
-    }
->>>>>>> Paola
+
+
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
 
