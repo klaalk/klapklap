@@ -12,8 +12,8 @@
 
 #define DEBUG
 
-KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files_, QObject*  parent)
-    : QObject(parent), db(db), files(files_), fileSystem(filesys) {
+KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files_, KKFilePtr logFile, QObject*  parent)
+    : QObject(parent), db(db), files(files_),logFile(logFile), fileSystem(filesys), user(new UserInfo) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
 }
 
@@ -29,21 +29,21 @@ void KKSession::setSocket(QWebSocket* descriptor) {
     connect(socket, &QWebSocket::textMessageReceived, this, &KKSession::handleRequest);
     connect(socket, &QWebSocket::binaryMessageReceived, this, &KKSession::handleBinaryRequests);
     connect(socket, &QWebSocket::disconnected, this, &KKSession::handleDisconnection);
-    fileSystem->writeFile(LOG_FILE, "Client "+id+", "
-                                      +descriptor->peerAddress().toString()+", "
-                                      +QString::number(descriptor->peerPort())+" connected at "
-                                      + descriptor->localAddress().toString() +", "
-                                      +QString::number(descriptor->localPort()) );
+    fileSystem->writeFile(logFile, "Client "+id+", "
+                          +descriptor->peerAddress().toString()+", "
+                          +QString::number(descriptor->peerPort())+" connected at "
+                          + descriptor->localAddress().toString() +", "
+                          +QString::number(descriptor->localPort()) );
 }
 
 void KKSession::sendResponse(QString type, QString result, QStringList values) {
     KKPayload res(type, result, values);
-    fileSystem->writeFile(LOG_FILE, "Server send (" + res.encode() +")");
+    fileSystem->writeFile(logFile, "Server send (" + res.encode() +")");
     socket->sendTextMessage(res.encode());
 }
 
 void KKSession::handleRequest(QString message) {
-    fileSystem->writeFile(LOG_FILE, "Client send " + message);
+    fileSystem->writeFile(logFile, "Client send " + message);
     if (socket){
         KKPayload req(message);
         req.decode();
@@ -77,22 +77,10 @@ void KKSession::handleRequest(QString message) {
 void KKSession::handleLoginRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
-#ifndef ENV
-    fileSystem->writeFile(LOG_FILE, "Client info " + id +", " + socket->peerAddress().toString()+", " + QString::number(socket->peerPort()));
-#endif
+    fileSystem->writeFile(logFile, "Client info " + id +", " + socket->peerAddress().toString()+", " + QString::number(socket->peerPort()));
     KKTask *mytask = new KKTask([=]() {
         int result = DB_LOGIN_SUCCESS;
-        UserInfo *user = new UserInfo;
-        #ifndef ENV
         result = db->login(_body[0],_body[1], user);
-        #else
-        user->name = "JHON";
-        user->surname= "SNOW";
-        user->email = id;
-        user->password = "PSW";
-        user->username = id;
-        user->registrationDate = "BOH";
-        #endif
         if(result == DB_LOGIN_SUCCESS) {
             QStringList* output = new QStringList();
             output->append(user->name);
@@ -100,12 +88,10 @@ void KKSession::handleLoginRequest(KKPayload request) {
             output->append(user->email);
             output->append(user->password);
             output->append(user->username);
-//          TODO: inserire immagine
-//            output->append(user->image);
+            //          TODO: inserire immagine
+            //            output->append(user->image);
             output->append(user->registrationDate);
-            #ifndef ENV
             db->getUserFile(user, output);
-            #endif
             this->sendResponse(LOGIN, SUCCESS, *output);
         } else if (result == DB_LOGIN_FAILED) {
             this->sendResponse(LOGIN, BAD_REQUEST, {"Credenziali non valide"});
@@ -127,7 +113,7 @@ void KKSession::handleSignupRequest(KKPayload request) {
         if(result == DB_SIGNUP_SUCCESS) {
             int emailResult = db->sendInsertUserInfoEmail(_body[0], _body[0],_body[2], _body[3]);
             if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
-                fileSystem->writeFile(LOG_FILE, "Non è stato possibile inivare l'email a " + _body[0]);
+                fileSystem->writeFile(logFile, "Non è stato possibile inivare l'email a " + _body[0]);
             }
             this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
         } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
@@ -142,48 +128,50 @@ void KKSession::handleSignupRequest(KKPayload request) {
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
     QString fileName = request.getBodyList()[0];
-    QString completeFileName = fileName;
-    QString message;
-    QString result = SUCCESS;
-    auto search = files->find(completeFileName);
+    QString message= "Non è stato possibile aggiungere il file nel database";
+    QString result = INTERNAL_SERVER_ERROR;
+    int dbFileInsert=DB_INSERT_FILE_SUCCESS;
+    int dbFileExist;
+
+    auto search = files->find(fileName);
 
     if (search != files->end()) {
-#ifndef ENV
-        // il file era già aperto ed è nella mappa globale
-        fileSystem->openFile(id, completeFileName);
-#endif
-        file = files->value(completeFileName);
+        file = files->value(fileName);
         file->join(sharedFromThis());
+        result = SUCCESS;
         message = "File esistente, sei stato aggiunto correttamente";
-    } else {
 
-#ifndef ENV
-        // Apro il file. Con i dovuti controlli
-        completeFileName = fileSystem->createFile(id, fileName);
-#endif
-        if(completeFileName != FILE_SYSTEM_CREATE_ERROR) {
-            file = QSharedPointer<KKFile>(new KKFile());
-            file->join(sharedFromThis());
-            files->insert(completeFileName, file);
-            auto search = files->find(completeFileName);
-            if (search != files->end()) {
-#ifndef ENV
-                //sto aprendo un file condiviso/privato
-                fileSystem->openFile(id, completeFileName);
-#endif
-                message = "File creato, sei stato aggiunto correttamente";
-            } else {
-                message = "Non è stato possibile aggiungere il file nel database";
-                result = INTERNAL_SERVER_ERROR;
-            }
-        } else {
-            message = "Non è stato possibile creare il file nel file system";
-            result = INTERNAL_SERVER_ERROR;
+    } else {
+        //        Controllo se il file esiste nel DB
+        dbFileExist = db->existFilename(fileName);
+        if(dbFileExist==DB_FILE_NOT_EXIST){
+            file = fileSystem->createFile(id, fileName);
+            if(file != FILE_SYSTEM_CREATE_ERROR)
+                message = "File creato";
+            else
+                message = "File non creato";
+        }else{
+            dbFileExist = db->existFilenameById(fileName,user->id);
+            file = fileSystem->openFile(fileName);
+            message= "File esistente";
         }
+        fileName = file->getFilename();
+        if(dbFileExist==DB_FILE_NOT_EXIST && file != FILE_SYSTEM_CREATE_ERROR )
+            dbFileInsert = db->insertUserFile(fileName, APPLICATION_ROOT + fileName, user);
+
+        if(dbFileInsert==DB_INSERT_FILE_SUCCESS && file != FILE_SYSTEM_CREATE_ERROR){
+            file->join(sharedFromThis());
+            files->insert(fileName, file);
+            result = SUCCESS;
+            message+=", sei stato aggiunto correttamente";
+        }else{
+            message+=", si verificato un errore";
+        }
+
     }
-#ifndef ENV
-    fileSystem->writeFile(LOG_FILE, completeFileName + ": " + message);
-#endif
+
+    fileSystem->writeFile(logFile, fileName + ": " + message);
+
     // invio al client la risposta della request.
     sendResponse(OPENFILE, result, {message});
 
@@ -216,10 +204,10 @@ void KKSession::handleSaveFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
     KKTask *mytask = new KKTask([=]() {
-    ////  Creo il file, supponendo che non esista, se esiste questo va evitato
-    //    QString filename = fileSystem->createFile(_body[1],_body[2]);
-    //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
-        fileSystem->writeFile(APPLICATION_ROOT+_body[1],_body[2]);
+        ////  Creo il file, supponendo che non esista, se esiste questo va evitato
+        //    QString filename = fileSystem->createFile(_body[1],_body[2]);
+        //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
+        fileSystem->writeFile(file,_body[2]);
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);
@@ -229,9 +217,9 @@ void KKSession::handleLoadFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
     KKTask *mytask = new KKTask([=]() {
-    ////  Apro il file, supponendo che esista, se non esiste questo va evitato
-    //    QString filename = fileSystem->createFile(_body[1],_body[2]);
-    //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
+        ////  Apro il file, supponendo che esista, se non esiste questo va evitato
+        //    QString filename = fileSystem->createFile(_body[1],_body[2]);
+        //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
         QString message = fileSystem->readFile(APPLICATION_ROOT+_body[1]);
         this->sendResponse(LOADFILE, SUCCESS, {message});
     });
@@ -246,9 +234,9 @@ void KKSession::handleBinaryRequests(QByteArray message) {
 }
 
 void KKSession::handleDisconnection() {
-    fileSystem->writeFile(LOG_FILE, "Client: "+id+", "+socket->peerName()+", "
-                                      +socket->peerAddress().toString()+", "
-                                      +QString::number(socket->peerPort())+" disconnected");
+    fileSystem->writeFile(logFile, "Client: "+id+", "+socket->peerName()+", "
+                          +socket->peerAddress().toString()+", "
+                          +QString::number(socket->peerPort())+" disconnected");
 
     if (socket)
     {

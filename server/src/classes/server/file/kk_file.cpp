@@ -45,6 +45,28 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
     });
 }
 
+void KKFile::setFile(QSharedPointer<QFile> file)
+{
+    this->file=file;
+}
+
+QSharedPointer<QFile> KKFile::getFile()
+{
+    return this->file;
+}
+
+void KKFile::setFilename(QString filename)
+{
+    this->filename=filename;
+}
+
+QString KKFile::getFilename()
+{
+    return this->filename;
+}
+
 KKVectorPayloadPtr KKFile::getRecentMessages() {
     return recentMessages;
 }
+
+

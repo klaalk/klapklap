@@ -37,17 +37,17 @@ KKServer::KKServer(quint16 port, QObject *parent):
 
     files = QSharedPointer<QMap<QString, KKFilePtr>>(new QMap<QString, KKFilePtr>());
     db = QSharedPointer<KKDataBase>(new KKDataBase());
-    filesys = QSharedPointer<KKFileSystem>(new KKFileSystem(db));
+    filesys = QSharedPointer<KKFileSystem>(new KKFileSystem());
 
     QString run_info="";
     run_info = "RUNNING (Version:" +  QString::number(VERSION_MAJOR) +  "." + QString::number(VERSION_MINOR) + " Build: "
             + QString::number(VERSION_BUILD)+")";
 
-    filesys->createFile(FILE_SYSTEM_USER, LOG_FILE);
-    filesys->writeFile(LOG_FILE, run_info);
+    logFile= filesys->createFile(FILE_SYSTEM_USER, LOG_FILE);
+    filesys->writeFile(logFile, run_info);
 
     if (socket->listen(QHostAddress::Any, port)) {
-        filesys->writeFile(LOG_FILE, "SSL Server listening on port " + QString::number(port));
+        filesys->writeFile(logFile, "SSL Server listening on port " + QString::number(port));
         connect(socket, &QWebSocketServer::newConnection, this,&KKServer::onNewConnection);
         connect(socket, &QWebSocketServer::sslErrors, this, &KKServer::onSslErrors);
     }
@@ -69,7 +69,7 @@ KKServer::~KKServer()
 
 void KKServer::onNewConnection() {
     QWebSocket *pSocket = socket->nextPendingConnection();
-    KKSessionPtr client = QSharedPointer<KKSession>(new KKSession(db, filesys, files, this));
+    KKSessionPtr client = QSharedPointer<KKSession>(new KKSession(db, filesys, files,logFile ,this));
     client->setSocket(pSocket);
     sessions << client;
     clients << pSocket;
@@ -77,5 +77,5 @@ void KKServer::onNewConnection() {
 
 void KKServer::onSslErrors(const QList<QSslError> &)
 {
-    filesys->writeFile(LOG_FILE,"SSL errors occurred");
+    filesys->writeFile(logFile,"SSL errors occurred");
 }

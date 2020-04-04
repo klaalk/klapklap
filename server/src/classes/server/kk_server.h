@@ -38,6 +38,7 @@ private:
     KKMapFilePtr files;
     KKDataBasePtr db;
     KKFileSystemPtr filesys;
+    KKFilePtr logFile;
 };
 
 #endif //KK_SERVER_H
