@@ -128,7 +128,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
     openFile_.setUserInfo(bodyList);
     openFile_.show();
 #else
-     this->sendOpenFileRequest("testp.txt");
+     this->sendOpenFileRequest("testboh12.txt");
 #endif
 }
 
@@ -181,7 +181,9 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
     //xxx
     qDebug() << "FONTmandato:"<<char_->getKKCharFont();
-    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor(),findPositions(labelName));
+    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor());
+    if(editor_.clickedAny())
+        editor_.updateSiteIdsMap(labelName,findPositions(labelName));
 }
 
 void KKClient::handleErrorResponse(KKPayload response){
@@ -360,24 +362,28 @@ void KKClient::handleModalClosed(const QString& modalType) {
 
 void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     QByteArray ba = diffText.toLocal8Bit();
-    QString siteId=crdt_->getSiteId();
+    QString siteId=crdt_->getSiteId(),font_,color_;
     char *c_str = ba.data();
     unsigned long line; unsigned long col;
+
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
         crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
         KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col));
-        QString font_;
+
 
         QString ids = QString::fromStdString(char_->getIdentifiersString());
 
         //xxx
-        font_=editor_.getTextEdit()->textCursor().charFormat().font().toString();
-        QString color_=editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
+        font_=editor_.getCurrentFont(position+i);
+        color_=editor_.getCurrentColor(position+i);
+
 //        char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar POTREBBE NON SERVIRE xxx
+//        char_->setKKCharColor(color_);
 
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
     }
-    editor_.updateSiteIdsMap(siteId,findPositions(siteId));
+    if(editor_.clickedAny())
+        editor_.updateSiteIdsMap(siteId,findPositions(siteId));
 }
 
 void KKClient::onRemoveTextCrdt(int start, int end) {
@@ -394,7 +400,8 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids, font_, color_});
     });
-    editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
+    if(editor_.clickedAny())
+       editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
 }
 
 void KKClient::onSaveCrdtToFile() {
@@ -436,7 +443,7 @@ void KKClient::onSiteIdClicked(const QString& siteId, bool logout){
         editor_.updateSiteIdsMap(siteId, myList);
         editor_.siteIdClicked(siteId);
     }else {
-        if(editor_.getIfIsClicked(siteId))
+        if(editor_.clickedOne(siteId))
             editor_.siteIdClicked(siteId);
     }
 }
