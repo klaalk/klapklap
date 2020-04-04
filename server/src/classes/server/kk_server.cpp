@@ -57,14 +57,16 @@ KKServer::~KKServer()
 {
     socket->close();
     qDeleteAll(clients.begin(), clients.end());
-    delete db.get();
     std::for_each(files->begin(), files->end(),[](KKFilePtr e){
         delete e.get();
     });
-    delete files.get();
     std::for_each(sessions.begin(), sessions.end(), [](KKSessionPtr p){
         delete p.get();
     });
+
+    delete filesys.get();
+    delete files.get();
+    delete db.get();
 }
 
 void KKServer::onNewConnection() {

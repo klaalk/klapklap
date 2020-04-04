@@ -13,7 +13,11 @@ KKFile::~KKFile() {
     std::for_each(recentMessages->begin(), recentMessages->end(), [](KKPayloadPtr d){
         delete d.get();
     });
-
+    std::for_each(crdtMessages->begin(), crdtMessages->end(), [](KKPayloadPtr d){
+        delete d.get();
+    });
+    delete file.get();
+    delete crdtMessages.get();
     delete recentMessages.get();
 }
 void KKFile::join(QSharedPointer<KKParticipant> participant) {
