@@ -13,7 +13,11 @@ KKFile::~KKFile() {
     std::for_each(recentMessages->begin(), recentMessages->end(), [](KKPayloadPtr d){
         delete d.get();
     });
-
+    std::for_each(crdtMessages->begin(), crdtMessages->end(), [](KKPayloadPtr d){
+        delete d.get();
+    });
+    delete file.get();
+    delete crdtMessages.get();
     delete recentMessages.get();
 }
 void KKFile::join(QSharedPointer<KKParticipant> participant) {
@@ -45,6 +49,28 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
     });
 }
 
+void KKFile::setFile(QSharedPointer<QFile> file)
+{
+    this->file=file;
+}
+
+QSharedPointer<QFile> KKFile::getFile()
+{
+    return this->file;
+}
+
+void KKFile::setFilename(QString filename)
+{
+    this->filename=filename;
+}
+
+QString KKFile::getFilename()
+{
+    return this->filename;
+}
+
 KKVectorPayloadPtr KKFile::getRecentMessages() {
     return recentMessages;
 }
+
+

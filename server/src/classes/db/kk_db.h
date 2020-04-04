@@ -39,13 +39,13 @@ public:
     bool db_query(QString query);
 
 
-    ///inserimento utente. Ritorna 0 successo, -1 username fault, -2 email fault.
+    ///inserimento utente.
     int insertUserInfo(QString username, QString password, QString email, QString name,
                        QString surname);
     int sendInsertUserInfoEmail(QString username, QString email, QString name, QString surname);
 
-    ///inserimento utente. Ritorna 0 successo,
-    int insertUserFile(QString username, QString filename, QString path, UserInfo* user);
+    ///inserimento utente.
+    int insertUserFile(QString filename, QString path, UserInfo* user);
     int sendInsertUserFileEmail(QString username, QString email, QString name, QString surname, QString filename);
 
     ///inserimento permessi (share file). Ritorna 0 successo,
@@ -73,6 +73,11 @@ public:
 
     ///inserisce l'immagine dell'utente
     int insertUserImage(QString username, QString image_path);
+
+    int existFilename(QString filename);
+
+    int existFilenameById(QString filename, QString userId);
+
 
 };
 

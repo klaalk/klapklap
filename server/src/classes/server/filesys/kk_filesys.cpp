@@ -4,7 +4,7 @@
 
 #include "kk_filesys.h"
 
-KKFileSystem::KKFileSystem(KKDataBasePtr db): db(db){
+KKFileSystem::KKFileSystem(){
     // Preparo le folders per il file system
 
     if (!QDir().exists(SERVER_ROOT)) {
@@ -20,20 +20,16 @@ KKFileSystem::KKFileSystem(KKDataBasePtr db): db(db){
 
 KKFileSystem::~KKFileSystem() {}
 
-QString KKFileSystem::createFile(QString username, QString filename){
-
+KKFilePtr KKFileSystem::createFile(QString username, QString filename){
     if(username == FILE_SYSTEM_USER && filename == LOG_FILE) {
-        this->logFileName = LOG_ROOT + QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
-        QFile file(this->logFileName);
-        file.open(QIODevice::ReadWrite | QIODevice::Text);
-        return this->logFileName;
+        logFileName = QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
+        return openFile(logFileName, LOG_ROOT);
     }
 
     //FIXME: FILE DI TEST PER TEXT EDITOR. TODO: rimuovere una volta finito
 
     if (filename.startsWith("test")) {
-
-        return filename;
+        return openFile(filename);
     }
 
     SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
@@ -47,51 +43,18 @@ QString KKFileSystem::createFile(QString username, QString filename){
     // Serve per garantire l'univocità del path.
     QString jump;
     jump=crypt.random_psw(jump);
-
     QString _filename = jump + "@" + tmp + "@" + filename;
-    QFile file(APPLICATION_ROOT + _filename);
-    file.open(QIODevice::ReadWrite | QIODevice::Text);
+    return openFile(filename);
 
-    UserInfo *user = new UserInfo;
-    int result = db->insertUserFile(username, _filename, APPLICATION_ROOT + _filename, user);
 
-    if(result == DB_INSERT_FILE_SUCCESS) {
-        db->sendInsertUserFileEmail(user->username, user->email, user->name, user->surname, _filename);
-        return _filename;
-    }
-
-    return FILE_SYSTEM_CREATE_ERROR;
 }
 
-bool KKFileSystem::openFile(QString username, QString filename){
-
-    //FIXME: FILE DI TEST PER TEXT EDITOR. TODO: rimuovere una volta finito
-
-    if (filename.startsWith("test")) {
-
-
-        UserInfo *user = new UserInfo;
-        return db->insertUserFile(username, filename, APPLICATION_ROOT + filename, user);
-    }
-
-    SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
-    // 0=random_jump, 1=crypted username 2=effective filename
-    QStringList body = filename.split("@");
-    QString _username = crypt.decryptToString(body[1]);
-
-    if (db->checkUserInfoByUsername(_username) != DB_USER_FOUND) return false;
-
-    //Gia presente nella tabella, avendo
-    if(username==_username) return true;
-
-    UserInfo *user = new UserInfo;
-    // Sto aprendo un file al quale sono invitato, devo tenerne traccia sul db
-    int result = db->insertUserFile(username, filename, APPLICATION_ROOT + filename, user);
-    if (result == DB_INSERT_FILE_SUCCESS) {
-        db->sendInsertUserFileEmail(user->username,user->email,user->name, user->surname, filename);
-        return true;
-    }
-    return false;
+KKFilePtr KKFileSystem::openFile(QString filename, QString rootPath){
+    KKFilePtr kkFile = QSharedPointer<KKFile>(new KKFile());
+    QSharedPointer<QFile> file = QSharedPointer<QFile>(new QFile (rootPath + filename));
+    kkFile->setFile(file);
+    kkFile->setFilename(filename);
+    return  kkFile;
 }
 
 bool KKFileSystem::sendFile(QString filename){
@@ -104,32 +67,22 @@ bool KKFileSystem::sendFile(QString filename){
     return true;
 }
 
-// In pratica, come dicevamo, creiamo un file con "jump_crypt(username)_filename.txt".
-// dove jump è una sringa causale da (26+10)^20 combinazioni che ci garantisce univocità per
-// il filename completo. Viene chiamata la open file che: se lo user non esiste da false,
-// se user è proprietario del file da true, non c'e bisogno di fare altre operazioni,
-// se l'user non è proprietario vuol dire che è stato invitato, quindi va aggiunto,
-// il valore ritornato dipende da se riesce o meno la query nel db.
-// SendFile prende il file e lo invia sulla sock che usiamo per comunicare
-// con header "file_response" e payload "<binary file content>"
 
-bool KKFileSystem::writeFile(QString filename, QString toPrint) {
+bool KKFileSystem::writeFile(KKFilePtr file, QString toPrint) {
+    QFile *tmp = file->getFile().get();
+    bool result = tmp->open(QIODevice::ReadWrite | QIODevice::Text);
+    if(result){
+        if(file->getFilename() == logFileName) {
+            toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
+            qDebug() << "[log] " + toPrint;
+        }
 
-    if(filename == LOG_FILE) {
-        filename = this->logFileName;
-        toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
-        qDebug() << "[log] " + toPrint;
-    }
-
-    QFile file(filename);
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        QTextStream stream(file->getFile().get());
+        stream << toPrint << endl;
+        tmp->close();
+        return true;
+    }else
         return false;
-    }
-
-    QTextStream stream(&file);
-    stream << toPrint << endl;
-    file.close();
-    return true;
 }
 
 

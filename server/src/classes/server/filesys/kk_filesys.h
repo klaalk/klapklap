@@ -13,31 +13,35 @@
 #include <QSharedPointer>
 #include <QWebSocket>
 #include <QFile>
+#include <QDir>
+#include <QStandardPaths>
 
 #include "../../../../../libs/src/classes/crypt/kk_crypt.h"
-#include "../../db/kk_db.h"
+#include "../file/kk_file.h"
+
 
 #define SERVER_ROOT QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/KKServer"
 #define LOG_ROOT SERVER_ROOT + "/log/"
 #define APPLICATION_ROOT SERVER_ROOT + "/application/"
 
+
 class KKFileSystem {
 public:
-    KKFileSystem(KKDataBasePtr db);
-    KKFileSystem(){}
+    KKFileSystem();
     ~KKFileSystem();
 
-    QString createFile(QString username, QString filename);
-    bool openFile(QString username, QString filename);
+    KKFilePtr createFile(QString username, QString filename);
+    KKFilePtr openFile(QString filename, QString rootPath=APPLICATION_ROOT);
     bool sendFile(QString filename);
-    bool writeFile(QString filename, QString toPrint);
+    bool writeFile(KKFilePtr file, QString toPrint);
     QString readFile(QString filename);
 
 private:
-    KKDataBasePtr db;
     QString logFileName;
 };
 
 typedef QSharedPointer<KKFileSystem> KKFileSystemPtr;
+
+
 
 #endif //KK_FILESYS_H
