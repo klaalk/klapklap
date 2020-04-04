@@ -128,7 +128,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
     openFile_.setUserInfo(bodyList);
     openFile_.show();
 #else
-     this->sendOpenFileRequest("testboh12.txt");
+     this->sendOpenFileRequest("testboh13.txt");
 #endif
 }
 
@@ -179,8 +179,7 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 
     unsigned long remotePos = bodyList_[0] == CRDT_INSERT ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
     QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
-    //xxx
-    qDebug() << "FONTmandato:"<<char_->getKKCharFont();
+
     editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor());
     if(editor_.clickedAny())
         editor_.updateSiteIdsMap(labelName,findPositions(labelName));
@@ -374,11 +373,7 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
         QString ids = QString::fromStdString(char_->getIdentifiersString());
 
         //xxx
-        font_=editor_.getCurrentFont(position+i);
-        color_=editor_.getCurrentColor(position+i);
-
-//        char_->setKKCharFont(font_); //prendo il font che sto usando e lo assegno alla mia KKChar POTREBBE NON SERVIRE xxx
-//        char_->setKKCharColor(color_);
+        editor_.getCurrentFontAndColor(position+i,&font_,&color_);
 
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
     }
