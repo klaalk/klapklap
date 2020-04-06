@@ -113,7 +113,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         QStringList bodyList = response.getBodyList();
         crdt_->loadCrdt(bodyList[0].toStdString());
 
-    }else if(response.getRequestType()==ALICHG){
+    }else if(response.getRequestType()==ALIG){
        handleAlignmentChange(response);
     } else {
         modal_.setModal("Errore generico. Non è stato possibile gestire la risposta.", "Chiudi", GENERIC_ERROR);
@@ -449,7 +449,7 @@ void KKClient::onSiteIdClicked(const QString& siteId, bool logout){
 
 void KKClient::onAlignmentChange(QString alignment){
     QStringList a = {alignment};
-    sendRequest(ALICHG,NONE,a);
+    sendRequest(ALIG,NONE,a);
 }
 
 void KKClient::handleAlignmentChange(KKPayload response){

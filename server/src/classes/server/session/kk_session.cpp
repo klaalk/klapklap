@@ -71,7 +71,7 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == LOADFILE) {
             handleLoadFileRequest(req);
         }
-        else if(req.getRequestType()==ALICHG){
+        else if(req.getRequestType()==ALIG){
             handleAlignChangeRequest(req);
         }
     }
@@ -252,5 +252,5 @@ void KKSession::handleDisconnection() {
 }
 
 void KKSession::handleAlignChangeRequest(KKPayload request){
-    file->deliver(ALICHG, SUCCESS, request.getBodyList(), id);
+    file->deliver(ALIG, SUCCESS, request.getBodyList(), id);
 }
