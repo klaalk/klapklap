@@ -6,79 +6,40 @@
 #define SERVER_KK_DB_H
 
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
-#include "../smtp/kk_smtp.h"
 #include "../../../../libs/src/constants/kk_constants.h"
+
 #include <QtSql>
 #include <QSqlDatabase>
+#include <classes/user/kk_user.h>
 
-
-
-typedef struct record UserInfo;
-
-struct record {
-    QString id;
-    QString name;
-    QString surname;
-    QString email;
-    QString username;
-    QString image;
-    QString registrationDate;
-    QString password;
-};
 
 class KKDataBase {
 private:
     QSqlDatabase db;
+    KKCryptPtr crypter;
 public:
 
     ///Costruttore
     explicit KKDataBase();
     ~KKDataBase();
 
-    ///Generic query exec
-    bool db_query(QString query);
+    /// utente.
+    int signupUser(QString username, QString password, QString email, QString name, QString surname);
+    int loginUser(QString username, QString password, KKUserPtr user);
+    int getUser(QString username, KKUserPtr user);
+    int existUserByUsername(QString username);
+    int existUserByEmail(QString email);
 
-
-    ///inserimento utente.
-    int insertUserInfo(QString username, QString password, QString email, QString name,
-                       QString surname);
-    int sendInsertUserInfoEmail(QString username, QString email, QString name, QString surname);
-
-    ///inserimento utente.
-    int insertUserFile(QString filename, QString path, UserInfo* user);
-    int sendInsertUserFileEmail(QString username, QString email, QString name, QString surname, QString filename);
-
-    ///inserimento permessi (share file). Ritorna 0 successo,
-    int shareUserFile(QString fromUsername, QString toUsername, QString filename, UserInfo* fromUser, UserInfo* toUser);
-    int sendShareUserFileEmail(QString filename, UserInfo* fromUser, UserInfo* toUser);
-
-    int getUserInfo(QString username, UserInfo* userInfo);
-
-    int login(QString username, QString password, UserInfo *user);
-
-    ///reset password ask. invia una mail con password temporanea
-    int resetPassword(QString username);
-
-    ///reset password ask. cambia password
-    int updatePassword(QString username, QString new_psw);
-
-    ///retorna la lista dei file a cui user ha accesso
-    int getUserFile(UserInfo *user, QStringList* files);
-
-    ///controlla l'esistenza di un utente tramite email
-    int checkUserInfoByEmail(QString email);
-
-    ///controlla l'esistenza di un utente
-    int checkUserInfoByUsername(QString username);
-
-    ///inserisce l'immagine dell'utente
-    int insertUserImage(QString username, QString image_path);
-
+    /// file
+    int addUserFile(QString filename, QString path, KKUserPtr user);
+    int getUserFile(KKUserPtr user, QStringList* files);
     int existFilename(QString filename);
+    int existFilenameByUserId(QString filename, QString userId);
 
-    int existFilenameById(QString filename, QString userId);
 
-
+    int insertUserImage(QString username, QString image_path);
+    int resetPassword(QString username);
+    int updatePassword(QString username, QString new_psw);
 };
 
 typedef QSharedPointer<KKDataBase> KKDataBasePtr;

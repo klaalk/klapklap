@@ -13,7 +13,7 @@
 #define DEBUG
 
 KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files_, KKFilePtr logFile, QObject*  parent)
-    : QObject(parent), db(db), files(files_),logFile(logFile), fileSystem(filesys), user(new UserInfo) {
+    : QObject(parent), db(db), files(files_),logFile(logFile), fileSystem(filesys), user(KKUserPtr(new KKUser())) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
 }
 
@@ -83,17 +83,17 @@ void KKSession::handleLoginRequest(KKPayload request) {
     fileSystem->writeFile(logFile, "Client info " + id +", " + socket->peerAddress().toString()+", " + QString::number(socket->peerPort()));
     KKTask *mytask = new KKTask([=]() {
         int result = DB_LOGIN_SUCCESS;
-        result = db->login(_body[0],_body[1], user);
+        result = db->loginUser(_body[0],_body[1], user);
         if(result == DB_LOGIN_SUCCESS) {
             QStringList* output = new QStringList();
-            output->append(user->name);
-            output->append(user->surname);
-            output->append(user->email);
-            output->append(user->password);
-            output->append(user->username);
+            output->append(user->getName());
+            output->append(user->getSurname());
+            output->append(user->getEmail());
+            output->append(user->getPassword());
+            output->append(user->getUsername());
             //          TODO: inserire immagine
             //            output->append(user->image);
-            output->append(user->registrationDate);
+            output->append(user->getRegistrationDate());
             db->getUserFile(user, output);
             this->sendResponse(LOGIN, SUCCESS, *output);
         } else if (result == DB_LOGIN_FAILED) {
@@ -112,9 +112,9 @@ void KKSession::handleSignupRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
     KKTask *mytask = new KKTask([=]() {
-        int result = db->insertUserInfo(_body[0],_body[1],_body[0],_body[2], _body[3]);
+        int result = db->signupUser(_body[0],_body[1],_body[0],_body[2], _body[3]);
         if(result == DB_SIGNUP_SUCCESS) {
-            int emailResult = db->sendInsertUserInfoEmail(_body[0], _body[0],_body[2], _body[3]);
+            int emailResult = smtp->sendSignupEmail(_body[0], _body[0],_body[2], _body[3]);
             if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
                 fileSystem->writeFile(logFile, "Non è stato possibile inivare l'email a " + _body[0]);
             }
@@ -153,16 +153,23 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
                 message = "File creato";
             else
                 message = "File non creato";
-        }else{
-            dbFileExist = db->existFilenameById(fileName,user->id);
+        } else {
+            dbFileExist = db->existFilenameByUserId(fileName, user->getId());
             file = fileSystem->openFile(fileName);
             message= "File esistente";
         }
-        fileName = file->getFilename();
-        if(dbFileExist==DB_FILE_NOT_EXIST && file != FILE_SYSTEM_CREATE_ERROR )
-            dbFileInsert = db->insertUserFile(fileName, APPLICATION_ROOT + fileName, user);
 
-        if(dbFileInsert==DB_INSERT_FILE_SUCCESS && file != FILE_SYSTEM_CREATE_ERROR){
+
+        fileName = file->getFilename();
+        if(dbFileExist == DB_FILE_NOT_EXIST && file != FILE_SYSTEM_CREATE_ERROR ) {
+            dbFileInsert = db->addUserFile(fileName, APPLICATION_ROOT + fileName, user);
+            int emailResult = smtp->sendAddUserFileEmail(user, fileName);
+            if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
+                fileSystem->writeFile(logFile, "Non è stato possibile inivare l'email a " + user->getEmail());
+            }
+        }
+
+        if(dbFileInsert == DB_INSERT_FILE_SUCCESS && file != FILE_SYSTEM_CREATE_ERROR){
             file->join(sharedFromThis());
             files->insert(fileName, file);
             result = SUCCESS;

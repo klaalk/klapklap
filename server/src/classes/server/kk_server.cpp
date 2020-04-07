@@ -43,7 +43,7 @@ KKServer::KKServer(quint16 port, QObject *parent):
     run_info = "RUNNING (Version:" +  QString::number(VERSION_MAJOR) +  "." + QString::number(VERSION_MINOR) + " Build: "
             + QString::number(VERSION_BUILD)+")";
 
-    logFile= filesys->createFile(FILE_SYSTEM_USER, LOG_FILE);
+    logFile = filesys->createFile(FILE_SYSTEM_USER, LOG_FILE);
     filesys->writeFile(logFile, run_info);
 
     if (socket->listen(QHostAddress::Any, port)) {
@@ -71,7 +71,7 @@ KKServer::~KKServer()
 
 void KKServer::onNewConnection() {
     QWebSocket *pSocket = socket->nextPendingConnection();
-    KKSessionPtr client = QSharedPointer<KKSession>(new KKSession(db, filesys, files,logFile ,this));
+    KKSessionPtr client = QSharedPointer<KKSession>(new KKSession(db, filesys, files, logFile ,this));
     client->setSocket(pSocket);
     sessions << client;
     clients << pSocket;
