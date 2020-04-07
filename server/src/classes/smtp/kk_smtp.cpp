@@ -6,7 +6,49 @@
 
 #define KK_MAIL "klapklap.assistence@gmail.com"
 #define KK_NAME "KlapKlap Soft"
-#define KK_PSW "Progetto2019"
+#define KK_PSW  "Progetto2019"
+
+
+int KKSmtp::sendSignupEmail(QString username, QString email, QString name, QString surname) {
+    QString destName = name + " " + surname;
+    QString mex = messageBuilder("Welcome to KlapKlap Soft :)",
+                                        destName,
+                                        username + "\nYour registration is now complete!",
+                                        "You are signed-up!",
+                                        "blank"
+                                        );
+    bool success = sendMessage(mex, destName, email, "KlapKlap Registration");
+    if (!success) {
+        return SEND_EMAIL_NOT_SUCCESS;
+    }
+    return SEND_EMAIL_SUCCESS;
+}
+
+int KKSmtp::sendAddUserFileEmail(KKUserPtr user, QString filename) {
+    QString destName = user->getName() + " " + user->getSurname();
+
+    QString mex = messageBuilder("New File added: " + filename, "Owner: " + destName, user->getUsername() + "", "Share now!", "http://www.facebook.it");
+    bool success = sendMessage(mex, destName, user->getEmail(), "KlapKlap File_Add");
+    if (!success) {
+        return SEND_EMAIL_NOT_SUCCESS;
+    }
+    return SEND_EMAIL_SUCCESS;
+}
+
+
+int KKSmtp::sendShareUserFileEmail(QString filename, KKUserPtr fromUser, KKUserPtr toUser) {
+
+    QString mex = messageBuilder("New file shared: " + filename, "",
+                                        "Sender: " + fromUser->getName() + " " + fromUser->getSurname(),
+                                        "Open now!",
+                                        "http://www.facebook.it");
+    bool success = sendMessage(mex, toUser->getName() + " " + toUser->getSurname(), toUser->getEmail(), "KlapKlap Invite");
+
+    if (!success) {
+        return SEND_EMAIL_NOT_SUCCESS;
+    }
+    return SEND_EMAIL_SUCCESS;
+}
 
 bool KKSmtp::sendMessage(QString message, QString dest_name, QString dest_mail, QString subject) {
     SmtpClient smtp("smtp.gmail.com", 465, SmtpClient::SslConnection);
