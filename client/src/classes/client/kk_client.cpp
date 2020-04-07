@@ -5,7 +5,7 @@
 #include "kk_client.h"
 #include <utility>
 
-#define test
+//#define test
 
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url_(std::move(url)) {
@@ -251,7 +251,7 @@ void KKClient::sendLoginRequest(QString email, const QString& password) {
 #ifdef test
     email="bot"+QString::number(rand()%100);
     QString _password="none";
-    SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+    KKCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(_password);
     qDebug() << psw << " "<< email;
     access_.showLoader(true);
@@ -262,7 +262,7 @@ void KKClient::sendLoginRequest(QString email, const QString& password) {
         state_ = CONNECTED_NOT_LOGGED;
     }
 #else
-    SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+    KKCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
     access_.showLoader(true);
     if (!timer_.isActive())
@@ -275,7 +275,7 @@ void KKClient::sendLoginRequest(QString email, const QString& password) {
 }
 
 void KKClient::sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username) {
-    SimpleCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+    KKCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
     access_.showLoader(true);
     if (!timer_.isActive())

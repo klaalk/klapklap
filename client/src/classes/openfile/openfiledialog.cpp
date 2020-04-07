@@ -15,7 +15,7 @@
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OpenFileDialog),
-    crypt(new SimpleCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))),
+    crypt(new KKCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))),
     fileNameRegexp(new QRegularExpression("[ A-Za-z0-9_\\-()]{3,}$"))
 {
     // Setting up window
@@ -72,15 +72,17 @@ void OpenFileDialog::setUserInfo(const QStringList& info) {
     }
 }
 
-void OpenFileDialog::addFile(int fileIndex, const QString& fileName) {
-    QStringList splittedName = fileName.split("#");
-    QStringList splittedLink = splittedName[0].split("@");
+void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
+    QStringList splittedFileRow = fileRow.split("#");
 
-    files_.insert(splittedLink[2], splittedName[0]);
-    ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedLink[2]));
-    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt->decryptToString(splittedLink[1])));
+    QString fileName = crypt->decryptToString(splittedFileRow[0]);
+    QStringList splittedFilename = fileName.split("#");
 
-    QDateTime creationDateTime = QDateTime::fromString(splittedName[1], Qt::ISODate);
+    files_.insert(splittedFilename[2], splittedFileRow[0]);
+    ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedFilename[2]));
+    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(splittedFilename[1]));
+
+    QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
     ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
 
 }
@@ -99,9 +101,7 @@ void OpenFileDialog::on_openFileButton_clicked()
     QString newFileName = ui->createFileNameLineEdit->text();
 
     if(newFileName == selectedFileName) {
-        QString link = files_.value(selectedFileName).split("@")[0]+"@"
-                +files_.value(selectedFileName).split("@")[1]+"@"
-                +files_.value(selectedFileName).split("@")[2];
+        QString link = files_.value(selectedFileName);
         emit openFileRequest(link);
         qDebug() << "APRO FILE ESISTENTE: " << link;
     } else {
@@ -128,9 +128,7 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    QString link = files_.value(selectedFileName).split("@")[0]+"@"
-            +files_.value(selectedFileName).split("@")[1]+"@"
-            +files_.value(selectedFileName).split("@")[2];
+    QString link = files_.value(selectedFileName);
 
     shareFileDialog.setShareFileLink(link);
     shareFileDialog.show();

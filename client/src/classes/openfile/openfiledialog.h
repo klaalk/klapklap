@@ -49,7 +49,7 @@ private:
     bool loadFile(const QString &fileName);
 
     Ui::OpenFileDialog *ui;
-    SimpleCrypt* crypt;
+    KKCrypt* crypt;
     QRegularExpression *fileNameRegexp;
 
     QString selectedFileName;
