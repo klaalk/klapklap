@@ -54,6 +54,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/server/filesys/kk_filesys.h \
                 classes/server/task/kk_task.h \
                 classes/server/room/kk_room.h \
+                classes/user/kk_user.h \
                 classes/server/session/kk_session.h
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
@@ -79,6 +80,7 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 classes/server/filesys/kk_filesys.cpp \
                 classes/server/task/kk_task.cpp \
                 classes/server/room/kk_room.cpp \
+                classes/user/kk_user.cpp \
                 classes/server/session/kk_session.cpp \
                 main.cpp
 
