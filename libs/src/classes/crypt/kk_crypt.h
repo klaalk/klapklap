@@ -12,9 +12,10 @@
 #include <QString>
 #include <QVector>
 #include <QFlags>
+#include <QSharedPointer>
 
 
-class SimpleCrypt
+class KKCrypt
 {
 public:
 
@@ -38,9 +39,9 @@ public:
     };
 
 
-    SimpleCrypt();
+    KKCrypt();
 
-    explicit SimpleCrypt(quint64 key);
+    explicit KKCrypt(quint64 key);
 
 
     void setKey(quint64 key);
@@ -96,6 +97,7 @@ private:
     IntegrityProtectionMode m_protectionMode;
     Error m_lastError;
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(SimpleCrypt::CryptoFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(KKCrypt::CryptoFlags)
 
+typedef QSharedPointer<KKCrypt> KKCryptPtr;
 #endif // SimpleCrypt_H
