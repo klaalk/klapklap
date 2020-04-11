@@ -771,11 +771,16 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     //xxx
     //if (!cursor.hasSelection())
     //cursor.select(QTextCursor::WordUnderCursor);
+
+    if(cursor.hasSelection()){
+        qDebug()<<"formato da mettere nella selezione:\n "<< format.font().toString()<< "\n"<< format.foreground().color().name();
+        emit selectionFormatChanged(cursor.selectionStart(), cursor.selectionEnd()-1, format);
+}
+
     cursor.mergeCharFormat(format);
     textEdit->mergeCurrentCharFormat(format);
 
-    if(cursor.hasSelection())
-        emit selectionFormatChanged(cursor.selectionStart(), cursor.selectionEnd(), format);
+
 
     
 }
