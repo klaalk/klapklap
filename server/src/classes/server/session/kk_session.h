@@ -49,6 +49,7 @@ private:
     void handleSaveFileRequest(KKPayload request);
     void handleLoadFileRequest(KKPayload request);
     void handleAlignChangeRequest(KKPayload request);
+    void handleFormatChangeRequest(KKPayload request);
 
     QWebSocket*  socket;
     KKDataBasePtr db;

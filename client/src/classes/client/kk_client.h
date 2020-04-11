@@ -68,6 +68,7 @@ private slots:
     void onLoadCrdtToFile();
     void onSiteIdClicked(const QString& siteId,bool logout);
     void onAlignmentChange(QString alignment);
+    void onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format);
 private:
     void setInitState();
 
@@ -77,6 +78,7 @@ private:
     void handleOpenfileResponse();
     void handleCrdtResponse(KKPayload res);
     void handleAlignmentChange(KKPayload res);
+    void handleCharFormatChange(KKPayload res);
 
 
     void handleErrorResponse(KKPayload res);

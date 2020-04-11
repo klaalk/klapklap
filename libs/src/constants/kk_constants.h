@@ -28,6 +28,7 @@
 #define ALIG "ALIG"
 #define ADDED_PARTECIPANT "ADPR"
 #define REMOVED_PARTECIPANT "RMPR"
+#define CHANGECHARFORMAT "CHCF"
 
 /// Payload CRDT Action
 #define CRDT_INSERT "INSERT"

@@ -27,11 +27,10 @@ KKCrdt::~KKCrdt() {
     strategy_cache.clear();
 }
 
-KKCharPtr KKCrdt::localInsert(char val, KKPosition pos) {
+KKCharPtr KKCrdt::localInsert(char val, KKPosition pos, QString _font, QString _color) {
     KKCharPtr newChar = this->generateChar(val, pos);
-    //xxx DA TOGLIERE
-    //newChar->setKKCharFont("Helvetica 01 23 12");
-
+    newChar->setKKCharFont(_font);
+    newChar->setKKCharColor(_color);
     this->insertChar(newChar, pos);
     return newChar;
 }
@@ -695,10 +694,62 @@ void KKCrdt::calculateLineCol(unsigned long global_pos, unsigned long *line, uns
     }
 
 }
+list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition end, QString font_, QString color_){
 
+    list<KKCharPtr> changed;
+    for(auto line=start.getLine();line<=end.getLine();line++){
+        if(line==start.getLine()){ //prima riga
+            if(line==end.getLine()){
+                //la selezione inizia e finisce su una stessa riga: cambia tutte le kkchar da start.getch() a end.getch()
+                for(auto ch = std::next(text[line].begin(),static_cast<long>(start.getCh())); ch != std::next(text[line].begin(),static_cast<long>(end.getCh()+1)); ch++){
+                    ch->get()->setKKCharFont(font_);
+                    ch->get()->setKKCharColor(color_);
+                    changed.push_back(KKCharPtr(ch->get()));
+                }
+            }else{
+                //la selezione è su piu righe diverse: cambia tutte le kkchar da start.getch() fino alla fine della riga
+                for(auto ch = std::next(text[line].begin(), static_cast<long>(start.getCh())); ch != text[line].end(); ch++){
+                    ch->get()->setKKCharFont(font_);
+                    ch->get()->setKKCharColor(color_);
+                    changed.push_back(KKCharPtr(ch->get()));
+                }
+            }
 
+        }else if(line==end.getLine()){
+            //sei all'ultima riga cambia tutte le kkchar dall'inizio della riga fino a end.getch()
+            for(auto ch = text[line].begin(); ch != std::next(text[line].begin(),static_cast<long>(end.getCh()+1)); ch++){
+                ch->get()->setKKCharFont(font_);
+                ch->get()->setKKCharColor(color_);
+                changed.push_back(KKCharPtr(ch->get()));
+            }
+        }else{
+        //la selezione è almeno su 3 righe, sei in una riga centrale: cambia tutte le KKchar di questa riga
+        for(auto ch = text[line].begin(); ch != text[line].end(); ch++){
+            ch->get()->setKKCharFont(font_);
+             ch->get()->setKKCharColor(color_);
+             changed.push_back(KKCharPtr(ch->get()));
+        }
+        }
+    }
+    return  changed;
+}
 
+unsigned long KKCrdt::remoteFormatChange(const KKCharPtr& _char,QString font_, QString color_){
+    bool flag = true;
+    unsigned long global_pos;
+    KKPosition pos(findPos(_char, &flag));
 
+    if(!flag){
+        return -1;
+    }
+
+    std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharFont(font_);
+    std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharColor(color_);
+
+    global_pos= generateGlobalPos(pos);
+    return global_pos;
+
+}
 
 
 
