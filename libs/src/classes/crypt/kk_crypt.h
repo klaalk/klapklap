@@ -78,6 +78,7 @@ public:
 
     QString random_psw(QString s);
 
+    bool isEncryptedLink(const QString &link);
 
     enum CryptoFlag{CryptoFlagNone = 0,
                     CryptoFlagCompression = 0x01,

@@ -173,7 +173,7 @@ QByteArray KKCrypt::decryptToByteArray(const QByteArray& cypher)
 
     char version = ba.at(0);
 
-    if (version !=3) {  //we only work with version 3
+    if (version != 3) {  //we only work with version 3
         m_lastError = ErrorUnknownVersion;
         qWarning() << "Invalid version or not a cyphertext.";
         return QByteArray();
@@ -255,4 +255,27 @@ bool KKCrypt::containLetter(QChar letter, const QString& myString){
         if(letter==c)
             return true;
     return false;
+}
+
+
+bool KKCrypt::isEncryptedLink(const QString &cyphertext)
+{
+    QByteArray cyphertextArray = QByteArray::fromBase64(cyphertext.toLatin1());
+
+    if (m_keyParts.isEmpty()) {
+        return false;
+    }
+
+    QByteArray ba = cyphertextArray;
+
+    if( cyphertextArray.count() < 3 )
+        return false;
+
+    char version = ba.at(0);
+
+    if (version != 3) {  //we only work with version 3
+        return false;
+    }
+
+    return true;
 }
