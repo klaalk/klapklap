@@ -14,6 +14,9 @@
 #define PAYLOAD_FORMAT_LENGTH 3
 #define PAYLOAD_FORMAT "%1"
 #define PAYLOAD_END "000"
+#define FILENAME_SEPARATOR ":"
+#define FILENAME_MAX_LENGTH 30
+#define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
 
 /// Payload requests
 #define LOGIN "LOGN"

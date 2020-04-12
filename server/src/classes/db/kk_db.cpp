@@ -153,7 +153,7 @@ int  KKDataBase::getUserFile(KKUserPtr user, QStringList* files){
             }
 
             while(query.next()){
-                (*files).push_back(query.value(0).toString() + "#" + query.value(1).toString());
+                (*files).push_back(query.value(0).toString() + FILENAME_SEPARATOR + query.value(1).toString());
             }
 
             db.close();

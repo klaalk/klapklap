@@ -40,7 +40,7 @@ KKFilePtr KKFileSystem::createFile(QString username, QString filename){
     QString _filename;
 
     do {
-        _filename = crypter->encryptToString(jump + "#" + username + "#" + filename);
+        _filename = crypter->encryptToString(jump + FILENAME_SEPARATOR + username + FILENAME_SEPARATOR + filename);
     // Serve ad evitare che il carattere "/" dia problemi nei path
     } while(crypter->containLetter('/', _filename));
     return openFile(_filename);
