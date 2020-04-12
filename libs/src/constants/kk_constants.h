@@ -15,7 +15,7 @@
 #define PAYLOAD_FORMAT "%1"
 #define PAYLOAD_END "000"
 #define PAYLOAD_EMPTY_BODY {}
-#define FILENAME_SEPARATOR ":"
+#define FILENAME_SEPARATOR "/"
 #define FILENAME_MAX_LENGTH 30
 #define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
 
