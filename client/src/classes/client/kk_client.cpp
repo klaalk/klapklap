@@ -37,6 +37,7 @@ KKClient::KKClient(QUrl url, QObject *parent)
     connect(&editor_, &TextEdit::loadCRDTtoFile, this, &KKClient::onLoadCrdtToFile);
     //xxx
     connect(&editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
+    connect(&editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
 
     // Gestisco le richieste della chat
     connect(&chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
@@ -115,7 +116,9 @@ void KKClient::handleSuccessResponse(KKPayload response) {
 
     }else if(response.getRequestType()==ALIG){
        handleAlignmentChange(response);
-    } else {
+    }else if(response.getRequestType()==CHANGECHARFORMAT){
+        handleCharFormatChange(response);
+    }else {
         modal_.setModal("Errore generico. Non è stato possibile gestire la risposta.", "Chiudi", GENERIC_ERROR);
         modal_.show();
     }
@@ -370,15 +373,10 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     unsigned long line; unsigned long col;
 
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
-        crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
-        KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col));
-
-
-        QString ids = QString::fromStdString(char_->getIdentifiersString());
-
-        //xxx
         editor_.getCurrentFontAndColor(position+i,&font_,&color_);
-
+        crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
+        KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col),font_,color_);
+        QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
     }
     if(editor_.clickedAny())
@@ -392,13 +390,14 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
     list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                                                       KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
 
-    QString font_=editor_.getTextEdit()->textCursor().charFormat().font().toString();
-    QString color_=editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
+    QString font_= editor_.getTextEdit()->textCursor().charFormat().font().toString();
+    QString color_= editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
 
     std::for_each(deletedChars.begin(), deletedChars.end(),[&](const KKCharPtr& char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids, font_, color_});
     });
+
     if(editor_.clickedAny())
        editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
 }
@@ -457,6 +456,48 @@ void KKClient::handleAlignmentChange(KKPayload response){
     QStringList bodyList = response.getBodyList();
     QString alignment=bodyList[0];
     editor_.alignmentRemoteChange(alignment);
+
+}
+
+void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format){
+    unsigned long startLine; unsigned long endLine; unsigned long startCol; unsigned long endCol;
+    crdt_->calculateLineCol(static_cast<unsigned long>(selectionStart), &startLine, &startCol);
+    crdt_->calculateLineCol(static_cast<unsigned long>(selectionEnd), &endLine, &endCol);
+    list<KKCharPtr> changedChars = crdt_->changeMultipleKKCharFormat(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
+                                                      KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)),format.font().toString(), format.foreground().color().name());
+
+
+
+    std::for_each(changedChars.begin(), changedChars.end(),[&](const KKCharPtr& char_){
+        QString ids = QString::fromStdString(char_->getIdentifiersString());
+        sendRequest(CHANGECHARFORMAT,NONE,{mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
+    });
+}
+void KKClient::handleCharFormatChange(KKPayload response){
+    QStringList bodyList_ = response.getBodyList();
+    for(const QString& l : bodyList_)
+        qDebug() << l;
+
+
+    QString siteId = bodyList_[1];
+    QString text = bodyList_[2];
+    QStringList ids = bodyList_[3].split(" ");
+    QString fontStr = bodyList_[4];
+    QString colorStr = bodyList_[5];
+
+
+    KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
+
+    // size() - 1 per non considerare l'elemento vuoto della string list ids
+    for(int i = 0; i < ids.size() - 1; i++){
+        unsigned long digit = ids[i].toULong();
+        KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
+        char_->pushIdentifier(ptr);
+    }
+
+    unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
+    editor_.singleCharFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
+
 
 }
 

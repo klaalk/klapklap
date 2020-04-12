@@ -771,8 +771,18 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     //xxx
     //if (!cursor.hasSelection())
     //cursor.select(QTextCursor::WordUnderCursor);
+
+    if(cursor.hasSelection()){
+        qDebug()<<"formato da mettere nella selezione:\n "<< format.font().toString()<< "\n"<< format.foreground().color().name();
+        emit selectionFormatChanged(cursor.selectionStart(), cursor.selectionEnd()-1, format);
+}
+
     cursor.mergeCharFormat(format);
     textEdit->mergeCurrentCharFormat(format);
+
+
+
+    
 }
 
 void TextEdit::fontChanged(const QFont &f)
@@ -921,7 +931,6 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
         QTextCharFormat formatVecchio = editorCurs.charFormat();
 
         fontNuovo.fromString(font);
-        //int newSize=fontNuovo.pointSize();
         int newPos=editorCurs.position();
 
         QTextCharFormat format;
@@ -934,8 +943,6 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
                      format.setFont(fontNuovo);
                  if(format.foreground()!=coloreNuovo)
                      format.setForeground(coloreNuovo);
-//                 if(format.font().pointSize()!=newSize)
-//                     format.font().setPointSize(newSize);
                  editorCurs.setCharFormat(format);
 
             }
@@ -1184,4 +1191,35 @@ void TextEdit::getCurrentFontAndColor(int pos, QString *font, QString *color){
         blockCursor=false;
 }
 
+void TextEdit::singleCharFormatChange(int remotePos,QString fontStr,QString colorStr){
+
+    bool cursorBlocked=false;
+    if(blockCursor)
+        cursorBlocked=true;
+    else blockCursor=true;
+
+    QFont fontNuovo;
+    QColor coloreNuovo(colorStr);
+    fontNuovo.fromString(fontStr);
+    QTextCharFormat format;
+    QTextCursor editorCurs = textEdit->textCursor();
+    int posIniziale=editorCurs.position();
+
+    editorCurs.setPosition(remotePos);
+    editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
+
+    format=editorCurs.charFormat();
+    if(format.font()!=fontNuovo)
+        format.setFont(fontNuovo);
+    if(format.foreground()!=coloreNuovo)
+        format.setForeground(coloreNuovo);
+
+    editorCurs.setCharFormat(format);
+    editorCurs.setPosition(posIniziale);
+
+    // Sblocco il cursore dell'editor.
+    if(!cursorBlocked)
+        blockCursor=false;
+
+}
 
