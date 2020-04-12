@@ -29,6 +29,7 @@ public:
     ~OpenFileDialog();
 
     void setUserInfo(const QStringList& info);
+    void setUserFiles(const QStringList& files);
     void addFile(int fileIndex, const QString& fileName);
 
 private slots:

@@ -37,6 +37,7 @@ OpenFileDialog::~OpenFileDialog()
 }
 
 void OpenFileDialog::initializeFilesTableView() {
+    ui->filesTableWidget->clear();
     ui->filesTableWidget->setColumnCount(3);
     ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Creato da", "Creato il"});
     ui->filesTableWidget->verticalHeader()->setVisible(false);
@@ -62,11 +63,16 @@ void OpenFileDialog::setUserInfo(const QStringList& info) {
     QDateTime registrationDateTime = QDateTime::fromString(registrationDate, Qt::ISODate);
     ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
 
-    QStringList filesList = info.mid(6, info.size()-1);
-    ui->filesTableWidget->setRowCount(filesList.size());
+    setUserFiles(info.mid(6, info.size()-1));
+}
+
+void OpenFileDialog::setUserFiles(const QStringList &files)
+{
+    initializeFilesTableView();
+    ui->filesTableWidget->setRowCount(files.size());
 
     int fileIndex = 0;
-    for(const QString& fileName : filesList) {
+    for(const QString& fileName : files) {
         addFile(fileIndex, fileName);
         fileIndex++;
     }
