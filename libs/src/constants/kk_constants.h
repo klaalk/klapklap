@@ -26,6 +26,7 @@
 #define SIGNOUT "SOUT"
 #define GETFILES "GETF"
 #define OPENFILE "OPNF"
+#define SHAREFILE "SHRF"
 #define SAVEFILE "SAVF"
 #define LOADFILE "LODF"
 #define CRDT "CRDT"
