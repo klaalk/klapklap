@@ -14,6 +14,7 @@
 #define PAYLOAD_FORMAT_LENGTH 3
 #define PAYLOAD_FORMAT "%1"
 #define PAYLOAD_END "000"
+#define PAYLOAD_EMPTY_BODY {}
 #define FILENAME_SEPARATOR ":"
 #define FILENAME_MAX_LENGTH 30
 #define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
@@ -23,6 +24,7 @@
 #define LOGOUT "LOUT"
 #define SIGNUP "SGNP"
 #define SIGNOUT "SOUT"
+#define GETFILES "GETF"
 #define OPENFILE "OPNF"
 #define SAVEFILE "SAVF"
 #define LOADFILE "LODF"

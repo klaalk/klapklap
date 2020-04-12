@@ -58,6 +58,7 @@ private slots:
 
     void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, const QString& password);
+    void sendGetFilesRequest();
     void sendOpenFileRequest(const QString& link, const QString& fileName);
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
@@ -65,17 +66,19 @@ private slots:
     void onInsertTextCrdt(const QString& diffText, int position);
     void onRemoveTextCrdt(int start, int end);
     void onSaveCrdtToFile();
-    void onLoadCrdtToFile();
+    void onOpenFileDialog();
     void onSiteIdClicked(const QString& siteId,bool logout);
     void onAlignmentChange(QString alignment);
     void onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format);
 private:
     void setInitState();
-
+    void initTextEdit();
+    void initChatDialog();
     void handleSuccessResponse(KKPayload res);
     void handleLoginResponse(KKPayload res);
     void handleSignupResponse();
-    void handleOpenfileResponse();
+    void handleGetFilesResponse(KKPayload res);
+    void handleOpenfileResponse(KKPayload res);
     void handleCrdtResponse(KKPayload res);
     void handleAlignmentChange(KKPayload res);
     void handleCharFormatChange(KKPayload res);
@@ -98,12 +101,13 @@ private:
     QTimer timer_;
 
     AccessDialog access_;
-    TextEdit editor_;
-    ChatDialog chat_;
+
     OpenFileDialog openFile_;
     ModalDialog modal_;
 
     KKCrdt* crdt_{};
+    TextEdit* editor_{};
+    ChatDialog* chat_{};
 
     QByteArray bufferCrdt_;
     std::mutex mtxCrdt_;

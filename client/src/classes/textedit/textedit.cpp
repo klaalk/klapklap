@@ -450,7 +450,7 @@ void TextEdit::fileOpen()
     //    else
     //        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
 
-    emit loadCRDTtoFile();
+    emit openFileDialog();
 }
 
 bool TextEdit::fileSave()

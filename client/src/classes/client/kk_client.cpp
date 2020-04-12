@@ -30,18 +30,7 @@ KKClient::KKClient(QUrl url, QObject *parent)
     // Gestisco le richieste di apertura file
     connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
 
-    // Gestisco le richieste dell'editor
-    connect(&editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
-    connect(&editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
-    connect(&editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
-    connect(&editor_, &TextEdit::loadCRDTtoFile, this, &KKClient::onLoadCrdtToFile);
-    //xxx
-    connect(&editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
-    connect(&editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
 
-    // Gestisco le richieste della chat
-    connect(&chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
-    connect(&chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
 
     // Gestisco il timeout
     connect(&timer_, &QTimer::timeout, this, &KKClient::handleTimeOutConnection);
@@ -55,13 +44,42 @@ void KKClient::setInitState() {
     state_ = NOT_CONNECTED;
     timer_.start(TIMEOUT_VALUE);
     socket_.open(QUrl(url_));
-    chat_.hide();
-    editor_.hide();
+    initTextEdit();
+    initChatDialog();
+
     openFile_.hide();
     modal_.hide();
 
     access_.show();
     access_.showLoader(true);
+}
+
+void KKClient::initTextEdit() {
+    if (editor_ != nullptr) delete editor_;
+    editor_ = new TextEdit();
+    // Gestisco le richieste dell'editor
+    connect(editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
+    connect(editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
+    connect(editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
+    connect(editor_, &TextEdit::openFileDialog, this, &KKClient::sendGetFilesRequest);
+    //xxx
+    connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
+    connect(editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
+
+    // Gestisco le richieste della chat
+    connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
+    connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
+
+    editor_->close();
+}
+
+void KKClient::initChatDialog() {
+    if (chat_ != nullptr) delete chat_;
+    chat_ = new ChatDialog();
+    // Gestisco le richieste della chat
+    connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
+    connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
+    chat_->close();
 }
 
 /// HANDLING
@@ -92,23 +110,26 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == SIGNUP) {
         handleSignupResponse();
 
+    } else if(response.getRequestType() == GETFILES) {
+        handleGetFilesResponse(response);
+
     } else if(response.getRequestType() == OPENFILE) {
-        handleOpenfileResponse();
+        handleOpenfileResponse(response);
 
     } else if(response.getRequestType() == CRDT) {
         handleCrdtResponse(response);
 
     } else if(response.getRequestType() == CHAT) {
         QStringList bodyList = response.getBodyList();
-        chat_.appendMessage(bodyList[0], bodyList[1]);
+        chat_->appendMessage(bodyList[0], bodyList[1]);
 
     } else if(response.getRequestType() == ADDED_PARTECIPANT) {
         QStringList list = response.getBodyList();
-        chat_.addParticipant(list[0]);
+        chat_->addParticipant(list[0]);
 
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
         QStringList list = response.getBodyList();
-        chat_.removeParticipant(list[0]);
+        chat_->removeParticipant(list[0]);
 
     } else if(response.getRequestType() == LOADFILE) {
         QStringList bodyList = response.getBodyList();
@@ -129,7 +150,6 @@ void KKClient::handleLoginResponse(KKPayload res) {
     // La risposta dovrebbe contenere le info dell'utente e poi i suoi file
     QStringList bodyList = res.getBodyList();
     mySiteId_ = bodyList.value(2);
-    editor_.setMySiteId(mySiteId_);
     access_.hide();
 #ifndef test
     openFile_.setUserInfo(bodyList);
@@ -145,15 +165,27 @@ void KKClient::handleSignupResponse() {
     access_.showLogin();
 }
 
-void KKClient::handleOpenfileResponse() {
+void KKClient::handleGetFilesResponse(KKPayload res)
+{
+    openFile_.setUserFiles(res.getBodyList());
+    openFile_.show();
+}
+
+void KKClient::handleOpenfileResponse(KKPayload res) {
     currentfileValid_ = true;
     state_= CONNECTED_AND_OPENED;
+
+    if (crdt_ != nullptr) delete crdt_;
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
+
+    initTextEdit();
+    initChatDialog();
+    editor_->setMySiteId(mySiteId_);
+    editor_->setCurrentFileName(currentfile_);
+    chat_->setNickName(mySiteId_);
+    editor_->show();
+    chat_->show();
     openFile_.hide();
-    editor_.show();
-    editor_.setCurrentFileName(currentfile_);
-    chat_.setNickName(mySiteId_);
-    chat_.show();
 }
 
 void KKClient::handleCrdtResponse(KKPayload response) {
@@ -184,9 +216,9 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     unsigned long remotePos = bodyList_[0] == CRDT_INSERT ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
     QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
 
-    editor_.applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor());
-    if(editor_.clickedAny())
-        editor_.updateSiteIdsMap(labelName,findPositions(labelName));
+    editor_->applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor());
+    if(editor_->clickedAny())
+        editor_->updateSiteIdsMap(labelName,findPositions(labelName));
 }
 
 void KKClient::handleErrorResponse(KKPayload response){
@@ -274,6 +306,17 @@ void KKClient::sendLoginRequest(QString email, const QString& password) {
 #endif
 }
 
+void KKClient::sendGetFilesRequest()
+{
+    if (!timer_.isActive())
+        timer_.start(TIMEOUT_VALUE);
+
+    bool sended = sendRequest(GETFILES, NONE, PAYLOAD_EMPTY_BODY);
+    if (sended) {
+        state_ = CONNECTED_AND_LOGGED;
+    }
+}
+
 void KKClient::sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username) {
     KKCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
@@ -295,10 +338,16 @@ void KKClient::sendOpenFileRequest(const QString& link, const QString& fileName)
     currentfile_ = fileName;
     currentfileValid_ = false;
 
+    if (state_ == CONNECTED_AND_OPENED) {
+        chat_->close();
+        editor_->close();
+    }
+
     bool sended = sendRequest(OPENFILE, NONE, {link});
     if (sended) {
         state_ = CONNECTED_NOT_OPENFILE;
     }
+
 }
 
 void KKClient::sendMessageRequest(QString username, QString message) {
@@ -344,8 +393,8 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
 
     } else if (modalType == CRDT_ERROR) {
         delete crdt_;
-        editor_.resetState();
-        chat_.resetState();
+        editor_->resetState();
+        chat_->resetState();
         setInitState();
 
     } else if (modalType == GENERIC_ERROR) {
@@ -372,14 +421,14 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     unsigned long line; unsigned long col;
 
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
-        editor_.getCurrentFontAndColor(position+i,&font_,&color_);
+        editor_->getCurrentFontAndColor(position+i,&font_,&color_);
         crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
         KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col),font_,color_);
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
     }
-    if(editor_.clickedAny())
-        editor_.updateSiteIdsMap(siteId,findPositions(siteId));
+    if(editor_->clickedAny())
+        editor_->updateSiteIdsMap(siteId,findPositions(siteId));
 }
 
 void KKClient::onRemoveTextCrdt(int start, int end) {
@@ -389,16 +438,16 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
     list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                                                       KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
 
-    QString font_= editor_.getTextEdit()->textCursor().charFormat().font().toString();
-    QString color_= editor_.getTextEdit()->textCursor().charFormat().foreground().color().name();
+    QString font_= editor_->getTextEdit()->textCursor().charFormat().font().toString();
+    QString color_= editor_->getTextEdit()->textCursor().charFormat().foreground().color().name();
 
     std::for_each(deletedChars.begin(), deletedChars.end(),[&](const KKCharPtr& char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids, font_, color_});
     });
 
-    if(editor_.clickedAny())
-       editor_.updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
+    if(editor_->clickedAny())
+       editor_->updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
 }
 
 void KKClient::onSaveCrdtToFile() {
@@ -409,15 +458,16 @@ void KKClient::onSaveCrdtToFile() {
         sendRequest(SAVEFILE, NONE, {username,filename,message});
 }
 
-void KKClient::onLoadCrdtToFile() {
-    QString username = crdt_->getSiteId();
-    bool ok;
-    QWidget tmp;
-    QString filename = QInputDialog::getText(&tmp, tr("QInputDialog::getText()"),
-                                             tr("User name:"), QLineEdit::Normal,
-                                             QDir::home().dirName(), &ok);
-    if (ok && !filename.isEmpty())
-        sendRequest(LOADFILE, NONE, {username,filename});
+void KKClient::onOpenFileDialog() {
+//    QString username = crdt_->getSiteId();
+//    bool ok;
+//    QWidget tmp;
+//    QString filename = QInputDialog::getText(&tmp, tr("QInputDialog::getText()"),
+//                                             tr("User name:"), QLineEdit::Normal,
+//                                             QDir::home().dirName(), &ok);
+//    if (ok && !filename.isEmpty())
+//        sendRequest(LOADFILE, NONE, {username,filename});
+    sendGetFilesRequest();
 }
 
 QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
@@ -437,11 +487,11 @@ QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
 void KKClient::onSiteIdClicked(const QString& siteId, bool logout){
     QSharedPointer<QList<int>> myList=findPositions(siteId);
     if(!logout){
-        editor_.updateSiteIdsMap(siteId, myList);
-        editor_.siteIdClicked(siteId);
+        editor_->updateSiteIdsMap(siteId, myList);
+        editor_->siteIdClicked(siteId);
     }else {
-        if(editor_.clickedOne(siteId))
-            editor_.siteIdClicked(siteId);
+        if(editor_->clickedOne(siteId))
+            editor_->siteIdClicked(siteId);
     }
 }
 
@@ -454,7 +504,7 @@ void KKClient::handleAlignmentChange(KKPayload response){
 
     QStringList bodyList = response.getBodyList();
     QString alignment=bodyList[0];
-    editor_.alignmentRemoteChange(alignment);
+    editor_->alignmentRemoteChange(alignment);
 
 }
 
@@ -495,7 +545,7 @@ void KKClient::handleCharFormatChange(KKPayload response){
     }
 
     unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
-    editor_.singleCharFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
+    editor_->singleCharFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
 
 
 }

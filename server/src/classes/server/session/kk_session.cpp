@@ -53,6 +53,9 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == SIGNUP) {
             handleSignupRequest(req);
         }
+        else if(req.getRequestType() == GETFILES) {
+            handleGetFilesRequest();
+        }
         else if(req.getRequestType() == OPENFILE) {
             handleOpenFileRequest(req);
         }
@@ -97,7 +100,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
             //          TODO: inserire immagine
             //            output->append(user->image);
             output->append(user->getRegistrationDate());
-            db->getUserFile(user, output);
+            result = db->getUserFile(user, output);
             this->sendResponse(LOGIN, SUCCESS, *output);
         } else if (result == DB_LOGIN_FAILED) {
             this->sendResponse(LOGIN, BAD_REQUEST, {"Credenziali non valide"});
@@ -132,55 +135,68 @@ void KKSession::handleSignupRequest(KKPayload request) {
     QThreadPool::globalInstance()->start(mytask);
 }
 
+void KKSession::handleGetFilesRequest()
+{
+    QStringList* output = new QStringList();
+    db->getUserFile(user, output);
+    this->sendResponse(GETFILES, SUCCESS, *output);
+}
+
 void KKSession::handleOpenFileRequest(KKPayload request) {
-    QString fileName = request.getBodyList()[0];
-    QString message= "Non è stato possibile aggiungere il file nel database";
-    QString result = INTERNAL_SERVER_ERROR;
-    int dbFileInsert=DB_INSERT_FILE_SUCCESS;
-    int dbFileExist;
+    QString message= "Non è stato inserito nessuno nome file";
+    QString result = BAD_REQUEST;
+    QString fileName;
+    if (request.getBodyList().size() > 0) {
+        fileName = request.getBodyList()[0];
+        result = INTERNAL_SERVER_ERROR;
+        message= "Non è stato possibile aggiungere il file nel database";
 
-    auto search = files->find(fileName);
+        int dbFileInsert = DB_INSERT_FILE_SUCCESS;
+        int dbFileExist;
 
-    if (search != files->end()) {
-        file = files->value(fileName);
-        file->join(sharedFromThis());
-        result = SUCCESS;
-        message = "File esistente, sei stato aggiunto correttamente";
+        auto search = files->find(fileName);
 
-    } else {
-        //        Controllo se il file esiste nel DB
-        dbFileExist = db->existFilename(fileName);
-        if(dbFileExist==DB_FILE_NOT_EXIST){
-            file = fileSystem->createFile(id, fileName);
-            if(file != FILE_SYSTEM_CREATE_ERROR)
-                message = "File creato";
-            else
-                message = "File non creato";
-        } else {
-            dbFileExist = db->existFilenameByUserId(fileName, user->getId());
-            file = fileSystem->openFile(fileName);
-            message= "File esistente";
-        }
-
-
-        fileName = file->getFilename();
-        if(dbFileExist == DB_FILE_NOT_EXIST && file != FILE_SYSTEM_CREATE_ERROR ) {
-            dbFileInsert = db->addUserFile(fileName, APPLICATION_ROOT + fileName, user);
-            int emailResult = smtp->sendAddUserFileEmail(user, fileName);
-            if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
-                fileSystem->writeFile(logFile, "Non è stato possibile inivare l'email a " + user->getEmail());
-            }
-        }
-
-        if(dbFileInsert == DB_INSERT_FILE_SUCCESS && file != FILE_SYSTEM_CREATE_ERROR){
+        if (search != files->end()) {
+            file = files->value(fileName);
             file->join(sharedFromThis());
-            files->insert(fileName, file);
             result = SUCCESS;
-            message+=", sei stato aggiunto correttamente";
-        }else{
-            message+=", si verificato un errore";
-        }
+            message = "File esistente, sei stato aggiunto correttamente";
 
+        } else {
+            //        Controllo se il file esiste nel DB
+            dbFileExist = db->existFilename(fileName);
+            if(dbFileExist==DB_FILE_NOT_EXIST){
+                file = fileSystem->createFile(id, fileName);
+                if(file != FILE_SYSTEM_CREATE_ERROR)
+                    message = "File creato";
+                else
+                    message = "File non creato";
+            } else {
+                dbFileExist = db->existFilenameByUserId(fileName, user->getId());
+                file = fileSystem->openFile(fileName);
+                message= "File esistente";
+            }
+
+
+            fileName = file->getFilename();
+            if(dbFileExist == DB_FILE_NOT_EXIST && file != FILE_SYSTEM_CREATE_ERROR ) {
+                dbFileInsert = db->addUserFile(fileName, APPLICATION_ROOT + fileName, user);
+                int emailResult = smtp->sendAddUserFileEmail(user, fileName);
+                if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
+                    fileSystem->writeFile(logFile, "Non è stato possibile inivare l'email a " + user->getEmail());
+                }
+            }
+
+            if(dbFileInsert == DB_INSERT_FILE_SUCCESS && file != FILE_SYSTEM_CREATE_ERROR){
+                file->join(sharedFromThis());
+                files->insert(fileName, file);
+                result = SUCCESS;
+                message+=", sei stato aggiunto correttamente";
+            }else{
+                message+=", si verificato un errore";
+            }
+
+        }
     }
 
     fileSystem->writeFile(logFile, fileName + ": " + message);
@@ -188,7 +204,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     // invio al client la risposta della request.
     sendResponse(OPENFILE, result, {message});
 
-    if(result == SUCCESS) {
+    if (result == SUCCESS) {
         // Mi aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
         if(queue->length() > 0) {

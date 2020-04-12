@@ -155,7 +155,7 @@ signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
     void saveCRDTtoFile();
-    void loadCRDTtoFile();
+    void openFileDialog();
     void alignChange(QString alignment);
     void selectionFormatChanged(int selectionStart, int selectionEnd, QTextCharFormat format);
 
