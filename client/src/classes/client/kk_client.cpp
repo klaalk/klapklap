@@ -66,10 +66,6 @@ void KKClient::initTextEdit() {
     connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
 
-    // Gestisco le richieste della chat
-    connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
-    connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
-
     editor_->close();
 }
 
@@ -79,6 +75,7 @@ void KKClient::initChatDialog() {
     // Gestisco le richieste della chat
     connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
     connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
+
     chat_->close();
 }
 
