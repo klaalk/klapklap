@@ -59,7 +59,7 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == OPENFILE) {
             handleOpenFileRequest(req);
         }
-        else if(req.getRequestType() == "sharefile") {
+        else if(req.getRequestType() == SHAREFILE) {
             handleShareFileRequest(req);
         }
         else if(req.getRequestType() == CRDT) {
@@ -77,7 +77,7 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType()==ALIG){
             handleAlignChangeRequest(req);
         }
-        else if(req.getRequestType()==CHANGECHARFORMAT){
+        else if(req.getRequestType() == CHANGECHARFORMAT){
             handleFormatChangeRequest(req);
         }
     }
@@ -87,52 +87,50 @@ void KKSession::handleLoginRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
     fileSystem->writeFile(logFile, "Client info " + id +", " + socket->peerAddress().toString()+", " + QString::number(socket->peerPort()));
-    KKTask *mytask = new KKTask([=]() {
-        int result = DB_LOGIN_SUCCESS;
-        result = db->loginUser(_body[0],_body[1], user);
-        if(result == DB_LOGIN_SUCCESS) {
-            QStringList* output = new QStringList();
-            output->append(user->getName());
-            output->append(user->getSurname());
-            output->append(user->getEmail());
-            output->append(user->getPassword());
-            output->append(user->getUsername());
-            //          TODO: inserire immagine
-            //            output->append(user->image);
-            output->append(user->getRegistrationDate());
-            result = db->getUserFile(user, output);
-            this->sendResponse(LOGIN, SUCCESS, *output);
-        } else if (result == DB_LOGIN_FAILED) {
-            this->sendResponse(LOGIN, BAD_REQUEST, {"Credenziali non valide"});
-        } else if (result == DB_ERR_USER_NOT_FOUND) {
-            this->sendResponse(LOGIN, BAD_REQUEST, {"Account non esistente"});
-        } else {
-            this->sendResponse(LOGIN, INTERNAL_SERVER_ERROR, {"Errore interno. Non è stato possibile effettuare il login!"});
+    int result = DB_LOGIN_SUCCESS;
+    result = db->loginUser(_body[0],_body[1], user);
+    if(result == DB_LOGIN_SUCCESS) {
+        QStringList* output = new QStringList();
+        output->append(user->getName());
+        output->append(user->getSurname());
+        output->append(user->getEmail());
+        output->append(user->getPassword());
+        output->append(user->getUsername());
+        output->append(user->getImage());
+        output->append(user->getRegistrationDate());
+        result = db->getUserFile(user, output);
+        if (result != DB_USER_FILES_FOUND) {
+            fileSystem->writeFile(logFile, "Non è stato recuperare i file associati a " + _body[0]);
         }
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+        this->sendResponse(LOGIN, SUCCESS, *output);
+    } else if (result == DB_LOGIN_FAILED) {
+        this->sendResponse(LOGIN, BAD_REQUEST, {"Credenziali non valide"});
+    } else if (result == DB_ERR_USER_NOT_FOUND) {
+        this->sendResponse(LOGIN, BAD_REQUEST, {"Account non esistente"});
+    } else {
+        this->sendResponse(LOGIN, INTERNAL_SERVER_ERROR, {"Errore interno. Non è stato possibile effettuare il login!"});
+    }
+// FIXME CAPIRE SE SERVE IL KKTASK
+//    KKTask *mytask = new KKTask([=]() {});
+//    mytask->setAutoDelete(true);
+//    QThreadPool::globalInstance()->start(mytask);
 }
 
 void KKSession::handleSignupRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
-    KKTask *mytask = new KKTask([=]() {
-        int result = db->signupUser(_body[0],_body[1],_body[0],_body[2], _body[3]);
-        if(result == DB_SIGNUP_SUCCESS) {
-            int emailResult = smtp->sendSignupEmail(_body[0], _body[0],_body[2], _body[3]);
-            if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
-                fileSystem->writeFile(logFile, "Non è stato possibile inivare l'email a " + _body[0]);
-            }
-            this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
-        } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
-            this->sendResponse(SIGNUP, BAD_REQUEST, {"Non e' stato possibile procedere con la registrazione. Username e/o Email esistenti!"});
-        } else {
-            this->sendResponse(SIGNUP, INTERNAL_SERVER_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
+    int result = db->signupUser(_body[0],_body[1],_body[0],_body[2], _body[3]);
+    if(result == DB_SIGNUP_SUCCESS) {
+        int emailResult = smtp->sendSignupEmail(_body[0], _body[0],_body[2], _body[3]);
+        if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
+            fileSystem->writeFile(logFile, "Non è stato possibile inivare l'email a " + _body[0]);
         }
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+        this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
+    } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
+        this->sendResponse(SIGNUP, BAD_REQUEST, {"Non e' stato possibile procedere con la registrazione. Username e/o Email esistenti!"});
+    } else {
+        this->sendResponse(SIGNUP, INTERNAL_SERVER_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
+    }
 }
 
 void KKSession::handleGetFilesRequest()
@@ -165,7 +163,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         } else {
             //        Controllo se il file esiste nel DB
             dbFileExist = db->existFilename(fileName);
-            if(dbFileExist==DB_FILE_NOT_EXIST){
+            if(dbFileExist == DB_FILE_NOT_EXIST){
                 file = fileSystem->createFile(id, fileName);
                 if(file != FILE_SYSTEM_CREATE_ERROR)
                     message = "File creato";
@@ -176,8 +174,6 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
                 file = fileSystem->openFile(fileName);
                 message= "File esistente";
             }
-
-
             fileName = file->getFilename();
             if(dbFileExist == DB_FILE_NOT_EXIST && file != FILE_SYSTEM_CREATE_ERROR ) {
                 dbFileInsert = db->addUserFile(fileName, APPLICATION_ROOT + fileName, user);
