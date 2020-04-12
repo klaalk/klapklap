@@ -9,8 +9,10 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QImageReader>
-#include "classes/openfile/sharefiledialog.h"
-#include "../../libs/src/classes/crypt/kk_crypt.h"
+
+#include <classes/openfile/sharefiledialog.h>
+#include <../../libs/src/classes/crypt/kk_crypt.h>
+#include <../../libs/src/constants/kk_constants.h>
 
 namespace Ui {
 class OpenFileDialog;
@@ -20,7 +22,7 @@ class OpenFileDialog : public QDialog
 {
     Q_OBJECT
 signals:
-    void openFileRequest(QString fileName);
+    void openFileRequest(QString link, QString fileName);
 
 public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
@@ -52,7 +54,12 @@ private:
     KKCrypt* crypt;
     QRegularExpression *fileNameRegexp;
 
-    QString selectedFileName;
+    QString selectedFilename;
+    QString selectedLink;
+
+    QString pastedLink;
+    QString pastedFilename;
+
     QMap<QString, QString> files_;
 
     ShareFileDialog shareFileDialog;

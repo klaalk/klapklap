@@ -10,13 +10,13 @@
 
 #define COLUMN_NAME_SIZE 250
 #define COLUMN_CREATOR_SIZE 150
-#define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
+
 
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OpenFileDialog),
     crypt(new KKCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))),
-    fileNameRegexp(new QRegularExpression("[ A-Za-z0-9_\\-()]{3,}$"))
+    fileNameRegexp(new QRegularExpression("[\\/:*?<>|\".]"))
 {
     // Setting up window
     ui->setupUi(this);
@@ -73,10 +73,9 @@ void OpenFileDialog::setUserInfo(const QStringList& info) {
 }
 
 void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
-    QStringList splittedFileRow = fileRow.split("#");
-
+    QStringList splittedFileRow = fileRow.split(FILENAME_SEPARATOR);
     QString fileName = crypt->decryptToString(splittedFileRow[0]);
-    QStringList splittedFilename = fileName.split("#");
+    QStringList splittedFilename = fileName.split(FILENAME_SEPARATOR);
 
     files_.insert(splittedFilename[2], splittedFileRow[0]);
     ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedFilename[2]));
@@ -89,8 +88,8 @@ void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
 
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 {
-    selectedFileName = ui->filesTableWidget->item(item->row(), 0)->text();
-    ui->createFileNameLineEdit->setText(selectedFileName);
+    selectedFilename = ui->filesTableWidget->item(item->row(), 0)->text();
+    ui->createFileNameLineEdit->setText(selectedFilename);
 
     ui->openFileButton->setEnabled(true);
     ui->shareFileButton->setEnabled(true);
@@ -98,18 +97,24 @@ void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 
 void OpenFileDialog::on_openFileButton_clicked()
 {
-    QString newFileName = ui->createFileNameLineEdit->text();
-
-    if(newFileName == selectedFileName) {
-        QString link = files_.value(selectedFileName);
-        emit openFileRequest(link);
-        qDebug() << "APRO FILE ESISTENTE: " << link;
+    if (pastedLink != nullptr && !pastedLink.isEmpty()) {
+        emit openFileRequest(pastedLink, pastedFilename);
+        qDebug() << "APRO FILE CONDIVISO: " << pastedFilename;
     } else {
-        qDebug() << "CREO UN NUOVO FILE: "<<selectedFileName;
-        if (newFileName != "" && newFileName != nullptr) {
-            emit openFileRequest(newFileName);
+        selectedLink = (selectedLink != nullptr && !selectedLink.isEmpty()) ? selectedLink
+                  : files_.value(selectedFilename);
+
+        if (selectedLink != nullptr && !selectedLink.isEmpty()) {
+            emit openFileRequest(selectedLink, selectedFilename);
+            qDebug() << "APRO FILE ESISTENTE: " << selectedFilename;
         } else {
-            qDebug() << "ERRORE NOME FILE DA CREARE VUOTO";
+            QString newFileName = ui->createFileNameLineEdit->text();
+             if (newFileName != "" && newFileName != nullptr) {
+                emit openFileRequest(newFileName, newFileName);
+                qDebug() << "APRO UN NUOVO FILE: " << newFileName;
+            } else {
+                qDebug() << "ERRORE NOME FILE DA CREARE VUOTO";
+            }
         }
     }
 }
@@ -128,8 +133,7 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    QString link = files_.value(selectedFileName);
-
+    QString link = (pastedLink != nullptr && !pastedLink.isEmpty()) ? pastedLink : selectedLink;
     shareFileDialog.setShareFileLink(link);
     shareFileDialog.show();
 }
@@ -142,13 +146,48 @@ void OpenFileDialog::on_changeImageButton_clicked()
     while (dialog.exec() == QDialog::Accepted && !loadFile(dialog.selectedFiles().first())) {}
 }
 
-void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &arg1)
+void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEditText)
 {
-    Q_UNUSED(arg1)
-    QString newFileName = ui->createFileNameLineEdit->text();
-    bool isFileNameValid = fileNameRegexp->match(newFileName).hasMatch();
-    ui->openFileButton->setEnabled(newFileName.size() > 0 && isFileNameValid);
-    ui->shareFileButton->setEnabled(selectedFileName == newFileName && isFileNameValid);
+
+    QString decryptedLink = crypt->isEncryptedLink(lineEditText) ? crypt->decryptToString(lineEditText) : nullptr;
+
+    if (decryptedLink != nullptr && !decryptedLink.isEmpty()) {
+        QStringList splittedDecryptedLink = decryptedLink.split(FILENAME_SEPARATOR);
+        if (splittedDecryptedLink.size() == 3) {
+            pastedLink = lineEditText;
+            pastedFilename = splittedDecryptedLink[2];
+            ui->createFileNameLineEdit->setText(pastedFilename);
+        } else {
+            ui->createFileNameLineEdit->setText("");
+        }
+    } else {
+        bool isPastedFileName = lineEditText == pastedFilename && pastedFilename != nullptr && !pastedFilename.isEmpty();
+        bool isFileNameValid = lineEditText.size() > 0 && lineEditText.length() <= FILENAME_MAX_LENGTH && !fileNameRegexp->match(lineEditText).hasMatch();
+        bool isSharedFileName = false;
+        bool isLink = false;
+        if (!isPastedFileName) {
+            pastedLink = "";
+            pastedFilename = "";
+
+            if (isFileNameValid) {
+                selectedLink = files_.value(lineEditText);
+                if (selectedLink != nullptr && !selectedLink.isEmpty()) {
+                    selectedFilename = lineEditText;
+                    isSharedFileName = true;
+                } else {
+                    selectedFilename = "";
+                     isSharedFileName = false;
+                }
+            }
+        }
+        isLink = isFileNameValid && (isPastedFileName || isSharedFileName);
+        ui->openFileButton->setEnabled(isFileNameValid);
+        ui->shareFileButton->setEnabled(isLink);
+
+        if (isLink) ui->createFileNameLineEdit->setStyleSheet("font-weight: bold;");
+        else ui->createFileNameLineEdit->setStyleSheet("");
+    }
+
 }
 
 void OpenFileDialog::initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)

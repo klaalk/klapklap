@@ -275,7 +275,7 @@
        <item>
         <widget class="QLabel" name="fileNameTitle">
          <property name="text">
-          <string>lnserisci il nome del file oppure il link di condivisione:</string>
+          <string>Nome file:</string>
          </property>
         </widget>
        </item>
@@ -286,6 +286,15 @@
            <width>16777215</width>
            <height>20</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="placeholderText">
+          <string>lnserisci il nome del file oppure il link di condivisione</string>
          </property>
         </widget>
        </item>

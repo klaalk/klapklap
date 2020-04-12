@@ -58,7 +58,7 @@ private slots:
 
     void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, const QString& password);
-    void sendOpenFileRequest(const QString& fileName);
+    void sendOpenFileRequest(const QString& link, const QString& fileName);
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
 

@@ -151,10 +151,7 @@ void KKClient::handleOpenfileResponse() {
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
     openFile_.hide();
     editor_.show();
-    if(currentfile_.contains('@'))
-        editor_.setCurrentFileName(currentfile_.split("@")[2]);
-    else
-        editor_.setCurrentFileName(currentfile_);
+    editor_.setCurrentFileName(currentfile_);
     chat_.setNickName(mySiteId_);
     chat_.show();
 }
@@ -291,12 +288,14 @@ void KKClient::sendSignupRequest(QString email, const QString& password, QString
     }
 }
 
-void KKClient::sendOpenFileRequest(const QString& fileName) {
+void KKClient::sendOpenFileRequest(const QString& link, const QString& fileName) {
     if (!timer_.isActive())
         timer_.start(TIMEOUT_VALUE);
-    currentfile_=fileName;
-    currentfileValid_=false;
-    bool sended = sendRequest(OPENFILE, NONE, {fileName});
+
+    currentfile_ = fileName;
+    currentfileValid_ = false;
+
+    bool sended = sendRequest(OPENFILE, NONE, {link});
     if (sended) {
         state_ = CONNECTED_NOT_OPENFILE;
     }
