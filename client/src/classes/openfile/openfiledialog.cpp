@@ -89,7 +89,6 @@ void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
 
     QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
     ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
-
 }
 
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
