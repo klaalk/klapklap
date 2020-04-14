@@ -47,7 +47,7 @@
     <rect>
      <x>10</x>
      <y>30</y>
-     <width>471</width>
+     <width>380</width>
      <height>20</height>
     </rect>
    </property>
@@ -94,6 +94,19 @@
    </property>
    <property name="text">
     <string>Insersci le email dei partecipanti a cui vorresti condividere il file:</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>406</x>
+     <y>30</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Copia</string>
    </property>
   </widget>
  </widget>

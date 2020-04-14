@@ -149,11 +149,16 @@ public:
     void setMySiteId(QString mySiteId);
     QString getMySiteId();
     QTextEdit* getTextEdit();
+    void alignmentRemoteChange(QString alignment);
+    void singleCharFormatChange(int remotePos,QString fontStr,QString colorStr); //imposta il formato passato della char che si trova alla posizione passata
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
     void saveCRDTtoFile();
-    void loadCRDTtoFile();
+    void openFileDialog();
+    void alignChange(QString alignment);
+    void selectionFormatChanged(int selectionStart, int selectionEnd, QTextCharFormat format);
+
 
 public slots:
     void fileNew();

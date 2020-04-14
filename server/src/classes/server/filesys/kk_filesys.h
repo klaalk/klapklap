@@ -32,12 +32,13 @@ public:
 
     KKFilePtr createFile(QString username, QString filename);
     KKFilePtr openFile(QString filename, QString rootPath=APPLICATION_ROOT);
-    bool sendFile(QString filename);
+
     bool writeFile(KKFilePtr file, QString toPrint);
     QString readFile(QString filename);
 
 private:
     QString logFileName;
+    KKCryptPtr crypter;
 };
 
 typedef QSharedPointer<KKFileSystem> KKFileSystemPtr;

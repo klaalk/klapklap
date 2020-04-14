@@ -14,7 +14,7 @@
 #include <QCryptographicHash>
 #include <QDataStream>
 #include <utility> 
-SimpleCrypt::SimpleCrypt():
+KKCrypt::KKCrypt():
     m_key(0),
     m_compressionMode(CompressionAuto),
     m_protectionMode(ProtectionChecksum),
@@ -23,7 +23,7 @@ SimpleCrypt::SimpleCrypt():
     qsrand(uint(QDateTime::currentMSecsSinceEpoch() & 0xFFFF));
 }
 
-SimpleCrypt::SimpleCrypt(quint64 key):
+KKCrypt::KKCrypt(quint64 key):
     m_key(key),
     m_compressionMode(CompressionAuto),
     m_protectionMode(ProtectionChecksum),
@@ -33,13 +33,13 @@ SimpleCrypt::SimpleCrypt(quint64 key):
     splitKey();
 }
 
-void SimpleCrypt::setKey(quint64 key)
+void KKCrypt::setKey(quint64 key)
 {
     m_key = key;
     splitKey();
 }
 
-void SimpleCrypt::splitKey()
+void KKCrypt::splitKey()
 {
     m_keyParts.clear();
     m_keyParts.resize(8);
@@ -52,13 +52,13 @@ void SimpleCrypt::splitKey()
     }
 }
 
-QByteArray SimpleCrypt::encryptToByteArray(const QString& plaintext)
+QByteArray KKCrypt::encryptToByteArray(const QString& plaintext)
 {
     QByteArray plaintextArray = plaintext.toUtf8();
     return encryptToByteArray(plaintextArray);
 }
 
-QByteArray SimpleCrypt::encryptToByteArray(QByteArray plaintext)
+QByteArray KKCrypt::encryptToByteArray(QByteArray plaintext)
 {
     if (m_keyParts.isEmpty()) {
         qWarning() << "No key set.";
@@ -118,7 +118,7 @@ QByteArray SimpleCrypt::encryptToByteArray(QByteArray plaintext)
     return resultArray;
 }
 
-QString SimpleCrypt::encryptToString(const QString& plaintext)
+QString KKCrypt::encryptToString(const QString& plaintext)
 {
     QByteArray plaintextArray = plaintext.toUtf8();
     QByteArray cypher = encryptToByteArray(plaintextArray);
@@ -126,14 +126,14 @@ QString SimpleCrypt::encryptToString(const QString& plaintext)
     return cypherString;
 }
 
-QString SimpleCrypt::encryptToString(QByteArray plaintext)
+QString KKCrypt::encryptToString(QByteArray plaintext)
 {
     QByteArray cypher = encryptToByteArray(std::move(plaintext));
     QString cypherString = QString::fromLatin1(cypher.toBase64());
     return cypherString;
 }
 
-QString SimpleCrypt::decryptToString(const QString &cyphertext)
+QString KKCrypt::decryptToString(const QString &cyphertext)
 {
     QByteArray cyphertextArray = QByteArray::fromBase64(cyphertext.toLatin1());
     QByteArray plaintextArray = decryptToByteArray(cyphertextArray);
@@ -142,7 +142,7 @@ QString SimpleCrypt::decryptToString(const QString &cyphertext)
     return plaintext;
 }
 
-QString SimpleCrypt::decryptToString(QByteArray cypher)
+QString KKCrypt::decryptToString(QByteArray cypher)
 {
     QByteArray ba = decryptToByteArray(std::move(cypher));
     QString plaintext = QString::fromUtf8(ba, ba.size());
@@ -150,7 +150,7 @@ QString SimpleCrypt::decryptToString(QByteArray cypher)
     return plaintext;
 }
 
-QByteArray SimpleCrypt::decryptToByteArray(const QString& cyphertext)
+QByteArray KKCrypt::decryptToByteArray(const QString& cyphertext)
 {
     QByteArray cyphertextArray = QByteArray::fromBase64(cyphertext.toLatin1());
     QByteArray ba = decryptToByteArray(cyphertextArray);
@@ -158,7 +158,7 @@ QByteArray SimpleCrypt::decryptToByteArray(const QString& cyphertext)
     return ba;
 }
 
-QByteArray SimpleCrypt::decryptToByteArray(const QByteArray& cypher)
+QByteArray KKCrypt::decryptToByteArray(const QByteArray& cypher)
 {
     if (m_keyParts.isEmpty()) {
         qWarning() << "No key set.";
@@ -173,7 +173,7 @@ QByteArray SimpleCrypt::decryptToByteArray(const QByteArray& cypher)
 
     char version = ba.at(0);
 
-    if (version !=3) {  //we only work with version 3
+    if (version != 3) {  //we only work with version 3
         m_lastError = ErrorUnknownVersion;
         qWarning() << "Invalid version or not a cyphertext.";
         return QByteArray();
@@ -233,7 +233,7 @@ QByteArray SimpleCrypt::decryptToByteArray(const QByteArray& cypher)
     return ba;
 }
 
-QString SimpleCrypt::random_psw(QString s){
+QString KKCrypt::random_psw(QString s){
 
     int len=20;
     //    QString s;
@@ -250,9 +250,32 @@ QString SimpleCrypt::random_psw(QString s){
     return s;
 }
 
-bool SimpleCrypt::containLetter(QChar letter, const QString& myString){
+bool KKCrypt::containLetter(QChar letter, const QString& myString){
     foreach(QChar c, myString)
         if(letter==c)
             return true;
     return false;
+}
+
+
+bool KKCrypt::isEncryptedLink(const QString &cyphertext)
+{
+    QByteArray cyphertextArray = QByteArray::fromBase64(cyphertext.toLatin1());
+
+    if (m_keyParts.isEmpty()) {
+        return false;
+    }
+
+    QByteArray ba = cyphertextArray;
+
+    if( cyphertextArray.count() < 3 )
+        return false;
+
+    char version = ba.at(0);
+
+    if (version != 3) {  //we only work with version 3
+        return false;
+    }
+
+    return true;
 }

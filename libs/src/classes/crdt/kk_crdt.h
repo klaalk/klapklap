@@ -40,7 +40,7 @@ public:
     KKCrdt(string siteid, strategy strategy); //costruttore
     ~KKCrdt();//distruttore
     void insertChar(const KKCharPtr& _char, KKPosition pos);
-    KKCharPtr localInsert(char val, KKPosition pos);
+    KKCharPtr localInsert(char val, KKPosition pos, QString _font, QString _color);
     KKCharPtr generateChar(char val, KKPosition pos); //genera la Char partendo dal valore e dalla posizione nel local text
     vector<KKIdentifierPtr> generatePositionBetween(vector<KKIdentifierPtr> position1, vector<KKIdentifierPtr> position2, vector<KKIdentifierPtr> *new_position, unsigned long level); //partendo dalle position di due Char(adiacenti) genera la posizione della Char
     unsigned long generateIdentifierBetween(unsigned long min, unsigned long max, strategy _strategy, unsigned long level); //dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
@@ -73,6 +73,7 @@ public:
     strategy findStrategy();//trova la strategia migliore per assegnare un identifier alla position della nuova Char
     QString saveCrdt(); //ritorna una stringa dove è "salvato" il crdt
     void loadCrdt(string stringCrdt); //carica il testo del crdt partendo da una stringa
-
+    list<KKCharPtr> changeMultipleKKCharFormat(KKPosition start, KKPosition end,QString font_, QString color_);//cambia il formato di tutte le KKChar comprese tra le due posizioni e restituisce la lista delle KKChar cambiate
+    unsigned long remoteFormatChange(const KKCharPtr& _char,QString font_, QString color_);
 };
 #endif //KK_CRDT_H

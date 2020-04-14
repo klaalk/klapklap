@@ -4,7 +4,9 @@
 
 #include "kk_filesys.h"
 
-KKFileSystem::KKFileSystem(){
+KKFileSystem::KKFileSystem():
+    crypter(KKCryptPtr(new KKCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))))
+{
     // Preparo le folders per il file system
 
     if (!QDir().exists(SERVER_ROOT)) {
@@ -31,19 +33,17 @@ KKFilePtr KKFileSystem::createFile(QString username, QString filename){
         return openFile(filename);
     }
 
-    SimpleCrypt crypt(Q_UINT64_C(0x0c2ad4a4acb9f023));
-    QString tmp;
-
-    // Serve ad evitare che il carattere "/" dia problemi nei path
-    do {
-        tmp = crypt.encryptToString(username);
-    } while(crypt.containLetter('/', tmp));
 
     // Serve per garantire l'univocità del path.
     QString jump;
-    jump=crypt.random_psw(jump);
-    QString _filename = jump + "@" + tmp + "@" + filename;
-    return openFile(filename);
+    jump = crypter->random_psw(jump);
+    QString _filename;
+
+    do {
+        _filename = crypter->encryptToString(jump + FILENAME_SEPARATOR + username + FILENAME_SEPARATOR + filename);
+    // Serve ad evitare che il carattere "/" dia problemi nei path
+    } while(crypter->containLetter('/', _filename));
+    return openFile(_filename);
 
 
 }
@@ -54,16 +54,6 @@ KKFilePtr KKFileSystem::openFile(QString filename, QString rootPath){
     kkFile->setFile(file);
     kkFile->setFilename(filename);
     return  kkFile;
-}
-
-bool KKFileSystem::sendFile(QString filename){
-
-    QFile file(APPLICATION_ROOT +filename);
-    file.open(QFile::ReadOnly);
-
-    //@klaus
-    //va inviato il file tramite la sock
-    return true;
 }
 
 
@@ -91,14 +81,11 @@ QString KKFileSystem::readFile(QString filename){
     if(!file.open(QFile::ReadOnly)) {
         return text;
     }
-
     QTextStream stream(&file);
-
     while (!stream.atEnd()) {
         text+= stream.readLine();
         text+= " ";
     }
-
     file.close();
     return text;
 }
