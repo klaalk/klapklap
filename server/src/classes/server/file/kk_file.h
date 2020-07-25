@@ -31,13 +31,16 @@ public:
 
     void setFile(QSharedPointer<QFile> file);
     QSharedPointer<QFile> getFile();
+
     void setFilename(QString filename);
     QString getFilename();
 
+    void setUsers(QStringList* users);
+    QStringList* getUsers();
 
     KKVectorPayloadPtr getRecentMessages();
 private:
-    std::set<QSharedPointer<KKParticipant>> participants;
+    std::set<KKParticipantPtr> participants;
     enum {
         MaxRecentMessages = 100
     };
@@ -46,7 +49,7 @@ private:
     QVector<long long> crdtIndexMessages;
     QSharedPointer<QFile> file;
     QString filename;
-
+    QStringList* users;
     long long messageIndex;
 };
 

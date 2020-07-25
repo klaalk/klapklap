@@ -33,8 +33,8 @@ public:
     /// file
     int addUserFile(QString filename, QString path, KKUserPtr user);
     int getUserFile(KKUserPtr user, QStringList* files);
-    int existFilename(QString filename);
-    int existFilenameByUserId(QString filename, QString userId);
+    int existFilename(QString filename, QStringList* users);
+    int existFilenameByEmail(QString filename, QString email);
 
 
     int insertUserImage(QString username, QString image_path);

@@ -69,6 +69,16 @@ QString KKFile::getFilename()
     return this->filename;
 }
 
+void KKFile::setUsers(QStringList *users)
+{
+    this->users = users;
+}
+
+QStringList *KKFile::getUsers()
+{
+    return this->users;
+}
+
 KKVectorPayloadPtr KKFile::getRecentMessages() {
     return recentMessages;
 }

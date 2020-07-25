@@ -30,8 +30,6 @@ KKClient::KKClient(QUrl url, QObject *parent)
     // Gestisco le richieste di apertura file
     connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
 
-
-
     // Gestisco il timeout
     connect(&timer_, &QTimer::timeout, this, &KKClient::handleTimeOutConnection);
 
@@ -101,6 +99,7 @@ void KKClient::handleResponse(const QString& message) {
 }
 
 void KKClient::handleSuccessResponse(KKPayload response) {
+
     if (response.getRequestType() == LOGIN) {
         handleLoginResponse(response);
 
@@ -132,11 +131,13 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         QStringList bodyList = response.getBodyList();
         crdt_->loadCrdt(bodyList[0].toStdString());
 
-    }else if(response.getRequestType()==ALIG){
-       handleAlignmentChange(response);
-    }else if(response.getRequestType()==CHANGECHARFORMAT){
+    } else if(response.getRequestType()==ALIG){
+        handleAlignmentChange(response);
+
+    } else if(response.getRequestType()==CHANGECHARFORMAT){
         handleCharFormatChange(response);
-    }else {
+
+    } else {
         modal_.setModal("Errore generico. Non è stato possibile gestire la risposta.", "Chiudi", GENERIC_ERROR);
         modal_.show();
     }
@@ -149,10 +150,10 @@ void KKClient::handleLoginResponse(KKPayload res) {
     mySiteId_ = bodyList.value(2);
     access_.hide();
 #ifndef test
-    openFile_.setUserInfo(bodyList);
+    openFile_.setUserInfo(res.getBodyList());
     openFile_.show();
 #else
-     this->sendOpenFileRequest("testboh13.txt");
+    this->sendOpenFileRequest("testboh13.txt");
 #endif
 }
 

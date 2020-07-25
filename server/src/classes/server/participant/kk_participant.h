@@ -14,5 +14,6 @@ public:
     QString id = "Unknown";
     virtual void deliver(KKPayloadPtr msg) = 0;
 };
+typedef QSharedPointer<KKParticipant> KKParticipantPtr;
 
 #endif //KK_PARTECIPANT_H

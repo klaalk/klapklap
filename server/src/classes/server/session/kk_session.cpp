@@ -141,13 +141,14 @@ void KKSession::handleGetFilesRequest()
 }
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
-    QString message= "Non è stato inserito nessuno nome file";
+    QStringList* response = nullptr;
+    QString message = "Non è stato inserito nessuno nome file";
     QString result = BAD_REQUEST;
     QString fileName;
     if (request.getBodyList().size() > 0) {
         fileName = request.getBodyList()[0];
         result = INTERNAL_SERVER_ERROR;
-        message= "Non è stato possibile aggiungere il file nel database";
+        message = "Non è stato possibile aggiungere il file nel database";
 
         int dbFileInsert = DB_INSERT_FILE_SUCCESS;
         int dbFileExist;
@@ -158,11 +159,15 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
             file = files->value(fileName);
             file->join(sharedFromThis());
             result = SUCCESS;
+            response = file->getUsers();
             message = "File esistente, sei stato aggiunto correttamente";
 
         } else {
-            //        Controllo se il file esiste nel DB
-            dbFileExist = db->existFilename(fileName);
+            // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
+            QStringList* users = new QStringList();
+            qDebug() << "FILE NAME: " << fileName;
+
+            dbFileExist = db->existFilename(fileName, users);
             if(dbFileExist == DB_FILE_NOT_EXIST){
                 file = fileSystem->createFile(id, fileName);
                 if(file != FILE_SYSTEM_CREATE_ERROR)
@@ -170,10 +175,11 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
                 else
                     message = "File non creato";
             } else {
-                dbFileExist = db->existFilenameByUserId(fileName, user->getId());
+                dbFileExist = db->existFilenameByEmail(fileName, user->getEmail());
                 file = fileSystem->openFile(fileName);
                 message= "File esistente";
             }
+            file->setUsers(users);
             fileName = file->getFilename();
             if(dbFileExist == DB_FILE_NOT_EXIST && file != FILE_SYSTEM_CREATE_ERROR ) {
                 dbFileInsert = db->addUserFile(fileName, APPLICATION_ROOT + fileName, user);
@@ -191,14 +197,16 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
             }else{
                 message+=", si verificato un errore";
             }
-
+            response = users;
         }
+    } else {
+        response = new QStringList();
     }
 
     fileSystem->writeFile(logFile, fileName + ": " + message);
-
     // invio al client la risposta della request.
-    sendResponse(OPENFILE, result, {message});
+    response->insert(0, message);
+    sendResponse(OPENFILE, result, *response);
 
     if (result == SUCCESS) {
         // Mi aggiorno con gli ultimi messaggi mandati.

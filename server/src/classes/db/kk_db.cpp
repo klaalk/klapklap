@@ -10,13 +10,14 @@
 
 #define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, NULL, CURRENT_TIME())"
 #define GET_USER_BY_USERNAME "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`USERNAME`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`= ?"
-#define GET_USER_FILE_BY_ID "SELECT `FILENAME`, `CREATION_DATE` FROM `FILES_OWNERS` WHERE `ID`= ? "
 #define CHECK_USER_BY_EMAIL "SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`= ? "
 #define CHECK_USER_BY_USERNAME "SELECT COUNT(*) FROM `USERS` WHERE `USERNAME`= ? "
 
-#define INSERT_FILE "INSERT INTO `FILES_OWNERS` (`ID`, `FILENAME`, `CREATION_DATE`) VALUES (?, ?, CURRENT_TIME())"
-#define COUNT_FILE "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `FILENAME`= ?"
-#define COUNT_FILE_PER_USER "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `FILENAME`= ? AND `ID` = ?"
+#define INSERT_FILE "INSERT INTO `FILES_OWNERS` (`EMAIL`, `FILENAME`, `CREATION_DATE`) VALUES (?, ?, CURRENT_TIME())"
+#define GET_USER_FILE_BY_EMAIL "SELECT `FILENAME`, `CREATION_DATE` FROM `FILES_OWNERS` WHERE `EMAIL`= ? "
+#define SELECT_FILE_EMAILS "SELECT `EMAIL` FROM `FILES_OWNERS` WHERE `FILENAME`= ?"
+#define COUNT_FILE_PER_EMAIL "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `FILENAME`= ? AND `EMAIL` = ?"
+
 
 KKDataBase::KKDataBase():
     crypter(KKCryptPtr(new KKCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))))
@@ -123,7 +124,7 @@ int KKDataBase::addUserFile(QString filename, QString path, KKUserPtr user) {
         try {
             QSqlQuery query(db);
             query.prepare(INSERT_FILE);
-            query.addBindValue(user->getId());
+            query.addBindValue(user->getEmail());
             query.addBindValue(filename);
             query.exec();
             db.close();
@@ -144,8 +145,8 @@ int  KKDataBase::getUserFile(KKUserPtr user, QStringList* files){
     } else {
         try {
             QSqlQuery query(db);
-            query.prepare(GET_USER_FILE_BY_ID);
-            query.addBindValue(user->getId());
+            query.prepare(GET_USER_FILE_BY_EMAIL);
+            query.addBindValue(user->getEmail());
             query.exec();
 
             if (files == nullptr) {
@@ -210,30 +211,35 @@ int KKDataBase::existUserByUsername(QString username) {
     return resCode;
 }
 
-int KKDataBase::existFilename(QString filename)
+int KKDataBase::existFilename(QString filename, QStringList* users)
 {
     int resCode = DB_FILE_NOT_EXIST;
     if(!db.open()) {
         resCode = DB_ERR_NOT_OPEN_CONNECTION;
     } else {
+        users = (users == nullptr) ? new QStringList() : users;
         try {
             QSqlQuery query(db);
-            query.prepare(COUNT_FILE);
+            query.prepare(SELECT_FILE_EMAILS);
             query.addBindValue(filename);
             query.exec();
             db.close();
-            query.next();
-            if (query.value(0).toInt() > 0)
+            while (query.next()) {
+                *users << query.value(0).toString();
+            }
+            qDebug() << "USERS :" << *users;
+            if (users->length() > 0)
                 resCode = DB_FILE_EXIST;
         } catch (QException &e) {
             QString _str(e.what());
             db.close();
         }
+
     }
     return resCode;
 }
 
-int KKDataBase::existFilenameByUserId(QString filename, QString userId)
+int KKDataBase::existFilenameByEmail(QString filename, QString email)
 {
     int resCode = DB_FILE_NOT_EXIST;
     if(!db.open()) {
@@ -241,9 +247,9 @@ int KKDataBase::existFilenameByUserId(QString filename, QString userId)
     } else {
         try {
             QSqlQuery query(db);
-            query.prepare(COUNT_FILE_PER_USER);
+            query.prepare(COUNT_FILE_PER_EMAIL);
             query.addBindValue(filename);
-            query.addBindValue(userId);
+            query.addBindValue(email);
             query.exec();
             db.close();
             query.next();
