@@ -33,7 +33,6 @@ KKFilePtr KKFileSystem::createFile(QString username, QString filename){
         return openFile(filename);
     }
 
-
     // Serve per garantire l'univocità del path.
     QString jump;
     jump = crypter->random_psw(jump);
@@ -41,11 +40,11 @@ KKFilePtr KKFileSystem::createFile(QString username, QString filename){
 
     do {
         _filename = crypter->encryptToString(jump + FILENAME_SEPARATOR + username + FILENAME_SEPARATOR + filename);
+    }
     // Serve ad evitare che il carattere "/" dia problemi nei path
-    } while(crypter->containLetter('/', _filename));
+    while(crypter->containLetter('/', _filename));
+
     return openFile(_filename);
-
-
 }
 
 KKFilePtr KKFileSystem::openFile(QString filename, QString rootPath){

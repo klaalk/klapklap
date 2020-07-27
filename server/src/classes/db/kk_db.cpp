@@ -227,7 +227,6 @@ int KKDataBase::existFilename(QString filename, QStringList* users)
             while (query.next()) {
                 *users << query.value(0).toString();
             }
-            qDebug() << "USERS :" << *users;
             if (users->length() > 0)
                 resCode = DB_FILE_EXIST;
         } catch (QException &e) {
