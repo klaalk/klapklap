@@ -55,13 +55,16 @@ KKFilePtr KKFileSystem::openFile(QString filename, QString rootPath){
     return  kkFile;
 }
 
-
 bool KKFileSystem::writeFile(KKFilePtr file, QString toPrint) {
+    return writeFile(file, toPrint, nullptr);
+}
+
+bool KKFileSystem::writeFile(KKFilePtr file, QString toPrint, QString sessionId) {
     QFile *tmp = file->getFile().get();
     bool result = tmp->open(QIODevice::ReadWrite | QIODevice::Text);
     if(result){
         if(file->getFilename() == logFileName) {
-            toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
+            toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - [") + sessionId + "] - ");
             qDebug() << "[log] " + toPrint;
         }
 

@@ -29,12 +29,15 @@ QT_FORWARD_DECLARE_CLASS(QWebSocket)
 class KKSession : public QObject, public KKParticipant, public QEnableSharedFromThis<KKSession> {
     Q_OBJECT
 public:
-    KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files,KKFilePtr logFile, QObject *parent = nullptr);
+    KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files, KKFilePtr logFile, QObject *parent = nullptr);
     ~KKSession();
 
     void deliver(KKPayloadPtr msg);
     void sendResponse(QString type, QString result, QStringList values);
     void setSocket(QWebSocket* Descriptor);
+
+    QString getSessionId();
+
 public slots:
     void handleRequest(QString message);
     void handleBinaryRequests(QByteArray message);
@@ -45,13 +48,15 @@ private:
     void handleGetFilesRequest();
 
     void handleOpenFileRequest(KKPayload request);
-    void handleShareFileRequest(KKPayload request);
+//    void handleShareFileRequest(KKPayload request);
     void handleChatRequest(KKPayload request);
     void handleCrdtRequest(KKPayload request);
     void handleSaveFileRequest(KKPayload request);
     void handleLoadFileRequest(KKPayload request);
     void handleAlignChangeRequest(KKPayload request);
     void handleFormatChangeRequest(KKPayload request);
+
+    void logger(QString message);
 
     QWebSocket*  socket;
     KKSmtpPtr smtp;
@@ -61,7 +66,7 @@ private:
     KKFilePtr logFile;
     KKFileSystemPtr fileSystem;
     KKUserPtr user;
-
+    QString sessionId;
     int taskNumerator = 0;
 };
 

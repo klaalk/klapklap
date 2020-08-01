@@ -3,3 +3,7 @@
 //
 
 #include "kk_participant.h"
+
+KKParticipant::KKParticipant() {}
+KKParticipant::~KKParticipant() {}
+

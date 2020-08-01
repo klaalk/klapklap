@@ -114,8 +114,7 @@ int KKDataBase::getUser(QString username, KKUserPtr userInfo) {
     return resCode;
 }
 
-int KKDataBase::addUserFile(QString filename, QString path, KKUserPtr user) {
-    Q_UNUSED(path)
+int KKDataBase::addUserFile(QString filename, QString email) {
     int resCode = DB_INSERT_FILE_FAILED;
 
     if(!db.open()) {
@@ -124,7 +123,7 @@ int KKDataBase::addUserFile(QString filename, QString path, KKUserPtr user) {
         try {
             QSqlQuery query(db);
             query.prepare(INSERT_FILE);
-            query.addBindValue(user->getEmail());
+            query.addBindValue(email);
             query.addBindValue(filename);
             query.exec();
             db.close();

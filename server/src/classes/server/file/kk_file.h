@@ -23,10 +23,8 @@ class KKFile {
 public:
     KKFile();
     ~KKFile();
-    void join(QSharedPointer<KKParticipant> participant);
-
-    void leave(QSharedPointer<KKParticipant> participant);
-
+    void join(KKParticipantPtr participant);
+    void leave(KKParticipantPtr participant);
     void deliver(QString type, QString result, QStringList values, QString myNick);
 
     void setFile(QSharedPointer<QFile> file);
@@ -35,21 +33,19 @@ public:
     void setFilename(QString filename);
     QString getFilename();
 
-    void setUsers(QStringList* users);
-    QStringList* getUsers();
+    void setParticipants(QStringList* users);
+    KKMapParticipantPtr getParticipants();
 
     KKVectorPayloadPtr getRecentMessages();
+
 private:
-    std::set<KKParticipantPtr> participants;
-    enum {
-        MaxRecentMessages = 100
-    };
+    enum { MaxRecentMessages = 100 };
+    KKMapParticipantPtr participants;
     KKVectorPayloadPtr recentMessages;
     KKVectorPayloadPtr crdtMessages;
     QVector<long long> crdtIndexMessages;
     QSharedPointer<QFile> file;
     QString filename;
-    QStringList* users;
     long long messageIndex;
 };
 

@@ -31,7 +31,7 @@ public:
     int existUserByEmail(QString email);
 
     /// file
-    int addUserFile(QString filename, QString path, KKUserPtr user);
+    int addUserFile(QString filename, QString email);
     int getUserFile(KKUserPtr user, QStringList* files);
     int existFilename(QString filename, QStringList* users);
     int existFilenameByEmail(QString filename, QString email);

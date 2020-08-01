@@ -5,8 +5,8 @@
 #include "kk_file.h"
 
 KKFile::KKFile(){
-    recentMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
-    crdtMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
+    recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
+    crdtMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
 }
 
 KKFile::~KKFile() {
@@ -20,12 +20,13 @@ KKFile::~KKFile() {
     delete crdtMessages.get();
     delete recentMessages.get();
 }
-void KKFile::join(QSharedPointer<KKParticipant> participant) {
-    participants.insert(participant);
+
+void KKFile::join(KKParticipantPtr participant) {
+    participants->insert(participant->id, participant);
 }
 
-void KKFile::leave(QSharedPointer<KKParticipant> participant) {
-    participants.erase(participant);
+void KKFile::leave(KKParticipantPtr participant) {
+    participants->insert(participant->id, nullptr);
 }
 
 void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
@@ -42,7 +43,7 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
 
-    std::for_each(participants.begin(), participants.end(),[&](QSharedPointer<KKParticipant> p){
+    std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
         if(p->id != myNick) {
             p->deliver(data);
         }
@@ -69,14 +70,15 @@ QString KKFile::getFilename()
     return this->filename;
 }
 
-void KKFile::setUsers(QStringList *users)
+void KKFile::setParticipants(QStringList *ids)
 {
-    this->users = users;
+    for ( const auto& id : *ids  )
+        participants->insert(id, nullptr);
 }
 
-QStringList *KKFile::getUsers()
+KKMapParticipantPtr KKFile::getParticipants()
 {
-    return this->users;
+    return this->participants;
 }
 
 KKVectorPayloadPtr KKFile::getRecentMessages() {
