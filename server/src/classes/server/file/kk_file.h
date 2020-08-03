@@ -33,14 +33,17 @@ public:
     void setFilename(QString filename);
     QString getFilename();
 
-    void setParticipants(QStringList* users);
+    KKVectorPayloadPtr getRecentMessages();
     KKMapParticipantPtr getParticipants();
 
-    KKVectorPayloadPtr getRecentMessages();
+    void setOwners(QStringList* owners);
+    QStringList* getOwners();
 
 private:
     enum { MaxRecentMessages = 100 };
     KKMapParticipantPtr participants;
+    QStringList* owners;
+
     KKVectorPayloadPtr recentMessages;
     KKVectorPayloadPtr crdtMessages;
     QVector<long long> crdtIndexMessages;

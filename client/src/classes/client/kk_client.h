@@ -43,9 +43,7 @@ class KKClient : public QObject
     Q_OBJECT
 public:
     explicit KKClient(QUrl url, QObject *parent = nullptr);
-    QSharedPointer<QList<int>>findPositions(const QString& siteId);
-
-
+    QSharedPointer<QList<int>> findPositions(const QString& siteId);
 
 private slots:
     void handleOpenedConnection();

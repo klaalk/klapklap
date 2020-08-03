@@ -93,6 +93,10 @@
 #define CONNECTED_NOT_OPENFILE "ConnectedNotOpened"
 #define CONNECTED_AND_OPENED "ConnectedAndOpened"
 
+// Participant States
+#define PARTICIPANT_ONLINE "Online"
+#define PARTICIPANT_OFFLINE "Offline"
+
 /// Timeout Modal Types
 #define CONNECTION_TIMEOUT "ConnectionTimeout"
 #define LOGIN_TIMEOUT "LoginTimeout"

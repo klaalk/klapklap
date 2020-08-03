@@ -7,6 +7,7 @@
 KKFile::KKFile(){
     recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
     crdtMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
+    participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
 }
 
 KKFile::~KKFile() {
@@ -70,12 +71,6 @@ QString KKFile::getFilename()
     return this->filename;
 }
 
-void KKFile::setParticipants(QStringList *ids)
-{
-    for ( const auto& id : *ids  )
-        participants->insert(id, nullptr);
-}
-
 KKMapParticipantPtr KKFile::getParticipants()
 {
     return this->participants;
@@ -83,6 +78,16 @@ KKMapParticipantPtr KKFile::getParticipants()
 
 KKVectorPayloadPtr KKFile::getRecentMessages() {
     return recentMessages;
+}
+
+void KKFile::setOwners(QStringList *owners)
+{
+    this->owners = owners;
+}
+
+QStringList* KKFile::getOwners()
+{
+    return this->owners;
 }
 
 

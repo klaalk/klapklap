@@ -64,6 +64,8 @@ void KKClient::initTextEdit() {
     connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
 
+    editor_->setMySiteId(mySiteId_);
+    editor_->setCurrentFileName(currentfile_);
     editor_->close();
 }
 
@@ -74,6 +76,7 @@ void KKClient::initChatDialog() {
     connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
     connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
 
+    chat_->setNickName(mySiteId_);
     chat_->close();
 }
 
@@ -91,7 +94,6 @@ void KKClient::handleResponse(const QString& message) {
     qDebug() << "[message received] -" << message;
     KKPayload res(message);
     res.decode();
-
     if (res.getResultType() == SUCCESS)
         handleSuccessResponse(res);
     else
@@ -169,7 +171,7 @@ void KKClient::handleGetFilesResponse(KKPayload res)
     openFile_.show();
 }
 
-void KKClient::handleOpenfileResponse(KKPayload res) {
+void KKClient::handleOpenfileResponse(KKPayload response) {
     currentfileValid_ = true;
     state_= CONNECTED_AND_OPENED;
 
@@ -178,10 +180,9 @@ void KKClient::handleOpenfileResponse(KKPayload res) {
 
     initTextEdit();
     initChatDialog();
-    editor_->setMySiteId(mySiteId_);
-    editor_->setCurrentFileName(currentfile_);
-    chat_->setNickName(mySiteId_);
+
     editor_->show();
+    chat_->setParticipants(response.getBodyList());
     chat_->show();
     openFile_.hide();
 }

@@ -63,6 +63,9 @@ ChatDialog::ChatDialog(QWidget *parent)
     listWidget->setFocusPolicy(Qt::NoFocus);
     connect(listWidget, &QListWidget::itemClicked, this, &ChatDialog::onItemClicked);
     connect(lineEdit, &QLineEdit::returnPressed, this, &ChatDialog::returnPressed);
+
+    greenIcon = new QIcon(":/images/common/green-icon.png");
+    greyIcon = new QIcon(":/images/common/grey-icon.png");
 }
 
 void ChatDialog::resetState(){
@@ -118,24 +121,38 @@ void ChatDialog::addParticipant(const QString &nick)
     textEdit->setTextColor(Qt::gray);
     textEdit->append(tr("* %1 has joined").arg(nick));
     textEdit->setTextColor(color);
-    listWidget->addItem(nick);
+
+    setParticipantState(nick, PARTICIPANT_ONLINE);
 }
 
 void ChatDialog::removeParticipant(const QString &nick)
 {
-    if (nick.isEmpty())
-        return;
 
-    QList<QListWidgetItem *> items = listWidget->findItems(nick, Qt::MatchExactly);
-    if (items.isEmpty())
-        return;
+    setParticipantState(nick, PARTICIPANT_OFFLINE);
 
-    delete items.at(0);
     QColor color = textEdit->textColor();
     textEdit->setTextColor(Qt::gray);
     textEdit->append(tr("* %1 has left").arg(nick));
     textEdit->setTextColor(color);
     emit siteIdClicked(nick, true);
+}
+
+void ChatDialog::setParticipants(const QStringList participants)
+{
+    for(int i = 1; i < participants.length(); i++) {
+        QStringList participant = participants.at(i).split(":");
+        QString nick = participant[0];
+        QString state = participant[1];
+        this->participants.insert(nick, state);
+        QListWidgetItem* item = new QListWidgetItem();
+        item->setText(nick);
+        if (state == PARTICIPANT_ONLINE)
+           item->setIcon(*greenIcon);
+        else
+           item->setIcon(*greyIcon);
+
+        listWidget->addItem(item);
+    }
 }
 
 void ChatDialog::showInformation()
@@ -154,5 +171,31 @@ void ChatDialog::onItemClicked(QListWidgetItem *item) {
     }
     QString siteId = item->text();
     emit siteIdClicked(siteId, false);
+}
+
+void ChatDialog::setParticipantState(const QString &nick, const QString &state)
+{
+    QListWidgetItem* item = findParticipantItem(nick);
+    if (item == nullptr)
+        return;
+
+    if (state == PARTICIPANT_ONLINE)
+       item->setIcon(*greenIcon);
+    else
+       item->setIcon(*greyIcon);
+
+    item->setText(nick);
+}
+
+QListWidgetItem *ChatDialog::findParticipantItem(const QString &nick)
+{
+    if (nick.isEmpty())
+        return nullptr;
+
+    QList<QListWidgetItem *> items = listWidget->findItems(nick, Qt::MatchExactly);
+    if (items.isEmpty())
+        return nullptr;
+
+    return items.at(0);
 }
 

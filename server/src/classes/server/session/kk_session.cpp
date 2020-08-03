@@ -175,9 +175,15 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         result = BAD_REQUEST;
     }
 
-    if (file != FILE_SYSTEM_CREATE_ERROR) {        
-        int dbFileExistByEmail = db->existFilenameByEmail(file->getFilename(), user->getEmail());
+    if (file != FILE_SYSTEM_CREATE_ERROR) {
 
+        if(!isActiveFile) {
+            // Inserisco il file nella mappa dei file attivi
+            files->insert(file->getFilename(), file);
+            file->setOwners(ids);
+        }
+
+        int dbFileExistByEmail = db->existFilenameByEmail(file->getFilename(), user->getEmail());
         if(dbFileExistByEmail == DB_FILE_NOT_EXIST) {
             int dbFileInsert = db->addUserFile(file->getFilename(), user->getEmail());
 
@@ -193,16 +199,13 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         } else {
             result = SUCCESS;
             message = "File aperto con successo, partecipazione confermata";
-        }
-
-        if(!isActiveFile) {
-            // Inserisco il file nella mappa dei file attivi
-            files->insert(file->getFilename(), file);
-            file->setParticipants(ids);
+            file->join(sharedFromThis());
         }
         // Rispondo con la list di tutti partecipanti al file (attivi o non attivi)
-        for(auto entry : file->getParticipants()->toStdMap()) {
-            response->push_back(entry.first + "-" + (entry.second != nullptr ? "Online" : "Offline"));
+        KKMapParticipantPtr participants = file->getParticipants();
+        for(auto id : *file->getOwners()) {
+            auto entry = participants->find(id);
+            response->push_back(id + ":" + (entry != participants->end() ? PARTICIPANT_ONLINE : PARTICIPANT_OFFLINE));
         }
 
     } else {
@@ -214,7 +217,14 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     response->push_front(message);
     sendResponse(OPENFILE, result, *response);
 
-    if (result == SUCCESS) {        
+    if (result == SUCCESS) {
+        // Aggiorno con gli ultimi messaggi mandati.
+        KKVectorPayloadPtr queue = file->getRecentMessages();
+        if(queue->length() > 0) {
+            std::for_each(queue->begin(), queue->end(), [&](KKPayloadPtr d){
+                socket->sendTextMessage(d->encode());
+            });
+        }
         // Dico a tutti che c'è un nuovo partecipante.
         file->deliver(ADDED_PARTECIPANT, SUCCESS, {id}, "All");
     }
