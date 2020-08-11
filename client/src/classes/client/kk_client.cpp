@@ -157,6 +157,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
 #else
     this->sendOpenFileRequest("testboh13.txt");
 #endif
+    qDebug() << "SITE ID: " << mySiteId_;
 }
 
 void KKClient::handleSignupResponse() {

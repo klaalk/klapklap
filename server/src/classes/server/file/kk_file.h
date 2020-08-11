@@ -37,6 +37,7 @@ public:
     KKMapParticipantPtr getParticipants();
 
     void setOwners(QStringList* owners);
+    void addOwner(QString owner);
     QStringList* getOwners();
 
 private:

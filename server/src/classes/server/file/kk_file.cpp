@@ -85,6 +85,13 @@ void KKFile::setOwners(QStringList *owners)
     this->owners = owners;
 }
 
+void KKFile::addOwner(QString owner)
+{
+    if (!owner.isEmpty()) {
+        owners->push_back(owner);
+    }
+}
+
 QStringList* KKFile::getOwners()
 {
     return this->owners;

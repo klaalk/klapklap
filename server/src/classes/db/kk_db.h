@@ -34,7 +34,7 @@ public:
     int addUserFile(QString filename, QString email);
     int getUserFile(KKUserPtr user, QStringList* files);
     int existFilename(QString filename, QStringList* users);
-    int existFilenameByEmail(QString filename, QString email);
+    int existFilenameByUsername(QString filename, QString email);
 
 
     int insertUserImage(QString username, QString image_path);

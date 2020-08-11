@@ -175,23 +175,26 @@ void ChatDialog::onItemClicked(QListWidgetItem *item) {
 
 void ChatDialog::setParticipantState(const QString &nick, const QString &state)
 {
-    QListWidgetItem* item = findParticipantItem(nick);
-    if (item == nullptr)
-        return;
+    if (!nick.isEmpty()) {
+        QListWidgetItem* item = findParticipantItem(nick);
+        if (item == nullptr) {
+            QListWidgetItem* item = new QListWidgetItem();
+            item->setText(nick);
+            listWidget->addItem(item);
+        }
 
-    if (state == PARTICIPANT_ONLINE)
-       item->setIcon(*greenIcon);
-    else
-       item->setIcon(*greyIcon);
+        if (state == PARTICIPANT_ONLINE)
+           item->setIcon(*greenIcon);
+        else
+           item->setIcon(*greyIcon);
 
-    item->setText(nick);
+        item->setText(nick);
+    }
+    participants_label->setText(QString("Participants (%1)").arg(participants.values().length()));
 }
 
 QListWidgetItem *ChatDialog::findParticipantItem(const QString &nick)
 {
-    if (nick.isEmpty())
-        return nullptr;
-
     QList<QListWidgetItem *> items = listWidget->findItems(nick, Qt::MatchExactly);
     if (items.isEmpty())
         return nullptr;

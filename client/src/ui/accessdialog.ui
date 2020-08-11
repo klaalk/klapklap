@@ -402,12 +402,12 @@ border: 1px solid white;</string>
               </font>
              </property>
              <property name="text">
-              <string>Email</string>
+              <string>Username</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="login_email_input">
+            <widget class="QLineEdit" name="login_username_input">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -424,6 +424,9 @@ border: 1px solid white;</string>
              </property>
              <property name="toolTipDuration">
               <number>2</number>
+             </property>
+             <property name="text">
+              <string>klaus.cuko</string>
              </property>
             </widget>
            </item>
@@ -464,6 +467,9 @@ border: 1px solid white;</string>
              </property>
              <property name="toolTipDuration">
               <number>2</number>
+             </property>
+             <property name="text">
+              <string>Campioni37</string>
              </property>
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>

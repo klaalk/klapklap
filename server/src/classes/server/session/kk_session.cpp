@@ -121,10 +121,10 @@ void KKSession::handleLoginRequest(KKPayload request) {
 
 void KKSession::handleSignupRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
-    id = _body[0];
-    int result = db->signupUser(_body[0],_body[1],_body[0],_body[2], _body[3]);
+    id = _body[4];
+    int result = db->signupUser(_body[4],_body[1],_body[0],_body[2], _body[3]);
     if(result == DB_SIGNUP_SUCCESS) {
-        int emailResult = smtp->sendSignupEmail(_body[0], _body[0],_body[2], _body[3]);
+        int emailResult = smtp->sendSignupEmail(_body[4], _body[0],_body[2], _body[3]);
         if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
             logger("Non è stato possibile inivare l'email a " + _body[0]);
         }
@@ -183,14 +183,15 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
             file->setOwners(ids);
         }
 
-        int dbFileExistByEmail = db->existFilenameByEmail(file->getFilename(), user->getEmail());
+        int dbFileExistByEmail = db->existFilenameByUsername(file->getFilename(), user->getUsername());
         if(dbFileExistByEmail == DB_FILE_NOT_EXIST) {
-            int dbFileInsert = db->addUserFile(file->getFilename(), user->getEmail());
+            int dbFileInsert = db->addUserFile(file->getFilename(), user->getUsername());
 
             if (dbFileInsert == DB_INSERT_FILE_SUCCESS) {
                 result = SUCCESS;
                 message = "File aperto con successo, sei stato aggiunto come partecipante";
                 file->join(sharedFromThis());
+                file->addOwner(id);
             } else {
                 result = INTERNAL_SERVER_ERROR;
                 message = "Errore in fase di inserimento partecipante per il file richiesto";

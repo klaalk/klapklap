@@ -13,10 +13,10 @@
 #define CHECK_USER_BY_EMAIL "SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`= ? "
 #define CHECK_USER_BY_USERNAME "SELECT COUNT(*) FROM `USERS` WHERE `USERNAME`= ? "
 
-#define INSERT_FILE "INSERT INTO `FILES_OWNERS` (`EMAIL`, `FILENAME`, `CREATION_DATE`) VALUES (?, ?, CURRENT_TIME())"
-#define GET_USER_FILE_BY_EMAIL "SELECT `FILENAME`, `CREATION_DATE` FROM `FILES_OWNERS` WHERE `EMAIL`= ? "
-#define SELECT_FILE_EMAILS "SELECT `EMAIL` FROM `FILES_OWNERS` WHERE `FILENAME`= ?"
-#define COUNT_FILE_PER_EMAIL "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `FILENAME`= ? AND `EMAIL` = ?"
+#define INSERT_FILE "INSERT INTO `FILES_OWNERS` (`USERNAME`, `HASHNAME`, `JOIN_DATE`) VALUES (?, ?, CURRENT_TIME())"
+#define GET_USER_FILE_BY_EMAIL "SELECT `HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` WHERE `USERNAME`= ? "
+#define SELECT_FILE_EMAILS "SELECT `USERNAME` FROM `FILES_OWNERS` WHERE `HASHNAME`= ?"
+#define COUNT_FILE_PER_EMAIL "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `HASHNAME`= ? AND `USERNAME` = ?"
 
 
 KKDataBase::KKDataBase():
@@ -145,7 +145,7 @@ int  KKDataBase::getUserFile(KKUserPtr user, QStringList* files){
         try {
             QSqlQuery query(db);
             query.prepare(GET_USER_FILE_BY_EMAIL);
-            query.addBindValue(user->getEmail());
+            query.addBindValue(user->getUsername());
             query.exec();
 
             if (files == nullptr) {
@@ -237,7 +237,7 @@ int KKDataBase::existFilename(QString filename, QStringList* users)
     return resCode;
 }
 
-int KKDataBase::existFilenameByEmail(QString filename, QString email)
+int KKDataBase::existFilenameByUsername(QString filename, QString email)
 {
     int resCode = DB_FILE_NOT_EXIST;
     if(!db.open()) {
