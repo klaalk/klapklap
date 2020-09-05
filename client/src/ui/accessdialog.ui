@@ -322,6 +322,9 @@
                <pointsize>10</pointsize>
               </font>
              </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
              <property name="styleSheet">
               <string notr="true">color: #FFF;
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(95, 160, 255, 246));
@@ -426,7 +429,7 @@ border: 1px solid white;</string>
               <number>2</number>
              </property>
              <property name="text">
-              <string>klaus.cuko</string>
+              <string>klauscuko</string>
              </property>
             </widget>
            </item>
@@ -469,7 +472,7 @@ border: 1px solid white;</string>
               <number>2</number>
              </property>
              <property name="text">
-              <string>Campioni37</string>
+              <string>Campioni38</string>
              </property>
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>
@@ -530,6 +533,9 @@ border: 1px solid white;</string>
                <pointsize>10</pointsize>
               </font>
              </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
              <property name="toolTipDuration">
               <number>-1</number>
              </property>
@@ -582,6 +588,9 @@ border: 1px solid white;</string>
               <font>
                <pointsize>10</pointsize>
               </font>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
              </property>
              <property name="styleSheet">
               <string notr="true">color: #FFF;

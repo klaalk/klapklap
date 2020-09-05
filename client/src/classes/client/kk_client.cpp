@@ -29,6 +29,7 @@ KKClient::KKClient(QUrl url, QObject *parent)
 
     // Gestisco le richieste di apertura file
     connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
+    connect(&openFile_, &OpenFileDialog::updateAccountRequest, this, &KKClient::sendOpenFileRequest);
 
     // Gestisco il timeout
     connect(&timer_, &QTimer::timeout, this, &KKClient::handleTimeOutConnection);
@@ -149,10 +150,10 @@ void KKClient::handleLoginResponse(KKPayload res) {
     state_= CONNECTED;
     // La risposta dovrebbe contenere le info dell'utente e poi i suoi file
     QStringList bodyList = res.getBodyList();
-    mySiteId_ = bodyList.value(2);
+    mySiteId_ = bodyList.value(4);
     access_.hide();
 #ifndef test
-    openFile_.setUserInfo(res.getBodyList());
+    openFile_.setUserInfo(bodyList);
     openFile_.show();
 #else
     this->sendOpenFileRequest("testboh13.txt");
@@ -337,14 +338,14 @@ void KKClient::sendGetFilesRequest()
     }
 }
 
-void KKClient::sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username) {
+void KKClient::sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username, QString image) {
     KKCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
     access_.showLoader(true);
     if (!timer_.isActive())
         timer_.start(TIMEOUT_VALUE);
 
-    bool sended = sendRequest(SIGNUP, NONE, {std::move(email), psw, std::move(name), std::move(surname), std::move(username)});
+    bool sended = sendRequest(SIGNUP, NONE, {std::move(email), psw, std::move(name), std::move(surname), std::move(username), image});
 
     if (sended) {
         state_ = CONNECTED_NOT_SIGNED;
@@ -374,6 +375,15 @@ void KKClient::sendMessageRequest(QString username, QString message) {
     bool result = sendRequest(CHAT, NONE, {std::move(username), std::move(message)});
     if (!result || !socket_.isValid()) {
         modal_.setModal("Attenzione! Sembra che tu non sia connesso alla rete.", "Riprova", CHAT_ERROR);
+        modal_.show();
+    }
+}
+
+void KKClient::sendUpdateAccountRequest(QString name, QString surname, QString alias, QString blobImage)
+{
+    bool result = sendRequest(UPDATE_USER, NONE, {name, surname, alias, blobImage});
+    if (!result || !socket_.isValid()) {
+        modal_.setModal("Non è stato possibile aggiornare l'account.", "Chiudi", GENERIC_ERROR);
         modal_.show();
     }
 }

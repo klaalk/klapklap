@@ -8,7 +8,7 @@
 #define  DBN  "klapklap"
 #define  PSW  ""
 
-#define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, NULL, CURRENT_TIME())"
+#define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`ALIAS`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIME())"
 #define GET_USER_BY_USERNAME "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`USERNAME`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`= ?"
 #define CHECK_USER_BY_EMAIL "SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`= ?"
 #define CHECK_USER_BY_USERNAME "SELECT COUNT(*) FROM `USERS` WHERE `USERNAME`= ?"
@@ -37,7 +37,7 @@ KKDataBase::~KKDataBase(){
     db.close();
 }
 
-int KKDataBase::signupUser(QString username, QString password, QString email, QString name, QString surname) {
+int KKDataBase::signupUser(QString username, QString password, QString email, QString name, QString surname, int image) {
     int resCode = DB_SIGNUP_FAILED;
 
     if (existUserByUsername(username) == DB_USER_FOUND)
@@ -54,8 +54,10 @@ int KKDataBase::signupUser(QString username, QString password, QString email, QS
                 query.addBindValue(username);
                 query.addBindValue(password);
                 query.addBindValue(email);
+                query.addBindValue(username);
                 query.addBindValue(name);
                 query.addBindValue(surname);
+                query.addBindValue(image);
                 query.exec();
                 db.close();
                 resCode = DB_SIGNUP_SUCCESS;

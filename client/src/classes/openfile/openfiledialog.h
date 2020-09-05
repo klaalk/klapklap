@@ -10,6 +10,7 @@
 #include <QScrollArea>
 #include <QImageReader>
 
+#include <classes/openfile/chooseavatardialog.h>
 #include <classes/openfile/sharefiledialog.h>
 #include <../../libs/src/classes/crypt/kk_crypt.h>
 #include <../../libs/src/constants/kk_constants.h>
@@ -23,7 +24,7 @@ class OpenFileDialog : public QDialog
     Q_OBJECT
 signals:
     void openFileRequest(QString link, QString fileName);
-
+    void updateAccountRequest(QString name, QString surname, QString alias, QString blobImage);
 public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
     ~OpenFileDialog();
@@ -43,6 +44,8 @@ private slots:
 
     void on_createFileNameLineEdit_textChanged(const QString &arg1);
 
+
+    void on_saveChangesButton_clicked();
 
 private:
     void initializeFilesTableView();
@@ -64,6 +67,7 @@ private:
     QMap<QString, QString> files_;
 
     ShareFileDialog shareFileDialog;
+    ChooseAvatarDialog chooseAvatarDialog;
 };
 
 #endif // OPENFILEDIALOG_H

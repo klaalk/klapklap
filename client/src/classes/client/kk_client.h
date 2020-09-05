@@ -19,7 +19,7 @@
 #include <QInputDialog>
 #include <QDir>
 #include <QMap>
-#include<QTimer>
+#include <QTimer>
 #include <QTextCursor>
 #include <QTextEdit>
 
@@ -29,7 +29,7 @@
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
 
-#include "../login/login.h"
+#include "../access/accessdialog.h"
 #include "../chat/chatdialog.h"
 #include "../openfile/openfiledialog.h"
 #include "../textedit/textedit.h"
@@ -54,12 +54,13 @@ private slots:
     void handleModalButtonClick(const QString& btnText, const QString& modalType);
     void handleModalClosed(const QString& modalType);
 
-    void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
+    void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username, QString image);
     void sendLoginRequest(QString email, const QString& password);
     void sendGetFilesRequest();
     void sendOpenFileRequest(const QString& link, const QString& fileName);
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
+    void sendUpdateAccountRequest(QString name, QString surname, QString alias, QString blobImage);
 
     void onInsertTextCrdt(const QString& diffText, int position);
     void onRemoveTextCrdt(int start, int end);

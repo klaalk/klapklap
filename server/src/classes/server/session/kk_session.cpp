@@ -66,6 +66,9 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == SHAREFILE) {
 //            handleShareFileRequest(req);
         }
+        else if(req.getRequestType() == UPDATE_USER) {
+//            handleShareFileRequest(req);
+        }
         else if(req.getRequestType() == CRDT) {
             handleCrdtRequest(req);
         }
@@ -122,7 +125,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
 void KKSession::handleSignupRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[4];
-    int result = db->signupUser(_body[4],_body[1],_body[0],_body[2], _body[3]);
+    int result = db->signupUser(_body[4],_body[1],_body[0],_body[2], _body[3], _body[5].toInt());
     if(result == DB_SIGNUP_SUCCESS) {
         int emailResult = smtp->sendSignupEmail(_body[4], _body[0],_body[2], _body[3]);
         if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
@@ -240,6 +243,11 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         // Dico a tutti che c'è un nuovo partecipante.
         file->deliver(ADDED_PARTECIPANT, SUCCESS, {id}, "All");
     }
+}
+
+void KKSession::handleUpdateUserRequest(KKPayload request)
+{
+
 }
 
 void KKSession::handleChatRequest(KKPayload request) {

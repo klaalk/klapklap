@@ -1,4 +1,4 @@
-#include "login.h"
+#include "accessdialog.h"
 #include "ui_accessdialog.h"
 #define test
 
@@ -84,7 +84,7 @@ void AccessDialog::on_signup_btn_clicked()
     QString username = ui_->signup_username_input->text();
     QString surname = ui_->signup_surname_input->text();
     QString name = ui_->signup_name_input->text();
-    emit signupBtnClicked(email, password, name, surname, username);
+    emit signupBtnClicked(email, password, name, surname, username, QVariant(qrand() % 25).toString());
 }
 
 void AccessDialog::on_back_link_btn_clicked()
@@ -96,7 +96,7 @@ void AccessDialog::on_back_link_btn_clicked()
     showHintPassword = ui_->login_password_input->text().size() > 0;
 }
 
-void AccessDialog::on_login_email_input_editingFinished()
+void AccessDialog::on_login_username_input_editingFinished()
 {
     showHintEmail = ui_->login_username_input->text().size() > 0;
     bool isValid = checkLoginForm();

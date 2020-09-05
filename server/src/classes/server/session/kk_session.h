@@ -49,6 +49,7 @@ private:
 
     void handleOpenFileRequest(KKPayload request);
 //    void handleShareFileRequest(KKPayload request);
+    void handleUpdateUserRequest(KKPayload request);
     void handleChatRequest(KKPayload request);
     void handleCrdtRequest(KKPayload request);
     void handleSaveFileRequest(KKPayload request);

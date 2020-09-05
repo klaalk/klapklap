@@ -55,15 +55,16 @@ void OpenFileDialog::initializeFilesTableView() {
 void OpenFileDialog::setUserInfo(const QStringList& info) {
     ui->nameLineEdit->insert(info.value(0));
     ui->surnameLineEdit->insert(info.value(1));
-    ui->emailLineEdit->insert(info.value(2));
-    ui->passwordLineEdit->insert(crypt->decryptToString(info.value(3)));
-    ui->usernameLineEdit->insert(info.value(4));
+    ui->aliasLineEdit->insert(info.value(4));
 
-    QString registrationDate = info.value(5);
+    ui->emailLabel->setText("Email: " + info.value(2));
+    ui->usernameLabel->setText("Username: " + info.value(4));
+
+    QString registrationDate = info.value(6);
     QDateTime registrationDateTime = QDateTime::fromString(registrationDate, Qt::ISODate);
     ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
 
-    setUserFiles(info.mid(6, info.size()-1));
+    setUserFiles(info.mid(7, info.size()-1));
 }
 
 void OpenFileDialog::setUserFiles(const QStringList &files)
@@ -145,10 +146,7 @@ void OpenFileDialog::on_shareFileButton_clicked()
 
 void OpenFileDialog::on_changeImageButton_clicked()
 {
-    QFileDialog dialog(this, tr("Open File"));
-    initializeImageFileDialog(dialog, QFileDialog::AcceptOpen);
-
-    while (dialog.exec() == QDialog::Accepted && !loadFile(dialog.selectedFiles().first())) {}
+    chooseAvatarDialog.showAvatars();
 }
 
 void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEditText)
@@ -228,7 +226,6 @@ bool OpenFileDialog::loadFile(const QString &fileName)
                                  .arg(QDir::toNativeSeparators(fileName), reader.errorString()));
         return false;
     }
-
     ui->imageViewer->setScaledContents(false);
 
     QPixmap pixmap = QPixmap::fromImage(newImage);
@@ -239,4 +236,13 @@ bool OpenFileDialog::loadFile(const QString &fileName)
     const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
             .arg(QDir::toNativeSeparators(fileName)).arg(newImage.width()).arg(newImage.height()).arg(newImage.depth());
     return true;
+}
+
+void OpenFileDialog::on_saveChangesButton_clicked()
+{
+    QString name = ui->nameLineEdit->text();
+    QString surname = ui->nameLineEdit->text();
+    QString alias = ui->aliasLineEdit->text();
+    QImage image = ui->imageViewer->pixmap()->toImage();
+    emit updateAccountRequest(name, surname, alias, "1");
 }

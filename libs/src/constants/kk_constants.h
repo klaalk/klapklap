@@ -29,6 +29,7 @@
 #define SHAREFILE "SHRF"
 #define SAVEFILE "SAVF"
 #define LOADFILE "LODF"
+#define UPDATE_USER "UPDU"
 #define CRDT "CRDT"
 #define CHAT "CHAT"
 #define ALIG "ALIG"

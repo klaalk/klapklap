@@ -24,7 +24,7 @@ public:
     ~KKDataBase();
 
     /// utente.
-    int signupUser(QString username, QString password, QString email, QString name, QString surname);
+    int signupUser(QString username, QString password, QString email, QString name, QString surname, int image);
     int loginUser(QString username, QString password, KKUserPtr user);
     int getUser(QString username, KKUserPtr user);
     int existUserByUsername(QString username);

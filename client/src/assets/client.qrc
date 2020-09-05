@@ -95,5 +95,30 @@
         <file>icon_set/png/text-width.png</file>
         <file>icon_set/png/underline.png</file>
         <file>icon_set/png/undo.png</file>
+        <file>images/avatars/Bradipo.jpg</file>
+        <file>images/avatars/Bue.jpg</file>
+        <file>images/avatars/Canguro.jpg</file>
+        <file>images/avatars/Cervo.jpg</file>
+        <file>images/avatars/Cinghiale.jpg</file>
+        <file>images/avatars/Coniglio.jpg</file>
+        <file>images/avatars/Elefante.jpg</file>
+        <file>images/avatars/Gatto.jpg</file>
+        <file>images/avatars/Gherpardo.jpg</file>
+        <file>images/avatars/Giraffa.jpg</file>
+        <file>images/avatars/Gorilla.jpg</file>
+        <file>images/avatars/Husky.jpg</file>
+        <file>images/avatars/Ippopotamo.jpg</file>
+        <file>images/avatars/Lupo.jpg</file>
+        <file>images/avatars/Montone.jpg</file>
+        <file>images/avatars/Orso.jpg</file>
+        <file>images/avatars/Pantera.jpg</file>
+        <file>images/avatars/Pastore.jpg</file>
+        <file>images/avatars/Pinguino.jpg</file>
+        <file>images/avatars/Procione.jpg</file>
+        <file>images/avatars/Rinoceronte.jpg</file>
+        <file>images/avatars/Scimmia.jpg</file>
+        <file>images/avatars/Tigre.jpg</file>
+        <file>images/avatars/Topo.jpg</file>
+        <file>images/avatars/Toro.jpg</file>
     </qresource>
 </RCC>
