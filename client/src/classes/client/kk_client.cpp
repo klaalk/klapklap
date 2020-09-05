@@ -133,10 +133,10 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         QStringList bodyList = response.getBodyList();
         crdt_->loadCrdt(bodyList[0].toStdString());
 
-    } else if(response.getRequestType()==ALIG){
+    } else if(response.getRequestType() == ALIG){
         handleAlignmentChange(response);
 
-    } else if(response.getRequestType()==CHANGECHARFORMAT){
+    } else if(response.getRequestType() == CHANGECHARFORMAT){
         handleCharFormatChange(response);
 
     } else {
@@ -236,6 +236,7 @@ void KKClient::handleErrorResponse(KKPayload response){
 
 void KKClient::handleClientErrorResponse(KKPayload response) {
     QString message, button, modal;
+
     if (state_ == CONNECTED_NOT_LOGGED) {
         message = "Hai inserito delle credenziali non valide.\nControlla che email e/o password siano corretti.";
         button = "Chiudi";
@@ -247,7 +248,7 @@ void KKClient::handleClientErrorResponse(KKPayload response) {
         modal = SIGNUP_ERROR;
 
     } else if (state_ == CONNECTED_NOT_OPENFILE) {
-        message = "Non è stato possibile scaricare il file dal server!";
+        message = "Non è stato possibile scaricare il file dal server";
         button = "Chiudi";
         modal = OPENFILE_ERROR;
 
@@ -255,10 +256,16 @@ void KKClient::handleClientErrorResponse(KKPayload response) {
         message = "Non è stato possibile aggiornare il file dal server";
         button = "Chiudi";
         modal = CRDT_ERROR;
+
+    } else {
+        message = " Errore generico nella risposta del server";
+        button = "Chiudi";
+        modal = GENERIC_ERROR;
     }
 
-    QString remoteMessage = response.getBody().at(0);
-    modal_.setModal(remoteMessage.isEmpty() ? message : remoteMessage, button, modal);
+    QString remoteMessage = response.getBodyList().at(0);
+    message.append(".\n").append(remoteMessage);
+    modal_.setModal(message, button, modal);
     modal_.show();
 }
 
@@ -410,8 +417,11 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
         chat_->resetState();
         setInitState();
 
+    } else if (modalType == OPENFILE_ERROR) {
+        modal_.hide();
+
     } else if (modalType == GENERIC_ERROR) {
-        handleModalClosed(modalType);
+        modal_.hide();
 
     } else  if (modalType == SERVER_ERROR) {
         modal_.hide();
@@ -421,7 +431,6 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
 
 void KKClient::handleModalClosed(const QString& modalType) {
     Q_UNUSED(modalType)
-
     QApplication::quit();
 }
 
