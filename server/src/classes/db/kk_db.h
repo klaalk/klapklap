@@ -31,12 +31,13 @@ public:
     int existUserByEmail(QString email);
 
     /// file
-    int addUserFile(QString filename, QString email);
+    int addUserFile(QString filename, QString username);
     int getUserFile(KKUserPtr user, QStringList* files);
-    int existFilename(QString filename, QStringList* users);
-    int existFilenameByUsername(QString filename, QString email);
+    int existFileByName(QString filename);
+    int existFileByHash(QString hash, QStringList* users);
+    int existFileByUsername(QString filename, QString username);
 
-
+    int addFile(QString filename, QString hashname, QString username);
     int insertUserImage(QString username, QString image_path);
     int resetPassword(QString username);
     int updatePassword(QString username, QString new_psw);

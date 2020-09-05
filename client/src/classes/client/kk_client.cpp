@@ -223,10 +223,10 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 
 void KKClient::handleErrorResponse(KKPayload response){
     if (response.getResultType() == BAD_REQUEST) {
-        handleClientErrorResponse();
+        handleClientErrorResponse(response);
 
     } else if (response.getResultType() == INTERNAL_SERVER_ERROR) {
-        handleServerErrorResponse();
+        handleServerErrorResponse(response);
 
     } else {
         modal_.setModal("Errore generico. Non è stato possibile gestire l'errore.", "Chiudi", GENERIC_ERROR);
@@ -234,23 +234,36 @@ void KKClient::handleErrorResponse(KKPayload response){
     }
 }
 
-void KKClient::handleClientErrorResponse() {
+void KKClient::handleClientErrorResponse(KKPayload response) {
+    QString message, button, modal;
     if (state_ == CONNECTED_NOT_LOGGED) {
-        modal_.setModal("Hai inserito delle credenziali non valide.\nControlla che email e/o password siano corretti.", "Chiudi", LOGIN_ERROR);
-        modal_.show();
+        message = "Hai inserito delle credenziali non valide.\nControlla che email e/o password siano corretti.";
+        button = "Chiudi";
+        modal = LOGIN_ERROR;
+
     } else if (state_ == CONNECTED_NOT_SIGNED) {
-        modal_.setModal("La registrazione non è andata a buon fine. Username e/o Email esistenti!", "Riprova", SIGNUP_ERROR);
-        modal_.show();
+        message = "La registrazione non è andata a buon fine. Username e/o Email esistenti!";
+        button = "Riprova";
+        modal = SIGNUP_ERROR;
+
     } else if (state_ == CONNECTED_NOT_OPENFILE) {
-        modal_.setModal("Non è stato possibile scaricare il file dal server!", "Chiudi", OPENFILE_ERROR);
-        modal_.show();
+        message = "Non è stato possibile scaricare il file dal server!";
+        button = "Chiudi";
+        modal = OPENFILE_ERROR;
+
     } else if (state_ == CONNECTED_AND_OPENED) {
-        modal_.setModal("Non è stato possibile aggiornare il file dal server!", "Chiudi", CRDT_ERROR);
-        modal_.show();
+        message = "Non è stato possibile aggiornare il file dal server";
+        button = "Chiudi";
+        modal = CRDT_ERROR;
     }
+
+    QString remoteMessage = response.getBody().at(0);
+    modal_.setModal(remoteMessage.isEmpty() ? message : remoteMessage, button, modal);
+    modal_.show();
 }
 
-void KKClient::handleServerErrorResponse() {
+void KKClient::handleServerErrorResponse(KKPayload res) {
+    Q_UNUSED(res)
     modal_.setModal("Errore interno al server, non è possibile procedere.", "Riprova", SERVER_ERROR);
     modal_.show();
 }

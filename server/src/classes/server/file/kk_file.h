@@ -30,8 +30,8 @@ public:
     void setFile(QSharedPointer<QFile> file);
     QSharedPointer<QFile> getFile();
 
-    void setFilename(QString filename);
-    QString getFilename();
+    void setHash(QString hash);
+    QString getHash();
 
     KKVectorPayloadPtr getRecentMessages();
     KKMapParticipantPtr getParticipants();
@@ -49,7 +49,7 @@ private:
     KKVectorPayloadPtr crdtMessages;
     QVector<long long> crdtIndexMessages;
     QSharedPointer<QFile> file;
-    QString filename;
+    QString hash;
     long long messageIndex;
 };
 

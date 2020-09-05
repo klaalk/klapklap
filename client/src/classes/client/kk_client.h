@@ -83,8 +83,8 @@ private:
 
 
     void handleErrorResponse(KKPayload res);
-    void handleClientErrorResponse();
-    void handleServerErrorResponse();
+    void handleClientErrorResponse(KKPayload res);
+    void handleServerErrorResponse(KKPayload res);
 
     bool sendRequest(QString type, QString result, QStringList values);
 

@@ -150,22 +150,31 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     bool isActiveFile = false;
 
     if (request.getBodyList().size() > 0) {
-        QString fileName = request.getBodyList()[0];
-        auto search = files->find(fileName);
+        QString filename = request.getBodyList()[0];
+        auto search = files->find(filename);
         if (search != files->end()) {
             // Controllo se il file risulta tra quelli già aperti.
-            file = files->value(fileName);
+            file = files->value(filename);
             isActiveFile = true;
 
         } else {
             // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
-            int dbFileExist = db->existFilename(fileName, ids);
+            int dbFileExist = db->existFileByHash(filename, ids);
             if (dbFileExist == DB_FILE_NOT_EXIST) {
-                // File non esistente
-                file = fileSystem->createFile(id, fileName);
+                // File non esistente, controllo se globalmente qualcuno ha già creato il file con lo stesso nome
+                int dbFileUnique = db->existFileByName(filename);
+                if (dbFileUnique == DB_FILE_NOT_EXIST) {
+                    file = fileSystem->createFile(id, filename);
+                    if (file != FILE_SYSTEM_CREATE_ERROR) {
+                        db->addFile(filename, file->getHash(), id);
+                    }
+                } else {
+                    message = "Errore in fase di richiesta: nome file già esistente";
+                    result = BAD_REQUEST;
+                }
             } else {
                 // File esistente
-                file = fileSystem->openFile(fileName);
+                file = fileSystem->openFile(filename);
             }
             isActiveFile = false;
         }
@@ -179,13 +188,13 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
 
         if(!isActiveFile) {
             // Inserisco il file nella mappa dei file attivi
-            files->insert(file->getFilename(), file);
+            files->insert(file->getHash(), file);
             file->setOwners(ids);
         }
 
-        int dbFileExistByEmail = db->existFilenameByUsername(file->getFilename(), user->getUsername());
+        int dbFileExistByEmail = db->existFileByUsername(file->getHash(), user->getUsername());
         if(dbFileExistByEmail == DB_FILE_NOT_EXIST) {
-            int dbFileInsert = db->addUserFile(file->getFilename(), user->getUsername());
+            int dbFileInsert = db->addUserFile(file->getHash(), user->getUsername());
 
             if (dbFileInsert == DB_INSERT_FILE_SUCCESS) {
                 result = SUCCESS;
@@ -210,8 +219,10 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         }
 
     } else {
-        result = INTERNAL_SERVER_ERROR;
-        message = "Errore nel filesystem durante l'apertura del nuovo file";
+        if (result.isEmpty())
+            result = INTERNAL_SERVER_ERROR;
+        if (message.isEmpty())
+            message = "Errore nel filesystem durante l'apertura del nuovo file";
     }
 
     logger(message);

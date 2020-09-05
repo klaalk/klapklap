@@ -61,14 +61,14 @@ QSharedPointer<QFile> KKFile::getFile()
     return this->file;
 }
 
-void KKFile::setFilename(QString filename)
+void KKFile::setHash(QString hash)
 {
-    this->filename=filename;
+    this->hash=hash;
 }
 
-QString KKFile::getFilename()
+QString KKFile::getHash()
 {
-    return this->filename;
+    return this->hash;
 }
 
 KKMapParticipantPtr KKFile::getParticipants()

@@ -51,7 +51,7 @@ KKFilePtr KKFileSystem::openFile(QString filename, QString rootPath){
     KKFilePtr kkFile = QSharedPointer<KKFile>(new KKFile());
     QSharedPointer<QFile> file = QSharedPointer<QFile>(new QFile (rootPath + filename));
     kkFile->setFile(file);
-    kkFile->setFilename(filename);
+    kkFile->setHash(filename);
     return  kkFile;
 }
 
@@ -63,7 +63,7 @@ bool KKFileSystem::writeFile(KKFilePtr file, QString toPrint, QString sessionId)
     QFile *tmp = file->getFile().get();
     bool result = tmp->open(QIODevice::ReadWrite | QIODevice::Text);
     if(result){
-        if(file->getFilename() == logFileName) {
+        if(file->getHash() == logFileName) {
             toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - [") + sessionId + "] - ");
             qDebug() << "[log] " + toPrint;
         }
