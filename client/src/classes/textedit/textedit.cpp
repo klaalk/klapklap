@@ -450,7 +450,7 @@ void TextEdit::fileOpen()
     //    else
     //        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
 
-    emit loadCRDTtoFile();
+    emit openFileDialog();
 }
 
 bool TextEdit::fileSave()
@@ -657,17 +657,28 @@ void TextEdit::textColor()
     colorChanged(col);
 }
 
+
 void TextEdit::textAlign(QAction *a)
 {
-    if (a == actionAlignLeft)
+    QString alignment;
+    if (a == actionAlignLeft){
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
-    else if (a == actionAlignCenter)
+        alignment="left";
+    }
+    else if (a == actionAlignCenter){
+         alignment="center";
         textEdit->setAlignment(Qt::AlignHCenter);
-    else if (a == actionAlignRight)
+    }
+    else if (a == actionAlignRight){
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
-    else if (a == actionAlignJustify)
+         alignment="right";
+    }
+    else if (a == actionAlignJustify){
+        alignment="justify";
         textEdit->setAlignment(Qt::AlignJustify);
+    }
     modifyLabels();
+     emit(alignChange(alignment));
 }
 
 void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
@@ -760,8 +771,18 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     //xxx
     //if (!cursor.hasSelection())
     //cursor.select(QTextCursor::WordUnderCursor);
+
+    if(cursor.hasSelection()){
+        qDebug()<<"formato da mettere nella selezione:\n "<< format.font().toString()<< "\n"<< format.foreground().color().name();
+        emit selectionFormatChanged(cursor.selectionStart(), cursor.selectionEnd()-1, format);
+}
+
     cursor.mergeCharFormat(format);
     textEdit->mergeCurrentCharFormat(format);
+
+
+
+    
 }
 
 void TextEdit::fontChanged(const QFont &f)
@@ -783,17 +804,59 @@ void TextEdit::colorChanged(const QColor &c)
 
 void TextEdit::alignmentChanged(Qt::Alignment a)
 {
-    if (a & Qt::AlignLeft)
+    QString alignment;
+    if (a & Qt::AlignLeft){
         actionAlignLeft->setChecked(true);
-    else if (a & Qt::AlignHCenter)
+
+    }
+
+    else if (a & Qt::AlignHCenter){
         actionAlignCenter->setChecked(true);
-    else if (a & Qt::AlignRight)
+
+    }
+    else if (a & Qt::AlignRight){
         actionAlignRight->setChecked(true);
-    else if (a & Qt::AlignJustify)
+
+    }
+    else if (a & Qt::AlignJustify){
         actionAlignJustify->setChecked(true);
 
+
+    }
+
     modifyLabels();
+
 }
+ //xxx
+
+void TextEdit::alignmentRemoteChange(QString alignment)
+{
+    if (alignment=="left"){
+
+        textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
+        actionAlignLeft->setChecked(true);
+    }
+
+    else if (alignment=="center"){
+        textEdit->setAlignment(Qt::AlignHCenter);
+        actionAlignCenter->setChecked(true);
+
+    }
+    else if (alignment=="right"){
+         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
+        actionAlignRight->setChecked(true);
+
+    }
+    else if (alignment=="justify"){
+        textEdit->setAlignment(Qt::AlignJustify);
+        actionAlignJustify->setChecked(true);
+ }
+
+    modifyLabels();
+
+}
+
+
 
 void TextEdit::modifyLabels(){
     int font;
@@ -864,8 +927,10 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
 
         QFont fontNuovo;
         QColor coloreNuovo(colorRecived);
+
+        QTextCharFormat formatVecchio = editorCurs.charFormat();
+
         fontNuovo.fromString(font);
-        //int newSize=fontNuovo.pointSize();
         int newPos=editorCurs.position();
 
         QTextCharFormat format;
@@ -878,8 +943,6 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
                      format.setFont(fontNuovo);
                  if(format.foreground()!=coloreNuovo)
                      format.setForeground(coloreNuovo);
-//                 if(format.font().pointSize()!=newSize)
-//                     format.font().setPointSize(newSize);
                  editorCurs.setCharFormat(format);
 
             }
@@ -1069,15 +1132,22 @@ void TextEdit::clearColorText(const QString& siteId){
 
     int last = cursor.position();
 
-    for(int pos : *siteIds_.value(siteId)){
+   /* for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
+<<<<<<< HEAD
+        fmt = cursor.charFormat();
+        fmt.setBackground(Qt::white);
+        cursor.setCharFormat(fmt);
+    }*/
+
         if (cursor.charFormat().background()!=Qt::white){
              fmt=cursor.charFormat();
              fmt.setBackground(Qt::white);
              cursor.setCharFormat(fmt);
         }
-    }
+
+
     cursor.setPosition(last);
     textEdit->setTextCursor(cursor);
 
@@ -1121,4 +1191,35 @@ void TextEdit::getCurrentFontAndColor(int pos, QString *font, QString *color){
         blockCursor=false;
 }
 
+void TextEdit::singleCharFormatChange(int remotePos,QString fontStr,QString colorStr){
+
+    bool cursorBlocked=false;
+    if(blockCursor)
+        cursorBlocked=true;
+    else blockCursor=true;
+
+    QFont fontNuovo;
+    QColor coloreNuovo(colorStr);
+    fontNuovo.fromString(fontStr);
+    QTextCharFormat format;
+    QTextCursor editorCurs = textEdit->textCursor();
+    int posIniziale=editorCurs.position();
+
+    editorCurs.setPosition(remotePos);
+    editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
+
+    format=editorCurs.charFormat();
+    if(format.font()!=fontNuovo)
+        format.setFont(fontNuovo);
+    if(format.foreground()!=coloreNuovo)
+        format.setForeground(coloreNuovo);
+
+    editorCurs.setCharFormat(format);
+    editorCurs.setPosition(posIniziale);
+
+    // Sblocco il cursore dell'editor.
+    if(!cursorBlocked)
+        blockCursor=false;
+
+}
 

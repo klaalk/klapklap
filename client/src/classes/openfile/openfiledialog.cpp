@@ -10,12 +10,13 @@
 
 #define COLUMN_NAME_SIZE 250
 #define COLUMN_CREATOR_SIZE 150
-#define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
+
 
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OpenFileDialog),
-    crypt(new SimpleCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023)))
+    crypt(new KKCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))),
+    fileNameRegexp(new QRegularExpression("[\\/:*?<>|\".]"))
 {
     // Setting up window
     ui->setupUi(this);
@@ -24,7 +25,7 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
 
     // Setting up table view
     initializeFilesTableView();
-
+    connect(&chooseAvatarDialog, &ChooseAvatarDialog::updateAvatarRequest, this, &OpenFileDialog::setUserAvatar);
     // Start showing layouts
     ui->accountLayout->show();
     ui->documentsLayout->hide();
@@ -36,6 +37,7 @@ OpenFileDialog::~OpenFileDialog()
 }
 
 void OpenFileDialog::initializeFilesTableView() {
+    ui->filesTableWidget->clear();
     ui->filesTableWidget->setColumnCount(3);
     ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Creato da", "Creato il"});
     ui->filesTableWidget->verticalHeader()->setVisible(false);
@@ -53,41 +55,57 @@ void OpenFileDialog::initializeFilesTableView() {
 void OpenFileDialog::setUserInfo(const QStringList& info) {
     ui->nameLineEdit->insert(info.value(0));
     ui->surnameLineEdit->insert(info.value(1));
-    ui->emailLineEdit->insert(info.value(2));
-    ui->passwordLineEdit->insert(crypt->decryptToString(info.value(3)));
-    ui->usernameLineEdit->insert(info.value(4));
-
-    QString registrationDate = info.value(5);
+    ui->aliasLineEdit->insert(info.value(5));
+    ui->emailLabel->setText("Email: " + info.value(2));
+    ui->usernameLabel->setText("Username: " + info.value(4));
+    QString registrationDate = info.value(6);
     QDateTime registrationDateTime = QDateTime::fromString(registrationDate, Qt::ISODate);
     ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
+}
 
-    QStringList filesList = info.mid(6, info.size()-1);
-    ui->filesTableWidget->setRowCount(filesList.size());
+void OpenFileDialog::setUserFiles(const QStringList &files)
+{
+    initializeFilesTableView();
+    ui->filesTableWidget->setRowCount(files.size());
 
     int fileIndex = 0;
-    for(const QString& fileName : filesList) {
+    for(const QString& fileName : files) {
         addFile(fileIndex, fileName);
         fileIndex++;
     }
 }
 
-void OpenFileDialog::addFile(int fileIndex, const QString& fileName) {
-    QStringList splittedName = fileName.split("#");
-    QStringList splittedLink = splittedName[0].split("@");
+void OpenFileDialog::setUserAvatar(const QString &avatar)
+{
+    QString path = ":images/avatars/"+avatar;
+    bool exist = QFile::exists(path);
+    if (exist) {
+        QPixmap image = QPixmap(":images/avatars/"+avatar);
+        QIcon ButtonIcon(image);
+        ui->changeImageButton->setIcon(ButtonIcon);
+        ui->changeImageButton->setIconSize(image.rect().size());
+        this->avatar = avatar;
+    } else
+       qDebug() << "[setUserAvatar] Avatar not exist: " << path;
+}
 
-    files_.insert(splittedLink[2], splittedName[0]);
-    ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedLink[2]));
-    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(crypt->decryptToString(splittedLink[1])));
+void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
+    QStringList splittedFileRow = fileRow.split(FILENAME_SEPARATOR);
+    QString fileName = crypt->decryptToString(splittedFileRow[0]);
+    QStringList splittedFilename = fileName.split(FILENAME_SEPARATOR);
 
-    QDateTime creationDateTime = QDateTime::fromString(splittedName[1], Qt::ISODate);
+    files_.insert(splittedFilename[2], splittedFileRow[0]);
+    ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedFilename[2]));
+    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(splittedFilename[1]));
+
+    QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
     ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
-
 }
 
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 {
-    selectedFileName = ui->filesTableWidget->item(item->row(), 0)->text();
-    ui->createFileNameLineEdit->setText(selectedFileName);
+    selectedFilename = ui->filesTableWidget->item(item->row(), 0)->text();
+    ui->createFileNameLineEdit->setText(selectedFilename);
 
     ui->openFileButton->setEnabled(true);
     ui->shareFileButton->setEnabled(true);
@@ -95,20 +113,24 @@ void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 
 void OpenFileDialog::on_openFileButton_clicked()
 {
-    QString newFileName = ui->createFileNameLineEdit->text();
-
-    if(newFileName == selectedFileName) {
-        QString link = files_.value(selectedFileName).split("@")[0]+"@"
-                +files_.value(selectedFileName).split("@")[1]+"@"
-                +files_.value(selectedFileName).split("@")[2];
-        emit openFileRequest(link);
-        qDebug() << "APRO FILE ESISTENTE: " << link;
+    if (pastedLink != nullptr && !pastedLink.isEmpty()) {
+        emit openFileRequest(pastedLink, pastedFilename);
+        qDebug() << "APRO FILE CONDIVISO: " << pastedFilename;
     } else {
-        qDebug() << "CREO UN NUOVO FILE: "<<selectedFileName;
-        if (newFileName != "" && newFileName != nullptr) {
-            emit openFileRequest(newFileName);
+        selectedLink = (selectedLink != nullptr && !selectedLink.isEmpty()) ? selectedLink
+                  : files_.value(selectedFilename);
+
+        if (selectedLink != nullptr && !selectedLink.isEmpty()) {
+            emit openFileRequest(selectedLink, selectedFilename);
+            qDebug() << "APRO FILE ESISTENTE: " << selectedFilename;
         } else {
-            qDebug() << "ERRORE NOME FILE DA CREARE VUOTO";
+            QString newFileName = ui->createFileNameLineEdit->text();
+             if (newFileName != "" && newFileName != nullptr) {
+                emit openFileRequest(newFileName, newFileName);
+                qDebug() << "APRO UN NUOVO FILE: " << newFileName;
+            } else {
+                qDebug() << "ERRORE NOME FILE DA CREARE VUOTO";
+            }
         }
     }
 }
@@ -127,73 +149,64 @@ void OpenFileDialog::on_documentiBtn_clicked()
 
 void OpenFileDialog::on_shareFileButton_clicked()
 {
-    QString link = files_.value(selectedFileName).split("@")[0]+"@"
-            +files_.value(selectedFileName).split("@")[1]+"@"
-            +files_.value(selectedFileName).split("@")[2];
-
+    QString link = (pastedLink != nullptr && !pastedLink.isEmpty()) ? pastedLink : selectedLink;
     shareFileDialog.setShareFileLink(link);
     shareFileDialog.show();
 }
 
 void OpenFileDialog::on_changeImageButton_clicked()
 {
-    QFileDialog dialog(this, tr("Open File"));
-    initializeImageFileDialog(dialog, QFileDialog::AcceptOpen);
-
-    while (dialog.exec() == QDialog::Accepted && !loadFile(dialog.selectedFiles().first())) {}
+    chooseAvatarDialog.showAvatars();
 }
 
-void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &arg1)
+void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEditText)
 {
-    Q_UNUSED(arg1)
-    QString newFileName = ui->createFileNameLineEdit->text();
 
-    ui->openFileButton->setEnabled(newFileName.size() > 0);
-    ui->shareFileButton->setEnabled(selectedFileName == newFileName);
-}
+    QString decryptedLink = crypt->isEncryptedLink(lineEditText) ? crypt->decryptToString(lineEditText) : nullptr;
 
-void OpenFileDialog::initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
-{
-    static bool firstDialog = true;
+    if (decryptedLink != nullptr && !decryptedLink.isEmpty()) {
+        QStringList splittedDecryptedLink = decryptedLink.split(FILENAME_SEPARATOR);
+        if (splittedDecryptedLink.size() == 3) {
+            pastedLink = lineEditText;
+            pastedFilename = splittedDecryptedLink[2];
+            ui->createFileNameLineEdit->setText(pastedFilename);
+        } else {
+            ui->createFileNameLineEdit->setText("");
+        }
+    } else {
+        bool isPastedFileName = lineEditText == pastedFilename && pastedFilename != nullptr && !pastedFilename.isEmpty();
+        bool isFileNameValid = lineEditText.size() > 0 && lineEditText.length() <= FILENAME_MAX_LENGTH && !fileNameRegexp->match(lineEditText).hasMatch();
+        bool isSharedFileName = false;
+        bool isLink = false;
+        if (!isPastedFileName) {
+            pastedLink = "";
+            pastedFilename = "";
 
-    if (firstDialog) {
-        firstDialog = false;
-        const QStringList picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-        dialog.setDirectory(picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.last());
+            if (isFileNameValid) {
+                selectedLink = files_.value(lineEditText);
+                if (selectedLink != nullptr && !selectedLink.isEmpty()) {
+                    selectedFilename = lineEditText;
+                    isSharedFileName = true;
+                } else {
+                    selectedFilename = "";
+                     isSharedFileName = false;
+                }
+            }
+        }
+        isLink = isFileNameValid && (isPastedFileName || isSharedFileName);
+        ui->openFileButton->setEnabled(isFileNameValid);
+        ui->shareFileButton->setEnabled(isLink);
+
+        if (isLink) ui->createFileNameLineEdit->setStyleSheet("font-weight: bold;");
+        else ui->createFileNameLineEdit->setStyleSheet("");
     }
 
-    QStringList mimeTypeFilters;
-    const QByteArrayList supportedMimeTypes = acceptMode == QFileDialog::AcceptOpen
-            ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
-    foreach (const QByteArray &mimeTypeName, supportedMimeTypes)
-        mimeTypeFilters.append(mimeTypeName);
-    mimeTypeFilters.sort();
-    dialog.setMimeTypeFilters(mimeTypeFilters);
-    dialog.selectMimeTypeFilter("image/jpeg");
-    if (acceptMode == QFileDialog::AcceptSave)
-        dialog.setDefaultSuffix("jpg");
 }
 
-bool OpenFileDialog::loadFile(const QString &fileName)
+void OpenFileDialog::on_saveChangesButton_clicked()
 {
-    QImageReader reader(fileName);
-    reader.setAutoTransform(true);
-    const QImage newImage = reader.read();
-    if (newImage.isNull()) {
-        QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-                                 tr("Cannot load %1: %2")
-                                 .arg(QDir::toNativeSeparators(fileName), reader.errorString()));
-        return false;
-    }
-
-    ui->imageViewer->setScaledContents(false);
-
-    QPixmap pixmap = QPixmap::fromImage(newImage);
-    pixmap = pixmap.scaled(ui->imageViewer->width(), ui->imageViewer->height(), Qt::KeepAspectRatio);
-    ui->imageViewer->setPixmap(pixmap);
-
-    setWindowFilePath(fileName);
-    const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
-            .arg(QDir::toNativeSeparators(fileName)).arg(newImage.width()).arg(newImage.height()).arg(newImage.depth());
-    return true;
+    QString name = ui->nameLineEdit->text();
+    QString surname = ui->surnameLineEdit->text();
+    QString alias = ui->aliasLineEdit->text();
+    emit updateAccountRequest(name, surname, alias, avatar);
 }

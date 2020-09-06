@@ -12,6 +12,7 @@
 #include <memory>
 #include <QSharedPointer>
 #include <QWebSocket>
+#include <QFile>
 
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
@@ -22,22 +23,33 @@ class KKFile {
 public:
     KKFile();
     ~KKFile();
-    void join(QSharedPointer<KKParticipant> participant);
-
-    void leave(QSharedPointer<KKParticipant> participant);
-
+    void join(KKParticipantPtr participant);
+    void leave(KKParticipantPtr participant);
     void deliver(QString type, QString result, QStringList values, QString myNick);
 
+    void setFile(QSharedPointer<QFile> file);
+    QSharedPointer<QFile> getFile();
+
+    void setHash(QString hash);
+    QString getHash();
+
     KKVectorPayloadPtr getRecentMessages();
+    KKMapParticipantPtr getParticipants();
+
+    void setOwners(QStringList* owners);
+    void addOwner(QString owner);
+    QStringList* getOwners();
+
 private:
-    std::set<QSharedPointer<KKParticipant>> participants;
-    enum {
-        MaxRecentMessages = 100
-    };
+    enum { MaxRecentMessages = 100 };
+    KKMapParticipantPtr participants;
+    QStringList* owners;
+
     KKVectorPayloadPtr recentMessages;
     KKVectorPayloadPtr crdtMessages;
     QVector<long long> crdtIndexMessages;
-
+    QSharedPointer<QFile> file;
+    QString hash;
     long long messageIndex;
 };
 

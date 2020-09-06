@@ -32,12 +32,18 @@ private slots:
     void onNewConnection();
     void onSslErrors(const QList<QSslError> &errors);
 private:
+    QString generateSessionId();
     QWebSocketServer* socket;
     QList<QWebSocket*> clients;
     QList<KKSessionPtr> sessions;
     KKMapFilePtr files;
     KKDataBasePtr db;
     KKFileSystemPtr filesys;
+    KKFilePtr logFile;
+
+    QString possibleCharacters;
+    int randomStringLength = 12; // assuming you want random strings of 12 characters
+
 };
 
 #endif //KK_SERVER_H

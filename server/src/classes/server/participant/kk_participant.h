@@ -11,8 +11,13 @@
 
 class KKParticipant {
 public:
+    KKParticipant();
+    virtual ~KKParticipant();
+
     QString id = "Unknown";
     virtual void deliver(KKPayloadPtr msg) = 0;
 };
+typedef QSharedPointer<KKParticipant> KKParticipantPtr;
+typedef QSharedPointer<QMap<QString, KKParticipantPtr>> KKMapParticipantPtr;
 
 #endif //KK_PARTECIPANT_H

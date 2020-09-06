@@ -65,6 +65,8 @@ public:
     void appendMessage(const QString &from, const QString &message);
     void addParticipant(const QString &nick);
     void removeParticipant(const QString &nick);
+    void setParticipants(const QStringList participants);
+
 signals:
     void sendMessageEvent(QString username, QString message);
     void siteIdClicked(QString nickname,bool logout);
@@ -73,10 +75,14 @@ private slots:
     void returnPressed();
     void showInformation();
     void onItemClicked(QListWidgetItem *item);
-
+    void setParticipantState(const QString &nick, const QString &state);
+    QListWidgetItem* findParticipantItem(const QString &nick);
 private:
     QString myNickName;
     QTextTableFormat tableFormat;
+    QMap<QString, QString> participants;
+    QIcon* greyIcon;
+    QIcon* greenIcon;
 };
 
 #endif

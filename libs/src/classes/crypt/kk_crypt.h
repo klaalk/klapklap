@@ -12,9 +12,10 @@
 #include <QString>
 #include <QVector>
 #include <QFlags>
+#include <QSharedPointer>
 
 
-class SimpleCrypt
+class KKCrypt
 {
 public:
 
@@ -38,9 +39,9 @@ public:
     };
 
 
-    SimpleCrypt();
+    KKCrypt();
 
-    explicit SimpleCrypt(quint64 key);
+    explicit KKCrypt(quint64 key);
 
 
     void setKey(quint64 key);
@@ -77,6 +78,7 @@ public:
 
     QString random_psw(QString s);
 
+    bool isEncryptedLink(const QString &link);
 
     enum CryptoFlag{CryptoFlagNone = 0,
                     CryptoFlagCompression = 0x01,
@@ -96,6 +98,7 @@ private:
     IntegrityProtectionMode m_protectionMode;
     Error m_lastError;
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(SimpleCrypt::CryptoFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(KKCrypt::CryptoFlags)
 
+typedef QSharedPointer<KKCrypt> KKCryptPtr;
 #endif // SimpleCrypt_H

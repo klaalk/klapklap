@@ -31,15 +31,15 @@ QString KKPayload::getBody() {
 QStringList KKPayload::getBodyList() {
     QStringList list;
     int start = 0;
-    int nextFieldLenth = 0;
+    int nextFieldLength = 0;
     do {
-        nextFieldLenth = body.midRef(start, PAYLOAD_FORMAT_LENGTH).toInt();
+        nextFieldLength = body.midRef(start, PAYLOAD_FORMAT_LENGTH).toInt();
         start += PAYLOAD_FORMAT_LENGTH;
-        QString field = body.mid(start, nextFieldLenth);
+        QString field = body.mid(start, nextFieldLength);
         if (field.length() > 0) list.append(field);
-        start += nextFieldLenth;
+        start += nextFieldLength;
     }
-    while (nextFieldLenth > 0);
+    while (start < body.size());
     return list;
 }
 

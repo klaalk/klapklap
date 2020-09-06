@@ -19,7 +19,7 @@
 #include <QInputDialog>
 #include <QDir>
 #include <QMap>
-#include<QTimer>
+#include <QTimer>
 #include <QTextCursor>
 #include <QTextEdit>
 
@@ -29,7 +29,7 @@
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
 
-#include "../login/login.h"
+#include "../access/accessdialog.h"
 #include "../chat/chatdialog.h"
 #include "../openfile/openfiledialog.h"
 #include "../textedit/textedit.h"
@@ -43,9 +43,7 @@ class KKClient : public QObject
     Q_OBJECT
 public:
     explicit KKClient(QUrl url, QObject *parent = nullptr);
-    QSharedPointer<QList<int>>findPositions(const QString& siteId);
-
-
+    QSharedPointer<QList<int>> findPositions(const QString& siteId);
 
 private slots:
     void handleOpenedConnection();
@@ -58,31 +56,40 @@ private slots:
 
     void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, const QString& password);
-    void sendOpenFileRequest(const QString& fileName);
+    void sendGetFilesRequest();
+    void sendOpenFileRequest(const QString& link, const QString& fileName);
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
+    void sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar);
 
     void onInsertTextCrdt(const QString& diffText, int position);
     void onRemoveTextCrdt(int start, int end);
     void onSaveCrdtToFile();
-    void onLoadCrdtToFile();
-    void onSiteIdClicked(const QString& siteId,bool logout);
+    void onOpenFileDialog();
+    void onSiteIdClicked(const QString& siteId, bool logout);
+    void onAlignmentChange(QString alignment);
+    void onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format);
+
 private:
     void setInitState();
-
+    void initTextEdit();
+    void initChatDialog();
     void handleSuccessResponse(KKPayload res);
     void handleLoginResponse(KKPayload res);
     void handleSignupResponse();
-    void handleOpenfileResponse();
+    void handleGetFilesResponse(KKPayload res);
+    void handleOpenfileResponse(KKPayload res);
     void handleCrdtResponse(KKPayload res);
-
+    void handleAlignmentChange(KKPayload res);
+    void handleCharFormatChange(KKPayload res);
     void handleErrorResponse(KKPayload res);
-    void handleClientErrorResponse();
-    void handleServerErrorResponse();
-
+    void handleClientErrorResponse(KKPayload res);
+    void handleServerErrorResponse(KKPayload res);
     bool sendRequest(QString type, QString result, QStringList values);
 
     QString mySiteId_;
+    QStringList avatars;
+
     QString state_;
     QString currentfile_;
     bool currentfileValid_{};
@@ -93,12 +100,13 @@ private:
     QTimer timer_;
 
     AccessDialog access_;
-    TextEdit editor_;
-    ChatDialog chat_;
+
     OpenFileDialog openFile_;
     ModalDialog modal_;
 
     KKCrdt* crdt_{};
+    TextEdit* editor_{};
+    ChatDialog* chat_{};
 
     QByteArray bufferCrdt_;
     std::mutex mtxCrdt_;

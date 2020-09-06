@@ -14,19 +14,28 @@
 #define PAYLOAD_FORMAT_LENGTH 3
 #define PAYLOAD_FORMAT "%1"
 #define PAYLOAD_END "000"
+#define PAYLOAD_EMPTY_BODY {}
+#define FILENAME_SEPARATOR "/"
+#define FILENAME_MAX_LENGTH 30
+#define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
 
 /// Payload requests
 #define LOGIN "LOGN"
 #define LOGOUT "LOUT"
 #define SIGNUP "SGNP"
 #define SIGNOUT "SOUT"
+#define GETFILES "GETF"
 #define OPENFILE "OPNF"
+#define SHAREFILE "SHRF"
 #define SAVEFILE "SAVF"
 #define LOADFILE "LODF"
+#define UPDATE_USER "UPDU"
 #define CRDT "CRDT"
 #define CHAT "CHAT"
+#define ALIG "ALIG"
 #define ADDED_PARTECIPANT "ADPR"
 #define REMOVED_PARTECIPANT "RMPR"
+#define CHANGECHARFORMAT "CHCF"
 
 /// Payload CRDT Action
 #define CRDT_INSERT "INSERT"
@@ -51,6 +60,9 @@
 #define DB_SIGNUP_SUCCESS 40
 #define DB_SIGNUP_FAILED -40
 
+#define DB_UPDATE_USER_SUCCESS 50
+#define DB_UPDATE_USER_FAILED -50
+
 #define DB_PASSWORD_UPDATED 30
 #define DB_PASSWORD_NOT_UPDATED -30
 
@@ -68,6 +80,10 @@
 #define DB_ERR_SHARE_FILE_USERS -8
 #define DB_ERR_USER_FILES -9
 
+#define DB_FILE_EXIST -10
+#define DB_FILE_NOT_EXIST -11
+
+
 /// Sender email errors
 #define SEND_EMAIL_SUCCESS 50
 #define SEND_EMAIL_NOT_SUCCESS -50
@@ -81,11 +97,18 @@
 #define CONNECTED_NOT_OPENFILE "ConnectedNotOpened"
 #define CONNECTED_AND_OPENED "ConnectedAndOpened"
 
+// Participant States
+#define PARTICIPANT_ONLINE "Online"
+#define PARTICIPANT_OFFLINE "Offline"
+
 /// Timeout Modal Types
 #define CONNECTION_TIMEOUT "ConnectionTimeout"
 #define LOGIN_TIMEOUT "LoginTimeout"
 #define SIGNUP_TIMEOUT "SignupTimeout"
 #define OPENFILE_TIMEOUT "OpenfileTimeout"
+
+/// Success Modal Types
+#define GENERIC_SUCCESS "GenericSuccess"
 
 /// Error Modal Types
 #define LOGIN_ERROR "LogginError"
@@ -101,6 +124,6 @@
 #define FILE_SYSTEM_USER "root"
 
 /// File system errors
-#define FILE_SYSTEM_CREATE_ERROR "ERROR_CREATE_FILE"
+#define FILE_SYSTEM_CREATE_ERROR nullptr
 
 #endif //SERVER_KK_CONSTANTS_H
