@@ -204,7 +204,7 @@ void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEd
 void OpenFileDialog::on_saveChangesButton_clicked()
 {
     QString name = ui->nameLineEdit->text();
-    QString surname = ui->nameLineEdit->text();
+    QString surname = ui->surnameLineEdit->text();
     QString alias = ui->aliasLineEdit->text();
     emit updateAccountRequest(name, surname, alias, avatar);
 }
