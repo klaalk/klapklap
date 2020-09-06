@@ -24,9 +24,10 @@ public:
     ~KKDataBase();
 
     /// utente.
-    int signupUser(QString username, QString password, QString email, QString name, QString surname, int image);
+    int signupUser(QString username, QString password, QString email, QString name, QString surname, QString image);
     int loginUser(QString username, QString password, KKUserPtr user);
     int getUser(QString username, KKUserPtr user);
+    int updateUser(QString username, QString name, QString surname, QString alias, QString avatar);
     int existUserByUsername(QString username);
     int existUserByEmail(QString email);
 

@@ -54,21 +54,22 @@ private slots:
     void handleModalButtonClick(const QString& btnText, const QString& modalType);
     void handleModalClosed(const QString& modalType);
 
-    void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username, QString image);
+    void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, const QString& password);
     void sendGetFilesRequest();
     void sendOpenFileRequest(const QString& link, const QString& fileName);
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
-    void sendUpdateAccountRequest(QString name, QString surname, QString alias, QString blobImage);
+    void sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar);
 
     void onInsertTextCrdt(const QString& diffText, int position);
     void onRemoveTextCrdt(int start, int end);
     void onSaveCrdtToFile();
     void onOpenFileDialog();
-    void onSiteIdClicked(const QString& siteId,bool logout);
+    void onSiteIdClicked(const QString& siteId, bool logout);
     void onAlignmentChange(QString alignment);
     void onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format);
+
 private:
     void setInitState();
     void initTextEdit();
@@ -81,15 +82,14 @@ private:
     void handleCrdtResponse(KKPayload res);
     void handleAlignmentChange(KKPayload res);
     void handleCharFormatChange(KKPayload res);
-
-
     void handleErrorResponse(KKPayload res);
     void handleClientErrorResponse(KKPayload res);
     void handleServerErrorResponse(KKPayload res);
-
     bool sendRequest(QString type, QString result, QStringList values);
 
     QString mySiteId_;
+    QStringList avatars;
+
     QString state_;
     QString currentfile_;
     bool currentfileValid_{};

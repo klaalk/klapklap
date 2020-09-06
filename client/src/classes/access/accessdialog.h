@@ -25,7 +25,7 @@ public:
     void showSignup();
 signals:
     void loginBtnClicked(QString email, QString password);
-    void signupBtnClicked(QString email, QString password, QString name, QString surname, QString username, QString image);
+    void signupBtnClicked(QString email, QString password, QString name, QString surname, QString username);
 
 private slots:
     void on_login_btn_clicked();
@@ -35,7 +35,7 @@ private slots:
     void on_back_link_btn_clicked();
 
     void on_login_username_input_editingFinished();
-    void on_login_email_input_textChanged(const QString &arg1);
+    void on_login_username_input_textChanged(const QString &arg1);
     void on_login_password_input_editingFinished();
     void on_login_password_input_textChanged(const QString &arg1);
 

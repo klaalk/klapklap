@@ -29,10 +29,15 @@ KKClient::KKClient(QUrl url, QObject *parent)
 
     // Gestisco le richieste di apertura file
     connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
-    connect(&openFile_, &OpenFileDialog::updateAccountRequest, this, &KKClient::sendOpenFileRequest);
+    connect(&openFile_, &OpenFileDialog::updateAccountRequest, this, &KKClient::sendUpdateUserRequest);
 
     // Gestisco il timeout
     connect(&timer_, &QTimer::timeout, this, &KKClient::handleTimeOutConnection);
+
+    QDirIterator it(":/images/avatars", QDirIterator::NoIteratorFlags);
+    while (it.hasNext()) {
+        avatars.push_back(it.next());
+    }
 
     setInitState();
 }
@@ -141,7 +146,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         handleCharFormatChange(response);
 
     } else {
-        modal_.setModal("Errore generico. Non è stato possibile gestire la risposta.", "Chiudi", GENERIC_ERROR);
+        modal_.setModal("L'operazione è andata a buon fine.", "Chiudi", GENERIC_SUCCESS);
         modal_.show();
     }
 }
@@ -153,7 +158,9 @@ void KKClient::handleLoginResponse(KKPayload res) {
     mySiteId_ = bodyList.value(4);
     access_.hide();
 #ifndef test
-    openFile_.setUserInfo(bodyList);
+    openFile_.setUserInfo(bodyList.mid(0, 5));
+    openFile_.setUserAvatar(bodyList.value(6));
+    openFile_.setUserFiles(bodyList.mid(7, bodyList.size()-1));
     openFile_.show();
 #else
     this->sendOpenFileRequest("testboh13.txt");
@@ -225,7 +232,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 void KKClient::handleErrorResponse(KKPayload response){
     if (response.getResultType() == BAD_REQUEST) {
         handleClientErrorResponse(response);
-
     } else if (response.getResultType() == INTERNAL_SERVER_ERROR) {
         handleServerErrorResponse(response);
 
@@ -338,14 +344,14 @@ void KKClient::sendGetFilesRequest()
     }
 }
 
-void KKClient::sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username, QString image) {
+void KKClient::sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username) {
     KKCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
     QString psw = solver.encryptToString(password);
     access_.showLoader(true);
     if (!timer_.isActive())
         timer_.start(TIMEOUT_VALUE);
-
-    bool sended = sendRequest(SIGNUP, NONE, {std::move(email), psw, std::move(name), std::move(surname), std::move(username), image});
+    QString avatar = avatars.at(qrand() % (avatars.size()-1)).split(":/images/avatars/")[1];
+    bool sended = sendRequest(SIGNUP, NONE, {email, psw, name, surname, username, avatar});
 
     if (sended) {
         state_ = CONNECTED_NOT_SIGNED;
@@ -379,9 +385,9 @@ void KKClient::sendMessageRequest(QString username, QString message) {
     }
 }
 
-void KKClient::sendUpdateAccountRequest(QString name, QString surname, QString alias, QString blobImage)
+void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar)
 {
-    bool result = sendRequest(UPDATE_USER, NONE, {name, surname, alias, blobImage});
+    bool result = sendRequest(UPDATE_USER, NONE, {mySiteId_, name, surname, alias, avatar});
     if (!result || !socket_.isValid()) {
         modal_.setModal("Non è stato possibile aggiornare l'account.", "Chiudi", GENERIC_ERROR);
         modal_.show();
@@ -430,10 +436,13 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
     } else if (modalType == OPENFILE_ERROR) {
         modal_.hide();
 
+    } else if (modalType == GENERIC_SUCCESS) {
+        modal_.hide();
+
     } else if (modalType == GENERIC_ERROR) {
         modal_.hide();
 
-    } else  if (modalType == SERVER_ERROR) {
+    } else if (modalType == SERVER_ERROR) {
         modal_.hide();
         access_.showLoader(false);
     }
@@ -578,8 +587,6 @@ void KKClient::handleCharFormatChange(KKPayload response){
 
     unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
     editor_->singleCharFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
-
-
 }
 
 

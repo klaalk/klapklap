@@ -9,6 +9,7 @@
 #define  PSW  ""
 
 #define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`ALIAS`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIME())"
+#define UPDATE_USER_QRY "UPDATE `USERS` SET `ALIAS`=?,`NAME`=?,`SURNAME`=?,`IMAGE`=? WHERE `USERNAME` = ?"
 #define GET_USER_BY_USERNAME "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`USERNAME`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`= ?"
 #define CHECK_USER_BY_EMAIL "SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`= ?"
 #define CHECK_USER_BY_USERNAME "SELECT COUNT(*) FROM `USERS` WHERE `USERNAME`= ?"
@@ -37,7 +38,7 @@ KKDataBase::~KKDataBase(){
     db.close();
 }
 
-int KKDataBase::signupUser(QString username, QString password, QString email, QString name, QString surname, int image) {
+int KKDataBase::signupUser(QString username, QString password, QString email, QString name, QString surname, QString image) {
     int resCode = DB_SIGNUP_FAILED;
 
     if (existUserByUsername(username) == DB_USER_FOUND)
@@ -112,6 +113,32 @@ int KKDataBase::getUser(QString username, KKUserPtr userInfo) {
             db.close();
             resCode = DB_USER_FOUND;
         } catch (QException e) {
+            db.close();
+        }
+    }
+    return resCode;
+}
+
+int KKDataBase::updateUser(QString username, QString name, QString surname, QString alias, QString avatar)
+{
+    int resCode = DB_UPDATE_USER_FAILED;
+    if(!db.open()) {
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else  {
+        try {
+            QSqlQuery query;
+            query.prepare(UPDATE_USER_QRY);
+            query.addBindValue(alias);
+            query.addBindValue(name);
+            query.addBindValue(surname);
+            query.addBindValue(avatar);
+            query.addBindValue(username);
+            query.exec();
+            db.close();
+            resCode = DB_UPDATE_USER_SUCCESS;
+        } catch (QException &e) {
+            QString _str(e.what());
+            qDebug() << "Errore aggiornamento user: " << _str;
             db.close();
         }
     }

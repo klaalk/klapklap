@@ -60,6 +60,9 @@
 #define DB_SIGNUP_SUCCESS 40
 #define DB_SIGNUP_FAILED -40
 
+#define DB_UPDATE_USER_SUCCESS 50
+#define DB_UPDATE_USER_FAILED -50
+
 #define DB_PASSWORD_UPDATED 30
 #define DB_PASSWORD_NOT_UPDATED -30
 
@@ -103,6 +106,9 @@
 #define LOGIN_TIMEOUT "LoginTimeout"
 #define SIGNUP_TIMEOUT "SignupTimeout"
 #define OPENFILE_TIMEOUT "OpenfileTimeout"
+
+/// Success Modal Types
+#define GENERIC_SUCCESS "GenericSuccess"
 
 /// Error Modal Types
 #define LOGIN_ERROR "LogginError"

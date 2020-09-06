@@ -7,7 +7,7 @@ ModalDialog::ModalDialog(QWidget *parent) :
     ui(new Ui::ModalDialog)
 {
     ui->setupUi(this);
-    setWindowTitle("Errore");
+    setWindowTitle("Notifica");
     setStyleSheet("ModalDialog {background-color: white;}");
 }
 

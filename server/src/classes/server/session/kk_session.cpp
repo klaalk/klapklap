@@ -67,7 +67,7 @@ void KKSession::handleRequest(QString message) {
 //            handleShareFileRequest(req);
         }
         else if(req.getRequestType() == UPDATE_USER) {
-//            handleShareFileRequest(req);
+            handleUpdateUserRequest(req);
         }
         else if(req.getRequestType() == CRDT) {
             handleCrdtRequest(req);
@@ -103,8 +103,8 @@ void KKSession::handleLoginRequest(KKPayload request) {
         output->append(user->getEmail());
         output->append(user->getPassword());
         output->append(user->getUsername());
-        output->append(user->getImage());
         output->append(user->getRegistrationDate());
+        output->append(user->getImage());
         result = db->getUserFile(user, output);
         if (result != DB_USER_FILES_FOUND) {
             logger("Non è stato possibile recuperare i file associati a " + _body[0]);
@@ -125,7 +125,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
 void KKSession::handleSignupRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[4];
-    int result = db->signupUser(_body[4],_body[1],_body[0],_body[2], _body[3], _body[5].toInt());
+    int result = db->signupUser(_body[4],_body[1],_body[0],_body[2], _body[3], _body[5]);
     if(result == DB_SIGNUP_SUCCESS) {
         int emailResult = smtp->sendSignupEmail(_body[4], _body[0],_body[2], _body[3]);
         if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
@@ -247,7 +247,19 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
 
 void KKSession::handleUpdateUserRequest(KKPayload request)
 {
-
+    QStringList bodyReqeust = request.getBodyList();
+    QString username = bodyReqeust.value(0);
+    QString name = bodyReqeust.value(1);
+    QString surname = bodyReqeust.value(2);
+    QString alias = bodyReqeust.value(3);
+    QString avatar = bodyReqeust.value(4);
+    int result = db->updateUser(username, name, surname, alias, avatar);
+    if (result == DB_UPDATE_USER_SUCCESS) {
+        this->sendResponse(UPDATE_USER, SUCCESS, {"Aggiornamento effettuato con successo"});
+    } else {
+        logger("Errore durante l'aggiornamento user. Result code: " + QVariant(result).toString());
+        this->sendResponse(UPDATE_USER, INTERNAL_SERVER_ERROR, {"Non è stato possibile procedere con l'aggiornamento"});
+    }
 }
 
 void KKSession::handleChatRequest(KKPayload request) {

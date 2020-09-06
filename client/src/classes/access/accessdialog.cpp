@@ -84,7 +84,7 @@ void AccessDialog::on_signup_btn_clicked()
     QString username = ui_->signup_username_input->text();
     QString surname = ui_->signup_surname_input->text();
     QString name = ui_->signup_name_input->text();
-    emit signupBtnClicked(email, password, name, surname, username, QVariant(qrand() % 25).toString());
+    emit signupBtnClicked(email, password, name, surname, username);
 }
 
 void AccessDialog::on_back_link_btn_clicked()
@@ -103,7 +103,7 @@ void AccessDialog::on_login_username_input_editingFinished()
     ui_->login_btn->setEnabled(isValid);
 }
 
-void AccessDialog::on_login_email_input_textChanged(const QString &arg1)
+void AccessDialog::on_login_username_input_textChanged(const QString &arg1)
 {
     Q_UNUSED( arg1 )
     bool isValid = checkLoginForm();

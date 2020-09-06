@@ -31,6 +31,7 @@ public:
 
     void setUserInfo(const QStringList& info);
     void setUserFiles(const QStringList& files);
+    void setUserAvatar(const QString &avatar);
     void addFile(int fileIndex, const QString& fileName);
 
 private slots:
@@ -41,18 +42,11 @@ private slots:
     void on_openFileButton_clicked();
     void on_shareFileButton_clicked();
     void on_changeImageButton_clicked();
-
     void on_createFileNameLineEdit_textChanged(const QString &arg1);
-
-
     void on_saveChangesButton_clicked();
 
 private:
     void initializeFilesTableView();
-    void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
-
-    void setImage(const QImage &newImage);
-    bool loadFile(const QString &fileName);
 
     Ui::OpenFileDialog *ui;
     KKCrypt* crypt;
@@ -63,6 +57,8 @@ private:
 
     QString pastedLink;
     QString pastedFilename;
+
+    QString avatar;
 
     QMap<QString, QString> files_;
 
