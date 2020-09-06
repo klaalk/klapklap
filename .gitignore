@@ -55,3 +55,7 @@ server/build-GDB
 client/build-client-Desktop_Qt_5_12_3_MinGW_64_bit-Release/
 client/build-GDB
 
+**/client/builds/**
+**/server/builds/**
+
+/client/builds/release/ui_sharefiledialog.h

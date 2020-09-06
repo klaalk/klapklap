@@ -33,12 +33,16 @@ public:
     QString getPassword() const;
     void setPassword(const QString &value);
 
+    QString getAlias() const;
+    void setAlias(const QString &value);
+
 private:
     QString id;
     QString name;
     QString surname;
     QString email;
     QString username;
+    QString alias;
     QString image;
     QString registrationDate;
     QString password;

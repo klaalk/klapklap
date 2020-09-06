@@ -29,6 +29,7 @@
 #define SHAREFILE "SHRF"
 #define SAVEFILE "SAVF"
 #define LOADFILE "LODF"
+#define UPDATE_USER "UPDU"
 #define CRDT "CRDT"
 #define CHAT "CHAT"
 #define ALIG "ALIG"
@@ -58,6 +59,9 @@
 
 #define DB_SIGNUP_SUCCESS 40
 #define DB_SIGNUP_FAILED -40
+
+#define DB_UPDATE_USER_SUCCESS 50
+#define DB_UPDATE_USER_FAILED -50
 
 #define DB_PASSWORD_UPDATED 30
 #define DB_PASSWORD_NOT_UPDATED -30
@@ -93,11 +97,18 @@
 #define CONNECTED_NOT_OPENFILE "ConnectedNotOpened"
 #define CONNECTED_AND_OPENED "ConnectedAndOpened"
 
+// Participant States
+#define PARTICIPANT_ONLINE "Online"
+#define PARTICIPANT_OFFLINE "Offline"
+
 /// Timeout Modal Types
 #define CONNECTION_TIMEOUT "ConnectionTimeout"
 #define LOGIN_TIMEOUT "LoginTimeout"
 #define SIGNUP_TIMEOUT "SignupTimeout"
 #define OPENFILE_TIMEOUT "OpenfileTimeout"
+
+/// Success Modal Types
+#define GENERIC_SUCCESS "GenericSuccess"
 
 /// Error Modal Types
 #define LOGIN_ERROR "LogginError"

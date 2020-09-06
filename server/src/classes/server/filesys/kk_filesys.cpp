@@ -33,7 +33,6 @@ KKFilePtr KKFileSystem::createFile(QString username, QString filename){
         return openFile(filename);
     }
 
-
     // Serve per garantire l'univocità del path.
     QString jump;
     jump = crypter->random_psw(jump);
@@ -41,28 +40,31 @@ KKFilePtr KKFileSystem::createFile(QString username, QString filename){
 
     do {
         _filename = crypter->encryptToString(jump + FILENAME_SEPARATOR + username + FILENAME_SEPARATOR + filename);
+    }
     // Serve ad evitare che il carattere "/" dia problemi nei path
-    } while(crypter->containLetter('/', _filename));
+    while(crypter->containLetter('/', _filename));
+
     return openFile(_filename);
-
-
 }
 
 KKFilePtr KKFileSystem::openFile(QString filename, QString rootPath){
     KKFilePtr kkFile = QSharedPointer<KKFile>(new KKFile());
     QSharedPointer<QFile> file = QSharedPointer<QFile>(new QFile (rootPath + filename));
     kkFile->setFile(file);
-    kkFile->setFilename(filename);
+    kkFile->setHash(filename);
     return  kkFile;
 }
 
-
 bool KKFileSystem::writeFile(KKFilePtr file, QString toPrint) {
+    return writeFile(file, toPrint, nullptr);
+}
+
+bool KKFileSystem::writeFile(KKFilePtr file, QString toPrint, QString sessionId) {
     QFile *tmp = file->getFile().get();
     bool result = tmp->open(QIODevice::ReadWrite | QIODevice::Text);
     if(result){
-        if(file->getFilename() == logFileName) {
-            toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - "));
+        if(file->getHash() == logFileName) {
+            toPrint.insert(0, QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss - [") + sessionId + "] - ");
             qDebug() << "[log] " + toPrint;
         }
 

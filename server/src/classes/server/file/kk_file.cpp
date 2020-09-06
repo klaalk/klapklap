@@ -5,8 +5,9 @@
 #include "kk_file.h"
 
 KKFile::KKFile(){
-    recentMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
-    crdtMessages = QSharedPointer<QVector<KKPayloadPtr>>(new QVector<KKPayloadPtr>());
+    recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
+    crdtMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
+    participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
 }
 
 KKFile::~KKFile() {
@@ -20,12 +21,13 @@ KKFile::~KKFile() {
     delete crdtMessages.get();
     delete recentMessages.get();
 }
-void KKFile::join(QSharedPointer<KKParticipant> participant) {
-    participants.insert(participant);
+
+void KKFile::join(KKParticipantPtr participant) {
+    participants->insert(participant->id, participant);
 }
 
-void KKFile::leave(QSharedPointer<KKParticipant> participant) {
-    participants.erase(participant);
+void KKFile::leave(KKParticipantPtr participant) {
+    participants->insert(participant->id, nullptr);
 }
 
 void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
@@ -42,7 +44,7 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
 
-    std::for_each(participants.begin(), participants.end(),[&](QSharedPointer<KKParticipant> p){
+    std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
         if(p->id != myNick) {
             p->deliver(data);
         }
@@ -59,18 +61,40 @@ QSharedPointer<QFile> KKFile::getFile()
     return this->file;
 }
 
-void KKFile::setFilename(QString filename)
+void KKFile::setHash(QString hash)
 {
-    this->filename=filename;
+    this->hash=hash;
 }
 
-QString KKFile::getFilename()
+QString KKFile::getHash()
 {
-    return this->filename;
+    return this->hash;
+}
+
+KKMapParticipantPtr KKFile::getParticipants()
+{
+    return this->participants;
 }
 
 KKVectorPayloadPtr KKFile::getRecentMessages() {
     return recentMessages;
+}
+
+void KKFile::setOwners(QStringList *owners)
+{
+    this->owners = owners;
+}
+
+void KKFile::addOwner(QString owner)
+{
+    if (!owner.isEmpty()) {
+        owners->push_back(owner);
+    }
+}
+
+QStringList* KKFile::getOwners()
+{
+    return this->owners;
 }
 
 

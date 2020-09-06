@@ -17,7 +17,7 @@
 #include <QStandardPaths>
 
 #include "../../../../../libs/src/classes/crypt/kk_crypt.h"
-#include "../file/kk_file.h"
+#include <classes/server/file/kk_file.h>
 
 
 #define SERVER_ROOT QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/KKServer"
@@ -34,6 +34,7 @@ public:
     KKFilePtr openFile(QString filename, QString rootPath=APPLICATION_ROOT);
 
     bool writeFile(KKFilePtr file, QString toPrint);
+    bool writeFile(KKFilePtr file, QString toPrint, QString sessionId);
     QString readFile(QString filename);
 
 private:

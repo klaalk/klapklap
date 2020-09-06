@@ -1,4 +1,4 @@
-#include "login.h"
+#include "accessdialog.h"
 #include "ui_accessdialog.h"
 #define test
 
@@ -63,7 +63,7 @@ void AccessDialog::showSignup() {
     on_show_signup_btn_clicked();
 }
 void AccessDialog::on_login_btn_clicked() {
-    QString email = ui_->login_email_input->text();
+    QString email = ui_->login_username_input->text();
     QString password = ui_->login_password_input->text();
     emit loginBtnClicked(email, password);
 }
@@ -92,18 +92,18 @@ void AccessDialog::on_back_link_btn_clicked()
     ui_->login_widget->show();
     ui_->signup_widget->hide();
 
-    showHintEmail = ui_->login_email_input->text().size() > 0;
+    showHintEmail = ui_->login_username_input->text().size() > 0;
     showHintPassword = ui_->login_password_input->text().size() > 0;
 }
 
-void AccessDialog::on_login_email_input_editingFinished()
+void AccessDialog::on_login_username_input_editingFinished()
 {
-    showHintEmail = ui_->login_email_input->text().size() > 0;
+    showHintEmail = ui_->login_username_input->text().size() > 0;
     bool isValid = checkLoginForm();
     ui_->login_btn->setEnabled(isValid);
 }
 
-void AccessDialog::on_login_email_input_textChanged(const QString &arg1)
+void AccessDialog::on_login_username_input_textChanged(const QString &arg1)
 {
     Q_UNUSED( arg1 )
     bool isValid = checkLoginForm();
@@ -195,11 +195,11 @@ void AccessDialog::on_signup_username_input_textChanged(const QString &arg1)
 }
 
 bool AccessDialog::checkLoginForm() {
-    QString email = ui_->login_email_input->text();
+    QString username = ui_->login_username_input->text();
     QString password = ui_->login_password_input->text();
 
-    bool isValidEmail = regexMatch(email, emailRegexp_, showHintEmail, ui_->login_hint_label, "*insert a valid email");
-    if (!isValidEmail) return false;
+    bool isValidUsername = regexMatch(username, usernameRegexp_, showHintEmail, ui_->login_hint_label, "*insert a valid username");
+    if (!isValidUsername) return false;
 
     bool isValidPassword = regexMatch(password, passwordRegexp_, showHintPassword, ui_->login_hint_label_2, "*insert password with minimum eight characters, at least one letter and one number");
     if (!isValidPassword) return false;

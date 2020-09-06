@@ -25,7 +25,7 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
 
     // Setting up table view
     initializeFilesTableView();
-
+    connect(&chooseAvatarDialog, &ChooseAvatarDialog::updateAvatarRequest, this, &OpenFileDialog::setUserAvatar);
     // Start showing layouts
     ui->accountLayout->show();
     ui->documentsLayout->hide();
@@ -55,15 +55,12 @@ void OpenFileDialog::initializeFilesTableView() {
 void OpenFileDialog::setUserInfo(const QStringList& info) {
     ui->nameLineEdit->insert(info.value(0));
     ui->surnameLineEdit->insert(info.value(1));
-    ui->emailLineEdit->insert(info.value(2));
-    ui->passwordLineEdit->insert(crypt->decryptToString(info.value(3)));
-    ui->usernameLineEdit->insert(info.value(4));
-
-    QString registrationDate = info.value(5);
+    ui->aliasLineEdit->insert(info.value(5));
+    ui->emailLabel->setText("Email: " + info.value(2));
+    ui->usernameLabel->setText("Username: " + info.value(4));
+    QString registrationDate = info.value(6);
     QDateTime registrationDateTime = QDateTime::fromString(registrationDate, Qt::ISODate);
     ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
-
-    setUserFiles(info.mid(6, info.size()-1));
 }
 
 void OpenFileDialog::setUserFiles(const QStringList &files)
@@ -76,6 +73,20 @@ void OpenFileDialog::setUserFiles(const QStringList &files)
         addFile(fileIndex, fileName);
         fileIndex++;
     }
+}
+
+void OpenFileDialog::setUserAvatar(const QString &avatar)
+{
+    QString path = ":images/avatars/"+avatar;
+    bool exist = QFile::exists(path);
+    if (exist) {
+        QPixmap image = QPixmap(":images/avatars/"+avatar);
+        QIcon ButtonIcon(image);
+        ui->changeImageButton->setIcon(ButtonIcon);
+        ui->changeImageButton->setIconSize(image.rect().size());
+        this->avatar = avatar;
+    } else
+       qDebug() << "[setUserAvatar] Avatar not exist: " << path;
 }
 
 void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
@@ -145,10 +156,7 @@ void OpenFileDialog::on_shareFileButton_clicked()
 
 void OpenFileDialog::on_changeImageButton_clicked()
 {
-    QFileDialog dialog(this, tr("Open File"));
-    initializeImageFileDialog(dialog, QFileDialog::AcceptOpen);
-
-    while (dialog.exec() == QDialog::Accepted && !loadFile(dialog.selectedFiles().first())) {}
+    chooseAvatarDialog.showAvatars();
 }
 
 void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEditText)
@@ -195,48 +203,10 @@ void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEd
 
 }
 
-void OpenFileDialog::initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
+void OpenFileDialog::on_saveChangesButton_clicked()
 {
-    static bool firstDialog = true;
-
-    if (firstDialog) {
-        firstDialog = false;
-        const QStringList picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-        dialog.setDirectory(picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.last());
-    }
-
-    QStringList mimeTypeFilters;
-    const QByteArrayList supportedMimeTypes = acceptMode == QFileDialog::AcceptOpen
-            ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
-    foreach (const QByteArray &mimeTypeName, supportedMimeTypes)
-        mimeTypeFilters.append(mimeTypeName);
-    mimeTypeFilters.sort();
-    dialog.setMimeTypeFilters(mimeTypeFilters);
-    dialog.selectMimeTypeFilter("image/jpeg");
-    if (acceptMode == QFileDialog::AcceptSave)
-        dialog.setDefaultSuffix("jpg");
-}
-
-bool OpenFileDialog::loadFile(const QString &fileName)
-{
-    QImageReader reader(fileName);
-    reader.setAutoTransform(true);
-    const QImage newImage = reader.read();
-    if (newImage.isNull()) {
-        QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-                                 tr("Cannot load %1: %2")
-                                 .arg(QDir::toNativeSeparators(fileName), reader.errorString()));
-        return false;
-    }
-
-    ui->imageViewer->setScaledContents(false);
-
-    QPixmap pixmap = QPixmap::fromImage(newImage);
-    pixmap = pixmap.scaled(ui->imageViewer->width(), ui->imageViewer->height(), Qt::KeepAspectRatio);
-    ui->imageViewer->setPixmap(pixmap);
-
-    setWindowFilePath(fileName);
-    const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
-            .arg(QDir::toNativeSeparators(fileName)).arg(newImage.width()).arg(newImage.height()).arg(newImage.depth());
-    return true;
+    QString name = ui->nameLineEdit->text();
+    QString surname = ui->surnameLineEdit->text();
+    QString alias = ui->aliasLineEdit->text();
+    emit updateAccountRequest(name, surname, alias, avatar);
 }
