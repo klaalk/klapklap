@@ -103,6 +103,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
         output->append(user->getEmail());
         output->append(user->getPassword());
         output->append(user->getUsername());
+        output->append(user->getAlias());
         output->append(user->getRegistrationDate());
         output->append(user->getImage());
         result = db->getUserFile(user, output);

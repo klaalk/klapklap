@@ -55,10 +55,10 @@ void OpenFileDialog::initializeFilesTableView() {
 void OpenFileDialog::setUserInfo(const QStringList& info) {
     ui->nameLineEdit->insert(info.value(0));
     ui->surnameLineEdit->insert(info.value(1));
-    ui->aliasLineEdit->insert(info.value(4));
+    ui->aliasLineEdit->insert(info.value(5));
     ui->emailLabel->setText("Email: " + info.value(2));
     ui->usernameLabel->setText("Username: " + info.value(4));
-    QString registrationDate = info.value(5);
+    QString registrationDate = info.value(6);
     QDateTime registrationDateTime = QDateTime::fromString(registrationDate, Qt::ISODate);
     ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
 }

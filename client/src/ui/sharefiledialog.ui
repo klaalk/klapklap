@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>490</width>
-    <height>150</height>
+    <height>100</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -19,34 +19,18 @@
   <property name="minimumSize">
    <size>
     <width>490</width>
-    <height>150</height>
+    <height>100</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>490</width>
-    <height>150</height>
+    <height>100</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Condividi file</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttons">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>110</y>
-     <width>471</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel</set>
-   </property>
-  </widget>
   <widget class="QLabel" name="title_1">
    <property name="geometry">
     <rect>
@@ -65,7 +49,7 @@
     <rect>
      <x>10</x>
      <y>30</y>
-     <width>380</width>
+     <width>461</width>
      <height>20</height>
     </rect>
    </property>
@@ -79,46 +63,11 @@
     <set>Qt::TextSelectableByMouse</set>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="emailsPlainTextEdit">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>83</y>
-     <width>470</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="verticalScrollBarPolicy">
-    <enum>Qt::ScrollBarAlwaysOff</enum>
-   </property>
-   <property name="horizontalScrollBarPolicy">
-    <enum>Qt::ScrollBarAlwaysOff</enum>
-   </property>
-   <property name="lineWrapMode">
-    <enum>QPlainTextEdit::WidgetWidth</enum>
-   </property>
-   <property name="placeholderText">
-    <string>example-one@klapklap.it; example-two@klapklap.it</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="title_2">
-   <property name="geometry">
-    <rect>
-     <x>11</x>
-     <y>60</y>
-     <width>469</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Insersci le email dei partecipanti a cui vorresti condividere il file:</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>406</x>
-     <y>30</y>
+     <x>400</x>
+     <y>60</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -129,38 +78,5 @@
   </widget>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttons</sender>
-   <signal>accepted()</signal>
-   <receiver>ShareFileDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttons</sender>
-   <signal>rejected()</signal>
-   <receiver>ShareFileDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

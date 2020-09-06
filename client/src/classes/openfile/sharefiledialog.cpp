@@ -7,6 +7,7 @@ ShareFileDialog::ShareFileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ShareFileDialog)
 {
+    setStyleSheet("ShareFileDialog {background-color: white;}");
     ui->setupUi(this);
 }
 
@@ -21,14 +22,6 @@ void ShareFileDialog::setShareFileLink(const QString &link)
     QFontMetrics metrics(ui->linkLabel->font());
     QString elidedText = metrics.elidedText(link, Qt::ElideRight, ui->linkLabel->width());
     ui->linkLabel->setText(elidedText);
-}
-
-void ShareFileDialog::on_buttons_accepted()
-{
-    QString text = ui->emailsPlainTextEdit->toPlainText();
-    if (text.size()>0) {
-        // Mandare evento per spedire email
-    }
 }
 
 void ShareFileDialog::on_pushButton_clicked()

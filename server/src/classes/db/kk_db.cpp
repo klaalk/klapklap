@@ -10,7 +10,7 @@
 
 #define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`ALIAS`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIME())"
 #define UPDATE_USER_QRY "UPDATE `USERS` SET `ALIAS`=?,`NAME`=?,`SURNAME`=?,`IMAGE`=? WHERE `USERNAME` = ?"
-#define GET_USER_BY_USERNAME "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`USERNAME`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`= ?"
+#define GET_USER_BY_USERNAME "SELECT `ID`,`NAME`,`SURNAME`,`EMAIL`,`USERNAME`,`ALIAS`,`IMAGE`,`REGISTRATION_DATE`,`PASSWORD` FROM `USERS` WHERE `USERNAME`= ?"
 #define CHECK_USER_BY_EMAIL "SELECT COUNT(*) FROM `USERS` WHERE `EMAIL`= ?"
 #define CHECK_USER_BY_USERNAME "SELECT COUNT(*) FROM `USERS` WHERE `USERNAME`= ?"
 
@@ -106,9 +106,10 @@ int KKDataBase::getUser(QString username, KKUserPtr userInfo) {
             userInfo->setSurname(query.value(2).toString());
             userInfo->setEmail(query.value(3).toString());
             userInfo->setUsername(query.value(4).toString());
-            userInfo->setImage(query.value(5).toString());
-            userInfo->setRegistrationDate(query.value(6).toString());
-            userInfo->setPassword(query.value(7).toString());
+            userInfo->setAlias(query.value(5).toString());
+            userInfo->setImage(query.value(6).toString());
+            userInfo->setRegistrationDate(query.value(7).toString());
+            userInfo->setPassword(query.value(8).toString());
 
             db.close();
             resCode = DB_USER_FOUND;

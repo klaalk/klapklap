@@ -84,3 +84,13 @@ void KKUser::setPassword(const QString &value)
 {
     password = value;
 }
+
+QString KKUser::getAlias() const
+{
+    return alias;
+}
+
+void KKUser::setAlias(const QString &value)
+{
+    alias = value;
+}

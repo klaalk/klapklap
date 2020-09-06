@@ -158,9 +158,9 @@ void KKClient::handleLoginResponse(KKPayload res) {
     mySiteId_ = bodyList.value(4);
     access_.hide();
 #ifndef test
-    openFile_.setUserInfo(bodyList.mid(0, 5));
-    openFile_.setUserAvatar(bodyList.value(6));
-    openFile_.setUserFiles(bodyList.mid(7, bodyList.size()-1));
+    openFile_.setUserInfo(bodyList.mid(0, 7));
+    openFile_.setUserAvatar(bodyList.value(7));
+    openFile_.setUserFiles(bodyList.mid(8, bodyList.size()));
     openFile_.show();
 #else
     this->sendOpenFileRequest("testboh13.txt");
