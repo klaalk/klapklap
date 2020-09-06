@@ -270,52 +270,17 @@
             <number>192</number>
            </property>
            <item alignment="Qt::AlignTop">
-            <widget class="QLabel" name="imageViewer">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>100</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>100</height>
-              </size>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">border: 1px solid gray;
-</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="pixmap">
-              <pixmap resource="../assets/client.qrc">:/images/pingu.jpeg</pixmap>
-             </property>
-             <property name="scaledContents">
-              <bool>true</bool>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item alignment="Qt::AlignTop">
             <widget class="QPushButton" name="changeImageButton">
              <property name="minimumSize">
               <size>
                <width>100</width>
-               <height>23</height>
+               <height>100</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>100</width>
-               <height>23</height>
+               <height>100</height>
               </size>
              </property>
              <property name="cursor">
@@ -331,7 +296,7 @@
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>Modifica</string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -484,8 +449,6 @@
   <zorder>documentsLayout</zorder>
   <zorder>accountLayout</zorder>
  </widget>
- <resources>
-  <include location="../assets/client.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

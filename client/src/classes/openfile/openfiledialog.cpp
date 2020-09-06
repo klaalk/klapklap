@@ -81,7 +81,9 @@ void OpenFileDialog::setUserAvatar(const QString &avatar)
     bool exist = QFile::exists(path);
     if (exist) {
         QPixmap image = QPixmap(":images/avatars/"+avatar);
-        ui->imageViewer->setPixmap(image);
+        QIcon ButtonIcon(image);
+        ui->changeImageButton->setIcon(ButtonIcon);
+        ui->changeImageButton->setIconSize(image.rect().size());
         this->avatar = avatar;
     } else
        qDebug() << "[setUserAvatar] Avatar not exist: " << path;
