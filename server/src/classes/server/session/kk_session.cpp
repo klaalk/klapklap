@@ -12,10 +12,10 @@
 
 #define DEBUG
 
-KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files_, KKFilePtr logFile, QObject*  parent)
+KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files_, KKFilePtr logFile, QString sessionId, QObject*  parent)
     : QObject(parent), db(db), files(files_), logFile(logFile), fileSystem(filesys), user(KKUserPtr(new KKUser())) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
-
+    this->sessionId = sessionId;
 }
 
 KKSession::~KKSession() {}
@@ -30,7 +30,7 @@ void KKSession::setSocket(QWebSocket* descriptor) {
     connect(socket, &QWebSocket::textMessageReceived, this, &KKSession::handleRequest);
     connect(socket, &QWebSocket::binaryMessageReceived, this, &KKSession::handleBinaryRequests);
     connect(socket, &QWebSocket::disconnected, this, &KKSession::handleDisconnection);
-    logger("Client " + id + ", " +descriptor->peerAddress().toString()+", "
+    logger("Client info: " + id + ", " +descriptor->peerAddress().toString()+", "
                           + QString::number(descriptor->peerPort())+" connected at "
                           + descriptor->localAddress().toString() +", "
                           + QString::number(descriptor->localPort()));
@@ -42,12 +42,12 @@ QString KKSession::getSessionId() {
 
 void KKSession::sendResponse(QString type, QString result, QStringList values) {
     KKPayload res(type, result, values);
-    logger("Server send (" + res.encode() +")");
+    logger("Server send: " + res.encode());
     socket->sendTextMessage(res.encode());
 }
 
 void KKSession::handleRequest(QString message) {
-    logger("Client send " + message);
+    logger("Client send: " + message);
     if (socket){
         KKPayload req(message);
         req.decode();
@@ -93,7 +93,7 @@ void KKSession::handleRequest(QString message) {
 void KKSession::handleLoginRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
-    logger("Client info " + id +", " + socket->peerAddress().toString()+", " + QString::number(socket->peerPort()));
+    logger("Client username: " + id);
     int result = DB_LOGIN_SUCCESS;
     result = db->loginUser(_body[0],_body[1], user);
     if(result == DB_LOGIN_SUCCESS) {
@@ -127,13 +127,14 @@ void KKSession::handleSignupRequest(KKPayload request) {
     id = _body[4];
     int result = db->signupUser(_body[4],_body[1],_body[0],_body[2], _body[3], _body[5]);
     if(result == DB_SIGNUP_SUCCESS) {
-        int emailResult = smtp->sendSignupEmail(_body[4], _body[0],_body[2], _body[3]);
-        if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
-            logger("Non è stato possibile inivare l'email a " + _body[0]);
-        }
+// FIXME: non si riesce più a mandare le mail all'utente
+//        int emailResult = smtp->sendSignupEmail(_body[4], _body[0],_body[2], _body[3]);
+//        if (emailResult == SEND_EMAIL_NOT_SUCCESS) {
+//            logger("Non è stato possibile inivare l'email a " + _body[0]);
+//        }
         this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
     } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
-        this->sendResponse(SIGNUP, BAD_REQUEST, {"Non e' stato possibile procedere con la registrazione. Username e/o Email esistenti!"});
+        this->sendResponse(SIGNUP, BAD_REQUEST, {"Errore nella richiesta, username e/o Email esistenti!"});
     } else {
         this->sendResponse(SIGNUP, INTERNAL_SERVER_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
     }
@@ -304,7 +305,7 @@ void KKSession::handleBinaryRequests(QByteArray message) {
 }
 
 void KKSession::handleDisconnection() {
-    logger("Client: "+id+", "+socket->peerName()+", "
+    logger("Client info: "+id+", "+socket->peerName()+", "
                           +socket->peerAddress().toString()+", "
                           +QString::number(socket->peerPort())+" disconnected");
 

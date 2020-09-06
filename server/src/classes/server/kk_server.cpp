@@ -15,6 +15,7 @@ QT_USE_NAMESPACE
 KKServer::KKServer(quint16 port, QObject *parent):
     QObject(parent), socket(nullptr) {
     socket = new QWebSocketServer(QStringLiteral("SSL Echo Server"), QWebSocketServer::SecureMode, this);
+    possibleCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     QSslConfiguration sslConfiguration;
     QFile certFile(QStringLiteral(":/localhost.cert"));
@@ -71,7 +72,7 @@ KKServer::~KKServer()
 
 void KKServer::onNewConnection() {
     QWebSocket *pSocket = socket->nextPendingConnection();
-    KKSessionPtr client = QSharedPointer<KKSession>(new KKSession(db, filesys, files, logFile, this));
+    KKSessionPtr client = QSharedPointer<KKSession>(new KKSession(db, filesys, files, logFile, generateSessionId(), this));
     client->setSocket(pSocket);
     sessions << client;
     clients << pSocket;
@@ -80,4 +81,16 @@ void KKServer::onNewConnection() {
 void KKServer::onSslErrors(const QList<QSslError> &)
 {
     filesys->writeFile(logFile, "SSL errors occurred", "SERVER");
+}
+
+QString KKServer::generateSessionId()
+{
+    QString randomString;
+    for(int i=0; i<randomStringLength; ++i)
+    {
+        int index = qrand() % possibleCharacters.length();
+        QChar nextChar = possibleCharacters.at(index);
+        randomString.append(nextChar);
+    }
+    return randomString;
 }
