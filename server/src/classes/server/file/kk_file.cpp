@@ -4,21 +4,20 @@
 
 #include "kk_file.h"
 
-KKFile::KKFile(){
+KKFile::KKFile() {
     recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
-    crdtMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
+    crdt = KKCrdtPtr(new KKCrdt("file", casuale));
+    connect(&timer, &QTimer::timeout, this, &KKFile::flushCrdtText);
+    timer.start(10000);
 }
 
 KKFile::~KKFile() {
     std::for_each(recentMessages->begin(), recentMessages->end(), [](KKPayloadPtr d){
         delete d.get();
     });
-    std::for_each(crdtMessages->begin(), crdtMessages->end(), [](KKPayloadPtr d){
-        delete d.get();
-    });
+
     delete file.get();
-    delete crdtMessages.get();
     delete recentMessages.get();
 }
 
@@ -31,15 +30,13 @@ void KKFile::leave(KKParticipantPtr participant) {
 }
 
 void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
-    KKPayloadPtr data = QSharedPointer<KKPayload>(new KKPayload(type,result, message));
-    recentMessages->push_back(data);
+    KKPayloadPtr data = KKPayloadPtr(new KKPayload(type,result, message));
 
     if (type == CRDT) {
-        crdtMessages->push_back(data);
-        crdtIndexMessages.push_back(messageIndex);
+        applyRemoteInsert(data->getBodyList());
+    } else {
+        recentMessages->push_back(data);
     }
-
-    messageIndex++;
 
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
@@ -80,11 +77,6 @@ KKVectorPayloadPtr KKFile::getRecentMessages() {
     return recentMessages;
 }
 
-void KKFile::setOwners(QStringList *owners)
-{
-    this->owners = owners;
-}
-
 void KKFile::addOwner(QString owner)
 {
     if (!owner.isEmpty()) {
@@ -92,9 +84,71 @@ void KKFile::addOwner(QString owner)
     }
 }
 
+void KKFile::setOwners(QStringList *owners)
+{
+    this->owners = owners;
+}
+
 QStringList* KKFile::getOwners()
 {
     return this->owners;
 }
 
+void KKFile::applyRemoteInsert(QStringList bodyList)
+{
+    // Ottengo i campi della risposta
+    int increment = bodyList[0] == CRDT_INSERT ? 0 : 1;
+    QString siteId = bodyList[1 + increment];
+    QString text = bodyList[2 + increment];
+    QStringList ids = bodyList[3 + increment].split(" ");
+    QString fontStr = bodyList[4 + increment];
+    QString colorStr = bodyList[5 + increment];
+
+
+    KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
+    char_->setKKCharFont(fontStr);
+    char_->setKKCharColor(colorStr);
+
+    // size() - 1 per non considerare l'elemento vuoto della string list ids
+    for(int i = 0; i < ids.size() - 1; i++) {
+        char_->pushIdentifier(KKIdentifierPtr(new KKIdentifier(ids[i].toULong(), siteId.toStdString())));
+    }
+
+    (bodyList[0] == CRDT_INSERT) ? crdt->remoteInsert(char_) : crdt->remoteDelete(char_);
+}
+
+void KKFile::flushCrdtText()
+{
+    QStringList crdtText = crdt->saveCrdt();
+    if (crdtText.isEmpty()) return;
+
+    bool result = file.get()->open(QIODevice::WriteOnly | QIODevice::Text);
+    if(result){
+        QTextStream stream(file.get());
+        qDebug() << "Flush CRDT: " << crdtText;
+        for(QString crdtChar : crdtText)
+            stream << crdtChar << "|";
+        stream << endl;
+        file->close();
+    }
+}
+
+QStringList KKFile::getCrdtText()
+{
+    return crdt->saveCrdt();
+}
+
+void KKFile::initCrdtText()
+{
+    QString crdtText;
+    if(file->open(QFile::ReadOnly)) {
+        QTextStream stream(file.get());
+        while (!stream.atEnd()) {
+            crdtText += stream.readLine();
+        }
+        if(!crdtText.isEmpty())
+            crdt->loadCrdt(crdtText.split("|"));
+        file.get()->close();
+    }
+}
 

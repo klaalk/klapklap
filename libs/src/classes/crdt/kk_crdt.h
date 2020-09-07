@@ -5,6 +5,7 @@
 #define KK_CRDT_H
 
 #include <QCharRef>
+#include <QDebug>
 #include <QString>
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,8 +72,8 @@ public:
     vector<KKIdentifierPtr> slice(vector<KKIdentifierPtr> const &v,int i);//FORSE DA TOGLIERE
     void print();
     strategy findStrategy();//trova la strategia migliore per assegnare un identifier alla position della nuova Char
-    QString saveCrdt(); //ritorna una stringa dove è "salvato" il crdt
-    void loadCrdt(string stringCrdt); //carica il testo del crdt partendo da una stringa
+    QStringList saveCrdt(); //ritorna una stringa dove è "salvato" il crdt
+    void loadCrdt(QStringList crdt); //carica il testo del crdt partendo da una stringa
     list<KKCharPtr> changeMultipleKKCharFormat(KKPosition start, KKPosition end,QString font_, QString color_);//cambia il formato di tutte le KKChar comprese tra le due posizioni e restituisce la lista delle KKChar cambiate
     unsigned long remoteFormatChange(const KKCharPtr& _char,QString font_, QString color_);
 };

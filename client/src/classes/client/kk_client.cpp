@@ -137,7 +137,8 @@ void KKClient::handleSuccessResponse(KKPayload response) {
 
     } else if(response.getRequestType() == LOADFILE) {
         QStringList bodyList = response.getBodyList();
-        crdt_->loadCrdt(bodyList[0].toStdString());
+        if (!bodyList.isEmpty())
+            crdt_->loadCrdt(bodyList);
 
     } else if(response.getRequestType() == ALIGNMENT_CHANGE){
         handleAlignmentChange(response);
@@ -464,7 +465,7 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
         editor_->getCurrentFontAndColor(position+i,&font_,&color_);
         crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
-        KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col),font_,color_);
+        KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col), font_, color_);
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
     }
@@ -492,11 +493,11 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
 }
 
 void KKClient::onSaveCrdtToFile() {
-    QString message=crdt_->saveCrdt();
-    QString username = crdt_->getSiteId();
-    QString filename = currentfile_;
-    if(currentfileValid_)
-        sendRequest(SAVEFILE, NONE, {username,filename,message});
+    if(currentfileValid_) {
+        QStringList message = {crdt_->getSiteId(), currentfile_};
+        message.append(crdt_->saveCrdt());
+        sendRequest(SAVEFILE, NONE, message);
+    }
 }
 
 void KKClient::onOpenFileDialog() {

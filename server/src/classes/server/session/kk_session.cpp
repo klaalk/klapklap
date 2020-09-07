@@ -192,6 +192,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
             // Inserisco il file nella mappa dei file attivi
             files->insert(file->getHash(), file);
             file->setOwners(ids);
+            file->initCrdtText();
         }
 
         int dbFileExistByEmail = db->existFileByUsername(file->getHash(), user->getUsername());
@@ -230,7 +231,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     logger(message);
     response->push_front(message);
     sendResponse(OPENFILE, result, *response);
-
+    sendResponse(LOADFILE, SUCCESS, {file->getCrdtText()});
     if (result == SUCCESS) {
         // Aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
