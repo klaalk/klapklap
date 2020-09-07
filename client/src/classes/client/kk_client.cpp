@@ -139,10 +139,10 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         QStringList bodyList = response.getBodyList();
         crdt_->loadCrdt(bodyList[0].toStdString());
 
-    } else if(response.getRequestType() == ALIG){
+    } else if(response.getRequestType() == ALIGNMENT_CHANGE){
         handleAlignmentChange(response);
 
-    } else if(response.getRequestType() == CHANGECHARFORMAT){
+    } else if(response.getRequestType() == CHARFORMAT_CHANGE){
         handleCharFormatChange(response);
 
     } else {
@@ -538,7 +538,7 @@ void KKClient::onSiteIdClicked(const QString& siteId, bool logout){
 
 void KKClient::onAlignmentChange(QString alignment){
     QStringList a = {alignment};
-    sendRequest(ALIG,NONE,a);
+    sendRequest(ALIGNMENT_CHANGE,NONE,a);
 }
 
 void KKClient::handleAlignmentChange(KKPayload response){
@@ -560,7 +560,7 @@ void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTe
 
     std::for_each(changedChars.begin(), changedChars.end(),[&](const KKCharPtr& char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendRequest(CHANGECHARFORMAT,NONE,{mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
+        sendRequest(CHARFORMAT_CHANGE,NONE,{mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
     });
 }
 void KKClient::handleCharFormatChange(KKPayload response){

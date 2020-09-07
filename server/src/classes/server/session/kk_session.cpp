@@ -63,9 +63,6 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == OPENFILE) {
             handleOpenFileRequest(req);
         }
-        else if(req.getRequestType() == SHAREFILE) {
-//            handleShareFileRequest(req);
-        }
         else if(req.getRequestType() == UPDATE_USER) {
             handleUpdateUserRequest(req);
         }
@@ -81,10 +78,10 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == LOADFILE) {
             handleLoadFileRequest(req);
         }
-        else if(req.getRequestType()== ALIG){
+        else if(req.getRequestType()== ALIGNMENT_CHANGE){
             handleAlignChangeRequest(req);
         }
-        else if(req.getRequestType() == CHANGECHARFORMAT){
+        else if(req.getRequestType() == CHARFORMAT_CHANGE){
             handleFormatChangeRequest(req);
         }
     }
@@ -321,11 +318,11 @@ void KKSession::handleDisconnection() {
 }
 
 void KKSession::handleAlignChangeRequest(KKPayload request){
-    file->deliver(ALIG, SUCCESS, request.getBodyList(), id);
+    file->deliver(ALIGNMENT_CHANGE, SUCCESS, request.getBodyList(), id);
 }
 
 void KKSession::handleFormatChangeRequest(KKPayload request){
-    file->deliver(CHANGECHARFORMAT,SUCCESS,request.getBodyList(),id);
+    file->deliver(CHARFORMAT_CHANGE,SUCCESS,request.getBodyList(),id);
 }
 
 

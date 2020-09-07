@@ -32,10 +32,10 @@
 #define UPDATE_USER "UPDU"
 #define CRDT "CRDT"
 #define CHAT "CHAT"
-#define ALIG "ALIG"
+#define ALIGNMENT_CHANGE "AGNC"
 #define ADDED_PARTECIPANT "ADPR"
 #define REMOVED_PARTECIPANT "RMPR"
-#define CHANGECHARFORMAT "CHCF"
+#define CHARFORMAT_CHANGE "CHCF"
 
 /// Payload CRDT Action
 #define CRDT_INSERT "INSERT"

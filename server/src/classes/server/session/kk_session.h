@@ -46,9 +46,7 @@ private:
     void handleLoginRequest(KKPayload request);
     void handleSignupRequest(KKPayload request);
     void handleGetFilesRequest();
-
     void handleOpenFileRequest(KKPayload request);
-//    void handleShareFileRequest(KKPayload request);
     void handleUpdateUserRequest(KKPayload request);
     void handleChatRequest(KKPayload request);
     void handleCrdtRequest(KKPayload request);

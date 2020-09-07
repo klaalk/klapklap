@@ -323,53 +323,55 @@ unsigned long KKCrdt::findInsertIndexInLine(const KKCharPtr& _char, list<KKCharP
     return 0;
 }
 
-QString KKCrdt::saveCrdt(){ //scrive il crdt su un file, esempio formato: d(albo)[10;90;2;34]f(klaus)[2;3;89]
-
+/// Scrive il crdt su un file, esempio formato: d(albo)[10;90;2;34]f(klaus)[2;3;89]
+QString KKCrdt::saveCrdt(){
     string strTmp;
 
-    for (auto & i : text) {
+    for (const auto &line : text) {
 
-        for (const auto& x : i) {
-
-            strTmp.push_back(x->getValue());
+        for (const auto&word : line) {
+            strTmp.push_back(word->getValue());
             strTmp.push_back('(');
-            strTmp.append(x->getSiteId());
+            strTmp.append(word->getSiteId());
             strTmp.push_back(')');
             strTmp.push_back('[');
 
-            for (const auto& y: x->getPosition() ) {
+            for (const auto&position : word->getPosition()) {
                 std::stringstream strstream;
                 string app;
-                strstream<<y->getDigit();
+                strstream<<position->getDigit();
                 strstream>>app;
                 strTmp.append(app);
                 strTmp.push_back(';');
-
             }
+
             strTmp.pop_back();
             strTmp.push_back(']');
-            strTmp.append(x->getKKCharFont().toStdString());
+            strTmp.append(word->getKKCharFont().toStdString());
             strTmp.push_back('*');
         }
     }
+
     QString stringCrdt = QString::fromStdString(strTmp);
     return stringCrdt;
 }
 
 void KKCrdt::loadCrdt(string stdStringCrdt){
-    char ch;
-    int gettingSeq=1; //flag per quando stai prendendo gli identifier/i siteId
+    // Flag per quando stai prendendo gli identifier/i siteId
+    int gettingSeq=1;
 
-    //    string stdStringCrdt = stringCrdt.toStdString();
     KKIdentifierPtr new_id;
     text.insert(text.end(), list<KKCharPtr>());
 
-    for(unsigned long i=0;i<stdStringCrdt.length();i++){
-        ch=stdStringCrdt[i];
+    char ch;
+    for(unsigned long i=0; i < stdStringCrdt.length(); i++){
+        ch = stdStringCrdt[i];
+
+        // Creo KKChar partendo dal carattere e siteId nullo
+        KKCharPtr new_Char = KKCharPtr(new KKChar(ch, ""));
+
+        gettingSeq = 1;
         string tmpSiteId;
-        KKCharPtr new_Char = KKCharPtr(new KKChar(ch,"")); //creo kkChar partendo dal carattere e siteId nullo
-        QString font;
-        gettingSeq=1;
         while(gettingSeq){
             i++;
             ch=stdStringCrdt[i];
@@ -385,62 +387,60 @@ void KKCrdt::loadCrdt(string stdStringCrdt){
                 gettingSeq=0;
             }
         }
+
         gettingSeq=1;
 
-        while(gettingSeq){ //inizia a prendere gli identifiers
+        // Inizia a prendere gli identifiers
+        while(gettingSeq) {
             i++;
-            ch=stdStringCrdt[i];
-
-            if (ch=='[' || ch==';'){
+            ch = stdStringCrdt[i];
+            if (ch=='[' || ch==';') {
                 continue;
-
-            } if (stdStringCrdt[i]==']'){
-
+            } if (stdStringCrdt[i]==']') {
                 gettingSeq=0;
                 break;
-
-            }else {//prendo l'identifier
+            }else {
+                // Prendo l'identifier
                 string num;
-
-                while(stdStringCrdt[i]!=';' && stdStringCrdt[i]!=']'){
+                while(stdStringCrdt[i]!=';' && stdStringCrdt[i]!=']') {
                     ch=stdStringCrdt[i];
                     num.push_back(ch);
                     i++;
                 }
+
                 unsigned long val;
-                val=stoul(num,nullptr,0);
+                val=stoul(num, nullptr, 0);
                 new_id = shared_ptr<KKIdentifier>(new KKIdentifier(val, tmpSiteId));
                 new_Char->pushIdentifier(new_id);
                 i--;
-
-
             }
         }
-        gettingSeq=1;
-        while(gettingSeq){ //inizia a prendere il font
-            i++;
-            ch=stdStringCrdt[i];
 
-            if(ch=='*'){
-                unsigned long size = static_cast<unsigned long> (text.size());
+        gettingSeq=1;
+        QString font;
+
+        // Inizia a prendere il font
+        while(gettingSeq) {
+            i++;
+            ch = stdStringCrdt[i];
+            if (ch == '*') {
+                unsigned long size = static_cast<unsigned long>(text.size());
                 new_Char->setKKCharFont(font);
                 text[size-1].push_back(new_Char);
 
-                if(new_Char->getValue()=='\n'){ //se il carattere era un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
+                // Se il carattere e' un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
+                if (new_Char->getValue()=='\n') {
                     text.insert(text.end(), list<KKCharPtr>());
                 }
                 gettingSeq=0;
-            }else{
+            } else {
                 font.push_back(ch);
-
             }
+        }
+    }
 
-        }}
     this->print();
-
 }
-
-
 
 void KKCrdt::print() {
     for (auto & i : text) {
