@@ -5,6 +5,9 @@
 #ifndef TEXTEDIT_H
 #define TEXTEDIT_H
 
+#include <vector>
+#include <list>
+
 #include <QMainWindow>
 #include <QMap>
 #include <QPointer>
@@ -12,6 +15,9 @@
 #include <QLabel>
 #include <QListWidgetItem>
 
+#include "../../../../libs/src/classes/crdt/char/kk_char.h"
+#include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
+#include "../../../../libs/src/classes/crdt/identifier/kk_identifier.h"
 #include "../../../../libs/src/constants/kk_constants.h"
 
 class QAction;
@@ -23,7 +29,7 @@ class QMenu;
 class QPrinter;
 class QLabel;
 
-class kk_cursor{
+class KKCursor {
 private:
     int globalPositon=0;
     int fontSize=0;
@@ -49,7 +55,8 @@ private:
     }
 
 public:
-    kk_cursor(int position): globalPositon(position){}
+    KKCursor(int position): globalPositon(position){}
+
     void setLabels(QLabel *name_, QLabel *earpiece_) {
         name = name_;
         earpiece = earpiece_;
@@ -80,6 +87,7 @@ public:
     int getGlobalPositon() {
         return this->globalPositon;
     }
+
     void setGlobalPositon(int position) {
         this->globalPositon = position;
     }
@@ -87,47 +95,7 @@ public:
     QString getLabelName(){
         return this->name->text();
     }
-
-    // DA TOGLIERE
-    //    int getSelectionStart(){
-    //        return this->selection_start;
-    //      }
-
-    //    int getSelectionEnd(){
-    //        return this->selection_end;
-    //      }
-
-    //    void setSelectionStart(int start){
-    //        this->selection_start=start;
-    //      }
-
-    //    void setSelectionEnd(int end){
-    //        this->selection_end=end;
-    //      }
 };
-
-//DEPRECATED
-//class kk_couple{
-//private:
-//    int startPos=0;
-//    int endPos=0;
-
-//public:
-//    kk_couple(int startPos, int endPos): startPos(startPos), endPos(endPos){}
-
-//    int getStartPos() {
-//        return this->startPos;
-//    }
-//    void setStartPos(int position) {
-//        this->startPos = position;
-//    }
-//    int getEndPos() {
-//        return this->endPos;
-//    }
-//    void setEndPos(int position) {
-//        this->endPos = position;
-//    }
-//};
 
 class TextEdit : public QMainWindow
 {
@@ -140,6 +108,7 @@ public:
     TextEdit(QWidget *parent = nullptr);
     QTextEdit *textEdit;
     bool load(const QString &f);
+    void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
     void resetState();
     void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font,const QString& colorRecived);
     void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
@@ -235,7 +204,7 @@ private:
     QString mySiteId_;
     QString diffText;
     QString fileName;
-    QMap <QString,kk_cursor*> cursors_;
+    QMap <QString,KKCursor*> cursors_;
     QComboBox *comboStyle{};
     QFontComboBox *comboFont{};
     QComboBox *comboSize{};

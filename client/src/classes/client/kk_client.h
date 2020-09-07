@@ -78,7 +78,8 @@ private:
     void handleLoginResponse(KKPayload res);
     void handleSignupResponse();
     void handleGetFilesResponse(KKPayload res);
-    void handleOpenfileResponse(KKPayload res);
+    void handleOpenFileResponse(KKPayload res);
+    void handleLoadFileResponse(KKPayload res);
     void handleCrdtResponse(KKPayload res);
     void handleAlignmentChange(KKPayload res);
     void handleCharFormatChange(KKPayload res);

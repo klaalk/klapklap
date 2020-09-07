@@ -118,7 +118,10 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         handleGetFilesResponse(response);
 
     } else if(response.getRequestType() == OPENFILE) {
-        handleOpenfileResponse(response);
+        handleOpenFileResponse(response);
+
+    } else if(response.getRequestType() == LOADFILE) {
+        handleLoadFileResponse(response);
 
     } else if(response.getRequestType() == CRDT) {
         handleCrdtResponse(response);
@@ -134,11 +137,6 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
         QStringList list = response.getBodyList();
         chat_->removeParticipant(list[0]);
-
-    } else if(response.getRequestType() == LOADFILE) {
-        QStringList bodyList = response.getBodyList();
-        if (!bodyList.isEmpty())
-            crdt_->loadCrdt(bodyList);
 
     } else if(response.getRequestType() == ALIGNMENT_CHANGE){
         handleAlignmentChange(response);
@@ -181,7 +179,7 @@ void KKClient::handleGetFilesResponse(KKPayload res)
     openFile_.show();
 }
 
-void KKClient::handleOpenfileResponse(KKPayload response) {
+void KKClient::handleOpenFileResponse(KKPayload response) {
     currentfileValid_ = true;
     state_= CONNECTED_AND_OPENED;
 
@@ -197,14 +195,25 @@ void KKClient::handleOpenfileResponse(KKPayload response) {
     openFile_.hide();
 }
 
+void KKClient::handleLoadFileResponse(KKPayload response) {
+    QStringList bodyList = response.getBodyList();
+    if (bodyList.isEmpty())
+        return;
+
+    crdt_->loadCrdt(bodyList);
+    editor_->loadCrdt(crdt_->text);
+}
+
 void KKClient::handleCrdtResponse(KKPayload response) {
     // Ottengo i campi della risposta
-
     QStringList bodyList_ = response.getBodyList();
-    for(const QString& l : bodyList_)
-        qDebug() << l;
 
-    int increment = bodyList_[0] == CRDT_INSERT ? 0 : 1;
+    // Stampo i campi
+    // for(const QString& l : bodyList_)
+    //  qDebug() << l;
+
+    bool isInsert = bodyList_[0] == CRDT_INSERT;
+    int increment = isInsert ? 0 : 1;
     QString siteId = bodyList_[1 + increment];
     QString text = bodyList_[2 + increment];
     QStringList ids = bodyList_[3 + increment].split(" ");
@@ -215,19 +224,26 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
     char_->setKKCharFont(fontStr);
     char_->setKKCharColor(colorStr);
-    // size() - 1 per non considerare l'elemento vuoto della string list ids
-    for(int i = 0; i < ids.size() - 1; i++){
-        unsigned long digit = ids[i].toULong();
-        KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
-        char_->pushIdentifier(ptr);
+
+    for(int i = 0; i < ids.size() - 1; i++) {
+        // size() - 1 per non considerare l'elemento vuoto della string list ids
+        char_->pushIdentifier(KKIdentifierPtr(new KKIdentifier(ids[i].toULong(), siteId.toStdString())));
     }
 
-    unsigned long remotePos = bodyList_[0] == CRDT_INSERT ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
-    QString labelName = bodyList_[0] == CRDT_INSERT ? siteId : bodyList_[1];
+    unsigned long remotePos = isInsert ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
+    QString labelName = isInsert ? siteId : bodyList_[1];
 
-    editor_->applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos),char_->getKKCharFont(),char_->getKKCharColor());
+    editor_->applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos), char_->getKKCharFont(), char_->getKKCharColor());
+
     if(editor_->clickedAny())
-        editor_->updateSiteIdsMap(labelName,findPositions(labelName));
+        editor_->updateSiteIdsMap(labelName, findPositions(labelName));
+}
+
+void KKClient::handleAlignmentChange(KKPayload response){
+
+    QStringList bodyList = response.getBodyList();
+    QString alignment=bodyList[0];
+    editor_->alignmentRemoteChange(alignment);
 }
 
 void KKClient::handleErrorResponse(KKPayload response){
@@ -494,21 +510,11 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
 
 void KKClient::onSaveCrdtToFile() {
     if(currentfileValid_) {
-        QStringList message = {crdt_->getSiteId(), currentfile_};
-        message.append(crdt_->saveCrdt());
-        sendRequest(SAVEFILE, NONE, message);
+        sendRequest(SAVEFILE, NONE, {crdt_->getSiteId(), currentfile_});
     }
 }
 
 void KKClient::onOpenFileDialog() {
-//    QString username = crdt_->getSiteId();
-//    bool ok;
-//    QWidget tmp;
-//    QString filename = QInputDialog::getText(&tmp, tr("QInputDialog::getText()"),
-//                                             tr("User name:"), QLineEdit::Normal,
-//                                             QDir::home().dirName(), &ok);
-//    if (ok && !filename.isEmpty())
-//        sendRequest(LOADFILE, NONE, {username,filename});
     sendGetFilesRequest();
 }
 
@@ -542,14 +548,6 @@ void KKClient::onAlignmentChange(QString alignment){
     sendRequest(ALIGNMENT_CHANGE,NONE,a);
 }
 
-void KKClient::handleAlignmentChange(KKPayload response){
-
-    QStringList bodyList = response.getBodyList();
-    QString alignment=bodyList[0];
-    editor_->alignmentRemoteChange(alignment);
-
-}
-
 void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format){
     unsigned long startLine; unsigned long endLine; unsigned long startCol; unsigned long endCol;
     crdt_->calculateLineCol(static_cast<unsigned long>(selectionStart), &startLine, &startCol);
@@ -557,25 +555,22 @@ void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTe
     list<KKCharPtr> changedChars = crdt_->changeMultipleKKCharFormat(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                                                       KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)),format.font().toString(), format.foreground().color().name());
 
-
-
     std::for_each(changedChars.begin(), changedChars.end(),[&](const KKCharPtr& char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendRequest(CHARFORMAT_CHANGE,NONE,{mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
+        sendRequest(CHARFORMAT_CHANGE, NONE, {mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
     });
 }
 void KKClient::handleCharFormatChange(KKPayload response){
     QStringList bodyList_ = response.getBodyList();
-    for(const QString& l : bodyList_)
-        qDebug() << l;
 
+//    for(const QString& l : bodyList_)
+//        qDebug() << l;
 
     QString siteId = bodyList_[1];
     QString text = bodyList_[2];
     QStringList ids = bodyList_[3].split(" ");
     QString fontStr = bodyList_[4];
     QString colorStr = bodyList_[5];
-
 
     KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
 

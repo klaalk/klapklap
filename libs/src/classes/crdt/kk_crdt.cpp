@@ -234,7 +234,7 @@ unsigned long KKCrdt::remoteInsert(const KKCharPtr& _char){
 
     KKPosition pos = findInsertPosition(_char);
     insertChar(_char, pos);
-    global_pos= generateGlobalPos(pos);
+    global_pos = generateGlobalPos(pos);
     return global_pos;
 }
 
@@ -613,7 +613,7 @@ unsigned long KKCrdt::findIndexInLine(const KKCharPtr& _Char, list<KKCharPtr> li
 unsigned long KKCrdt::generateGlobalPos(KKPosition pos){
     unsigned long global_pos=0;
 
-    for (unsigned long i=0; i <  pos.getLine(); i++) {
+    for (unsigned long i=0; i < pos.getLine(); i++) {
         global_pos = global_pos + static_cast<unsigned long>(text[i].size());
     }
 

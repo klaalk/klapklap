@@ -274,10 +274,7 @@ void KKSession::handleSaveFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
     KKTask *mytask = new KKTask([=]() {
-        ////  Creo il file, supponendo che non esista, se esiste questo va evitato
-        //    QString filename = fileSystem->createFile(_body[1],_body[2]);
-        //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
-        fileSystem->writeFile(file, _body[2]);
+        file->flushCrdtText();
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);
@@ -287,11 +284,7 @@ void KKSession::handleLoadFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
     KKTask *mytask = new KKTask([=]() {
-        ////  Apro il file, supponendo che esista, se non esiste questo va evitato
-        //    QString filename = fileSystem->createFile(_body[1],_body[2]);
-        //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
-        QString message = fileSystem->readFile(APPLICATION_ROOT+_body[1]);
-        this->sendResponse(LOADFILE, SUCCESS, {message});
+        this->sendResponse(LOADFILE, SUCCESS, file->getCrdtText());
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);
