@@ -42,6 +42,7 @@ public:
     QStringList* getOwners();
 
     void applyRemoteInsert(QStringList bodyList);
+    void applyRemoteCharFormatChange(QStringList bodyList);
     void initCrdtText();
     void flushCrdtText();
 

@@ -381,9 +381,13 @@ bool TextEdit::load(const QString &f)
 
 void TextEdit::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
 {
+    bool cursorBlocked = false;
+    if (blockCursor)
+        cursorBlocked = true;
+    else blockCursor = true;
+
     QTextCursor editorCurs = textEdit->textCursor();
     QTextCharFormat format = editorCurs.charFormat();
-
     for(const auto& line : crdt) {
         for(const auto& charPtr : line) {
             format.setFont(QFont(charPtr->getKKCharFont()));
@@ -391,6 +395,10 @@ void TextEdit::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
             editorCurs.insertText(QString(charPtr->getValue()));
         }
     }
+
+    // Sblocco il cursore dell'editor.
+    if(!cursorBlocked)
+        blockCursor=false;
 }
 
 void TextEdit::resetState() {

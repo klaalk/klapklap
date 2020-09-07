@@ -30,11 +30,13 @@ void KKFile::leave(KKParticipantPtr participant) {
 }
 
 void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
-    KKPayloadPtr data = KKPayloadPtr(new KKPayload(type,result, message));
+    KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
 
     if (type == CRDT) {
         applyRemoteInsert(data->getBodyList());
-    } else {
+    } else if (type == CHARFORMAT_CHANGE) {
+        applyRemoteCharFormatChange(data->getBodyList());
+    } else if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
         recentMessages->push_back(data);
     }
 
@@ -117,6 +119,22 @@ void KKFile::applyRemoteInsert(QStringList bodyList)
     (bodyList[0] == CRDT_INSERT) ? crdt->remoteInsert(char_) : crdt->remoteDelete(char_);
 }
 
+void KKFile::applyRemoteCharFormatChange(QStringList bodyList){
+    QString siteId = bodyList[1];
+    QString text = bodyList[2];
+    QStringList ids = bodyList[3].split(" ");
+    QString fontStr = bodyList[4];
+    QString colorStr = bodyList[5];
+
+    KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
+    for(int i = 0; i < ids.size() - 1; i++) {
+         // size() - 1 per non considerare l'elemento vuoto della string list ids
+        char_->pushIdentifier(KKIdentifierPtr(new KKIdentifier(ids[i].toULong(), siteId.toStdString())));
+    }
+
+    crdt->remoteFormatChange(char_,fontStr,colorStr);
+}
+
 void KKFile::flushCrdtText()
 {
     QStringList crdtText = crdt->saveCrdt();
@@ -125,7 +143,7 @@ void KKFile::flushCrdtText()
     bool result = file.get()->open(QIODevice::WriteOnly | QIODevice::Text);
     if(result){
         QTextStream stream(file.get());
-        qDebug() << "Flush CRDT: " << crdtText;
+        qDebug() << "Flush file [" << hash << "]";
         for(QString crdtChar : crdtText)
             stream << crdtChar << "|";
         stream << endl;

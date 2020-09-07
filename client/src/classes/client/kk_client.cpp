@@ -246,6 +246,31 @@ void KKClient::handleAlignmentChange(KKPayload response){
     editor_->alignmentRemoteChange(alignment);
 }
 
+void KKClient::handleCharFormatChange(KKPayload response){
+    QStringList bodyList_ = response.getBodyList();
+
+//    for(const QString& l : bodyList_)
+//        qDebug() << l;
+
+    QString siteId = bodyList_[1];
+    QString text = bodyList_[2];
+    QStringList ids = bodyList_[3].split(" ");
+    QString fontStr = bodyList_[4];
+    QString colorStr = bodyList_[5];
+
+    KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
+
+    // size() - 1 per non considerare l'elemento vuoto della string list ids
+    for(int i = 0; i < ids.size() - 1; i++){
+        unsigned long digit = ids[i].toULong();
+        KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
+        char_->pushIdentifier(ptr);
+    }
+
+    unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
+    editor_->singleCharFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
+}
+
 void KKClient::handleErrorResponse(KKPayload response){
     if (response.getResultType() == BAD_REQUEST) {
         handleClientErrorResponse(response);
@@ -560,29 +585,6 @@ void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTe
         sendRequest(CHARFORMAT_CHANGE, NONE, {mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
     });
 }
-void KKClient::handleCharFormatChange(KKPayload response){
-    QStringList bodyList_ = response.getBodyList();
 
-//    for(const QString& l : bodyList_)
-//        qDebug() << l;
-
-    QString siteId = bodyList_[1];
-    QString text = bodyList_[2];
-    QStringList ids = bodyList_[3].split(" ");
-    QString fontStr = bodyList_[4];
-    QString colorStr = bodyList_[5];
-
-    KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
-
-    // size() - 1 per non considerare l'elemento vuoto della string list ids
-    for(int i = 0; i < ids.size() - 1; i++){
-        unsigned long digit = ids[i].toULong();
-        KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
-        char_->pushIdentifier(ptr);
-    }
-
-    unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
-    editor_->singleCharFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
-}
 
 
