@@ -379,6 +379,31 @@ bool TextEdit::load(const QString &f)
     return true;
 }
 
+void TextEdit::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
+{
+    bool cursorBlocked = false;
+    if (blockCursor)
+        cursorBlocked = true;
+    else blockCursor = true;
+
+    QTextCursor editorCurs = textEdit->textCursor();
+    QTextCharFormat format = editorCurs.charFormat();
+    for(const auto& line : crdt) {
+        for(const auto& charPtr : line) {
+            format.setFont(QFont(charPtr->getKKCharFont()));
+            format.setForeground(QColor(charPtr->getKKCharColor()));
+            editorCurs.insertText(QString(charPtr->getValue()));
+        }
+    }
+    cursorPos = editorCurs.position();
+    lastCursorPos = cursorPos;
+    lastText = textEdit->toPlainText();
+    lastLength = lastText.length();
+    // Sblocco il cursore dell'editor.
+    if(!cursorBlocked)
+        blockCursor=false;
+}
+
 void TextEdit::resetState() {
     blockCursor = false;
     isTextSelected = false;
@@ -713,7 +738,7 @@ void TextEdit::cursorPositionChanged()
 
     lastCursorPos = cursorPos;
     cursorPos = cursor.position();
-    qDebug() << " current: {"<< cursorPos << "} last: {" << lastCursorPos << "}";
+    qDebug() << "[cursorPositionChanged] Current: >"<< cursorPos << "< Last: >" << lastCursorPos << "<";
     if (list) {
         switch (list->format().style()) {
         case QTextListFormat::ListDisc:
@@ -773,7 +798,7 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     //cursor.select(QTextCursor::WordUnderCursor);
 
     if(cursor.hasSelection()){
-        qDebug()<<"formato da mettere nella selezione:\n "<< format.font().toString()<< "\n"<< format.foreground().color().name();
+        qDebug()<<"[mergeFormatOnWordOrSelection] Formato da mettere nella selezione: "<< format.font().toString()<< " "<< format.foreground().color().name();
         emit selectionFormatChanged(cursor.selectionStart(), cursor.selectionEnd()-1, format);
 }
 
@@ -868,7 +893,7 @@ void TextEdit::modifyLabels(){
     QTextCursor editorCurs = textEdit->textCursor();
     int editorPos = editorCurs.position();
 
-    for(kk_cursor* c : cursors_.values()){
+    for(KKCursor* c : cursors_.values()){
         editorCurs.setPosition(c->getGlobalPositon());
         font = editorCurs.charFormat().font().pointSize();
         c->setLabelsSize(font);
@@ -885,44 +910,52 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
     QBrush color;
     //Blocco il cursore dell'editor.
     bool cursorBlocked=false;
-    if(blockCursor)
-        cursorBlocked=true;
-    else blockCursor=true;
+    if (blockCursor)
+        cursorBlocked = true;
+    else blockCursor = true;
 
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
+
     //Prelevo il cursore remoto.
-    kk_cursor* remoteCurs = cursors_.value(name);
+    KKCursor* remoteCurs = cursors_.value(name);
+
     //Faccio dei controlli sulla fattibilità dell'operazione.
     globalPos = globalPos > lastLength ? lastLength : globalPos;
     globalPos = globalPos < 0 ? 0 : globalPos;
+
     //Se non esiste quel cursore lo creo e lo memorizzo.
     if(remoteCurs == nullptr) {
+
         //Creo il cursore per l'utente se non esiste.
         QLabel* qLbl = new QLabel(name, textEdit);
         QLabel* qLbl2 = new QLabel("|", textEdit);
-        remoteCurs = new kk_cursor(globalPos);
+        remoteCurs = new KKCursor(globalPos);
         remoteCurs->setLabels(qLbl, qLbl2);
+
         //Seleziono randomicamente un colore dalla lista dei colori, controllo se era già stato usato.
         do{
             int index=rand() % colors_.size();
             color= colors_.at(index);
         }
         while (siteIdsColors_.values().contains(color));
-        //Inserisco nella mappa dei colori.
-        siteIdsColors_.insert(name,color);
-        //Modifico la label.
+
+        // Modifico la label.
         remoteCurs->setLabelsStyle(color, fontSize);
-        if (name!=mySiteId_)
-            remoteCurs->showLabels();
+
+        // Inserisco nella mappa dei colori.
+        siteIdsColors_.insert(name, color);
         cursors_.insert(name, remoteCurs);
     }
+
+    if (name != mySiteId_)
+        remoteCurs->showLabels();
+
     // Muovo il cursore dell'editor.
-    qDebug() << "Remote global:" << globalPos;
     editorCurs.setPosition(globalPos);
+
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
-
         editorCurs.insertText(text);
 
         QFont fontNuovo;
@@ -931,36 +964,45 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
         QTextCharFormat formatVecchio = editorCurs.charFormat();
 
         fontNuovo.fromString(font);
-        int newPos=editorCurs.position();
+        int newPos = editorCurs.position();
 
         QTextCharFormat format;
 
-            for(int i=0;i<text.length();i++){
-                 editorCurs.setPosition(globalPos+i);
-                 editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
-                 format=editorCurs.charFormat();
-                 if(format.font()!=fontNuovo)
-                     format.setFont(fontNuovo);
-                 if(format.foreground()!=coloreNuovo)
-                     format.setForeground(coloreNuovo);
-                 editorCurs.setCharFormat(format);
+        for(int i=0;i<text.length();i++) {
+             editorCurs.setPosition(globalPos + i);
+             editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
+             format = editorCurs.charFormat();
 
-            }
+             if(format.font() != fontNuovo)
+                 format.setFont(fontNuovo);
+
+             if(format.foreground() != coloreNuovo)
+                 format.setForeground(coloreNuovo);
+
+             editorCurs.setCharFormat(format);
+
+        }
+
         editorCurs.setPosition(newPos);
 
         //Aggiorno la length.
         lastLength = lastLength + text.length();
+
     } else if(operation == CRDT_DELETE) {
         editorCurs.deleteChar();
+
         //Aggiorno la length.
         lastLength = lastLength - text.length();
     }
+
     // Aggiorno il cursore remoto
     remoteCurs->setGlobalPositon(editorCurs.position());
+
     // Muovo il cursore dopo l'aggiornamento
     remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
+
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
-    for(kk_cursor* c : cursors_.values()) {
+    for(KKCursor* c : cursors_.values()) {
         if(c->getGlobalPositon() > globalPos && c!=remoteCurs){
             if(operation == CRDT_INSERT) {
                 c->setGlobalPositon(c->getGlobalPositon()+(text.length()-1));
@@ -988,7 +1030,6 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
-
 }
 
 void TextEdit::onTextChange() {
@@ -996,48 +1037,49 @@ void TextEdit::onTextChange() {
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
     // Restituisce il testo presente nell'editor.
-    QString s = textEdit->toPlainText();
+    QString plainText = textEdit->toPlainText();
 
-    if(lastLength - s.length() >= 1) {
+    if(lastLength - plainText.length() >= 1) {
         // Cancellato 1 o più
         if(isTextSelected){
             diffText=lastText.mid(selection_start, selection_end);
-            qDebug() << "Testo cancellato: " << diffText << "start: {" << selection_start << "} end: {" << selection_end << "}";
+            qDebug() << "[onTextChange] Testo cancellato: " << diffText << "Selection start: >" << selection_start << "< Selection end: >" << selection_end << "<";
             emit removeTextFromCRDT(selection_start, selection_end);
         }
         else{
             if (cursorPos < lastCursorPos) {
-                diffText = lastText.mid(cursorPos, lastLength - s.length());
-                qDebug() << "Testo cancellato:" << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
+                diffText = lastText.mid(cursorPos, lastLength - plainText.length());
+                qDebug() << "[onTextChange] Testo cancellato (indietro):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
                 emit removeTextFromCRDT(cursorPos, lastCursorPos);
             } else {
-                int diffLength = lastLength - s.length();
+                int diffLength = lastLength - plainText.length();
                 diffText = lastText.mid(cursorPos, diffLength);
-                qDebug() << "Testo cancellato:" << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
+                qDebug() << "[onTextChange] Testo cancellato (avanti):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
                 emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
             }
         }
 
-    } else if(s.length() - lastLength >= 1) {
+    } else if(plainText.length() - lastLength >= 1) {
         // Inserito 1 o più
         //salva in diffText le cose nuove scritte
-        diffText=s.mid(lastCursorPos, s.length() - lastLength);
-        qDebug() << "Testo inserito: " << diffText << "current: {" << cursorPos << "} last: {" << lastCursorPos << "}";
+        diffText=plainText.mid(lastCursorPos, plainText.length() - lastLength);
+        qDebug() << "[onTextChange] Testo inserito: " << diffText << "current: >" << cursorPos << "< last: >" << lastCursorPos << "<";
         emit insertTextToCRDT(diffText, lastCursorPos);
 
     }
 
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
+
     // Restituisce la posizione x,y di coordinate sullo schermo del tuo cursore
     int curPos_ = editorCurs.position();
-    for (kk_cursor* c : cursors_.values()) {
+    for (KKCursor* c : cursors_.values()) {
         if (c->getGlobalPositon() > editorCurs.position()) {
-            qDebug() << "Cursor global: " << c->getGlobalPositon();
-            qDebug() << "Editor global: " << editorCurs.position();
-            if (s.length() - lastLength > 0) {
+            qDebug() << "[onTextChange] Cursor global: " << c->getGlobalPositon();
+            qDebug() << "[onTextChange] Editor global: " << editorCurs.position();
+            if (plainText.length() - lastLength > 0) {
                 c->setGlobalPositon(c->getGlobalPositon() + diffText.length());
-            } else if(lastLength - s.length() > 0) {
+            } else if(lastLength - plainText.length() > 0) {
                 c->setGlobalPositon(c->getGlobalPositon() - diffText.length());
             }
             editorCurs.setPosition(c->getGlobalPositon());
@@ -1048,8 +1090,8 @@ void TextEdit::onTextChange() {
 
     // Riporto il cursore dell'editor alla posizione di partenza.
     editorCurs.setPosition(curPos_);
-    lastLength = s.length();
-    lastText = s;
+    lastLength = plainText.length();
+    lastText = plainText;
 
 }
 
@@ -1085,6 +1127,7 @@ void TextEdit::colorText(const QString& siteId){
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat fmt;
     QBrush color;
+
     //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
         do{
@@ -1133,7 +1176,6 @@ void TextEdit::clearColorText(const QString& siteId){
     int last = cursor.position();
 
     for(int pos : *siteIds_.value(siteId)){
-        cursor.setPosition(pos);
         if (cursor.charFormat().background()!=Qt::white){
             cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
             fmt = cursor.charFormat();

@@ -63,9 +63,6 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == OPENFILE) {
             handleOpenFileRequest(req);
         }
-        else if(req.getRequestType() == SHAREFILE) {
-//            handleShareFileRequest(req);
-        }
         else if(req.getRequestType() == UPDATE_USER) {
             handleUpdateUserRequest(req);
         }
@@ -81,10 +78,10 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == LOADFILE) {
             handleLoadFileRequest(req);
         }
-        else if(req.getRequestType()== ALIG){
+        else if(req.getRequestType()== ALIGNMENT_CHANGE){
             handleAlignChangeRequest(req);
         }
-        else if(req.getRequestType() == CHANGECHARFORMAT){
+        else if(req.getRequestType() == CHARFORMAT_CHANGE){
             handleFormatChangeRequest(req);
         }
     }
@@ -195,6 +192,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
             // Inserisco il file nella mappa dei file attivi
             files->insert(file->getHash(), file);
             file->setOwners(ids);
+            file->initCrdtText();
         }
 
         int dbFileExistByEmail = db->existFileByUsername(file->getHash(), user->getUsername());
@@ -233,7 +231,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     logger(message);
     response->push_front(message);
     sendResponse(OPENFILE, result, *response);
-
+    sendResponse(LOADFILE, SUCCESS, {file->getCrdtText()});
     if (result == SUCCESS) {
         // Aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
@@ -276,10 +274,7 @@ void KKSession::handleSaveFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
     KKTask *mytask = new KKTask([=]() {
-        ////  Creo il file, supponendo che non esista, se esiste questo va evitato
-        //    QString filename = fileSystem->createFile(_body[1],_body[2]);
-        //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
-        fileSystem->writeFile(file, _body[2]);
+        file->flushCrdtText();
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);
@@ -289,11 +284,7 @@ void KKSession::handleLoadFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
     id = _body[0];
     KKTask *mytask = new KKTask([=]() {
-        ////  Apro il file, supponendo che esista, se non esiste questo va evitato
-        //    QString filename = fileSystem->createFile(_body[1],_body[2]);
-        //  Il file viene sempre creato all'apertura, mi aspetto di ricevere il nome file completo jump+salt+filename
-        QString message = fileSystem->readFile(APPLICATION_ROOT+_body[1]);
-        this->sendResponse(LOADFILE, SUCCESS, {message});
+        this->sendResponse(LOADFILE, SUCCESS, file->getCrdtText());
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);
@@ -321,11 +312,11 @@ void KKSession::handleDisconnection() {
 }
 
 void KKSession::handleAlignChangeRequest(KKPayload request){
-    file->deliver(ALIG, SUCCESS, request.getBodyList(), id);
+    file->deliver(ALIGNMENT_CHANGE, SUCCESS, request.getBodyList(), id);
 }
 
 void KKSession::handleFormatChangeRequest(KKPayload request){
-    file->deliver(CHANGECHARFORMAT,SUCCESS,request.getBodyList(),id);
+    file->deliver(CHARFORMAT_CHANGE,SUCCESS,request.getBodyList(),id);
 }
 
 
