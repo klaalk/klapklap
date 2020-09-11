@@ -395,7 +395,7 @@ void KKCrdt::print() {
         for (const auto& x : i) {
             if(x->getValue() =='\n'){
                 std::cout <<"/n"<< "[";
-            }else {
+            } else {
                 std::cout << x->getValue() << "[";
             }
             for (const auto& y: x->getPosition()) {

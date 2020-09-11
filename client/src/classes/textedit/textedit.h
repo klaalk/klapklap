@@ -110,8 +110,7 @@ public:
     bool load(const QString &f);
     void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
     void resetState();
-    void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font,const QString& colorRecived);
-    void movekk_cursor(int targetCol, int targetLine, int line, QTextCursor *curs);
+    void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
     void siteIdClicked(const QString& name);
     void updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list);
     void getCurrentFontAndColor(int pos, QString *font, QString *color);
@@ -127,7 +126,6 @@ signals:
     void openFileDialog();
     void alignChange(QString alignment);
     void selectionFormatChanged(int selectionStart, int selectionEnd, QTextCharFormat format);
-
 
 public slots:
     void fileNew();

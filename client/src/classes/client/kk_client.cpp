@@ -201,6 +201,7 @@ void KKClient::handleLoadFileResponse(KKPayload response) {
         return;
 
     crdt_->loadCrdt(bodyList);
+    crdt_->print();
     editor_->loadCrdt(crdt_->text);
 }
 
@@ -506,7 +507,10 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
         editor_->getCurrentFontAndColor(position+i,&font_,&color_);
         crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
+        crdt_->print();
+        qDebug() << "[onInsertTextCrdt] Inserimento locale su CRDT: " << *c_str;
         KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col), font_, color_);
+        qDebug() << "[onInsertTextCrdt] Invio di un inserimento remoto su CRDT a tutti i partecipanti";
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
     }
