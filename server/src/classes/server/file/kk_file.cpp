@@ -144,8 +144,9 @@ void KKFile::flushCrdtText()
     if(result){
         QTextStream stream(file.get());
         qDebug() << "Flush file [" << hash << "]";
-        for(QString crdtChar : crdtText)
-            stream << crdtChar << "|";
+        for(QString crdtChar : crdtText) {
+            stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
+        }
         stream << endl;
         file->close();
     }
@@ -158,14 +159,24 @@ QStringList KKFile::getCrdtText()
 
 void KKFile::initCrdtText()
 {
-    QString crdtText;
+    QStringList text;
     if(file->open(QFile::ReadOnly)) {
         QTextStream stream(file.get());
         while (!stream.atEnd()) {
-            crdtText += stream.readLine();
+            QString line = stream.readLine();
+            int start = 0;
+            int nextFieldLength = 0;
+            do {
+                nextFieldLength = line.midRef(start, 3).toInt();
+                start += 3;
+                text.push_back(line.mid(start, nextFieldLength));
+                start += nextFieldLength;
+            } while (start < line.size());
         }
-        if(!crdtText.isEmpty())
-            crdt->loadCrdt(crdtText.split("|"));
+        if(!text.isEmpty()) {
+            crdt->loadCrdt(text);
+        }
+        crdt->print();
         file.get()->close();
     }
 }

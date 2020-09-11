@@ -395,7 +395,10 @@ void TextEdit::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
             editorCurs.insertText(QString(charPtr->getValue()));
         }
     }
-
+    cursorPos = editorCurs.position();
+    lastCursorPos = cursorPos;
+    lastText = textEdit->toPlainText();
+    lastLength = lastText.length();
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
@@ -1034,9 +1037,9 @@ void TextEdit::onTextChange() {
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
     // Restituisce il testo presente nell'editor.
-    QString s = textEdit->toPlainText();
+    QString plainText = textEdit->toPlainText();
 
-    if(lastLength - s.length() >= 1) {
+    if(lastLength - plainText.length() >= 1) {
         // Cancellato 1 o più
         if(isTextSelected){
             diffText=lastText.mid(selection_start, selection_end);
@@ -1045,21 +1048,21 @@ void TextEdit::onTextChange() {
         }
         else{
             if (cursorPos < lastCursorPos) {
-                diffText = lastText.mid(cursorPos, lastLength - s.length());
+                diffText = lastText.mid(cursorPos, lastLength - plainText.length());
                 qDebug() << "[onTextChange] Testo cancellato (indietro):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
                 emit removeTextFromCRDT(cursorPos, lastCursorPos);
             } else {
-                int diffLength = lastLength - s.length();
+                int diffLength = lastLength - plainText.length();
                 diffText = lastText.mid(cursorPos, diffLength);
                 qDebug() << "[onTextChange] Testo cancellato (avanti):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
                 emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
             }
         }
 
-    } else if(s.length() - lastLength >= 1) {
+    } else if(plainText.length() - lastLength >= 1) {
         // Inserito 1 o più
         //salva in diffText le cose nuove scritte
-        diffText=s.mid(lastCursorPos, s.length() - lastLength);
+        diffText=plainText.mid(lastCursorPos, plainText.length() - lastLength);
         qDebug() << "[onTextChange] Testo inserito: " << diffText << "current: >" << cursorPos << "< last: >" << lastCursorPos << "<";
         emit insertTextToCRDT(diffText, lastCursorPos);
 
@@ -1074,9 +1077,9 @@ void TextEdit::onTextChange() {
         if (c->getGlobalPositon() > editorCurs.position()) {
             qDebug() << "[onTextChange] Cursor global: " << c->getGlobalPositon();
             qDebug() << "[onTextChange] Editor global: " << editorCurs.position();
-            if (s.length() - lastLength > 0) {
+            if (plainText.length() - lastLength > 0) {
                 c->setGlobalPositon(c->getGlobalPositon() + diffText.length());
-            } else if(lastLength - s.length() > 0) {
+            } else if(lastLength - plainText.length() > 0) {
                 c->setGlobalPositon(c->getGlobalPositon() - diffText.length());
             }
             editorCurs.setPosition(c->getGlobalPositon());
@@ -1087,8 +1090,8 @@ void TextEdit::onTextChange() {
 
     // Riporto il cursore dell'editor alla posizione di partenza.
     editorCurs.setPosition(curPos_);
-    lastLength = s.length();
-    lastText = s;
+    lastLength = plainText.length();
+    lastText = plainText;
 
 }
 
