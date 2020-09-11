@@ -1141,8 +1141,8 @@ void TextEdit::colorText(const QString& siteId){
 
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
-        cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
         if (cursor.charFormat().background()!=color){
+            cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
             fmt=cursor.charFormat();
             fmt.setBackground(color);
             cursor.setCharFormat(fmt);
@@ -1172,10 +1172,13 @@ void TextEdit::clearColorText(const QString& siteId){
 
     int last = cursor.position();
 
-    if (cursor.charFormat().background()!=Qt::white){
-         fmt=cursor.charFormat();
-         fmt.setBackground(Qt::white);
-         cursor.setCharFormat(fmt);
+    for(int pos : *siteIds_.value(siteId)){
+        if (cursor.charFormat().background()!=Qt::white){
+            cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
+            fmt = cursor.charFormat();
+            fmt.setBackground(Qt::white);
+            cursor.setCharFormat(fmt);
+        }
     }
 
     cursor.setPosition(last);
