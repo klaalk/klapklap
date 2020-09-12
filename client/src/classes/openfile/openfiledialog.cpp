@@ -85,8 +85,9 @@ void OpenFileDialog::setUserAvatar(const QString &avatar)
         ui->changeImageButton->setIcon(ButtonIcon);
         ui->changeImageButton->setIconSize(image.rect().size());
         this->avatar = avatar;
-    } else
-       KKLogger::log("[setUserAvatar] Avatar not exist: " + path);
+    }
+//    else
+//       KKLogger::log("[setUserAvatar] Avatar not exist: " + path);
 }
 
 void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
@@ -206,4 +207,9 @@ void OpenFileDialog::on_saveChangesButton_clicked()
     QString surname = ui->surnameLineEdit->text();
     QString alias = ui->aliasLineEdit->text();
     emit updateAccountRequest(name, surname, alias, avatar);
+}
+
+void OpenFileDialog::on_logoutBtn_clicked()
+{
+    emit logoutRequest();
 }

@@ -443,11 +443,31 @@
     </item>
    </layout>
   </widget>
+  <widget class="QPushButton" name="logoutBtn">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>300</y>
+     <width>131</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Logout</string>
+   </property>
+  </widget>
   <zorder>accountBtn</zorder>
   <zorder>documentiBtn</zorder>
   <zorder>verticalLine</zorder>
   <zorder>documentsLayout</zorder>
   <zorder>accountLayout</zorder>
+  <zorder>logoutBtn</zorder>
  </widget>
  <resources/>
  <connections/>

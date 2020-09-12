@@ -10,6 +10,7 @@
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url_(std::move(url)) {
 
+
     // Gestisco l' apertura della connessione al socket
     connect(&socket_, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);
 
@@ -23,9 +24,10 @@ KKClient::KKClient(QUrl url, QObject *parent)
     connect(&modal_, &ModalDialog::modalButtonClicked, this, &KKClient::handleModalButtonClick);
     connect(&modal_, &ModalDialog::modalClosed, this, &KKClient::handleModalClosed);
 
-    // Gestisco le richieste di login o di registrazione
+    // Gestisco le richieste di login o di registrazione o logout
     connect(&access_, &AccessDialog::loginBtnClicked, this, &KKClient::sendLoginRequest);
     connect(&access_, &AccessDialog::signupBtnClicked, this, &KKClient::sendSignupRequest);
+    connect(&openFile_, &OpenFileDialog::logoutRequest, this, &KKClient::sendLogoutRequest);
 
     // Gestisco le richieste di apertura file
     connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
@@ -144,7 +146,9 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == CHARFORMAT_CHANGE){
         handleCharFormatChange(response);
 
-    } else {
+    } else if (response.getRequestType() == LOGOUT ) {
+        handleLogoutResponse(response);
+    }else {
         modal_.setModal("L'operazione è andata a buon fine.", "Chiudi", GENERIC_SUCCESS);
         modal_.show();
     }
@@ -166,6 +170,18 @@ void KKClient::handleLoginResponse(KKPayload res) {
 #endif
     logger("[handleLoginResponse] - Site id: " + mySiteId_);
 }
+
+void KKClient::handleLogoutResponse(KKPayload res) {
+    state_= CONNECTED_NOT_LOGGED;
+    if (crdt_ != nullptr) delete crdt_;
+    openFile_.hide();
+    editor_->hide();
+    chat_->hide();
+    access_.showLoader(false);
+    access_.showLogin();
+    access_.show();
+}
+
 
 void KKClient::handleSignupResponse() {
     state_ = CONNECTED;
@@ -394,6 +410,14 @@ void KKClient::sendSignupRequest(QString email, const QString& password, QString
         timer_.start(TIMEOUT_VALUE);
     QString avatar = avatars.at(qrand() % (avatars.size()-1)).split(":/images/avatars/")[1];
     bool sended = sendRequest(SIGNUP, NONE, {email, psw, name, surname, username, avatar});
+
+    if (sended) {
+        state_ = CONNECTED_NOT_SIGNED;
+    }
+}
+
+void KKClient::sendLogoutRequest() {
+    bool sended = sendRequest(LOGOUT, NONE, PAYLOAD_EMPTY_BODY);
 
     if (sended) {
         state_ = CONNECTED_NOT_SIGNED;
