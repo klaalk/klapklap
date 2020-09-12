@@ -89,7 +89,7 @@ void KKClient::initChatDialog() {
 /// HANDLING
 
 void KKClient::handleOpenedConnection() {
-    qDebug() << "[websocket connected]";
+    logger("[handleOpenedConnection] - Websocket connesso");
     state_ = CONNECTED;
     timer_.stop();
     access_.showLoader(false);
@@ -97,7 +97,7 @@ void KKClient::handleOpenedConnection() {
 
 void KKClient::handleResponse(const QString& message) {
     timer_.stop();
-    qDebug() << "[message received] -" << message;
+    logger("[handleResponse] - Ricevuto: " + message);
     KKPayload res(message);
     res.decode();
     if (res.getResultType() == SUCCESS)
@@ -164,7 +164,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
 #else
     this->sendOpenFileRequest("testboh13.txt");
 #endif
-    qDebug() << "SITE ID: " << mySiteId_;
+    logger("[handleLoginResponse] - Site id: " + mySiteId_);
 }
 
 void KKClient::handleSignupResponse() {
@@ -326,7 +326,7 @@ void KKClient::handleServerErrorResponse(KKPayload res) {
 }
 
 void KKClient::handleTimeOutConnection() {
-    qDebug() << "[websocket timeout connection]";
+    logger("[handleTimeOutConnection] - Websocket time out connection");
     timer_.stop();
     modal_.setModal("Non è stato possibile connettersi al server.", "Riprova", CONNECTION_TIMEOUT);
     modal_.show();
@@ -334,8 +334,7 @@ void KKClient::handleTimeOutConnection() {
 }
 
 void KKClient::handleErrorConnection(QAbstractSocket::SocketError error) {
-    qDebug() << "[websocket not connected]";
-    qDebug() << error;
+    logger(&"[handleErrorConnection] - Websocket not connected: " [error]);
     socket_.close();
 }
 
@@ -447,9 +446,14 @@ void KKClient::sendCrdtRequest(QStringList crdt) {
 
 bool KKClient::sendRequest(QString type, QString result, QStringList values) {
     KKPayload req(std::move(type), std::move(result), std::move(values));
-    qDebug() << "[send] -" << req.encode();
+    logger("[sendRequest] - Send: " + req.encode());
     int size = static_cast<int>(socket_.sendTextMessage(req.getData()));
     return size == req.getTotalLength();
+}
+
+void KKClient::logger(QString message)
+{
+    KKLogger::log(message, "CLIENT ["+mySiteId_+"]");
 }
 
 /// MODAL ACTIONS
@@ -507,10 +511,7 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     for(int i = 0; *c_str != '\0'; c_str++, i++) {
         editor_->getCurrentFontAndColor(position+i,&font_,&color_);
         crdt_->calculateLineCol(static_cast<unsigned long>(position + i), &line, &col);
-        crdt_->print();
-        qDebug() << "[onInsertTextCrdt] Inserimento locale su CRDT: " << *c_str;
         KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col), font_, color_);
-        qDebug() << "[onInsertTextCrdt] Invio di un inserimento remoto su CRDT a tutti i partecipanti";
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
     }

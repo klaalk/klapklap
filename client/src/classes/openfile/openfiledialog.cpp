@@ -86,7 +86,7 @@ void OpenFileDialog::setUserAvatar(const QString &avatar)
         ui->changeImageButton->setIconSize(image.rect().size());
         this->avatar = avatar;
     } else
-       qDebug() << "[setUserAvatar] Avatar not exist: " << path;
+       KKLogger::log("[setUserAvatar] Avatar not exist: " + path);
 }
 
 void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
