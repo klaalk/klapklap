@@ -1143,6 +1143,7 @@ void TextEdit::clearColorText(const QString& siteId){
     int last = cursor.position();
 
     for(int pos : *siteIds_.value(siteId)){
+        cursor.setPosition(pos);
         if (cursor.charFormat().background()!=Qt::white){
             cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
             fmt = cursor.charFormat();
