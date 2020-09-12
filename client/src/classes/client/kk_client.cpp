@@ -133,6 +133,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == ADDED_PARTECIPANT) {
         QStringList list = response.getBodyList();
         chat_->addParticipant(list[0]);
+        qDebug() << "Added participant: " << list[0];
 
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
         QStringList list = response.getBodyList();

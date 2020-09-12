@@ -50,13 +50,18 @@ public:
 
     QStringList getCrdtText();
 
+    int getParticipantCounter() const;
+public slots:
+    void handleTimeout();
 private:
     enum { MaxRecentMessages = 100 };
+    int participantCounter = 0;
     KKMapParticipantPtr participants;
     QStringList* owners;
     KKVectorPayloadPtr recentMessages;
     KKCrdtPtr crdt;
     QTimer* timer;
+    bool flushCrdt = true;
     QSharedPointer<QFile> file;
     QString hash;
 };

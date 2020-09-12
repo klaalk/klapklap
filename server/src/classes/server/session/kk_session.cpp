@@ -18,7 +18,9 @@ KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr fil
     this->sessionId = sessionId;
 }
 
-KKSession::~KKSession() {}
+KKSession::~KKSession() {
+    KKLogger::log("Session deconstructed", sessionId);
+}
 
 void KKSession::deliver(KKPayloadPtr msg) {
     socket->sendTextMessage(msg->encode());
@@ -222,8 +224,8 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     logger(message);
     response->push_front(message);
     sendResponse(OPENFILE, result, *response);
-    sendResponse(LOADFILE, SUCCESS, {file->getCrdtText()});
     if (result == SUCCESS) {
+        sendResponse(LOADFILE, SUCCESS, {file->getCrdtText()});
         // Aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
         if(queue->length() > 0) {
@@ -231,6 +233,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
                 socket->sendTextMessage(d->encode());
             });
         }
+
         // Dico a tutti che c'è un nuovo partecipante.
         file->deliver(ADDED_PARTECIPANT, SUCCESS, {id}, "All");
     }
@@ -288,26 +291,23 @@ void KKSession::handleBinaryRequests(QByteArray message) {
 }
 
 void KKSession::handleDisconnection() {
-    logger("Client info: "+id+", "+socket->peerName()+", "
-                          +socket->peerAddress().toString()+", "
-                          +QString::number(socket->peerPort())+" disconnected");
+    logger("Handle session disconnection...");
 
-    if(file.get() != nullptr) {
+    if(!file.isNull()) {
+        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
         file->leave(sharedFromThis());
-
-        if (file->getParticipants()->size() > 0) {
-            file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
-        } else {
-            file->flushCrdtText();
-            files->remove(file->getHash());
-            file->deleteLater();
-        }
     }
+
     if (socket != nullptr)
         socket->deleteLater();
 
     if (!user.isNull())
         delete user.get();
+
+    logger("Session "
+                    + id + ", "
+                    + socket->peerAddress().toString() + ", "
+                    + QString::number(socket->peerPort()) + " closing...");
 
     emit disconnected(sessionId);
 }
