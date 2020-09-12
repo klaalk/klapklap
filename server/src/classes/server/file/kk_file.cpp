@@ -8,17 +8,23 @@ KKFile::KKFile() {
     recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
     crdt = KKCrdtPtr(new KKCrdt("file", casuale));
-    connect(&timer, &QTimer::timeout, this, &KKFile::flushCrdtText);
-    timer.start(10000);
+    timer = new QTimer();
+
+    // Set autosave timer
+    connect(timer, &QTimer::timeout, this, &KKFile::flushCrdtText);
+    timer->start(10000);
 }
 
 KKFile::~KKFile() {
     std::for_each(recentMessages->begin(), recentMessages->end(), [](KKPayloadPtr d){
         delete d.get();
     });
-
-    delete file.get();
+    file->deleteLater();
+    delete crdt.get();
+    delete owners;
+    delete timer;
     delete recentMessages.get();
+    qDebug() << "File [" << hash << "] deleted succesfully";
 }
 
 void KKFile::join(KKParticipantPtr participant) {
@@ -26,7 +32,7 @@ void KKFile::join(KKParticipantPtr participant) {
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
-    participants->insert(participant->id, nullptr);
+    participants->remove(participant->id);
 }
 
 void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
@@ -43,11 +49,13 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
 
-    std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
-        if(p->id != myNick) {
-            p->deliver(data);
-        }
-    });
+    if (!participants->isEmpty()) {
+        std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
+            if(p->id != myNick) {
+                p->deliver(data);
+            }
+        });
+    }
 }
 
 void KKFile::setFile(QSharedPointer<QFile> file)

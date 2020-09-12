@@ -18,7 +18,12 @@ KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr fil
     this->sessionId = sessionId;
 }
 
-KKSession::~KKSession() {}
+KKSession::~KKSession() {
+    if (socket != nullptr)
+        socket->deleteLater();
+    delete user.get();
+    logger("Session deleted succesfully");
+}
 
 void KKSession::deliver(KKPayloadPtr msg) {
     socket->sendTextMessage(msg->encode());
@@ -301,14 +306,19 @@ void KKSession::handleDisconnection() {
                           +socket->peerAddress().toString()+", "
                           +QString::number(socket->peerPort())+" disconnected");
 
-    if (socket)
-    {
-        if(file.get() != nullptr) {
+    if(file.get() != nullptr) {
+        file->leave(sharedFromThis());
+
+        if (file->getParticipants()->size() > 0) {
             file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
-            file->leave(sharedFromThis());
+        } else {
+            file->flushCrdtText();
+            files->remove(file->getHash());
+            delete file.get();
         }
-        socket->deleteLater();
     }
+
+    deleteLater();
 }
 
 void KKSession::handleAlignChangeRequest(KKPayload request){

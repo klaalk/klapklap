@@ -49,14 +49,12 @@ public:
     QStringList getCrdtText();
 
 private:
-
-
     enum { MaxRecentMessages = 100 };
     KKMapParticipantPtr participants;
     QStringList* owners;
     KKVectorPayloadPtr recentMessages;
     KKCrdtPtr crdt;
-    QTimer timer;
+    QTimer* timer;
     QSharedPointer<QFile> file;
     QString hash;
 };

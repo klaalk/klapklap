@@ -49,7 +49,7 @@ KKServer::KKServer(quint16 port, QObject *parent):
 
     if (socket->listen(QHostAddress::Any, port)) {
         filesys->writeFile(logFile, "SSL Server listening on port " + QString::number(port), "SERVER");
-        connect(socket, &QWebSocketServer::newConnection, this,&KKServer::onNewConnection);
+        connect(socket, &QWebSocketServer::newConnection, this, &KKServer::onNewConnection);
         connect(socket, &QWebSocketServer::sslErrors, this, &KKServer::onSslErrors);
     }
 
