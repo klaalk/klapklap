@@ -86,7 +86,7 @@ void OpenFileDialog::setUserAvatar(const QString &avatar)
         ui->changeImageButton->setIconSize(image.rect().size());
         this->avatar = avatar;
     } else
-       qDebug() << "[setUserAvatar] Avatar not exist: " << path;
+       KKLogger::log("[setUserAvatar] Avatar not exist: " + path);
 }
 
 void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
@@ -115,21 +115,18 @@ void OpenFileDialog::on_openFileButton_clicked()
 {
     if (pastedLink != nullptr && !pastedLink.isEmpty()) {
         emit openFileRequest(pastedLink, pastedFilename);
-        qDebug() << "APRO FILE CONDIVISO: " << pastedFilename;
     } else {
         selectedLink = (selectedLink != nullptr && !selectedLink.isEmpty()) ? selectedLink
                   : files_.value(selectedFilename);
 
         if (selectedLink != nullptr && !selectedLink.isEmpty()) {
             emit openFileRequest(selectedLink, selectedFilename);
-            qDebug() << "APRO FILE ESISTENTE: " << selectedFilename;
         } else {
             QString newFileName = ui->createFileNameLineEdit->text();
              if (newFileName != "" && newFileName != nullptr) {
                 emit openFileRequest(newFileName, newFileName);
-                qDebug() << "APRO UN NUOVO FILE: " << newFileName;
             } else {
-                qDebug() << "ERRORE NOME FILE DA CREARE VUOTO";
+                qDebug() << "[on_openFileButton_clicked] Errore nell'apertura file: nome file vuoto!";
             }
         }
     }

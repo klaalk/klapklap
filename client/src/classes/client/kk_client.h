@@ -25,6 +25,7 @@
 
 #include "../../../../libs/src/constants/kk_constants.h"
 #include "../../../../libs/src/classes/payload/kk_payload.h"
+#include "../../../../libs/src/classes/logger/kk_logger.h"
 #include "../../../../libs/src/classes/crdt/kk_crdt.h"
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
@@ -69,7 +70,7 @@ private slots:
     void onSiteIdClicked(const QString& siteId, bool logout);
     void onAlignmentChange(QString alignment);
     void onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format);
-
+    void logger(QString message);
 private:
     void setInitState();
     void initTextEdit();
@@ -78,7 +79,8 @@ private:
     void handleLoginResponse(KKPayload res);
     void handleSignupResponse();
     void handleGetFilesResponse(KKPayload res);
-    void handleOpenfileResponse(KKPayload res);
+    void handleOpenFileResponse(KKPayload res);
+    void handleLoadFileResponse(KKPayload res);
     void handleCrdtResponse(KKPayload res);
     void handleAlignmentChange(KKPayload res);
     void handleCharFormatChange(KKPayload res);
@@ -94,22 +96,16 @@ private:
     QString currentfile_;
     bool currentfileValid_{};
 
-
     QUrl url_;
     QWebSocket socket_;
     QTimer timer_;
-
     AccessDialog access_;
-
     OpenFileDialog openFile_;
     ModalDialog modal_;
 
     KKCrdt* crdt_{};
     TextEdit* editor_{};
     ChatDialog* chat_{};
-
-    QByteArray bufferCrdt_;
-    std::mutex mtxCrdt_;
 };
 
 typedef std::shared_ptr<KKClient> KKClientPtr;

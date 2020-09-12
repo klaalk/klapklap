@@ -66,7 +66,6 @@ void ChooseAvatarDialog::on_buttonBox_accepted()
 {
     if (selectedAvatar != nullptr) {
         QString avatar = selectedAvatar->objectName();
-        qDebug() << "Sel: " << avatar;
         emit updateAvatarRequest(avatar.split("avatar")[1]);
     }
 

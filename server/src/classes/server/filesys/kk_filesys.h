@@ -17,13 +17,9 @@
 #include <QStandardPaths>
 
 #include "../../../../../libs/src/classes/crypt/kk_crypt.h"
+#include "../../../../../libs/src/constants/kk_constants.h"
+
 #include <classes/server/file/kk_file.h>
-
-
-#define SERVER_ROOT QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/KKServer"
-#define LOG_ROOT SERVER_ROOT + "/log/"
-#define APPLICATION_ROOT SERVER_ROOT + "/application/"
-
 
 class KKFileSystem {
 public:
@@ -32,14 +28,12 @@ public:
 
     KKFilePtr createFile(QString username, QString filename);
     KKFilePtr openFile(QString filename, QString rootPath=APPLICATION_ROOT);
-
-    bool writeFile(KKFilePtr file, QString toPrint);
-    bool writeFile(KKFilePtr file, QString toPrint, QString sessionId);
     QString readFile(QString filename);
+    bool writeFile(KKFilePtr file, QString toPrint);
 
 private:
-    QString logFileName;
     KKCryptPtr crypter;
+
 };
 
 typedef QSharedPointer<KKFileSystem> KKFileSystemPtr;

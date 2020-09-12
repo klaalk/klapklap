@@ -16,7 +16,6 @@ int main(int argc, char* argv[])
     Q_UNUSED(client)
     return QApplication::exec();
 
-
 /*NON CANCELLARE
     KKCrdt *crdt1 = new KKCrdt("Albo", casuale);
     KKCrdt *crdt2 = new KKCrdt("Edo", casuale);
