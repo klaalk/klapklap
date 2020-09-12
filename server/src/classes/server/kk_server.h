@@ -14,10 +14,12 @@
 #include <QTcpSocket>
 #include <QAbstractSocket>
 
+#include "../../libs/src/constants/kk_constants.h"
+#include "../../libs/src/classes/logger/kk_logger.h"
+
 #include "session/kk_session.h"
 #include "classes/server/filesys/kk_filesys.h"
 #include "file/kk_file.h"
-#include "../../libs/src/constants/kk_constants.h"
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -28,18 +30,19 @@ class KKServer : public QObject {
 public:
     KKServer(quint16 port, QObject *parent = nullptr);
     ~KKServer() override;
+
 private slots:
     void onNewConnection();
     void onSslErrors(const QList<QSslError> &errors);
+    void onSessionDisconnected(QString sessionId);
 private:
     QString generateSessionId();
     QWebSocketServer* socket;
     QList<QWebSocket*> clients;
-    QList<KKSessionPtr> sessions;
+    QMap<QString, KKSessionPtr> sessions;
     KKMapFilePtr files;
     KKDataBasePtr db;
     KKFileSystemPtr filesys;
-    KKFilePtr logFile;
 
     QString possibleCharacters;
     int randomStringLength = 12; // assuming you want random strings of 12 characters

@@ -123,6 +123,10 @@
 #define LOG_FILE "log"
 #define FILE_SYSTEM_USER "root"
 
+#define SERVER_ROOT QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/KKServer"
+#define LOG_ROOT SERVER_ROOT + "/log/"
+#define APPLICATION_ROOT SERVER_ROOT + "/application/"
+
 /// File system errors
 #define FILE_SYSTEM_CREATE_ERROR nullptr
 

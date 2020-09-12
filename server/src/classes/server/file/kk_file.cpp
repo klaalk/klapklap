@@ -24,7 +24,7 @@ KKFile::~KKFile() {
     delete owners;
     delete timer;
     delete recentMessages.get();
-    qDebug() << "File [" << hash << "] deleted succesfully";
+    KKLogger::log("Deleted successfullty", hash);
 }
 
 void KKFile::join(KKParticipantPtr participant) {
@@ -146,17 +146,22 @@ void KKFile::applyRemoteCharFormatChange(QStringList bodyList){
 void KKFile::flushCrdtText()
 {
     QStringList crdtText = crdt->saveCrdt();
-    if (crdtText.isEmpty()) return;
+    if (crdtText.isEmpty()) {
+        KKLogger::log("Nothing to flush, CRDT is empty", hash);
+        return;
+    }
 
     bool result = file.get()->open(QIODevice::WriteOnly | QIODevice::Text);
     if(result){
         QTextStream stream(file.get());
-        qDebug() << "Flush file [" << hash << "]";
         for(QString crdtChar : crdtText) {
             stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
         }
         stream << endl;
         file->close();
+        KKLogger::log("Flushed succesfully", hash);
+    } else {
+        KKLogger::log("Error on opening the file", hash);
     }
 }
 

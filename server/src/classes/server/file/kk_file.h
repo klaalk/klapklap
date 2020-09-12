@@ -17,8 +17,10 @@
 #include <QTimer>
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
-#include "../participant/kk_participant.h"
+#include "../../../../../libs/src/classes/logger/kk_logger.h"
 #include "../../../../../libs/src/classes/crdt/kk_crdt.h"
+
+#include "../participant/kk_participant.h"
 
 class KKFile : public QObject {
 public:
