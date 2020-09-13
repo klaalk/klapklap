@@ -8,25 +8,49 @@ KKFile::KKFile() {
     recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
     crdt = KKCrdtPtr(new KKCrdt("file", casuale));
-    connect(&timer, &QTimer::timeout, this, &KKFile::flushCrdtText);
-    timer.start(10000);
+    timer = new QTimer();
+
+    // Set autosave timer
+    connect(timer, &QTimer::timeout, this, &KKFile::handleTimeout);
+    timer->start(10000);
 }
 
 KKFile::~KKFile() {
+    KKLogger::log("File deleting...", hash);
     std::for_each(recentMessages->begin(), recentMessages->end(), [](KKPayloadPtr d){
-        delete d.get();
+        if (!d.isNull())
+            delete d.get();
     });
+    if (!recentMessages.isNull()) {
+        delete recentMessages.get();
+        KKLogger::log("Recent messages deleted. File deleting...", hash);
+    }
 
-    delete file.get();
-    delete recentMessages.get();
+    if (file->isOpen())
+        file->close();
+
+    if (!file.isNull()) {
+        KKLogger::log("Physical file deleted. File deleting...", hash);
+        delete file.get();
+    }
+
+    if (!crdt.isNull())
+        delete crdt.get();
+    if (owners != nullptr)
+        delete owners;
+    if (timer != nullptr)
+        delete timer;
+    KKLogger::log("Deleted successfullty", hash);
 }
 
 void KKFile::join(KKParticipantPtr participant) {
     participants->insert(participant->id, participant);
+    participantCounter++;
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
     participants->insert(participant->id, nullptr);
+    participantCounter--;
 }
 
 void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
@@ -43,11 +67,13 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
 
-    std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
-        if(p->id != myNick) {
-            p->deliver(data);
-        }
-    });
+    if (!participants->isEmpty()) {
+        std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
+            if(p->id != myNick) {
+                p->deliver(data);
+            }
+        });
+    }
 }
 
 void KKFile::setFile(QSharedPointer<QFile> file)
@@ -138,23 +164,41 @@ void KKFile::applyRemoteCharFormatChange(QStringList bodyList){
 void KKFile::flushCrdtText()
 {
     QStringList crdtText = crdt->saveCrdt();
-    if (crdtText.isEmpty()) return;
+    if (crdtText.isEmpty()) {
+        KKLogger::log("Nothing to flush, CRDT is empty", hash);
+        return;
+    }
 
     bool result = file.get()->open(QIODevice::WriteOnly | QIODevice::Text);
     if(result){
         QTextStream stream(file.get());
-        qDebug() << "Flush file [" << hash << "]";
         for(QString crdtChar : crdtText) {
             stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
         }
         stream << endl;
         file->close();
+        KKLogger::log("Flushed succesfully", hash);
+    } else {
+        KKLogger::log("Error on opening the file", hash);
     }
 }
 
 QStringList KKFile::getCrdtText()
 {
     return crdt->saveCrdt();
+}
+
+int KKFile::getParticipantCounter() const
+{
+    return participantCounter;
+}
+
+void KKFile::handleTimeout()
+{
+    if (flushCrdt)
+        flushCrdtText();
+
+    flushCrdt = participantCounter > 0;
 }
 
 void KKFile::initCrdtText()

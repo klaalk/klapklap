@@ -6,6 +6,7 @@
 #define KK_SESSION_H
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
+#include "../../../../../libs/src/classes/logger/kk_logger.h"
 #include "../../../../../libs/src/constants/kk_constants.h"
 
 #include <QObject>
@@ -28,8 +29,10 @@ QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
 class KKSession : public QObject, public KKParticipant, public QEnableSharedFromThis<KKSession> {
     Q_OBJECT
+signals:
+    void disconnected(QString sessionId);
 public:
-    KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files, KKFilePtr logFile, QString sessiondId, QObject *parent = nullptr);
+    KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files, QString sessiondId, QObject *parent = nullptr);
     ~KKSession();
 
     void deliver(KKPayloadPtr msg);
@@ -58,11 +61,9 @@ private:
     void logger(QString message);
 
     QWebSocket*  socket;
-    KKSmtpPtr smtp;
     KKDataBasePtr db;
     KKMapFilePtr files;
     KKFilePtr file;
-    KKFilePtr logFile;
     KKFileSystemPtr fileSystem;
     KKUserPtr user;
     QString sessionId;

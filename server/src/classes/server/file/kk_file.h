@@ -17,8 +17,10 @@
 #include <QTimer>
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
-#include "../participant/kk_participant.h"
+#include "../../../../../libs/src/classes/logger/kk_logger.h"
 #include "../../../../../libs/src/classes/crdt/kk_crdt.h"
+
+#include "../participant/kk_participant.h"
 
 class KKFile : public QObject {
 public:
@@ -48,15 +50,18 @@ public:
 
     QStringList getCrdtText();
 
+    int getParticipantCounter() const;
+public slots:
+    void handleTimeout();
 private:
-
-
     enum { MaxRecentMessages = 100 };
+    int participantCounter = 0;
     KKMapParticipantPtr participants;
     QStringList* owners;
     KKVectorPayloadPtr recentMessages;
     KKCrdtPtr crdt;
-    QTimer timer;
+    QTimer* timer;
+    bool flushCrdt = true;
     QSharedPointer<QFile> file;
     QString hash;
 };
