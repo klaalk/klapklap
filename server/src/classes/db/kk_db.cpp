@@ -113,6 +113,7 @@ int KKDataBase::getUser(QString username, KKUserPtr userInfo) {
 
             db.close();
             resCode = DB_USER_FOUND;
+
         } catch (QException e) {
             db.close();
         }

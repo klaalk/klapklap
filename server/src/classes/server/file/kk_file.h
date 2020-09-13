@@ -10,7 +10,8 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
-#include <QtCore/QObject>
+
+#include <QObject>
 #include <QSharedPointer>
 #include <QWebSocket>
 #include <QFile>
@@ -22,9 +23,10 @@
 
 #include "../participant/kk_participant.h"
 
-class KKFile : public QObject {
+class KKFile : public QObject, public QEnableSharedFromThis<KKFile> {
+    Q_OBJECT
 public:
-    KKFile();
+    KKFile(QObject *parent = nullptr);
     ~KKFile();
     void join(KKParticipantPtr participant);
     void leave(KKParticipantPtr participant);
@@ -40,8 +42,8 @@ public:
     KKMapParticipantPtr getParticipants();
 
     void addOwner(QString owner);
-    void setOwners(QStringList* owners);
-    QStringList* getOwners();
+    void setOwners(QSharedPointer<QStringList> owners);
+    QSharedPointer<QStringList> getOwners();
 
     void applyRemoteInsert(QStringList bodyList);
     void applyRemoteCharFormatChange(QStringList bodyList);
@@ -51,18 +53,19 @@ public:
     QStringList getCrdtText();
 
     int getParticipantCounter() const;
+
 public slots:
     void handleTimeout();
+
 private:
     enum { MaxRecentMessages = 100 };
     int participantCounter = 0;
     KKMapParticipantPtr participants;
-    QStringList* owners;
     KKVectorPayloadPtr recentMessages;
     KKCrdtPtr crdt;
-    QTimer* timer;
-    bool flushCrdt = true;
+    QSharedPointer<QStringList> owners;
     QSharedPointer<QFile> file;
+    QSharedPointer<QTimer> timer;
     QString hash;
 };
 

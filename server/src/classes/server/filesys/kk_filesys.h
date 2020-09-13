@@ -21,9 +21,10 @@
 
 #include <classes/server/file/kk_file.h>
 
-class KKFileSystem {
+class KKFileSystem : public QObject {
+    Q_OBJECT
 public:
-    KKFileSystem();
+    KKFileSystem(QObject *parent = nullptr);
     ~KKFileSystem();
 
     KKFilePtr createFile(QString username, QString filename);

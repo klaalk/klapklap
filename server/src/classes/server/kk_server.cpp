@@ -36,36 +36,28 @@ KKServer::KKServer(quint16 port, QObject *parent):
 
     socket->setSslConfiguration(sslConfiguration);
 
-    files = QSharedPointer<QMap<QString, KKFilePtr>>(new QMap<QString, KKFilePtr>());
-    db = QSharedPointer<KKDataBase>(new KKDataBase());
-    filesys = QSharedPointer<KKFileSystem>(new KKFileSystem());
+    sessions = KKMapSessionPtr(new QMap<QString, KKSessionPtr>());
+    files = KKMapFilePtr(new QMap<QString, KKFilePtr>());
+    db = KKDataBasePtr(new KKDataBase());
+    filesys = KKFileSystemPtr(new KKFileSystem(this));
 
-    QString runInfo="";
-    runInfo = "RUNNING (Version:" +  QString::number(VERSION_MAJOR) +  "." + QString::number(VERSION_MINOR) + " Build: "
-            + QString::number(VERSION_BUILD)+")";
-
-    KKLogger::log(runInfo, "SERVER");
+    KKLogger::log(QString("Running Server (Version: %1.%2 Build: %3)")
+                  .arg(QString::number(VERSION_MAJOR), QString::number(VERSION_MINOR), QString::number(VERSION_BUILD)), "SERVER");
 
     if (socket->listen(QHostAddress::Any, port)) {
-        KKLogger::log("SSL Server listening on port " + QString::number(port), "SERVER");
         connect(socket, &QWebSocketServer::newConnection, this, &KKServer::onNewConnection);
         connect(socket, &QWebSocketServer::sslErrors, this, &KKServer::onSslErrors);
+        KKLogger::log("SSL Server listening on port " + QString::number(port), "SERVER");
     }
-
 }
 KKServer::~KKServer()
 {
     socket->close();
-    qDeleteAll(sockets.begin(), sockets.end());
-    std::for_each(files->begin(), files->end(),[](KKFilePtr e){
-        if (!e.isNull())
-            delete e.get();
-    });
-    std::for_each(sessions.begin(), sessions.end(), [](KKSessionPtr p){
-        if (!p.isNull())
-            delete p.get();
-    });
+    files.clear();
+    sessions.clear();
 
+    delete files.get();
+    delete sessions.get();
     delete filesys.get();
     delete files.get();
     delete db.get();
@@ -74,11 +66,12 @@ KKServer::~KKServer()
 void KKServer::onNewConnection() {
     QWebSocket *pSocket = socket->nextPendingConnection();
     QString sessionId = generateSessionId();
-    KKSessionPtr session = QSharedPointer<KKSession>(new KKSession(db, filesys, files, sessionId, this));
-    session->setSocket(pSocket);
+
+    KKSessionPtr session = KKSessionPtr(new KKSession(db, filesys, files, sessionId, this));
+    session->setSocket(QSharedPointer<QWebSocket>(pSocket));
+
     connect(session.get(), &KKSession::disconnected, this, &KKServer::onSessionDisconnected);
-    sessions.insert(sessionId, session);
-    sockets << pSocket;
+    sessions->insert(sessionId, session);
 }
 
 void KKServer::onSslErrors(const QList<QSslError> &)
@@ -88,8 +81,9 @@ void KKServer::onSslErrors(const QList<QSslError> &)
 
 void KKServer::onSessionDisconnected(QString sessionId)
 {
-//    if (sessions.remove(sessionId))
+    if (sessions->remove(sessionId)) {
         KKLogger::log("Session closed succesfully", sessionId);
+    }
 }
 
 QString KKServer::generateSessionId()
