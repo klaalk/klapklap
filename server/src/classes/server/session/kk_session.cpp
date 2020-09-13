@@ -128,15 +128,16 @@ void KKSession::handleLoginRequest(KKPayload request) {
 
 void KKSession::handleLogoutRequest(KKPayload request) {
         if(file.get() != nullptr) {
-            //file->leave(sharedFromThis());
+            file->leave(sharedFromThis());
 
-            if (file->getParticipants()->size() > 0) {
-                file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
-            } else {
-                file->flushCrdtText();
-                files->remove(file->getHash());
-                file->deleteLater();
-            }
+//            if (file->getParticipants()->size() > 0) {
+//                file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
+//            }
+//            else {
+//                file->flushCrdtText();
+//                files->remove(file->getHash());
+//                file->deleteLater();
+//            }
         }
         this->sendResponse(LOGOUT, SUCCESS, {"Logut eseguito"});
 }

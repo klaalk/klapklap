@@ -49,7 +49,8 @@ void KKFile::join(KKParticipantPtr participant) {
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
-    participants->insert(participant->id, nullptr);
+//    participants->insert(participant->id, nullptr);
+    participants->remove(participant->id);
     participantCounter--;
 }
 
