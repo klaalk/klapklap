@@ -499,6 +499,7 @@ void KKClient::handleModalClosed(const QString& modalType) {
 /// CRDT ACTIONS
 
 void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
+
     QByteArray ba = diffText.toLocal8Bit();
     QString siteId=crdt_->getSiteId(),font_,color_;
     char *c_str = ba.data();
@@ -522,6 +523,7 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
     unsigned long startLine; unsigned long endLine; unsigned long startCol; unsigned long endCol;
     crdt_->calculateLineCol(static_cast<unsigned long>(start), &startLine, &startCol);
     crdt_->calculateLineCol(static_cast<unsigned long>(end), &endLine, &endCol);
+     qDebug() << "[onRemoveTextCrdt]";
     list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(static_cast<unsigned long>(startLine),static_cast<unsigned long>(startCol)),
                                                       KKPosition(static_cast<unsigned long>(endLine), static_cast<unsigned long>(endCol)));
 
@@ -578,6 +580,8 @@ void KKClient::onAlignmentChange(QString alignment){
 }
 
 void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format){
+    qDebug() << "[onSelectionFormatChanged]";
+
     unsigned long startLine; unsigned long endLine; unsigned long startCol; unsigned long endCol;
     crdt_->calculateLineCol(static_cast<unsigned long>(selectionStart), &startLine, &startCol);
     crdt_->calculateLineCol(static_cast<unsigned long>(selectionEnd), &endLine, &endCol);
@@ -588,6 +592,7 @@ void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTe
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendRequest(CHARFORMAT_CHANGE, NONE, {mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
     });
+
 }
 
 
