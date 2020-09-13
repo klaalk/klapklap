@@ -38,8 +38,8 @@ private slots:
 private:
     QString generateSessionId();
     QWebSocketServer* socket;
-    QList<QWebSocket*> clients;
     QMap<QString, KKSessionPtr> sessions;
+    QList<QWebSocket*> sockets;
     KKMapFilePtr files;
     KKDataBasePtr db;
     KKFileSystemPtr filesys;

@@ -11,28 +11,46 @@ KKFile::KKFile() {
     timer = new QTimer();
 
     // Set autosave timer
-    connect(timer, &QTimer::timeout, this, &KKFile::flushCrdtText);
+    connect(timer, &QTimer::timeout, this, &KKFile::handleTimeout);
     timer->start(10000);
 }
 
 KKFile::~KKFile() {
+    KKLogger::log("File deleting...", hash);
     std::for_each(recentMessages->begin(), recentMessages->end(), [](KKPayloadPtr d){
-        delete d.get();
+        if (!d.isNull())
+            delete d.get();
     });
-    file->deleteLater();
-    delete crdt.get();
-    delete owners;
-    delete timer;
-    delete recentMessages.get();
+    if (!recentMessages.isNull()) {
+        delete recentMessages.get();
+        KKLogger::log("Recent messages deleted. File deleting...", hash);
+    }
+
+    if (file->isOpen())
+        file->close();
+
+    if (!file.isNull()) {
+        KKLogger::log("Physical file deleted. File deleting...", hash);
+        delete file.get();
+    }
+
+    if (!crdt.isNull())
+        delete crdt.get();
+    if (owners != nullptr)
+        delete owners;
+    if (timer != nullptr)
+        delete timer;
     KKLogger::log("Deleted successfullty", hash);
 }
 
 void KKFile::join(KKParticipantPtr participant) {
     participants->insert(participant->id, participant);
+    participantCounter++;
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
-    participants->remove(participant->id);
+    participants->insert(participant->id, nullptr);
+    participantCounter--;
 }
 
 void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
@@ -168,6 +186,19 @@ void KKFile::flushCrdtText()
 QStringList KKFile::getCrdtText()
 {
     return crdt->saveCrdt();
+}
+
+int KKFile::getParticipantCounter() const
+{
+    return participantCounter;
+}
+
+void KKFile::handleTimeout()
+{
+    if (flushCrdt)
+        flushCrdtText();
+
+    flushCrdt = participantCounter > 0;
 }
 
 void KKFile::initCrdtText()
