@@ -18,10 +18,6 @@ public:
     void setShareFileLink(const QString& link);
 
 private slots:
-
-
-    void on_buttons_accepted();
-
     void on_pushButton_clicked();
 
 private:

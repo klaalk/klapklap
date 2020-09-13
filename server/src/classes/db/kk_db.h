@@ -24,19 +24,21 @@ public:
     ~KKDataBase();
 
     /// utente.
-    int signupUser(QString username, QString password, QString email, QString name, QString surname);
+    int signupUser(QString username, QString password, QString email, QString name, QString surname, QString image);
     int loginUser(QString username, QString password, KKUserPtr user);
     int getUser(QString username, KKUserPtr user);
+    int updateUser(QString username, QString name, QString surname, QString alias, QString avatar);
     int existUserByUsername(QString username);
     int existUserByEmail(QString email);
 
     /// file
-    int addUserFile(QString filename, QString path, KKUserPtr user);
+    int addUserFile(QString filename, QString username);
     int getUserFile(KKUserPtr user, QStringList* files);
-    int existFilename(QString filename);
-    int existFilenameByUserId(QString filename, QString userId);
+    int existFileByName(QString filename);
+    int existFileByHash(QString hash, QStringList* users);
+    int existFileByUsername(QString filename, QString username);
 
-
+    int addFile(QString filename, QString hashname, QString username);
     int insertUserImage(QString username, QString image_path);
     int resetPassword(QString username);
     int updatePassword(QString username, QString new_psw);

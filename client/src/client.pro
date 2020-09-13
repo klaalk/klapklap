@@ -31,35 +31,40 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/classes/crdt/pos/kk_pos.h \
                 ../../libs/src/classes/crdt/identifier/kk_identifier.h \
                 ../../libs/src/classes/crypt/kk_crypt.h \
+                ../../libs/src/classes/logger/kk_logger.h \
                 ../../libs/src/classes/payload/kk_payload.h \
                 ../../libs/src/constants/kk_constants.h \
+                classes/access/accessdialog.h \
                 classes/textedit/textedit.h \
                 classes/client/kk_client.h \
                 classes/chat/chatdialog.h\
-                classes/login/login.h\
                 classes/openfile/openfiledialog.h \
                 classes/modal/modaldialog.h \
-                classes/openfile/sharefiledialog.h
+                classes/openfile/sharefiledialog.h \
+                classes/openfile/chooseavatardialog.h
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/crdt/char/kk_char.cpp \
                 ../../libs/src/classes/crdt/pos/kk_pos.cpp \
                 ../../libs/src/classes/crdt/identifier/kk_identifier.cpp \
                 ../../libs/src/classes/crypt/kk_crypt.cpp \
+                ../../libs/src/classes/logger/kk_logger.cpp \
                 ../../libs/src/classes/payload/kk_payload.cpp \
+                classes/access/accessdialog.cpp \
                 classes/textedit/textedit.cpp \
                 classes/client/kk_client.cpp \
                 classes/chat/chatdialog.cpp\
-                classes/login/login.cpp \
                 main.cpp \
                 classes/openfile/openfiledialog.cpp \
                 classes/modal/modaldialog.cpp \
-                classes/openfile/sharefiledialog.cpp
+                classes/openfile/sharefiledialog.cpp \
+                classes/openfile/chooseavatardialog.cpp
 
 RESOURCES += assets/client.qrc
 
 FORMS += \
         ui/accessdialog.ui \
+        ui/chooseavatardialog.ui \
         ui/modaldialog.ui \
         ui/chatdialog.ui \
         ui/openfiledialog.ui \

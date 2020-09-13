@@ -10,44 +10,63 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+
+#include <QObject>
 #include <QSharedPointer>
 #include <QWebSocket>
 #include <QFile>
-
+#include <QTimer>
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
+#include "../../../../../libs/src/classes/logger/kk_logger.h"
+#include "../../../../../libs/src/classes/crdt/kk_crdt.h"
+
 #include "../participant/kk_participant.h"
 
-
-class KKFile {
+class KKFile : public QObject, public QEnableSharedFromThis<KKFile> {
+    Q_OBJECT
 public:
-    KKFile();
+    KKFile(QObject *parent = nullptr);
     ~KKFile();
-    void join(QSharedPointer<KKParticipant> participant);
-
-    void leave(QSharedPointer<KKParticipant> participant);
-
+    void join(KKParticipantPtr participant);
+    void leave(KKParticipantPtr participant);
     void deliver(QString type, QString result, QStringList values, QString myNick);
 
     void setFile(QSharedPointer<QFile> file);
     QSharedPointer<QFile> getFile();
-    void setFilename(QString filename);
-    QString getFilename();
 
+    void setHash(QString hash);
+    QString getHash();
 
     KKVectorPayloadPtr getRecentMessages();
-private:
-    std::set<QSharedPointer<KKParticipant>> participants;
-    enum {
-        MaxRecentMessages = 100
-    };
-    KKVectorPayloadPtr recentMessages;
-    KKVectorPayloadPtr crdtMessages;
-    QVector<long long> crdtIndexMessages;
-    QSharedPointer<QFile> file;
-    QString filename;
+    KKMapParticipantPtr getParticipants();
 
-    long long messageIndex;
+    void addOwner(QString owner);
+    void setOwners(QSharedPointer<QStringList> owners);
+    QSharedPointer<QStringList> getOwners();
+
+    void applyRemoteInsert(QStringList bodyList);
+    void applyRemoteCharFormatChange(QStringList bodyList);
+    void initCrdtText();
+    void flushCrdtText();
+
+    QStringList getCrdtText();
+
+    int getParticipantCounter() const;
+
+public slots:
+    void handleTimeout();
+
+private:
+    enum { MaxRecentMessages = 100 };
+    int participantCounter = 0;
+    KKMapParticipantPtr participants;
+    KKVectorPayloadPtr recentMessages;
+    KKCrdtPtr crdt;
+    QSharedPointer<QStringList> owners;
+    QSharedPointer<QFile> file;
+    QSharedPointer<QTimer> timer;
+    QString hash;
 };
 
 typedef QSharedPointer<KKFile> KKFilePtr;
