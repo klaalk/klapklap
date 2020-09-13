@@ -644,21 +644,40 @@ void KKCrdt::calculateLineCol(unsigned long global_pos, unsigned long *line, uns
 list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition end, QString font_, QString color_){
 
     list<KKCharPtr> changed;
+    list<KKCharPtr>::iterator ch;
     for(auto line=start.getLine();line<=end.getLine();line++){
         if(line==start.getLine()){ //prima riga
             if(line==end.getLine()){
                 //la selezione inizia e finisce su una stessa riga: cambia tutte le kkchar da start.getch() a end.getch()
-                for(auto ch = std::next(text[line].begin(),static_cast<long>(start.getCh())); ch != std::next(text[line].begin(),static_cast<long>(end.getCh()+1)); ch++){
+                for(ch = std::next(text[line].begin(),static_cast<long>(start.getCh())); ch != std::next(text[line].begin(),static_cast<long>(end.getCh()+1)); ch++){
                     ch->get()->setKKCharFont(font_);
                     ch->get()->setKKCharColor(color_);
-                    changed.push_back(KKCharPtr(ch->get()));
+
+                    KKCharPtr new_Char = KKCharPtr(new KKChar(ch->get()->getValue(), this->siteid, font_, color_));
+                    vector<KKIdentifierPtr> new_ids;
+                    for (KKIdentifierPtr id:ch->get()->getPosition()){
+                        KKIdentifierPtr newid  = KKIdentifierPtr(new KKIdentifier(id->getDigit(),id->getSiteId()));
+                        new_ids.push_back(newid);
+                    }
+                    new_Char.get()->insertPosition(new_ids);
+
+                    changed.push_back(new_Char);
                 }
             }else{
                 //la selezione è su piu righe diverse: cambia tutte le kkchar da start.getch() fino alla fine della riga
-                for(auto ch = std::next(text[line].begin(), static_cast<long>(start.getCh())); ch != text[line].end(); ch++){
+                for(ch = std::next(text[line].begin(), static_cast<long>(start.getCh())); ch != text[line].end(); ch++){
                     ch->get()->setKKCharFont(font_);
                     ch->get()->setKKCharColor(color_);
-                    changed.push_back(KKCharPtr(ch->get()));
+
+                    KKCharPtr new_Char = KKCharPtr(new KKChar(ch->get()->getValue(), this->siteid, font_, color_));
+                    vector<KKIdentifierPtr> new_ids;
+                    for (KKIdentifierPtr id:ch->get()->getPosition()){
+                        KKIdentifierPtr newid  = KKIdentifierPtr(new KKIdentifier(id->getDigit(),id->getSiteId()));
+                        new_ids.push_back(newid);
+                    }
+                    new_Char.get()->insertPosition(new_ids);
+
+                    changed.push_back(new_Char);
                 }
             }
 
@@ -667,17 +686,36 @@ list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition 
             for(auto ch = text[line].begin(); ch != std::next(text[line].begin(),static_cast<long>(end.getCh()+1)); ch++){
                 ch->get()->setKKCharFont(font_);
                 ch->get()->setKKCharColor(color_);
-                changed.push_back(KKCharPtr(ch->get()));
+
+                KKCharPtr new_Char = KKCharPtr(new KKChar(ch->get()->getValue(), this->siteid, font_, color_));
+                vector<KKIdentifierPtr> new_ids;
+                for (KKIdentifierPtr id:ch->get()->getPosition()){
+                    KKIdentifierPtr newid  = KKIdentifierPtr(new KKIdentifier(id->getDigit(),id->getSiteId()));
+                    new_ids.push_back(newid);
+                }
+                new_Char.get()->insertPosition(new_ids);
+
+                changed.push_back(new_Char);
             }
         }else{
         //la selezione è almeno su 3 righe, sei in una riga centrale: cambia tutte le KKchar di questa riga
-        for(auto ch = text[line].begin(); ch != text[line].end(); ch++){
+        for(ch = text[line].begin(); ch != text[line].end(); ch++){
             ch->get()->setKKCharFont(font_);
              ch->get()->setKKCharColor(color_);
-             changed.push_back(KKCharPtr(ch->get()));
+
+             KKCharPtr new_Char = KKCharPtr(new KKChar(ch->get()->getValue(), this->siteid, font_, color_));
+             vector<KKIdentifierPtr> new_ids;
+             for (KKIdentifierPtr id:ch->get()->getPosition()){
+                 KKIdentifierPtr newid  = KKIdentifierPtr(new KKIdentifier(id->getDigit(),id->getSiteId()));
+                 new_ids.push_back(newid);
+             }
+             new_Char.get()->insertPosition(new_ids);
+
+             changed.push_back(new_Char);
         }
         }
     }
+
     return  changed;
 }
 

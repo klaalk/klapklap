@@ -2,11 +2,11 @@
 #include <QtSql>
 #include <QDebug>
 
-#define  HOST "127.0.0.1"
-#define  PORT 3306
-#define  USR  "root"
+#define  HOST "localhost"
+#define  PORT 8889
+#define  USR  "albo"
 #define  DBN  "klapklap"
-#define  PSW  ""
+#define  PSW  "password"
 
 #define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`ALIAS`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIME())"
 #define UPDATE_USER_QRY "UPDATE `USERS` SET `ALIAS`=?,`NAME`=?,`SURNAME`=?,`IMAGE`=? WHERE `USERNAME` = ?"
@@ -31,6 +31,9 @@ KKDataBase::KKDataBase():
     db.setUserName(USR);
     db.setPassword(PSW);
     db.setDatabaseName(DBN);
+#ifdef Q_OS_MACOS
+    db.setConnectOptions("UNIX_SOCKET=/Applications/MAMP/tmp/mysql/mysql.sock");
+#endif
 
 }
 

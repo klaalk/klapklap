@@ -28,6 +28,7 @@ class KKChar {
 
 public:
     KKChar(char value, string siteId);//costruttore
+    KKChar(char value,string siteId,QString KKCharFont, QString KKCharColor);
     ~KKChar();
     char getValue();
     string getSiteId();

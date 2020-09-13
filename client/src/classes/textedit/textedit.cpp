@@ -1002,7 +1002,7 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
 void TextEdit::onTextChange() {
 
     // IMPORTANTE per le modifiche da remoto.
-    if(blockCursor) return;
+   if(blockCursor) return;
     // Restituisce il testo presente nell'editor.
     QString plainText = textEdit->toPlainText();
 
