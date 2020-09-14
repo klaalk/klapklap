@@ -896,7 +896,29 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
     globalPos = globalPos < 0 ? 0 : globalPos;
 
     //Se non esiste quel cursore lo creo e lo memorizzo insieme alla label associata.
-    createCursorAndLabel(remoteCurs,name,globalPos);
+    //createCursorAndLabel(remoteCurs,name,globalPos);
+
+    QBrush color;
+    if(remoteCurs == nullptr) {
+        //Creo il cursore per l'utente se non esiste.
+        QLabel* qLbl = new QLabel(name, textEdit);
+        QLabel* qLbl2 = new QLabel("|", textEdit);
+        remoteCurs = new KKCursor(globalPos);
+        remoteCurs->setLabels(qLbl, qLbl2);
+
+        //Seleziono randomicamente un colore dalla lista dei colori, controllo se era già stato usato.
+        color=selectRandomColor();
+
+        // Modifico la label.
+        remoteCurs->setLabelsStyle(color, fontSize);
+
+        // Inserisco nella mappa dei colori.
+        siteIdsColors_.insert(name, color);
+        cursors_.insert(name, remoteCurs);
+    }
+
+    if (name != mySiteId_)
+        remoteCurs->showLabels();
 
     // Muovo il cursore dell'editor.
     editorCurs.setPosition(globalPos);
