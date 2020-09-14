@@ -1,0 +1,15 @@
+QDialog {
+    background-color: white;
+}
+
+QLabel#gifViewer {
+    background-color: white;
+}
+
+QPushButton {
+    opacity: 0.5;
+}
+
+QPushButton:hover {
+    opacity: 1;
+}

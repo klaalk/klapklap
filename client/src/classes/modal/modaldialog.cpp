@@ -8,7 +8,6 @@ ModalDialog::ModalDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Notifica");
-    setStyleSheet("ModalDialog {background-color: white;}");
 }
 
 ModalDialog::~ModalDialog()

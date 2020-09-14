@@ -3,10 +3,11 @@
 #define test
 
 
+#include <QFile>
 #include <QSizePolicy>
 
 AccessDialog::AccessDialog(QWidget *parent) :
-    QMainWindow(parent),
+    QDialog(parent),
     ui_(new Ui::AccessDialog),
     gif_(new QMovie(":/gif/animation.gif")),
     logo_(new QPixmap(":/images/logo.jpg")),
@@ -15,12 +16,13 @@ AccessDialog::AccessDialog(QWidget *parent) :
     usernameRegexp_(new QRegularExpression("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$")),
     nameRegexp_(new QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")),
     surnameRegexp_(new QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")) {
-
     ui_->setupUi(this);
-    setFixedSize(this->size());
-    setStyleSheet("AccessDialog {background-color: white;}");
 
-    ui_->gif_viewer->setStyleSheet("background-color: white;");
+    QFile styleFile( ":/styles/access-dialog.qss");
+    styleFile.open( QFile::ReadOnly );
+    setStyleSheet(QString( styleFile.readAll()));
+    setFixedSize(this->size());
+
     ui_->gif_viewer->setMovie(gif_);
     ui_->logo_view->setPixmap((*logo_).scaled(200,190,Qt::KeepAspectRatio));
     ui_->signup_widget->hide();

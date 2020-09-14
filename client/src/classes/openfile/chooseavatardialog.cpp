@@ -5,9 +5,7 @@ ChooseAvatarDialog::ChooseAvatarDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ChooseAvatarDialog)
 {
-    setStyleSheet("ChooseAvatarDialog {background-color: white;}");
     loadAvatars();
-
     ui->setupUi(this);
 }
 
