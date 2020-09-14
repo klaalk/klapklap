@@ -68,7 +68,9 @@ vector<KKIdentifierPtr> KKCrdt::findPositionAfter(KKPosition pos) {
     long num_lines; long num_chars;
     vector<KKIdentifierPtr> vuoto;
 
+
     num_lines = static_cast<long>(text.size()) - 1;
+
 
     if (text.empty() || text[pos.getLine()].empty()) {
         num_chars = 0;
@@ -76,11 +78,11 @@ vector<KKIdentifierPtr> KKCrdt::findPositionAfter(KKPosition pos) {
         num_chars = static_cast<long>(text[pos.getLine()].size());
     }
 
-    if (static_cast<long>(pos.getLine()) > num_lines - 1 && pos.getCh() == 0) {
+    if (static_cast<long>(pos.getLine()) > num_lines  && pos.getCh() == 0) { //sei alla prima lettera
         return vuoto;
-    } if (static_cast<long>(pos.getLine()) == num_lines - 1 && static_cast<long>(pos.getCh()) == num_chars) { //sei all'ultima riga e all'ultimo char
+    } if (static_cast<long>(pos.getLine()) == num_lines  && static_cast<long>(pos.getCh()) == num_chars) { //sei all'ultima riga e all'ultimo char
         return vuoto;
-    } else if (static_cast<long>(pos.getLine()) < num_lines - 1 && static_cast<long>(pos.getCh()) == num_chars) { // sei a fine riga ma non nell'ultima riga
+    } else if (static_cast<long>(pos.getLine()) < num_lines  && static_cast<long>(pos.getCh()) == num_chars) { // sei a fine riga ma non nell'ultima riga
         return text[pos.getLine() + 1].front()->getPosition();
     }
 
@@ -201,29 +203,35 @@ unsigned long KKCrdt::generateIdentifierBetween(unsigned long min, unsigned long
 }
 
 void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
+    int flag =0;
+
     // Inizializzo la prima riga.
     if (pos.getLine() == text.size()) {
         text.insert(text.end(), list<KKCharPtr>());
+        flag=1;
     }
 
     // if inserting a newline, split line into two lines
     if (_char->getValue() == '\n') {
-        list<KKCharPtr> line_after(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end());
-        text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end());
-        if (line_after.empty()) {
+        list<KKCharPtr> line_after(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end());//salvo cio che c'è dopo il /n
+        text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end()); //cancello cio che c'era dopo il /n
+        if (line_after.empty()) { //se il /n è l'ultimo carattere del testo
             list<KKCharPtr> _list_char = {_char};
             text[pos.getLine()].splice(std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh())), _list_char);
+            list<KKCharPtr> new_last_line = {};
+            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine()+1)),new_last_line); //aggiungi una riga vuota
+
         } else {
-            text[pos.getLine()].push_back(_char);
-            list<KKCharPtr> line_before(text[pos.getLine()]);
-            text.erase(std::next(text.begin(),static_cast<long>(pos.getLine())));
-            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine())),line_before);
-            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine()+1)),line_after);
+            text[pos.getLine()].push_back(_char); //inserisco il /n
+            list<KKCharPtr> line_before(text[pos.getLine()]); //salvo la riga col /n
+            text.erase(std::next(text.begin(),static_cast<long>(pos.getLine()))); //cancello la riga col /n
+            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine())),line_before); //aggiungo la riga che finisce col /n
+            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine()+1)),line_after); //aggiungo la riga di cio che sta dopo il /n
         }
-    } else {
-        if (text.at(pos.getLine()).empty()) {
-            text.insert(text.begin() + static_cast<long>(pos.getLine()), list<KKCharPtr>());
-        }
+    } else { //se hai scritto un carattere
+//        if (text.at(pos.getLine()).empty() && flag==0) { //se la riga dove hai scritto il carattere è vuota, crea un altra riga
+//            text.insert(text.begin() + static_cast<long>(pos.getLine()), list<KKCharPtr>());
+//        }
         list<KKCharPtr> _list_char = {_char};
         text[pos.getLine()].splice(std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh())), _list_char);
     }
@@ -235,6 +243,7 @@ unsigned long KKCrdt::remoteInsert(const KKCharPtr& _char){
     KKPosition pos = findInsertPosition(_char);
     insertChar(_char, pos);
     global_pos = generateGlobalPos(pos);
+    this->print();
     return global_pos;
 }
 
@@ -242,7 +251,8 @@ KKPosition KKCrdt::findInsertPosition(const KKCharPtr& _char){
     unsigned long min_line=0;
     unsigned long total_lines = static_cast<unsigned long>(text.size());
     unsigned long mid_line;
-    unsigned long max_line = total_lines-2;
+    unsigned long max_line = total_lines-1;
+
     //controlla se la char va messa come primo carattere della prima riga
     if(text.empty() || text.at(0).empty() ||_char.get()->compareTo(*text[0].front().get()) <= 0) {
         return {0,0};
@@ -250,8 +260,15 @@ KKPosition KKCrdt::findInsertPosition(const KKCharPtr& _char){
 
     list<KKCharPtr> last_line(text[max_line]);
 
+    //controlla se la char va messa come primo carattere dell'ultima riga
+    if(last_line.empty() && std::next(text[max_line-1].begin(),static_cast<long>(text[max_line-1].size()-1))->get()->getValue()=='\n' && _char.get()->compareTo(**std::next(text[max_line-1].begin(),static_cast<long>(text[max_line-1].size()-1)))>0){
+        return KKPosition(max_line,0);
+    }
+
     KKChar last_char = **std::next(last_line.begin(),static_cast<long>(last_line.size()-1));
-    //controlla se la char va messa come ultimo carattere dell'a prima'ultima riga
+
+
+    //controlla se la char va messa come ultimo carattere dell'ultima riga
     if(_char.get()->compareTo(last_char)>0){
         return findEndPosition(last_char, last_line, total_lines);
     }
@@ -290,9 +307,9 @@ KKPosition KKCrdt::findInsertPosition(const KKCharPtr& _char){
 
 KKPosition KKCrdt::findEndPosition (KKChar last_char, const list<KKCharPtr>& last_line, unsigned long total_lines){
     if (last_char.getValue() == '\n') {
-        return {total_lines-1,0};
+        return {total_lines,0};
     }
-    return KKPosition(total_lines-2, static_cast<unsigned long>(last_line.size()));
+    return KKPosition(total_lines-1, static_cast<unsigned long>(last_line.size()));
     
 }
 
@@ -423,14 +440,15 @@ vector<KKIdentifierPtr> KKCrdt::slice(vector<KKIdentifierPtr> const &v, int i) {
 list<KKCharPtr> KKCrdt::localDelete(KKPosition start_pos, KKPosition end_pos){
     bool new_line_removed=false;
     list<KKCharPtr> chars;
-    if(start_pos.getLine() != end_pos.getLine()){
+
+    if(start_pos.getLine() != end_pos.getLine()){ //controlla se hai cancellato piu di una riga
         new_line_removed = true;
         chars = deleteMultipleLines(start_pos,end_pos);
     }else{
         chars = deleteSingleLine(start_pos, end_pos);
         list<KKCharPtr>::iterator it;
         it=chars.begin();
-        for (it = chars.begin(); it!= chars.end(); it++) {
+        for (it = chars.begin(); it!= chars.end(); it++) { //controlla se hai cancellato un \n
             if(it->get()->getValue() == '\n'){
                 new_line_removed=true;
             }
@@ -440,7 +458,8 @@ list<KKCharPtr> KKCrdt::localDelete(KKPosition start_pos, KKPosition end_pos){
     if(new_line_removed && !text[start_pos.getLine()+1].empty()){
         mergeLines(start_pos.getLine());
     }
-    text.emplace_back();
+    //text.emplace_back();
+    this->print();
     return chars;
 }
 
@@ -513,30 +532,33 @@ void KKCrdt::mergeLines(unsigned long line){
 unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
     bool flag = true;
     unsigned long global_pos;
-    KKPosition pos(findPos(_Char, &flag));
+
+    KKPosition pos(findPos(_Char, &flag));//trova la posizione nel crdt del carattere
 
     if(!flag){
         return generateGlobalPos(pos);
     }
 
-    text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())));
 
-    if(_Char->getValue()=='\n' && !text[pos.getLine()+1].empty()){
+    text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())));//rimuove il carattere cancellato
+
+    if(_Char->getValue()=='\n' && !text[pos.getLine()+1].empty()){ //se il carattere era un \n ricollega le linee
         mergeLines(pos.getLine());
     }
 
     removeEmptyLines();
-    text.emplace_back();
+    //text.emplace_back();
     global_pos= generateGlobalPos(pos);
+    this->print();
     return global_pos;
 }
 
 KKPosition KKCrdt::findPos (const KKCharPtr& _Char, bool *flag){
     unsigned long min_line=0;
     unsigned long total_lines = static_cast<unsigned long>(text.size());
-    unsigned long max_line = total_lines - 2;
+    unsigned long max_line = total_lines - 1;
     unsigned long mid_line;
-    list<KKCharPtr> last_line(text[max_line]);
+
 
     //se il testo è vuoto o la char ha una position inferiore alla prima in assoluto
     if (text.empty() || _Char.get()->compareTo(*text[0].front().get()) < 0) {
@@ -544,6 +566,10 @@ KKPosition KKCrdt::findPos (const KKCharPtr& _Char, bool *flag){
         return {0,0};
     }
 
+    if(text[max_line].empty()){
+        max_line--;
+    }
+   list<KKCharPtr> last_line(text[max_line]);
     KKChar last_char (**std::next(last_line.begin(),static_cast<long>(last_line.size()-1)));
 
     //se la char ha position maggiore dell'ultima char nel testo
@@ -631,10 +657,18 @@ void KKCrdt::calculateLineCol(unsigned long global_pos, unsigned long *line, uns
     }
 
     for(unsigned long i=0;i<text.size();i++){
+
         succ+=text[i].size();
-        if(global_pos<=succ){ //linea trovata
-            *line=i;
-            *col=global_pos-tot;
+        if(global_pos<=succ){
+
+            if(global_pos==succ && std::next(text[i].begin(), static_cast<long>(text[i].size()-1))->get()->getValue()=='\n'){
+                *line=i+1; *col=0;//per calcolare il carattere \n
+            }else {
+                *col=global_pos-tot;
+                *line=i;
+            }
+
+
             return;
         }
         tot+=text[i].size();
