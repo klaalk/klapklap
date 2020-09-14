@@ -140,8 +140,8 @@
              <property name="font">
               <font>
                <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="toolTip">
@@ -199,8 +199,8 @@
              <property name="font">
               <font>
                <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="toolTip">
@@ -258,8 +258,8 @@
              <property name="font">
               <font>
                <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -314,8 +314,8 @@
              <property name="font">
               <font>
                <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -370,8 +370,8 @@
              <property name="font">
               <font>
                <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -469,6 +469,9 @@
              </property>
              <property name="text">
               <string>Registrati</string>
+             </property>
+             <property name="class" stdset="0">
+              <string>PrimaryBtn</string>
              </property>
             </widget>
            </item>
@@ -582,8 +585,8 @@
              <property name="font">
               <font>
                <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -648,8 +651,8 @@
              <property name="font">
               <font>
                <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -765,6 +768,9 @@
              <property name="text">
               <string>Login</string>
              </property>
+             <property name="class" stdset="0">
+              <string>PrimaryBtn</string>
+             </property>
             </widget>
            </item>
            <item>
@@ -821,6 +827,9 @@
              </property>
              <property name="text">
               <string>Registrati</string>
+             </property>
+             <property name="class" stdset="0">
+              <string>SecondaryBtn</string>
              </property>
             </widget>
            </item>

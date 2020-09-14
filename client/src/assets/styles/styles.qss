@@ -1,15 +1,83 @@
 QDialog {
-    background-color: white;
-}
-
-QLabel#gifViewer {
-    background-color: white;
+    background-color: rgb(255, 255, 255);
+    color: rgb(33, 33, 33);
 }
 
 QPushButton {
-    opacity: 0.5;
+    min-height: 23px;
+    max-height: 23px;
+    height: 23px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: 'MS Shell Dlg 2';
 }
 
-QPushButton:hover {
-    opacity: 1;
+QPushButton[class="PrimaryBtn"] {
+    background-color: rgba(25, 118, 210, 200);
+    border: 1px solid rgba(25, 118, 210, 200);
+}
+
+QPushButton[class="PrimaryBtn"]:hover:!pressed {
+    background-color: rgb(25, 118, 210);
+    border: 1px solid rgb(25, 118, 210);
+}
+
+QPushButton[class="PrimaryBtn"]:disabled{
+    background-color: rgba(25, 118, 210, 100);
+    border: 1px solid rgba(25, 118, 210, 100);
+}
+
+QPushButton[class="SecondaryBtn"] {
+    background-color: rgba(255, 82, 82, 200);
+    border: 1px solid rgba(255, 82, 82, 200);
+}
+
+QPushButton[class="SecondaryBtn"]:hover:!pressed {
+    background-color: rgba(255, 82, 82, 255);
+    border: 1px solid rgba(255, 82, 82, 255);
+}
+
+QPushButton[class="SecondaryBtn"]:disabled {
+    background-color: rgba(255, 82, 82, 100);
+    border: 1px solid rgba(255, 82, 82, 100);
+}
+
+QPushButton[class="IconBtn"] {
+    min-height: 100px;
+    max-height: 100px;
+    height: 100px;
+    border-radius: 5px;
+}
+
+QLineEdit {
+    min-height: 23px;
+    max-height: 23px;
+    height: 23px;
+    border: 0px solid white;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(25, 118, 210);
+}
+
+QLineEdit:focus {
+    border: 1px solid rgb(25, 118, 210);
+}
+
+QTableWidget {
+    border: 0px solid white;
+}
+
+QTableWidget::row:hover {
+    border: 1px solid rgb(33, 150, 243);
+}
+
+QHeaderView::section {
+    background-color: white;
+    border: 0px solid white;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(25, 118, 210);
+    height: 36px;
+    font-size: 12px;
 }

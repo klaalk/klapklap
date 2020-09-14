@@ -60,11 +60,15 @@ void ChooseAvatarDialog::loadAvatars()
     }
 }
 
-void ChooseAvatarDialog::on_buttonBox_accepted()
+void ChooseAvatarDialog::on_applyBtn_clicked()
 {
     if (selectedAvatar != nullptr) {
         QString avatar = selectedAvatar->objectName();
         emit updateAvatarRequest(avatar.split("avatar")[1]);
     }
+}
 
+void ChooseAvatarDialog::on_cancelBtn_clicked()
+{
+    hide();
 }
