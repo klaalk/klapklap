@@ -70,6 +70,7 @@ private slots:
     void onSiteIdClicked(const QString& siteId, bool logout);
     void onAlignmentChange(QString alignment);
     void onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format);
+    void onCharFormatChange(int pos, QTextCharFormat format);
     void logger(QString message);
 private:
     void setInitState();

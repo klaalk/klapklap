@@ -69,6 +69,7 @@ void KKClient::initTextEdit() {
     //xxx
     connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
+    connect(editor_,&TextEdit::charFormatChange, this, &KKClient::onCharFormatChange);
 
     editor_->setMySiteId(mySiteId_);
     editor_->setCurrentFileName(currentfile_);
@@ -598,5 +599,14 @@ void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTe
 
 }
 
+void KKClient::onCharFormatChange(int pos, QTextCharFormat format){
+     qDebug() << "[onCharFormatChanged]";
+     unsigned long line, col;
+     crdt_->calculateLineCol(static_cast<unsigned long>(pos),&line,&col);
+     KKCharPtr _char = crdt_->changeSingleKKCharFormat(KKPosition(static_cast<unsigned long>(line),static_cast<unsigned long>(col)),format.font().toString(), format.foreground().color().name());
+
+     QString ids = QString::fromStdString(_char->getIdentifiersString());
+     sendRequest(CHARFORMAT_CHANGE, NONE, {mySiteId_, QString::fromStdString(_char->getSiteId()), QString(_char->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
+ }
 
 

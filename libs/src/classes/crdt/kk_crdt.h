@@ -76,6 +76,8 @@ public:
     void loadCrdt(QStringList crdt); //carica il testo del crdt partendo da una stringa
     list<KKCharPtr> changeMultipleKKCharFormat(KKPosition start, KKPosition end,QString font_, QString color_);//cambia il formato di tutte le KKChar comprese tra le due posizioni e restituisce la lista delle KKChar cambiate
     unsigned long remoteFormatChange(const KKCharPtr& _char,QString font_, QString color_);
+    KKCharPtr changeSingleKKCharFormat(KKPosition pos, QString font_, QString color_);
+   ;
 };
 
 typedef QSharedPointer<KKCrdt> KKCrdtPtr;

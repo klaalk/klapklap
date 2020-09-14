@@ -782,18 +782,49 @@ void TextEdit::about()
                                              "document for you to experiment with."));
 }
 
+//void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
+//{
+//    QTextCursor cursor = textEdit->textCursor();
+//    cursor.mergeCharFormat(format);
+
+//    if(cursor.hasSelection()) {
+
+//        qDebug()<<"[mergeFormatOnWordOrSelection] Formato da mettere nella selezione: "<< format.font().toString()<< " "<< format.foreground().color().name();
+//        emit selectionFormatChanged(cursor.selectionStart(), cursor.selectionEnd()-1, format);
+//    }
+
+//    textEdit->mergeCurrentCharFormat(format);
+//}
 void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
 {
+    bool cursorBlocked=false;
+    if(blockCursor)
+        cursorBlocked=true;
+    else blockCursor=true;
+
     QTextCursor cursor = textEdit->textCursor();
+    int posIniziale=cursor.position();
+
+
 
     if(cursor.hasSelection()) {
         qDebug()<<"[mergeFormatOnWordOrSelection] Formato da mettere nella selezione: "<< format.font().toString()<< " "<< format.foreground().color().name();
-        emit selectionFormatChanged(cursor.selectionStart(), cursor.selectionEnd()-1, format);
+        cursor.mergeCharFormat(format);
+        textEdit->mergeCurrentCharFormat(format);
+        for(int i=cursor.selectionStart(); i<cursor.selectionEnd(); i++){
+            cursor.setPosition(i);
+            cursor.movePosition(cursor.Right,QTextCursor::KeepAnchor);
+            QTextCharFormat fmt=cursor.charFormat();
+            emit charFormatChange(i, fmt);
+        }
     }
-    cursor.mergeCharFormat(format);
-    textEdit->mergeCurrentCharFormat(format);
-}
 
+    cursor.setPosition(posIniziale);
+
+    // Sblocco il cursore dell'editor.
+    if(!cursorBlocked)
+        blockCursor=false;
+}
 void TextEdit::fontChanged(const QFont &f)
 {
     comboFont->setCurrentIndex(comboFont->findText(QFontInfo(f).family()));
