@@ -120,5 +120,7 @@
         <file>images/avatars/Tigre.jpg</file>
         <file>images/avatars/Topo.jpg</file>
         <file>images/avatars/Toro.jpg</file>
+        <file>styles/styles.qss</file>
+        <file>styles/access-dialog.qss</file>
     </qresource>
 </RCC>
