@@ -679,6 +679,7 @@ list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition 
 
     list<KKCharPtr> changed;
     list<KKCharPtr>::iterator ch;
+
     for(auto line=start.getLine();line<=end.getLine();line++){
         if(line==start.getLine()){ //prima riga
             if(line==end.getLine()){
@@ -770,6 +771,22 @@ unsigned long KKCrdt::remoteFormatChange(const KKCharPtr& _char,QString font_, Q
 
 }
 
+
+KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font_, QString color_){
+    std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharFont(font_);
+    std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharColor(color_);
+    list<KKCharPtr>::iterator ch;
+    ch = std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()));
+
+    KKCharPtr new_Char = KKCharPtr(new KKChar(ch->get()->getValue(), this->siteid, font_, color_));
+    vector<KKIdentifierPtr> new_ids;
+    for (KKIdentifierPtr id:ch->get()->getPosition()){
+        KKIdentifierPtr newid  = KKIdentifierPtr(new KKIdentifier(id->getDigit(),id->getSiteId()));
+        new_ids.push_back(newid);
+    }
+    new_Char.get()->insertPosition(new_ids);
+    return new_Char;
+}
 
 
 
