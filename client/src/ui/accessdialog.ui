@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>AccessDialog</class>
- <widget class="QMainWindow" name="AccessDialog">
+ <widget class="QDialog" name="AccessDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>359</width>
-    <height>486</height>
+    <height>507</height>
    </rect>
   </property>
   <property name="font">
@@ -21,7 +21,15 @@
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="central_widget">
+  <widget class="QWidget" name="central_widget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>360</width>
+     <height>511</height>
+    </rect>
+   </property>
    <widget class="QLabel" name="gif_viewer">
     <property name="enabled">
      <bool>true</bool>
@@ -50,10 +58,10 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>10</y>
-      <width>320</width>
-      <height>471</height>
+      <x>10</x>
+      <y>0</y>
+      <width>341</width>
+      <height>511</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -74,6 +82,8 @@
           <property name="font">
            <font>
             <pointsize>15</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
@@ -88,11 +98,13 @@
          <widget class="QLabel" name="subtitle_label">
           <property name="font">
            <font>
-            <pointsize>9</pointsize>
+            <pointsize>12</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
            </font>
           </property>
           <property name="text">
-           <string>E scopri il nostro fantastico editor di condivisione in tempo reale</string>
+           <string>E scopri il nostro editor di condivisione in tempo reale</string>
           </property>
           <property name="scaledContents">
            <bool>false</bool>
@@ -113,9 +125,23 @@
           <layout class="QVBoxLayout" name="loginLayout_4">
            <item>
             <widget class="QLabel" name="signup_name_label">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="toolTip">
@@ -131,7 +157,13 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>22</height>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -145,13 +177,30 @@
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
              </property>
+             <property name="placeholderText">
+              <string>insert your name</string>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QLabel" name="signup_surname_label">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="toolTip">
@@ -167,7 +216,13 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>22</height>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -181,13 +236,30 @@
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
              </property>
+             <property name="placeholderText">
+              <string>insert your surname</string>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QLabel" name="signup_email_label">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -200,7 +272,13 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>22</height>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -214,13 +292,30 @@
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
              </property>
+             <property name="placeholderText">
+              <string>insert your email</string>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QLabel" name="signup_username_label">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -233,7 +328,13 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>22</height>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -247,13 +348,30 @@
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
              </property>
+             <property name="placeholderText">
+              <string>insert your username</string>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QLabel" name="signup_password_label">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -266,7 +384,13 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>22</height>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -280,6 +404,9 @@
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>
              </property>
+             <property name="placeholderText">
+              <string>insert your password</string>
+             </property>
             </widget>
            </item>
            <item>
@@ -290,7 +417,13 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>30</height>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -313,8 +446,14 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>0</width>
-               <height>25</height>
+               <width>266</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -326,39 +465,65 @@
               <cursorShape>PointingHandCursor</cursorShape>
              </property>
              <property name="styleSheet">
-              <string notr="true">color: #FFF;
-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(95, 160, 255, 246));
-border: 1px solid white;</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Registrati</string>
              </property>
+             <property name="class" stdset="0">
+              <string>PrimaryBtn</string>
+             </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
            <item>
             <widget class="QCommandLinkButton" name="back_link_btn">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>25</height>
+               <height>23</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
-               <height>25</height>
+               <width>30</width>
+               <height>23</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Segoe UI</family>
+               <pointsize>8</pointsize>
+              </font>
              </property>
              <property name="cursor">
               <cursorShape>PointingHandCursor</cursorShape>
              </property>
+             <property name="layoutDirection">
+              <enum>Qt::RightToLeft</enum>
+             </property>
              <property name="text">
-              <string notr="true">Torna al login</string>
+              <string notr="true"/>
              </property>
              <property name="iconSize">
               <size>
-               <width>0</width>
-               <height>0</height>
+               <width>15</width>
+               <height>15</height>
               </size>
              </property>
              <property name="description">
@@ -377,12 +542,24 @@ border: 1px solid white;</string>
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
        <layout class="QVBoxLayout" name="loginLayout_2">
         <item>
          <widget class="QLabel" name="logo_view">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>256</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -399,9 +576,17 @@ border: 1px solid white;</string>
           <layout class="QVBoxLayout" name="loginLayout">
            <item>
             <widget class="QLabel" name="login_email_label">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -413,8 +598,14 @@ border: 1px solid white;</string>
             <widget class="QLineEdit" name="login_username_input">
              <property name="minimumSize">
               <size>
-               <width>0</width>
-               <height>22</height>
+               <width>266</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -431,10 +622,19 @@ border: 1px solid white;</string>
              <property name="text">
               <string>klauscuko</string>
              </property>
+             <property name="placeholderText">
+              <string>insert your username</string>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QLabel" name="login_hint_label">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -442,9 +642,17 @@ border: 1px solid white;</string>
            </item>
            <item>
             <widget class="QLabel" name="login_password_label">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -456,8 +664,14 @@ border: 1px solid white;</string>
             <widget class="QLineEdit" name="login_password_input">
              <property name="minimumSize">
               <size>
-               <width>0</width>
-               <height>22</height>
+               <width>266</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -477,6 +691,9 @@ border: 1px solid white;</string>
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>
              </property>
+             <property name="placeholderText">
+              <string>insert your password</string>
+             </property>
             </widget>
            </item>
            <item>
@@ -484,7 +701,13 @@ border: 1px solid white;</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>25</height>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="text">
@@ -506,7 +729,7 @@ border: 1px solid white;</string>
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>20</height>
+               <height>10</height>
               </size>
              </property>
             </spacer>
@@ -518,14 +741,14 @@ border: 1px solid white;</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>0</width>
-               <height>25</height>
+               <width>266</width>
+               <height>23</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>25</height>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -540,12 +763,13 @@ border: 1px solid white;</string>
               <number>-1</number>
              </property>
              <property name="styleSheet">
-              <string notr="true">color: #FFF;
-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(232, 79, 59, 246));
-border: 1px solid white;</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Login</string>
+             </property>
+             <property name="class" stdset="0">
+              <string>PrimaryBtn</string>
              </property>
             </widget>
            </item>
@@ -554,7 +778,13 @@ border: 1px solid white;</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>22</height>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -574,14 +804,14 @@ border: 1px solid white;</string>
             <widget class="QPushButton" name="show_signup_btn">
              <property name="minimumSize">
               <size>
-               <width>0</width>
-               <height>25</height>
+               <width>266</width>
+               <height>23</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>25</height>
+               <height>23</height>
               </size>
              </property>
              <property name="font">
@@ -593,12 +823,13 @@ border: 1px solid white;</string>
               <cursorShape>PointingHandCursor</cursorShape>
              </property>
              <property name="styleSheet">
-              <string notr="true">color: #FFF;
-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(95, 160, 255, 246));
-border: 1px solid white;</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Registrati</string>
+             </property>
+             <property name="class" stdset="0">
+              <string>SecondaryBtn</string>
              </property>
             </widget>
            </item>

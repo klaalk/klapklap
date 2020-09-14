@@ -29,8 +29,8 @@ public:
 protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 private slots:
-    void on_buttonBox_accepted();
-
+    void on_applyBtn_clicked();
+    void on_cancelBtn_clicked();
 private:
     Ui::ChooseAvatarDialog *ui;
     QLabel* selectedAvatar;

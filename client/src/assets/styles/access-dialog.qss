@@ -1,0 +1,8 @@
+QDialog {
+    height: 486px;
+    width: 359px;
+}
+
+QLabel#gif_viewer {
+    background-color: rgb(255, 255, 255);
+}

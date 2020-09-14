@@ -516,6 +516,7 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
         KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col), font_, color_);
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
+        crdt_->print();
     }
     if(editor_->clickedAny())
         editor_->updateSiteIdsMap(siteId,findPositions(siteId));
