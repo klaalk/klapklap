@@ -4,43 +4,21 @@
 
 #include "kk_file.h"
 
-KKFile::KKFile() {
+KKFile::KKFile(QObject *parent): QObject(parent) {
     recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
     crdt = KKCrdtPtr(new KKCrdt("file", casuale));
-    timer = new QTimer();
 
     // Set autosave timer
-    connect(timer, &QTimer::timeout, this, &KKFile::handleTimeout);
+    timer = QSharedPointer<QTimer>(new QTimer());
     timer->start(10000);
+    connect(timer.get(), &QTimer::timeout, this, &KKFile::handleTimeout);
 }
 
 KKFile::~KKFile() {
-    KKLogger::log("File deleting...", hash);
-    std::for_each(recentMessages->begin(), recentMessages->end(), [](KKPayloadPtr d){
-        if (!d.isNull())
-            delete d.get();
-    });
-    if (!recentMessages.isNull()) {
-        delete recentMessages.get();
-        KKLogger::log("Recent messages deleted. File deleting...", hash);
-    }
-
-    if (file->isOpen())
-        file->close();
-
-    if (!file.isNull()) {
-        KKLogger::log("Physical file deleted. File deleting...", hash);
-        delete file.get();
-    }
-
-    if (!crdt.isNull())
-        delete crdt.get();
-    if (owners != nullptr)
-        delete owners;
-    if (timer != nullptr)
-        delete timer;
-    KKLogger::log("Deleted successfullty", hash);
+    timer->stop();
+    flushCrdtText();
+    KKLogger::log("File deconstructed", hash);
 }
 
 void KKFile::join(KKParticipantPtr participant) {
@@ -113,14 +91,14 @@ void KKFile::addOwner(QString owner)
     }
 }
 
-void KKFile::setOwners(QStringList *owners)
+void KKFile::setOwners(QSharedPointer<QStringList> owners_)
 {
-    this->owners = owners;
+    owners = owners_;
 }
 
-QStringList* KKFile::getOwners()
+QSharedPointer<QStringList> KKFile::getOwners()
 {
-    return this->owners;
+    return owners;
 }
 
 void KKFile::applyRemoteInsert(QStringList bodyList)
@@ -194,12 +172,10 @@ int KKFile::getParticipantCounter() const
     return participantCounter;
 }
 
-void KKFile::handleTimeout()
-{
-    if (flushCrdt)
+void KKFile::handleTimeout() {
+    if (participantCounter > 0) {
         flushCrdtText();
-
-    flushCrdt = participantCounter > 0;
+    }
 }
 
 void KKFile::initCrdtText()

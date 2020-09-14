@@ -38,12 +38,10 @@ private slots:
 private:
     QString generateSessionId();
     QWebSocketServer* socket;
-    QMap<QString, KKSessionPtr> sessions;
-    QList<QWebSocket*> sockets;
+    KKMapSessionPtr sessions;
     KKMapFilePtr files;
     KKDataBasePtr db;
     KKFileSystemPtr filesys;
-
     QString possibleCharacters;
     int randomStringLength = 12; // assuming you want random strings of 12 characters
 

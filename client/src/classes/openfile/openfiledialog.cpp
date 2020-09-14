@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 
-#define MAX_TABLE_SIZE 534
+#define MAX_TABLE_SIZE 16777215
 
 #define COLUMN_NAME_SIZE 250
 #define COLUMN_CREATOR_SIZE 150
@@ -28,7 +28,7 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
     connect(&chooseAvatarDialog, &ChooseAvatarDialog::updateAvatarRequest, this, &OpenFileDialog::setUserAvatar);
     // Start showing layouts
     ui->accountLayout->show();
-    ui->documentsLayout->hide();
+    ui->documentsLayout->show();
 }
 
 OpenFileDialog::~OpenFileDialog()
@@ -45,8 +45,6 @@ void OpenFileDialog::initializeFilesTableView() {
     ui->filesTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->filesTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    ui->filesTableWidget->setMinimumWidth(MAX_TABLE_SIZE);
-    ui->filesTableWidget->setMaximumWidth(MAX_TABLE_SIZE);
     ui->filesTableWidget->setColumnWidth(0, COLUMN_NAME_SIZE);
     ui->filesTableWidget->setColumnWidth(1, COLUMN_CREATOR_SIZE);
     ui->filesTableWidget->horizontalHeader()->setStretchLastSection(true);
@@ -93,13 +91,18 @@ void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
     QStringList splittedFileRow = fileRow.split(FILENAME_SEPARATOR);
     QString fileName = crypt->decryptToString(splittedFileRow[0]);
     QStringList splittedFilename = fileName.split(FILENAME_SEPARATOR);
+    QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
 
     files_.insert(splittedFilename[2], splittedFileRow[0]);
-    ui->filesTableWidget->setItem(fileIndex, 0, new QTableWidgetItem(splittedFilename[2]));
-    ui->filesTableWidget->setItem(fileIndex, 1, new QTableWidgetItem(splittedFilename[1]));
+    QTableWidgetItem* name =  new QTableWidgetItem(splittedFilename[2]);
+    QTableWidgetItem* owner =  new QTableWidgetItem(splittedFilename[1]);
+    QTableWidgetItem* date = new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT));
+    owner->setTextAlignment(Qt::AlignCenter);
+    date->setTextAlignment(Qt::AlignCenter);
 
-    QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
-    ui->filesTableWidget->setItem(fileIndex, 2, new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT)));
+    ui->filesTableWidget->setItem(fileIndex, 0, name);
+    ui->filesTableWidget->setItem(fileIndex, 1, owner);
+    ui->filesTableWidget->setItem(fileIndex, 2, date);
 }
 
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
@@ -130,18 +133,6 @@ void OpenFileDialog::on_openFileButton_clicked()
             }
         }
     }
-}
-
-void OpenFileDialog::on_accountBtn_clicked()
-{
-    ui->accountLayout->show();
-    ui->documentsLayout->hide();
-}
-
-void OpenFileDialog::on_documentiBtn_clicked()
-{
-    ui->documentsLayout->show();
-    ui->accountLayout->hide();
 }
 
 void OpenFileDialog::on_shareFileButton_clicked()
@@ -197,7 +188,6 @@ void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEd
         if (isLink) ui->createFileNameLineEdit->setStyleSheet("font-weight: bold;");
         else ui->createFileNameLineEdit->setStyleSheet("");
     }
-
 }
 
 void OpenFileDialog::on_saveChangesButton_clicked()

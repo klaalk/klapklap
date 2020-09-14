@@ -4,7 +4,7 @@
 
 #include "kk_filesys.h"
 
-KKFileSystem::KKFileSystem():
+KKFileSystem::KKFileSystem(QObject *parent):QObject(parent),
     crypter(KKCryptPtr(new KKCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))))
 {
     // Preparo le folders per il file system
@@ -37,7 +37,7 @@ KKFilePtr KKFileSystem::createFile(QString username, QString filename){
 }
 
 KKFilePtr KKFileSystem::openFile(QString filename, QString rootPath){
-    KKFilePtr file = QSharedPointer<KKFile>(new KKFile());
+    KKFilePtr file = QSharedPointer<KKFile>(new KKFile(this));
     QSharedPointer<QFile> qfile = QSharedPointer<QFile>(new QFile (rootPath + filename));
     file->setFile(qfile);
     file->setHash(filename);

@@ -1,7 +1,7 @@
 #ifndef ACCESSDIALOG_H
 #define ACCESSDIALOG_H
 
-#include <QMainWindow>
+#include <QDialog>
 #include <QMovie>
 #include <QLabel>
 #include <QRegularExpression>
@@ -13,7 +13,7 @@ class AccessDialog;
 }
 
 
-class AccessDialog : public QMainWindow
+class AccessDialog : public QDialog
 {
     Q_OBJECT
 public:

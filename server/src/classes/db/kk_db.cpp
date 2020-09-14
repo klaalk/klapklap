@@ -2,7 +2,7 @@
 #include <QtSql>
 #include <QDebug>
 
-#define  HOST "127.0.0.1"
+#define  HOST "localhost"
 #define  PORT 3306
 #define  USR  "michele"
 #define  DBN  "klapklap"
@@ -116,6 +116,7 @@ int KKDataBase::getUser(QString username, KKUserPtr userInfo) {
 
             db.close();
             resCode = DB_USER_FOUND;
+
         } catch (QException e) {
             db.close();
         }

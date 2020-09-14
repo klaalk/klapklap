@@ -11,6 +11,12 @@ using std::string;
 KKChar::KKChar(char value, string siteId) : siteId(std::move(siteId)), value(value) {
 
 };
+
+
+KKChar::KKChar(char value, string siteId, QString KKCharFont, QString KKCharColor) : siteId(std::move(siteId)), value(value),  KKCharFont(KKCharFont),KKCharColor(KKCharColor){
+
+};
+
 KKChar::~KKChar() {
     position.clear();
 }

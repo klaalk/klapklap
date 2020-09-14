@@ -4,7 +4,7 @@
 #include <QSharedPointer>
 #include <QString>
 
-class KKUser
+class KKUser : public QObject
 {
 public:
     KKUser();

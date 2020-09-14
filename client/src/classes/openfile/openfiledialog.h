@@ -36,9 +36,6 @@ public:
     void addFile(int fileIndex, const QString& fileName);
 
 private slots:
-    void on_accountBtn_clicked();
-    void on_documentiBtn_clicked();
-
     void on_filesTableWidget_itemClicked(QTableWidgetItem *item);
     void on_openFileButton_clicked();
     void on_shareFileButton_clicked();
