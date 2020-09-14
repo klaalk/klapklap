@@ -170,9 +170,11 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
+    void createCursorAndLabel(KKCursor* remoteCurs, const QString& name, int globalPos);
     void colorText(const QString& siteId);
     void clearColorText(const QString& name);
     void modifyLabels();
+    QBrush selectRandomColor();
 
     QAction *actionSave{};
     QAction *actionTextBold{};
