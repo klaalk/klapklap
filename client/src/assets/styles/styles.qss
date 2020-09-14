@@ -78,3 +78,7 @@ QHeaderView::section {
     height: 36px;
     font-size: 12px;
 }
+
+QTextEdit[class="crdtTextEdit"] {
+    margin: 30px 60px;
+}

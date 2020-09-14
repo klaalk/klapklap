@@ -24,6 +24,7 @@ void ChooseAvatarDialog::mouseReleaseEvent(QMouseEvent *event)
     if (widget != nullptr && widget->objectName().startsWith("avatar")) {
         if (selectedAvatar != nullptr)
             selectedAvatar->setStyleSheet("");
+
         selectedAvatar = static_cast<QLabel*>(widget);
         selectedAvatar->setStyleSheet("QLabel { border: 3px solid black; }");
     }
