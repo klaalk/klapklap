@@ -19,6 +19,12 @@ KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr fil
 }
 
 KKSession::~KKSession() {
+    if (!socket.isNull())
+        socket->deleteLater();
+
+    if (!user.isNull())
+        user->deleteLater();
+
     KKLogger::log("Session deconstructed", sessionId);
 }
 
@@ -26,12 +32,12 @@ void KKSession::deliver(KKPayloadPtr msg) {
     socket->sendTextMessage(msg->encode());
 }
 
-void KKSession::setSocket(QWebSocket* descriptor) {
+void KKSession::setSocket(QSharedPointer<QWebSocket> descriptor) {
     // make a new socket
     socket = descriptor;
-    connect(socket, &QWebSocket::textMessageReceived, this, &KKSession::handleRequest);
-    connect(socket, &QWebSocket::binaryMessageReceived, this, &KKSession::handleBinaryRequests);
-    connect(socket, &QWebSocket::disconnected, this, &KKSession::handleDisconnection);
+    connect(socket.get(), &QWebSocket::textMessageReceived, this, &KKSession::handleRequest);
+    connect(socket.get(), &QWebSocket::binaryMessageReceived, this, &KKSession::handleBinaryRequests);
+    connect(socket.get(), &QWebSocket::disconnected, this, &KKSession::handleDisconnection);
     logger("Client info: " + id + ", " +descriptor->peerAddress().toString()+", "
                           + QString::number(descriptor->peerPort())+" connected at "
                           + descriptor->localAddress().toString() +", "
@@ -188,7 +194,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         if(!isActiveFile) {
             // Inserisco il file nella mappa dei file attivi
             files->insert(file->getHash(), file);
-            file->setOwners(ids);
+            file->setOwners(QSharedPointer<QStringList>(ids));
             file->initCrdtText();
         }
 
@@ -209,7 +215,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         }
         // Rispondo con la list di tutti partecipanti al file (attivi o non attivi)
         KKMapParticipantPtr participants = file->getParticipants();
-        for(auto id : *file->getOwners()) {
+        for(QString id : *file->getOwners()) {
             auto entry = participants->find(id);
             response->push_back(id + ":" + (entry != participants->end() ? PARTICIPANT_ONLINE : PARTICIPANT_OFFLINE));
         }
@@ -291,24 +297,19 @@ void KKSession::handleBinaryRequests(QByteArray message) {
 }
 
 void KKSession::handleDisconnection() {
-    logger("Handle session disconnection...");
-
-    if(!file.isNull()) {
-        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
-        file->leave(sharedFromThis());
-    }
-
-    if (socket != nullptr)
-        socket->deleteLater();
-
-    if (!user.isNull())
-        delete user.get();
-
     logger("Session "
                     + id + ", "
                     + socket->peerAddress().toString() + ", "
                     + QString::number(socket->peerPort()) + " closing...");
 
+    if(!file.isNull()) {
+        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
+        file->leave(sharedFromThis());
+
+        if (file->getParticipantCounter() < 1) {
+            files->remove(file->getHash());
+        }
+    }
     emit disconnected(sessionId);
 }
 
