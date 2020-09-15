@@ -425,6 +425,26 @@ void KKCrdt::print() {
     std::cout << "FINE STAMPA CRDT" << std::endl;
 }
 
+void KKCrdt::printform() {
+    std::cout << std::endl << "INIZIO STAMPA CRDT" << std::endl;
+    for (auto& i : text) {
+        for (const auto& x : i) {
+            if(x->getValue() =='\n'){
+                std::cout <<"/n"<< "[";
+            } else {
+                std::cout << x->getValue() << "[";
+            }
+            for (const auto& y: x->getPosition()) {
+                std::cout << y->getDigit() << ";";
+            }
+            std::cout << "] ";
+            std::cout << x->getKKCharFont().toUtf8().constData() <<"  "<< x->getKKCharColor().toUtf8().constData();
+        }
+        std::cout << std::endl;
+
+    }
+    std::cout << "FINE STAMPA CRDT" << std::endl;
+}
 //forse da eliminare
 vector<KKIdentifierPtr> KKCrdt::slice(vector<KKIdentifierPtr> const &v, int i) {
     if(v.cbegin() == v.cend()) {

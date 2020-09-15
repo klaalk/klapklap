@@ -71,6 +71,7 @@ public:
 
     vector<KKIdentifierPtr> slice(vector<KKIdentifierPtr> const &v,int i);//FORSE DA TOGLIERE
     void print();
+    void printform();
     strategy findStrategy();//trova la strategia migliore per assegnare un identifier alla position della nuova Char
     QStringList saveCrdt(); //ritorna una stringa dove è "salvato" il crdt
     void loadCrdt(QStringList crdt); //carica il testo del crdt partendo da una stringa
