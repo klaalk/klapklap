@@ -51,8 +51,9 @@
 #ifndef CHATDIALOG_H
 #define CHATDIALOG_H
 
+#include "../../../../libs/src/constants/kk_constants.h"
+
 #include "ui_chatdialog.h"
-#include "../textedit/textedit.h"
 
 class ChatDialog : public QDialog, private Ui::ChatDialog
 {

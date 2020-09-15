@@ -56,13 +56,13 @@
          <widget class="QPushButton" name="changeImageButton">
           <property name="minimumSize">
            <size>
-            <width>100</width>
+            <width>128</width>
             <height>100</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>100</width>
+            <width>128</width>
             <height>100</height>
            </size>
           </property>
@@ -89,17 +89,33 @@
        </layout>
       </item>
       <item>
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>14</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QLabel" name="usernameLabel">
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>18</height>
+          <height>10</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>400</width>
-          <height>150</height>
+          <height>18</height>
          </size>
         </property>
         <property name="text">
@@ -112,13 +128,13 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>18</height>
+          <height>10</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>400</width>
-          <height>150</height>
+          <height>18</height>
          </size>
         </property>
         <property name="text">
@@ -131,13 +147,13 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>18</height>
+          <height>10</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>400</width>
-          <height>150</height>
+          <height>18</height>
          </size>
         </property>
         <property name="text">
@@ -153,13 +169,13 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>23</height>
+          <height>10</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>23</height>
+          <height>18</height>
          </size>
         </property>
         <property name="text">
@@ -182,10 +198,16 @@
       </item>
       <item>
        <widget class="QLabel" name="surnameLabel">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>10</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>23</height>
+          <height>18</height>
          </size>
         </property>
         <property name="text">
@@ -208,10 +230,16 @@
       </item>
       <item>
        <widget class="QLabel" name="aliasLabel">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>10</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>23</height>
+          <height>18</height>
          </size>
         </property>
         <property name="text">
@@ -331,32 +359,6 @@
         <attribute name="horizontalHeaderHighlightSections">
          <bool>false</bool>
         </attribute>
-       </widget>
-      </item>
-      <item alignment="Qt::AlignHCenter">
-       <widget class="Line" name="line">
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item alignment="Qt::AlignHCenter">
-       <widget class="Line" name="line_2">
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
        </widget>
       </item>
       <item>

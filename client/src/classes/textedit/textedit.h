@@ -102,11 +102,10 @@ class TextEdit : public QMainWindow
     Q_OBJECT
 
 public:
+    TextEdit(QWidget *parent = nullptr);
     bool clickedOne(const QString& siteId);
     bool clickedAny();
     void setCurrentFileName(const QString &fileName);
-    TextEdit(QWidget *parent = nullptr);
-    QTextEdit *textEdit;
     bool load(const QString &f);
     void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
     void resetState();
@@ -119,6 +118,7 @@ public:
     QTextEdit* getTextEdit();
     void alignmentRemoteChange(QString alignment);
     void singleCharFormatChange(int remotePos,QString fontStr,QString colorStr); //imposta il formato passato della char che si trova alla posizione passata
+    QTextEdit *textEdit;
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
@@ -133,6 +133,7 @@ public slots:
 protected:
     void closeEvent(QCloseEvent *e) override;
     void resizeEvent(QResizeEvent* event) override;
+
 private slots:
     void fileOpen();
     bool fileSave();
@@ -163,7 +164,6 @@ private:
     void setupEditActions();
     void setupTextActions();
     bool maybeSave();
-
 
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     void fontChanged(const QFont &f);
