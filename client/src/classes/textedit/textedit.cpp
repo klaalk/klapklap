@@ -41,6 +41,7 @@
 #endif
 #include <QPrinter>
 #if QT_CONFIG(printpreviewdialog)
+#include <QHBoxLayout>
 #include <QPrintPreviewDialog>
 #include <utility>
 #endif
@@ -68,12 +69,22 @@ TextEdit::TextEdit(QWidget *parent)
     this->setMouseTracking(true);
     textEdit = new QTextEdit(this);
     //Collega funzioni nostre a funzioni di QTextEdit
-    connect(textEdit, &QTextEdit::currentCharFormatChanged,
-            this, &TextEdit::currentCharFormatChanged);
-    connect(textEdit, &QTextEdit::cursorPositionChanged,
-            this, &TextEdit::cursorPositionChanged);
-    setCentralWidget(textEdit);
+    connect(textEdit, &QTextEdit::currentCharFormatChanged, this, &TextEdit::currentCharFormatChanged);
+    connect(textEdit, &QTextEdit::cursorPositionChanged, this, &TextEdit::cursorPositionChanged);
     connect(textEdit, &QTextEdit::textChanged, this, &TextEdit::onTextChange);
+
+    // Set layout
+    QHBoxLayout *layout = new QHBoxLayout;
+    setProperty("class", "crdtTextEdit");
+    layout->addWidget(textEdit);
+//    layout->addWidget(myWidget2);
+
+    // Set layout in QWidget
+    QWidget *window = new QWidget();
+    window->setLayout(layout);
+
+    // Set QWidget as the central layout of the main window
+    setCentralWidget(window);
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setupFileActions();
     setupEditActions();
@@ -85,8 +96,9 @@ TextEdit::TextEdit(QWidget *parent)
         helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
     }
 
-    QFont textFont("Helvetica");
-    textFont.setStyleHint(QFont::SansSerif);
+    QFont textFont("MS Shell Dlg 2");
+    textFont.setStyleHint(QFont::System);
+    textFont.setPixelSize(10);
     textEdit->setFont(textFont);
     fontChanged(textEdit->font());
     colorChanged(textEdit->textColor());
@@ -130,10 +142,9 @@ TextEdit::TextEdit(QWidget *parent)
 
 void TextEdit::closeEvent(QCloseEvent *e)
 {
-    if (maybeSave())
-        e->accept();
-    else
-        e->ignore();
+    e->ignore();
+    hide();
+    emit openFileDialog();
 }
 
 void TextEdit::resizeEvent(QResizeEvent *event){
@@ -441,32 +452,17 @@ void TextEdit::setCurrentFileName(const QString &fileName)
     else
         shownName = QFileInfo(fileName).fileName();
 
-    setWindowTitle(tr("%1[*] - %2").arg(shownName, QCoreApplication::applicationName()));
+    setWindowTitle(tr("%1 - %2").arg(shownName, mySiteId_));
     setWindowModified(false);
 }
 
 void TextEdit::fileNew()
 {
-    if (maybeSave()) {
-        textEdit->clear();
-        setCurrentFileName(QString());
-    }
+    emit openFileDialog();
 }
 
 void TextEdit::fileOpen()
 {
-    //    QFileDialog fileDialog(this, tr("Open File..."));
-    //    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-    //    fileDialog.setFileMode(QFileDialog::ExistingFile);
-    //    fileDialog.setMimeTypeFilters(QStringList() << "text/html" << "text/plain");
-    //    if (fileDialog.exec() != QDialog::Accepted)
-    //        return;
-    //    const QString fn = fileDialog.selectedFiles().first();
-    //    if (load(fn))
-    //        statusBar()->showMessage(tr("Opened \"%1\"").arg(QDir::toNativeSeparators(fn)));
-    //    else
-    //        statusBar()->showMessage(tr("Could not open \"%1\"").arg(QDir::toNativeSeparators(fn)));
-
     emit openFileDialog();
 }
 

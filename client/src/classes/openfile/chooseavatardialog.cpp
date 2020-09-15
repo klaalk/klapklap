@@ -6,6 +6,7 @@ ChooseAvatarDialog::ChooseAvatarDialog(QWidget *parent) :
     ui(new Ui::ChooseAvatarDialog)
 {
     loadAvatars();
+    selectedAvatar = nullptr;
     ui->setupUi(this);
 }
 
@@ -20,9 +21,10 @@ ChooseAvatarDialog::~ChooseAvatarDialog()
 void ChooseAvatarDialog::mouseReleaseEvent(QMouseEvent *event)
 {
     QWidget *widget = childAt(event->pos());
-    if (widget->objectName().startsWith("avatar")) {
+    if (widget != nullptr && widget->objectName().startsWith("avatar")) {
         if (selectedAvatar != nullptr)
             selectedAvatar->setStyleSheet("");
+
         selectedAvatar = static_cast<QLabel*>(widget);
         selectedAvatar->setStyleSheet("QLabel { border: 3px solid black; }");
     }
@@ -66,6 +68,7 @@ void ChooseAvatarDialog::on_applyBtn_clicked()
         QString avatar = selectedAvatar->objectName();
         emit updateAvatarRequest(avatar.split("avatar")[1]);
     }
+    hide();
 }
 
 void ChooseAvatarDialog::on_cancelBtn_clicked()

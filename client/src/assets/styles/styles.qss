@@ -3,7 +3,7 @@ QDialog {
     color: rgb(33, 33, 33);
 }
 
-QPushButton {
+QPushButton[class="PrimaryBtn"], QPushButton[class="SecondaryBtn"], QPushButton[class="IconBtn"] {
     min-height: 23px;
     max-height: 23px;
     height: 23px;
@@ -68,11 +68,8 @@ QTableWidget {
     border: 0px solid white;
 }
 
-QTableWidget::row:hover {
-    border: 1px solid rgb(33, 150, 243);
-}
-
 QHeaderView::section {
+    color: rgb(33, 33, 33);
     background-color: white;
     border: 0px solid white;
     border-bottom-style: solid;
@@ -80,4 +77,8 @@ QHeaderView::section {
     border-bottom-color: rgb(25, 118, 210);
     height: 36px;
     font-size: 12px;
+}
+
+QTextEdit[class="crdtTextEdit"] {
+    margin: 30px 60px;
 }
