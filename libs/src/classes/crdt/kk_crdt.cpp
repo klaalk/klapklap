@@ -554,6 +554,8 @@ unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
 }
 
 KKPosition KKCrdt::findPos (const KKCharPtr& _Char, bool *flag){
+
+    //qDebug()<<"[findPos] char_value="<<_Char.get()->getValue();
     unsigned long min_line=0;
     unsigned long total_lines = static_cast<unsigned long>(text.size());
     unsigned long max_line = total_lines - 1;
@@ -755,9 +757,12 @@ list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition 
 }
 
 unsigned long KKCrdt::remoteFormatChange(const KKCharPtr& _char,QString font_, QString color_){
+
     bool flag = true;
     unsigned long global_pos;
     KKPosition pos(findPos(_char, &flag));
+
+    //qDebug()<<"[remoteFormatChange] flag="<<flag;
 
     if(!flag){
         return static_cast<unsigned long>(-1);
@@ -767,6 +772,7 @@ unsigned long KKCrdt::remoteFormatChange(const KKCharPtr& _char,QString font_, Q
     std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharColor(color_);
 
     global_pos= generateGlobalPos(pos);
+    // qDebug()<<"global_pos:"<<global_pos;
     return global_pos;
 
 }
@@ -778,7 +784,7 @@ KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font_, QStrin
     list<KKCharPtr>::iterator ch;
     ch = std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()));
 
-    KKCharPtr new_Char = KKCharPtr(new KKChar(ch->get()->getValue(), this->siteid, font_, color_));
+    KKCharPtr new_Char = KKCharPtr(new KKChar(ch->get()->getValue(), ch->get()->getSiteId(), font_, color_));
     vector<KKIdentifierPtr> new_ids;
     for (KKIdentifierPtr id:ch->get()->getPosition()){
         KKIdentifierPtr newid  = KKIdentifierPtr(new KKIdentifier(id->getDigit(),id->getSiteId()));

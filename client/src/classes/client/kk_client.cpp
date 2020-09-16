@@ -69,7 +69,7 @@ void KKClient::initTextEdit() {
     //xxx
     connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
-    connect(editor_,&TextEdit::charFormatChange, this, &KKClient::onCharFormatChange);
+    connect(editor_,&TextEdit::charFormatChange, this, &KKClient::onCharFormatChanged);
 
     editor_->setMySiteId(mySiteId_);
     editor_->setCurrentFileName(currentfile_);
@@ -203,7 +203,7 @@ void KKClient::handleLoadFileResponse(KKPayload response) {
         return;
 
     crdt_->loadCrdt(bodyList);
-    crdt_->print();
+    //crdt_->print();
     editor_->loadCrdt(crdt_->text);
 }
 
@@ -251,10 +251,6 @@ void KKClient::handleAlignmentChange(KKPayload response){
 
 void KKClient::handleCharFormatChange(KKPayload response){
     QStringList bodyList_ = response.getBodyList();
-
-//    for(const QString& l : bodyList_)
-//        qDebug() << l;
-
     QString siteId = bodyList_[1];
     QString text = bodyList_[2];
     QStringList ids = bodyList_[3].split(" ");
@@ -264,13 +260,19 @@ void KKClient::handleCharFormatChange(KKPayload response){
     KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
 
     // size() - 1 per non considerare l'elemento vuoto della string list ids
+
     for(int i = 0; i < ids.size() - 1; i++){
+        qDebug()<<"[handleCharFormatChange] siteId char:" << siteId;
         unsigned long digit = ids[i].toULong();
         KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
         char_->pushIdentifier(ptr);
     }
 
+    //crdt_->print();
+
     unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
+
+    qDebug()<<"[handleCharFormatChange] char_value="<<char_->getValue()<<"remotePos="<<remotePos<<fontStr<<colorStr;
     editor_->singleCharFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
 }
 
@@ -517,7 +519,7 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
         KKCharPtr char_= crdt_->localInsert(*c_str, KKPosition(line, col), font_, color_);
         QString ids = QString::fromStdString(char_->getIdentifiersString());
         sendCrdtRequest({ CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
-        crdt_->print();
+        //crdt_->print();
     }
     if(editor_->clickedAny())
         editor_->updateSiteIdsMap(siteId,findPositions(siteId));
@@ -584,7 +586,7 @@ void KKClient::onAlignmentChange(QString alignment){
 }
 
 void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format){
-    qDebug() << "[onSelectionFormatChanged]";
+    //qDebug() << "[onSelectionFormatChanged]";
 
     unsigned long startLine; unsigned long endLine; unsigned long startCol; unsigned long endCol;
     crdt_->calculateLineCol(static_cast<unsigned long>(selectionStart), &startLine, &startCol);
@@ -599,8 +601,8 @@ void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTe
 
 }
 
-void KKClient::onCharFormatChange(int pos, QTextCharFormat format){
-     qDebug() << "[onCharFormatChanged]";
+void KKClient::onCharFormatChanged(int pos, QTextCharFormat format){
+     //qDebug() << "[onCharFormatChanged]";
      unsigned long line, col;
      crdt_->calculateLineCol(static_cast<unsigned long>(pos),&line,&col);
      KKCharPtr _char = crdt_->changeSingleKKCharFormat(KKPosition(static_cast<unsigned long>(line),static_cast<unsigned long>(col)),format.font().toString(), format.foreground().color().name());
