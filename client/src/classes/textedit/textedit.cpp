@@ -98,7 +98,7 @@ TextEdit::TextEdit(QWidget *parent)
 
     QFont textFont("MS Shell Dlg 2");
     textFont.setStyleHint(QFont::System);
-    textFont.setPixelSize(10);
+    textFont.setPointSize(10);
     textEdit->setFont(textFont);
     fontChanged(textEdit->font());
     colorChanged(textEdit->textColor());
@@ -801,21 +801,23 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     QTextCursor cursor = textEdit->textCursor();
     int posIniziale=cursor.position();
 
-
-
     if(cursor.hasSelection()) {
         qDebug()<<"[mergeFormatOnWordOrSelection] Formato da mettere nella selezione: "<< format.font().toString()<< " "<< format.foreground().color().name();
-        cursor.mergeCharFormat(format);
-        textEdit->mergeCurrentCharFormat(format);
-        for(int i=cursor.selectionStart(); i<cursor.selectionEnd(); i++){
+
+        int start=cursor.selectionStart();
+        int end=cursor.selectionEnd();
+        for(int i=start; i<end; i++){
             cursor.setPosition(i);
             cursor.movePosition(cursor.Right,QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(format);
+            //textEdit->mergeCurrentCharFormat(format);
             QTextCharFormat fmt=cursor.charFormat();
             emit charFormatChange(i, fmt);
         }
     }
 
     cursor.setPosition(posIniziale);
+    textEdit->setTextCursor(cursor);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -911,6 +913,8 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
     if (blockCursor)
         cursorBlocked = true;
     else blockCursor = true;
+
+    qDebug()<<"[applyRemoteChanges]";
 
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
@@ -1093,6 +1097,8 @@ void TextEdit::colorText(const QString& siteId){
         cursorBlocked=true;
     else blockCursor=true;
 
+    //qDebug()<<"[colorText]";
+
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat fmt;
     QBrush color;
@@ -1100,6 +1106,7 @@ void TextEdit::colorText(const QString& siteId){
     //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     if(!siteIdsColors_.contains(siteId)){
         color=selectRandomColor();
+        siteIdsColors_.insert(siteId,color);
     }
     else color=siteIdsColors_.value(siteId);
 
@@ -1107,8 +1114,8 @@ void TextEdit::colorText(const QString& siteId){
 
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
+        cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
         if (cursor.charFormat().background()!=color){
-            cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
             fmt=cursor.charFormat();
             fmt.setBackground(color);
             cursor.setCharFormat(fmt);
@@ -1134,6 +1141,8 @@ void TextEdit::clearColorText(const QString& siteId){
         cursorBlocked=true;
     else blockCursor=true;
 
+    //qDebug()<<"[clearColorText]";
+
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat fmt;
 
@@ -1141,8 +1150,8 @@ void TextEdit::clearColorText(const QString& siteId){
 
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
+        cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
         if (cursor.charFormat().background()!=Qt::white){
-            cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
             fmt = cursor.charFormat();
             fmt.setBackground(Qt::white);
             cursor.setCharFormat(fmt);
@@ -1165,6 +1174,8 @@ void TextEdit::getCurrentFontAndColor(int pos, QString *font, QString *color){
         cursorBlocked=true;
     else blockCursor=true;
 
+    //qDebug()<<"[getCurrentFontAndColor]";
+
     QTextCursor curs = textEdit->textCursor();
     int oldPos=curs.position();
     curs.setPosition(pos);
@@ -1172,6 +1183,7 @@ void TextEdit::getCurrentFontAndColor(int pos, QString *font, QString *color){
     *font= curs.charFormat().font().toString();
     *color= curs.charFormat().foreground().color().name();
     curs.setPosition(oldPos);
+    textEdit->setTextCursor(curs);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -1183,6 +1195,8 @@ void TextEdit::singleCharFormatChange(int remotePos, QString fontStr, QString co
     if(blockCursor)
         cursorBlocked=true;
     else blockCursor=true;
+
+    qDebug()<<"[singleCharFormatChange]";
 
     QTextCursor editorCurs = textEdit->textCursor();
     int posIniziale=editorCurs.position();
@@ -1203,13 +1217,17 @@ void TextEdit::singleCharFormatChange(int remotePos, QString fontStr, QString co
 
     editorCurs.setCharFormat(format);
     editorCurs.setPosition(posIniziale);
+    textEdit->setTextCursor(editorCurs);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
 }
 
+// TO CHECK
 void TextEdit::createCursorAndLabel(KKCursor* remoteCurs, const QString& name, int globalPos){
+
+    qDebug()<<"[createCursorAndLabel]";
 
     QBrush color;
     if(remoteCurs == nullptr) {
