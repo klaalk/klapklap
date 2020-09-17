@@ -197,7 +197,7 @@ void KKFile::initCrdtText()
         if(!text.isEmpty()) {
             crdt->loadCrdt(text);
         }
-        crdt->print();
+        //crdt->print();
         file.get()->close();
     }
 }
