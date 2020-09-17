@@ -61,13 +61,17 @@ void KKClient::setInitState() {
 }
 
 void KKClient::initTextEdit() {
+    std::cout << std::endl << "here im up" << std::endl;
+
     if (editor_ != nullptr) delete editor_;
     editor_ = new TextEdit();
+    std::cout << std::endl << "here im" << std::endl;
     // Gestisco le richieste dell'editor
     connect(editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
     connect(editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
     connect(editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
     connect(editor_, &TextEdit::openFileDialog, this, &KKClient::sendGetFilesRequest);
+
     //xxx
     connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
@@ -174,11 +178,14 @@ void KKClient::handleLoginResponse(KKPayload res) {
 }
 
 void KKClient::handleLogoutResponse(KKPayload res) {
+    Q_UNUSED(res)
     state_= CONNECTED_NOT_LOGGED;
-    if (crdt_ != nullptr) delete crdt_;
+
+    currentfileValid_ = false;
     openFile_.hide();
     editor_->hide();
     chat_->hide();
+
     access_.showLoader(false);
     access_.showLogin();
     access_.show();
@@ -201,11 +208,16 @@ void KKClient::handleOpenFileResponse(KKPayload response) {
     currentfileValid_ = true;
     state_= CONNECTED_AND_OPENED;
 
+
     if (crdt_ != nullptr) delete crdt_;
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
 
+
     initTextEdit();
+
     initChatDialog();
+
+
 
     editor_->show();
     chat_->setParticipants(response.getBodyList());

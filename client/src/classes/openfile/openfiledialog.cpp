@@ -198,7 +198,7 @@ void OpenFileDialog::on_saveChangesButton_clicked()
     emit updateAccountRequest(name, surname, alias, avatar);
 }
 
-void OpenFileDialog::on_logoutBtn_clicked()
+void OpenFileDialog::on_LogoutButton_clicked()
 {
     emit logoutRequest();
 }

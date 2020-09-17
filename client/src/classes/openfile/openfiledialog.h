@@ -42,8 +42,7 @@ private slots:
     void on_changeImageButton_clicked();
     void on_createFileNameLineEdit_textChanged(const QString &arg1);
     void on_saveChangesButton_clicked();
-
-    void on_logoutBtn_clicked();
+    void on_LogoutButton_clicked();
 
 private:
     void initializeFilesTableView();
