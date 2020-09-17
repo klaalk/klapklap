@@ -57,6 +57,7 @@ private slots:
 
     void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, const QString& password);
+    void sendLogoutRequest();
     void sendGetFilesRequest();
     void sendOpenFileRequest(const QString& link, const QString& fileName);
     void sendCrdtRequest(QStringList crdt);
@@ -78,6 +79,7 @@ private:
     void initChatDialog();
     void handleSuccessResponse(KKPayload res);
     void handleLoginResponse(KKPayload res);
+    void handleLogoutResponse(KKPayload res);
     void handleSignupResponse();
     void handleGetFilesResponse(KKPayload res);
     void handleOpenFileResponse(KKPayload res);

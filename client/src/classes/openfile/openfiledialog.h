@@ -25,6 +25,7 @@ class OpenFileDialog : public QDialog
 signals:
     void openFileRequest(QString link, QString fileName);
     void updateAccountRequest(QString name, QString surname, QString alias, QString blobImage);
+    void logoutRequest();
 public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
     ~OpenFileDialog();
@@ -41,6 +42,7 @@ private slots:
     void on_changeImageButton_clicked();
     void on_createFileNameLineEdit_textChanged(const QString &arg1);
     void on_saveChangesButton_clicked();
+    void on_LogoutButton_clicked();
 
 private:
     void initializeFilesTableView();

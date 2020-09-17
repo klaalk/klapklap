@@ -92,6 +92,9 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == CHARFORMAT_CHANGE){
             handleFormatChangeRequest(req);
         }
+        else if(req.getRequestType() == LOGOUT){
+            handleLogoutRequest(req);
+        }
     }
 }
 
@@ -126,6 +129,14 @@ void KKSession::handleLoginRequest(KKPayload request) {
     } else {
         this->sendResponse(LOGIN, INTERNAL_SERVER_ERROR, {"Errore interno. Non è stato possibile effettuare il login!"});
     }
+}
+
+void KKSession::handleLogoutRequest(KKPayload request) {
+    Q_UNUSED(request)
+    if(file.get() != nullptr) {
+        file->leave(sharedFromThis());
+    }
+        this->sendResponse(LOGOUT, SUCCESS, {"Logut eseguito"});
 }
 
 void KKSession::handleSignupRequest(KKPayload request) {

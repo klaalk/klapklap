@@ -197,3 +197,8 @@ void OpenFileDialog::on_saveChangesButton_clicked()
     QString alias = ui->aliasLineEdit->text();
     emit updateAccountRequest(name, surname, alias, avatar);
 }
+
+void OpenFileDialog::on_LogoutButton_clicked()
+{
+    emit logoutRequest();
+}

@@ -48,6 +48,7 @@ public slots:
     void handleDisconnection();
 private:
     void handleLoginRequest(KKPayload request);
+    void handleLogoutRequest(KKPayload request);
     void handleSignupRequest(KKPayload request);
     void handleGetFilesRequest();
     void handleOpenFileRequest(KKPayload request);

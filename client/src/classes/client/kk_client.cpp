@@ -10,6 +10,7 @@
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url_(std::move(url)) {
 
+
     // Gestisco l' apertura della connessione al socket
     connect(&socket_, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);
 
@@ -23,9 +24,10 @@ KKClient::KKClient(QUrl url, QObject *parent)
     connect(&modal_, &ModalDialog::modalButtonClicked, this, &KKClient::handleModalButtonClick);
     connect(&modal_, &ModalDialog::modalClosed, this, &KKClient::handleModalClosed);
 
-    // Gestisco le richieste di login o di registrazione
+    // Gestisco le richieste di login o di registrazione o logout
     connect(&access_, &AccessDialog::loginBtnClicked, this, &KKClient::sendLoginRequest);
     connect(&access_, &AccessDialog::signupBtnClicked, this, &KKClient::sendSignupRequest);
+    connect(&openFile_, &OpenFileDialog::logoutRequest, this, &KKClient::sendLogoutRequest);
 
     // Gestisco le richieste di apertura file
     connect(&openFile_, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
@@ -59,6 +61,7 @@ void KKClient::setInitState() {
 }
 
 void KKClient::initTextEdit() {
+
     if (editor_ != nullptr) delete editor_;
     editor_ = new TextEdit();
     // Gestisco le richieste dell'editor
@@ -66,6 +69,7 @@ void KKClient::initTextEdit() {
     connect(editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
     connect(editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
     connect(editor_, &TextEdit::openFileDialog, this, &KKClient::sendGetFilesRequest);
+
     //xxx
     connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
@@ -146,7 +150,9 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == CHARFORMAT_CHANGE){
         handleCharFormatChange(response);
 
-    } else {
+    } else if (response.getRequestType() == LOGOUT ) {
+        handleLogoutResponse(response);
+    }else {
         modal_.setModal("L'operazione è andata a buon fine.", "Chiudi", GENERIC_SUCCESS);
         modal_.show();
     }
@@ -169,6 +175,21 @@ void KKClient::handleLoginResponse(KKPayload res) {
     logger("[handleLoginResponse] - Site id: " + mySiteId_);
 }
 
+void KKClient::handleLogoutResponse(KKPayload res) {
+    Q_UNUSED(res)
+    state_= CONNECTED_NOT_LOGGED;
+
+    currentfileValid_ = false;
+    openFile_.hide();
+    editor_->hide();
+    chat_->hide();
+
+    access_.showLoader(false);
+    access_.showLogin();
+    access_.show();
+}
+
+
 void KKClient::handleSignupResponse() {
     state_ = CONNECTED;
     access_.showLoader(false);
@@ -185,11 +206,16 @@ void KKClient::handleOpenFileResponse(KKPayload response) {
     currentfileValid_ = true;
     state_= CONNECTED_AND_OPENED;
 
+
     if (crdt_ != nullptr) delete crdt_;
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
 
+
     initTextEdit();
+
     initChatDialog();
+
+
 
     editor_->show();
     chat_->setParticipants(response.getBodyList());
@@ -398,6 +424,14 @@ void KKClient::sendSignupRequest(QString email, const QString& password, QString
         timer_.start(TIMEOUT_VALUE);
     QString avatar = avatars.at(qrand() % (avatars.size()-1)).split(":/images/avatars/")[1];
     bool sended = sendRequest(SIGNUP, NONE, {email, psw, name, surname, username, avatar});
+
+    if (sended) {
+        state_ = CONNECTED_NOT_SIGNED;
+    }
+}
+
+void KKClient::sendLogoutRequest() {
+    bool sended = sendRequest(LOGOUT, NONE, PAYLOAD_EMPTY_BODY);
 
     if (sended) {
         state_ = CONNECTED_NOT_SIGNED;
