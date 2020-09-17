@@ -4,9 +4,9 @@
 
 #define  HOST "localhost"
 #define  PORT 3306
-#define  USR  "michele"
+#define  USR  "root"
 #define  DBN  "klapklap"
-#define  PSW  "michele"
+#define  PSW  ""
 
 #define INSERT_USER "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`ALIAS`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIME())"
 #define UPDATE_USER_QRY "UPDATE `USERS` SET `ALIAS`=?,`NAME`=?,`SURNAME`=?,`IMAGE`=? WHERE `USERNAME` = ?"
