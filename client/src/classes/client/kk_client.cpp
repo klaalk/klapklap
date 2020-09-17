@@ -61,11 +61,9 @@ void KKClient::setInitState() {
 }
 
 void KKClient::initTextEdit() {
-    std::cout << std::endl << "here im up" << std::endl;
 
     if (editor_ != nullptr) delete editor_;
     editor_ = new TextEdit();
-    std::cout << std::endl << "here im" << std::endl;
     // Gestisco le richieste dell'editor
     connect(editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
     connect(editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
