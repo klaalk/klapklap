@@ -178,7 +178,8 @@ void ChatDialog::setParticipantState(const QString &nick, const QString &state)
     if (!nick.isEmpty()) {
         QListWidgetItem* item = findParticipantItem(nick);
         if (item == nullptr) {
-            QListWidgetItem* item = new QListWidgetItem();
+
+            item = new QListWidgetItem();
             item->setText(nick);
             listWidget->addItem(item);
         }
