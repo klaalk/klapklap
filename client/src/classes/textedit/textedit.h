@@ -119,6 +119,8 @@ public:
     void alignmentRemoteChange(QString alignment);
     void singleCharFormatChange(int remotePos,QString fontStr,QString colorStr); //imposta il formato passato della char che si trova alla posizione passata
     QTextEdit *textEdit;
+    void stringDiffInv(std::string str1, std::string str2, unsigned long *lengthX, std::string *stringX );
+    void stringDiff(std::string str1, std::string str2,unsigned long *posX, std::string *stringX);
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);

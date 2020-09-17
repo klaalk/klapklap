@@ -122,6 +122,7 @@ void KKFile::applyRemoteInsert(QStringList bodyList)
     }
 
     (bodyList[0] == CRDT_INSERT) ? crdt->remoteInsert(char_) : crdt->remoteDelete(char_);
+    crdt->print();
 }
 
 void KKFile::applyRemoteCharFormatChange(QStringList bodyList){
