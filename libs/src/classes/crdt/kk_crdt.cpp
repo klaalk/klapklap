@@ -692,12 +692,11 @@ void KKCrdt::calculateLineCol(unsigned long global_pos, unsigned long *line, uns
                 *col=global_pos-tot;
                 *line=i;
             }
-
-
             return;
         }
         tot+=text[i].size();
     }
+    qDebug() << "[calculateLineCol] line: " << *line << " - col: " << *col;
 
 }
 list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition end, QString font_, QString color_){
