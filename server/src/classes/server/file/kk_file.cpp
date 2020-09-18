@@ -184,18 +184,21 @@ void KKFile::initCrdtText()
     QStringList text;
     if(file->open(QFile::ReadOnly)) {
         QTextStream stream(file.get());
-        while (!stream.atEnd()) {
-            QString line = stream.readLine();
-            int start = 0;
-            int nextFieldLength = 0;
-            do {
-                nextFieldLength = line.midRef(start, 3).toInt();
-                start += 3;
-                text.push_back(line.mid(start, nextFieldLength));
-                start += nextFieldLength;
-            } while (start < line.size());
-        }
+        QString line = stream.readAll();
+        line.remove('\r');
+
+        int start = 0;
+        int nextFieldLength = 0;
+        do {
+            nextFieldLength = line.midRef(start, 3).toInt();
+            start += 3;
+            text.push_back(line.mid(start, nextFieldLength));
+            start += nextFieldLength;
+        } while (start < line.size()-1);
+
+
         if(!text.isEmpty()) {
+            qDebug() << text;
             crdt->loadCrdt(text);
         }
         //crdt->print();
