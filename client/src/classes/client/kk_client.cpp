@@ -68,16 +68,15 @@ void KKClient::initTextEdit() {
     connect(editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
     connect(editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
     connect(editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
-    connect(editor_, &TextEdit::openFileDialog, this, &KKClient::sendGetFilesRequest);
-
-    //xxx
     connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor_,&TextEdit::selectionFormatChanged, this, &KKClient::onSelectionFormatChange);
     connect(editor_,&TextEdit::charFormatChange, this, &KKClient::onCharFormatChanged);
+    connect(editor_, &TextEdit::openFileDialog, this, &KKClient::onOpenFileDialog);
+    connect(editor_, &TextEdit::editorClosed, this, &KKClient::onEditorClosed);
 
     editor_->setMySiteId(mySiteId_);
     editor_->setCurrentFileName(currentfile_);
-    editor_->close();
+    editor_->hide();
 }
 
 void KKClient::initChatDialog() {
@@ -88,7 +87,7 @@ void KKClient::initChatDialog() {
     connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
 
     chat_->setNickName(mySiteId_);
-    chat_->close();
+    chat_->hide();
 }
 
 /// HANDLING
@@ -127,7 +126,8 @@ void KKClient::handleSuccessResponse(KKPayload response) {
 
     } else if(response.getRequestType() == LOAD_FILE) {
         handleLoadFileResponse(response);
-
+    } else if(response.getRequestType() == QUIT_FILE) {
+        handleQuitFileResponse();
     } else if(response.getRequestType() == CRDT) {
         handleCrdtResponse(response);
 
@@ -165,6 +165,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
     mySiteId_ = bodyList.value(4);
     access_.hide();
 #ifndef test
+    openFile_.clear();
     openFile_.setUserInfo(bodyList.mid(0, 7));
     openFile_.setUserAvatar(bodyList.value(7));
     openFile_.setUserFiles(bodyList.mid(8, bodyList.size()));
@@ -198,6 +199,7 @@ void KKClient::handleSignupResponse() {
 
 void KKClient::handleGetFilesResponse(KKPayload res)
 {
+    openFile_.clear();
     openFile_.setUserFiles(res.getBodyList());
     openFile_.show();
 }
@@ -206,19 +208,16 @@ void KKClient::handleOpenFileResponse(KKPayload response) {
     currentfileValid_ = true;
     state_= CONNECTED_AND_OPENED;
 
+    if (crdt_ != nullptr)
+        delete crdt_;
 
-    if (crdt_ != nullptr) delete crdt_;
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
 
-
     initTextEdit();
-
     initChatDialog();
 
-
-
-    editor_->show();
     chat_->setParticipants(response.getBodyList());
+    editor_->show();
     chat_->show();
     openFile_.hide();
 }
@@ -231,6 +230,12 @@ void KKClient::handleLoadFileResponse(KKPayload response) {
     crdt_->loadCrdt(bodyList);
     //crdt_->print();
     editor_->loadCrdt(crdt_->text);
+}
+
+void KKClient::handleQuitFileResponse()
+{
+    chat_->hide();
+    sendGetFilesRequest();
 }
 
 void KKClient::handleCrdtResponse(KKPayload response) {
@@ -474,6 +479,15 @@ void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alia
     }
 }
 
+void KKClient::onEditorClosed()
+{
+    bool result = sendRequest(QUIT_FILE, NONE, {});
+    if (!result || !socket_.isValid()) {
+        modal_.setModal("Non è stato possibile chiudere il file.", "Chiudi", GENERIC_ERROR);
+        modal_.show();
+    }
+}
+
 void KKClient::sendCrdtRequest(QStringList crdt) {
     bool result = sendRequest(CRDT, NONE, std::move(crdt));
     if (!result || !socket_.isValid()) {
@@ -557,7 +571,7 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     }
     if(editor_->clickedAny())
         editor_->updateSiteIdsMap(siteId,findPositions(siteId));
-        crdt_->print();
+    crdt_->print();
 }
 
 void KKClient::onRemoveTextCrdt(int start, int end) {

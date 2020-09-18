@@ -64,6 +64,7 @@ private slots:
     void sendMessageRequest(QString username, QString message);
     void sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar);
 
+    void onEditorClosed();
     void onInsertTextCrdt(const QString& diffText, int position);
     void onRemoveTextCrdt(int start, int end);
     void onSaveCrdtToFile();
@@ -84,6 +85,7 @@ private:
     void handleGetFilesResponse(KKPayload res);
     void handleOpenFileResponse(KKPayload res);
     void handleLoadFileResponse(KKPayload res);
+    void handleQuitFileResponse();
     void handleCrdtResponse(KKPayload res);
     void handleAlignmentChange(KKPayload res);
     void handleCharFormatChange(KKPayload res);

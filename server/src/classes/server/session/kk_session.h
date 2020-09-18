@@ -55,6 +55,7 @@ private:
     void handleOpenFileRequest(KKPayload request);
     void handleSaveFileRequest(KKPayload request);
     void handleLoadFileRequest(KKPayload request);
+    void handleQuitFileRequest();
 
     void handleCrdtRequest(KKPayload request);
     void handleAlignChangeRequest(KKPayload request);

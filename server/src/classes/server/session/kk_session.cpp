@@ -84,6 +84,9 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == LOAD_FILE) {
             handleLoadFileRequest(req);
         }
+        else if (req.getRequestType() == QUIT_FILE) {
+            handleQuitFileRequest();
+        }
         else if(req.getRequestType() == CRDT) {
             handleCrdtRequest(req);
         }
@@ -207,6 +210,8 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     QString message, result;
     bool isActiveFile = false;
 
+    disconnectFromFile();
+
     if (request.getBodyList().size() > 0) {
         QString filename = request.getBodyList()[0];
         auto search = files->find(filename);
@@ -288,6 +293,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
     sendResponse(OPEN_FILE, result, *response);
 
     if (result == SUCCESS) {
+
         sendResponse(LOAD_FILE, SUCCESS, {file->getCrdtText()});
         // Aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
@@ -324,6 +330,11 @@ void KKSession::handleLoadFileRequest(KKPayload request) {
     QThreadPool::globalInstance()->start(mytask);
 }
 
+void KKSession::handleQuitFileRequest()
+{
+    disconnectFromFile();
+    sendResponse(QUIT_FILE, SUCCESS, {});
+}
 void KKSession::handleCrdtRequest(KKPayload request) {
     file->deliver(CRDT, SUCCESS, request.getBodyList(), user->getUsername());
 }

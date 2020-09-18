@@ -144,7 +144,7 @@ void TextEdit::closeEvent(QCloseEvent *e)
 {
     e->ignore();
     hide();
-    emit openFileDialog();
+    emit editorClosed();
 }
 
 void TextEdit::resizeEvent(QResizeEvent *event){
@@ -1005,7 +1005,7 @@ void TextEdit::onTextChange() {
 
     //CASO 1:Cancellato o cancellato e inserito
     if(lastLength > plainText.length()) {
-        if(lastCursorPos-1>cursorPos){
+       if(lastCursorPos-1>cursorPos){
           qDebug()<< plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-diffLength);
 
             if(plainText.mid(0,cursorPos)==lastText.mid(0,lastCursorPos-diffLength)){//errore
