@@ -724,7 +724,10 @@ void TextEdit::cursorPositionChanged()
         selection_start = cursor.selectionEnd();
     }
 
-    lastCursorPos = cursorPos;
+
+     lastCursorPos = cursorPos;
+
+
     cursorPos = cursor.position();
     qDebug() << "[cursorPositionChanged] Current: >"<< cursorPos << "< Last: >" << lastCursorPos << "<";
     if (list) {
@@ -981,9 +984,9 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
     // Riporto il cursore dell'editor alla posizione di partenza.
     if(cursorPos >= globalPos){
         if(operation == CRDT_INSERT) {
-            cursorPos = cursorPos +text.length();
+            cursorPos = cursorPos + text.length();
         } else if(operation == CRDT_DELETE) {
-            cursorPos = cursorPos -text.length();
+            cursorPos = cursorPos - text.length();
         }
     }
 
@@ -996,180 +999,26 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
 }
 
 void TextEdit::onTextChange() {
+   // IMPORTANTE per le modifiche da remoto.
+  if(blockCursor) return;
 
-    // IMPORTANTE per le modifiche da remoto.
-   if(blockCursor) return;
-    // Restituisce il testo presente nell'editor.
-    QString plainText = textEdit->toPlainText();
-    int diffLength = abs(plainText.length()-lastLength);
+   QString plainText = textEdit->toPlainText();// Restituisce il testo presente nell'editor.
+   int diffLength = abs(plainText.length()-lastLength);
 
-    //CASO 1:Cancellato o cancellato e inserito
-    if(lastLength > plainText.length()) {
-       if(lastCursorPos-1>cursorPos){
-          qDebug()<< plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-diffLength);
+   if(lastLength > plainText.length()){//CASO 1:Cancellato o cancellato e inserito
 
-            if(plainText.mid(0,cursorPos)==lastText.mid(0,lastCursorPos-diffLength)){//errore
+        shortestText(diffLength,plainText);
 
-                //solo cancellato
-                if(isTextSelected){
-                    diffText=lastText.mid(selection_start, selection_end);
-                    qDebug() << "[onTextChange] Testo cancellato: " << diffText << "Selection start: >" << selection_start << "< Selection end: >" << selection_end << "<";
-                    emit removeTextFromCRDT(selection_start, selection_end);
-                }
-                else {
-                    if (cursorPos < lastCursorPos) {
-                        diffText = lastText.mid(cursorPos, lastLength - plainText.length());
-                        qDebug() << "[onTextChange] Testo cancellato (indietro):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
-                        emit removeTextFromCRDT(cursorPos, lastCursorPos);
-                    } else {
-                        int diffLength = lastLength - plainText.length();
-                        diffText = lastText.mid(cursorPos, diffLength);
-                        qDebug() << "[onTextChange] Testo cancellato (avanti):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
-                        emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
-                    }
-                }
-            //hai cancellato e inserito
-            }else{ //CASO A
-                std::string str1;
-                std::string str2;
-                std::string stringX;
-                unsigned long posX;
-                str1 = plainText.mid(0,cursorPos).toStdString();
-                str2 = lastText.mid(0,lastCursorPos).toStdString();
-                stringDiff(str1,str2, &posX, &stringX);
-                emit removeTextFromCRDT(static_cast<int>(posX), lastCursorPos);
-                emit insertTextToCRDT( QString::fromStdString (stringX), static_cast<int>(posX));
-            }
-        }else{
-             qDebug()<< plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos);
-            if(plainText.mid(0,cursorPos)==lastText.mid(0,lastCursorPos-1)){
-                //solo cancellato
-                if(isTextSelected){
-                    diffText=lastText.mid(selection_start, selection_end);
-                    qDebug() << "[onTextChange] Testo cancellato: " << diffText << "Selection start: >" << selection_start << "< Selection end: >" << selection_end << "<";
-                    emit removeTextFromCRDT(selection_start, selection_end);
-                }
-                else {
-                    if (cursorPos < lastCursorPos) {
-                        diffText = lastText.mid(cursorPos, lastLength - plainText.length());
-                        qDebug() << "[onTextChange] Testo cancellato (indietro):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
-                        emit removeTextFromCRDT(cursorPos, lastCursorPos);
-                    } else {
-                        int diffLength = lastLength - plainText.length();
-                        diffText = lastText.mid(cursorPos, diffLength);
-                        qDebug() << "[onTextChange] Testo cancellato (avanti):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
-                        emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
-                    }
-                }
-            //hai cancellato e inserito
-            }else{ //CASO B
-                std::string str1;
-                std::string str2;
-                std::string stringX;
-                unsigned long lengthX;
-                str1 = lastText.mid(lastCursorPos).toStdString();
-                str2 = plainText.mid(lastCursorPos).toStdString();
-                stringDiffInv(str1,str2, &lengthX, &stringX);
-                emit removeTextFromCRDT(lastCursorPos,lastCursorPos+static_cast<int>(lengthX)) ;
-                emit insertTextToCRDT( QString::fromStdString (stringX), lastCursorPos);
-            }
-        }
+    }else if(plainText.length() > lastLength){//CASO 2: Inserito o cancellato e inserito
 
-    //CASO 2: Inserito o cancellato e inserito
-    }else if(plainText.length() > lastLength){
-        if(lastText.mid(lastCursorPos)==plainText.mid(cursorPos) && lastText.mid(0,lastCursorPos)== plainText.mid(0,cursorPos-diffLength)){
-            // solo inserito
-            diffText=plainText.mid(lastCursorPos, plainText.length() - lastLength);// Salva in diffText le cose nuove scritte
-            qDebug() << "[onTextChange] Testo inserito: " << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
-            emit insertTextToCRDT(diffText, lastCursorPos);
-        }else{
-            //hai cancellato e inserito
-            if(cursorPos==lastCursorPos+diffLength){
-                //CASO C (è uguale al caso A)
-                std::string str1;
-                std::string str2;
-                std::string stringX;
-                unsigned long posX;
-                str1 = plainText.mid(0,cursorPos).toStdString();
-                str2 = lastText.mid(0,lastCursorPos).toStdString();
-                stringDiff(str1,str2, &posX, &stringX);
-                emit removeTextFromCRDT(static_cast<int>(posX), lastCursorPos);
-                emit insertTextToCRDT( QString::fromStdString (stringX), static_cast<int>(posX));
+        longestText(diffLength,plainText);
 
-            }else{
-                //CASO D (è uguale al caso B)
-                std::string str1;
-                std::string str2;
-                std::string stringX;
-                unsigned long lengthX;
-                str1 = lastText.mid(lastCursorPos).toStdString();
-                str2 = plainText.mid(lastCursorPos).toStdString();
-                stringDiffInv(str1,str2, &lengthX, &stringX);
-                emit removeTextFromCRDT(lastCursorPos,lastCursorPos+static_cast<int>(lengthX)) ;
-                emit insertTextToCRDT( QString::fromStdString (stringX), lastCursorPos);
-            }
+    }else if(plainText.length() == lastLength){//CASO 3: altro o cancellato e inserito
 
-        }
-
-
-    //CASO 3: altro o cancellato e inserito
-    }else if(plainText.length() == lastLength){
-        if(lastCursorPos<cursorPos){
-            if(lastText.mid(lastCursorPos,cursorPos-lastCursorPos)==plainText.mid(lastCursorPos,cursorPos-lastCursorPos)){
-                //il testo non è cambiato
-            }else{
-                //hai cancellato e scritto
-                //CASO E
-                emit removeTextFromCRDT(lastCursorPos,cursorPos) ;
-                emit insertTextToCRDT(plainText.mid(lastCursorPos, cursorPos-lastCursorPos), lastCursorPos);
-
-            }
-
-        }else{
-            if(lastText.mid(0,lastCursorPos)==plainText.mid(0,cursorPos)){
-                //il testo non è cambiato
-            }else{
-                //hai cancellato e scritto
-                //CASO F (come caso A e C)
-                std::string str1;
-                std::string str2;
-                std::string stringX;
-                unsigned long posX;
-                str1 = plainText.mid(0,cursorPos).toStdString();
-                str2 = lastText.mid(0,lastCursorPos).toStdString();
-                stringDiff(str1,str2, &posX, &stringX);
-                emit removeTextFromCRDT(static_cast<int>(posX), lastCursorPos);
-                emit insertTextToCRDT( QString::fromStdString (stringX), static_cast<int>(posX));
-            }
-        }
+        sameTextLength(plainText);
     }
 
-
-    // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
-    QTextCursor editorCurs = textEdit->textCursor();
-
-    // Restituisce la posizione x,y di coordinate sullo schermo del tuo cursore
-    int curPos_ = editorCurs.position();
-    for (KKCursor* c : cursors_.values()) {
-        if (c !=nullptr && c->getGlobalPositon() > editorCurs.position()) {
-            qDebug() << "[onTextChange] Cursor global: " << c->getGlobalPositon();
-            qDebug() << "[onTextChange] Editor global: " << editorCurs.position();
-
-            if (plainText.length() - lastLength > 0) {
-                c->setGlobalPositon(c->getGlobalPositon() + diffText.length());
-            } else if(lastLength - plainText.length() > 0) {
-                c->setGlobalPositon(c->getGlobalPositon() - diffText.length());
-            }
-            editorCurs.setPosition(c->getGlobalPositon());
-            c->moveLabels(textEdit->cursorRect(editorCurs));
-        }
-    }
-
-    // Riporto il cursore dell'editor alla posizione di partenza.
-    editorCurs.setPosition(curPos_);
-    lastLength = plainText.length();
-    lastText = plainText;
-
+    updateCursors(plainText);
 }
 
 void TextEdit::updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list){
@@ -1388,6 +1237,116 @@ bool TextEdit::clickedAny(){
     return !siteIdsClicked_.isEmpty();
 }
 
+void TextEdit::shortestText(int diffLength,QString plainText){
+    if(lastCursorPos-1>cursorPos){
+       qDebug()<< plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-diffLength);
+       if(isTextSelected){
+                  if(plainText.mid(0,selection_start)==lastText.mid(0,selection_end-diffLength)){
+                      //solo cancellato
+                      justDelete(plainText);
+                   }
+       }else if(plainText.mid(0,cursorPos)==lastText.mid(0,lastCursorPos-diffLength)){//hai solo cancellato
+           justDelete(plainText);
+       }else{//hai cancellato e inserito
+            deleteInsertA(plainText);
+         }
+    }else{
+          qDebug()<< plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos);
+         if(plainText.mid(0,cursorPos)==lastText.mid(0,lastCursorPos-1)){//hai solo cancellato
+             justDelete(plainText);
+         }else{//hai cancellato e inserito
+          deleteInsertB(plainText);
+         }
+ }
+}
+void TextEdit::longestText(int diffLength,QString plainText){
+    if(lastText.mid(lastCursorPos)==plainText.mid(cursorPos) && lastText.mid(0,lastCursorPos)== plainText.mid(0,cursorPos-diffLength)){//hai solo inserito
+        justInsert(plainText);
+    }else{//hai cancellato e inserito
+        if(cursorPos==lastCursorPos+diffLength){
+            deleteInsertA(plainText);
+        }else{
+           deleteInsertB(plainText);
+        }
+    }
+}
+void TextEdit::sameTextLength(QString plainText){
+    if(lastCursorPos<cursorPos){
+        if(lastText.mid(lastCursorPos,cursorPos-lastCursorPos)!=plainText.mid(lastCursorPos,cursorPos-lastCursorPos)){//il testo è cambiato
+            emit removeTextFromCRDT(lastCursorPos,cursorPos);
+            emit insertTextToCRDT(plainText.mid(lastCursorPos, cursorPos-lastCursorPos), lastCursorPos);
+        }
+    }else{
+        if(lastText.mid(0,lastCursorPos)!=plainText.mid(0,cursorPos)){//hai cancellato e scritto
+            deleteInsertA(plainText);
+        }
+    }
+}
+
+void TextEdit::justInsert(QString plainText){
+    std::list<KKCharAndForm> tmpList;
+    diffText=plainText.mid(lastCursorPos, plainText.length() - lastLength);// Salva in diffText le cose nuove scritte
+    qDebug() << "[onTextChange] Testo inserito: " << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
+    emit insertTextToCRDT(diffText, lastCursorPos);
+    tmpList = fromStringKKCharAndFormList(diffText.toStdString(),static_cast<int>(lastCursorPos));
+    lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(lastCursorPos)),tmpList);
+}
+
+void TextEdit::justDelete(QString plainText){
+    if(isTextSelected){
+        diffText=lastText.mid(selection_start, selection_end);
+        qDebug() << "[onTextChange] Testo cancellato: " << diffText << "Selection start: >" << selection_start << "< Selection end: >" << selection_end << "<";
+        emit removeTextFromCRDT(selection_start, selection_end);
+        lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(selection_start)),std::next(lastTextAndForm.begin(),selection_end));
+
+    }
+    else {
+        if (cursorPos < lastCursorPos) {
+            diffText = lastText.mid(cursorPos, lastLength - plainText.length());
+            qDebug() << "[onTextChange] Testo cancellato (indietro):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
+            emit removeTextFromCRDT(cursorPos, lastCursorPos);
+            lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(cursorPos)),std::next(lastTextAndForm.begin(),lastCursorPos));
+        } else {
+            int diffLength = lastLength - plainText.length();
+            diffText = lastText.mid(cursorPos, diffLength);
+            qDebug() << "[onTextChange] Testo cancellato (avanti):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
+            emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
+            lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(cursorPos)),std::next(lastTextAndForm.begin(), cursorPos + diffLength));
+        }}
+
+}
+void TextEdit::deleteInsertA(QString plainText){
+    std::string str1;
+    std::string str2;
+    std::string stringX;
+    unsigned long posX;
+    std::list<KKCharAndForm> tmpList;
+    str1 = plainText.mid(0,cursorPos).toStdString();
+    str2 = lastText.mid(0,lastCursorPos).toStdString();
+    stringDiff(str1,str2, &posX, &stringX);
+    emit removeTextFromCRDT(static_cast<int>(posX), lastCursorPos);
+    lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(posX)),std::next(lastTextAndForm.begin(),lastCursorPos));
+    emit insertTextToCRDT( QString::fromStdString (stringX), static_cast<int>(posX));
+    tmpList = fromStringKKCharAndFormList(stringX,static_cast<int>(posX));
+    lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(posX)),tmpList);
+}
+
+void TextEdit::deleteInsertB(QString plainText){
+    std::string str1;
+    std::string str2;
+    std::string stringX;
+    unsigned long lengthX;
+    std::list<KKCharAndForm> tmpList;
+    str1 = lastText.mid(lastCursorPos).toStdString();
+    str2 = plainText.mid(lastCursorPos).toStdString();
+    stringDiffInv(str1,str2, &lengthX, &stringX);
+    emit removeTextFromCRDT(lastCursorPos,lastCursorPos+static_cast<int>(lengthX)) ;
+    lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(lastCursorPos)),std::next(lastTextAndForm.begin(),lastCursorPos+static_cast<int>(lengthX)));
+    emit insertTextToCRDT( QString::fromStdString (stringX), lastCursorPos);
+    tmpList = fromStringKKCharAndFormList(stringX,static_cast<int>(lastCursorPos));
+    lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(lastCursorPos)),tmpList);
+}
+
 void TextEdit::stringDiffInv(std::string str1, std::string str2,unsigned long *lengthX, std::string *stringX){
     std::reverse(str1.begin(),str1.end());
     std::reverse(str2.begin(),str2.end());
@@ -1416,4 +1375,46 @@ void TextEdit::stringDiff(std::string str1, std::string str2,unsigned long *posX
             return;
         }
     }
+}
+
+void TextEdit::updateCursors(QString plainText){
+
+    // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
+    QTextCursor editorCurs = textEdit->textCursor();
+
+    // Restituisce la posizione x,y di coordinate sullo schermo del tuo cursore
+    int curPos_ = editorCurs.position();
+    for (KKCursor* c : cursors_.values()) {
+        if (c !=nullptr && c->getGlobalPositon() > editorCurs.position()) {
+            qDebug() << "[onTextChange] Cursor global: " << c->getGlobalPositon();
+            qDebug() << "[onTextChange] Editor global: " << editorCurs.position();
+
+            if (plainText.length() - lastLength > 0) {
+                c->setGlobalPositon(c->getGlobalPositon() + diffText.length());
+            } else if(lastLength - plainText.length() > 0) {
+                c->setGlobalPositon(c->getGlobalPositon() - diffText.length());
+            }
+            editorCurs.setPosition(c->getGlobalPositon());
+            c->moveLabels(textEdit->cursorRect(editorCurs));
+        }
+    }
+
+    // Riporto il cursore dell'editor alla posizione di partenza.
+    editorCurs.setPosition(curPos_);
+    lastLength = plainText.length();
+    lastText = plainText;
+}
+
+std::list<KKCharAndForm> TextEdit::fromStringKKCharAndFormList(std::string string, int pos){
+    std::list<KKCharAndForm> listTmp;
+    int i;
+    QString font;
+    QString color;
+
+    for(i=0; i < string.length(); i++){
+        getCurrentFontAndColor(pos+i,&font,&color);
+        KKCharAndForm char_(string[i],font,color);
+        listTmp.push_back(char_);
+    }
+    return listTmp;
 }
