@@ -28,20 +28,18 @@ public:
     int loginUser(QString username, QString password, KKUserPtr user);
     int getUser(QString username, KKUserPtr user);
     int updateUser(QString username, QString name, QString surname, QString alias, QString avatar);
-    int existUserByUsername(QString username);
-    int existUserByEmail(QString email);
 
     /// file
-    int addUserFile(QString filename, QString username);
-    int getUserFile(KKUserPtr user, QStringList* files);
-    int existFileByName(QString filename);
-    int existFileByHash(QString hash, QStringList* users);
-    int existFileByUsername(QString filename, QString username);
-
     int addFile(QString filename, QString hashname, QString username);
-    int insertUserImage(QString username, QString image_path);
-    int resetPassword(QString username);
-    int updatePassword(QString username, QString new_psw);
+    int addShareFile(QString filename, QString username);
+    int getUserFiles(KKUserPtr user, QStringList* files);
+    int getFileUsers(QString hash, QStringList* users);
+
+    // checks
+    int existUserByUsername(QString username);
+    int existUserByEmail(QString email);
+    int existFileByUsername(QString filename, QString username);
+    int existShareFileByUsername(QString filename, QString username);
 };
 
 typedef QSharedPointer<KKDataBase> KKDataBasePtr;

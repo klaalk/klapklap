@@ -22,17 +22,17 @@ KKFile::~KKFile() {
 }
 
 void KKFile::join(KKParticipantPtr participant) {
-    participants->insert(participant->id, participant);
+    participants->insert(participant->username, participant);
     participantCounter++;
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
 //    participants->insert(participant->id, nullptr);
-    participants->remove(participant->id);
+    participants->remove(participant->username);
     participantCounter--;
 }
 
-void KKFile::deliver(QString type, QString result, QStringList message, QString myNick) {
+void KKFile::deliver(QString type, QString result, QStringList message, QString username) {
     KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
 
     if (type == CRDT) {
@@ -48,7 +48,7 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
 
     if (!participants->isEmpty()) {
         std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
-            if(p->id != myNick) {
+            if(p->username != username) {
                 p->deliver(data);
             }
         });

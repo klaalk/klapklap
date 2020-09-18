@@ -27,7 +27,7 @@ public:
     KKFileSystem(QObject *parent = nullptr);
     ~KKFileSystem();
 
-    KKFilePtr createFile(QString username, QString filename);
+    KKFilePtr createFile(QString filename, QString username);
     KKFilePtr openFile(QString filename, QString rootPath=APPLICATION_ROOT);
     QString readFile(QString filename);
     bool writeFile(KKFilePtr file, QString toPrint);

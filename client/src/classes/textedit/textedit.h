@@ -97,6 +97,37 @@ public:
     }
 };
 
+class KKCharAndForm{
+private:
+    char value;
+    QString font;
+    QString color;
+public:
+    KKCharAndForm(char value, QString font, QString color): value(value), font(font), color(color){}
+    char getValue(){
+        return value;
+    }
+    QString getFont(){
+        return font;
+    }
+    QString getColor(){
+        return color;
+    }
+    void setValue(char value){
+        this->value=value;
+        return;
+    }
+
+    void setFont(QString font){
+        this->font=font;
+        return;
+    }
+    void setColor(QString color){
+        this->color=color;
+        return;
+    }
+};
+
 class TextEdit : public QMainWindow
 {
     Q_OBJECT
@@ -121,6 +152,7 @@ public:
     QTextEdit *textEdit;
     void stringDiffInv(std::string str1, std::string str2, unsigned long *lengthX, std::string *stringX );
     void stringDiff(std::string str1, std::string str2,unsigned long *posX, std::string *stringX);
+    std::list<KKCharAndForm> fromStringKKCharAndFormList(std::string string, int pos);
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
@@ -161,6 +193,14 @@ private slots:
     void about();
     void printPreview(QPrinter *);
     void onTextChange();
+    void justInsert(QString plainText);
+    void justDelete(QString plainText);
+    void deleteInsertA(QString plainText);
+    void deleteInsertB(QString plainText);
+    void shortestText(int diffLength,QString plainText);
+    void longestText(int diffLength,QString plainText);
+    void sameTextLength(QString plainText);
+    void updateCursors(QString plainText);
 
 private:
     void setupFileActions();
@@ -203,6 +243,7 @@ private:
     int fontSize=0;
     int selection_start=0;
     int selection_end=0;
+    std::list<KKCharAndForm> lastTextAndForm;
     QString lastText;
     QString mySiteId_;
     QString diffText;
