@@ -22,7 +22,7 @@ KKFileSystem::KKFileSystem(QObject *parent):QObject(parent),
 
 KKFileSystem::~KKFileSystem() {}
 
-KKFilePtr KKFileSystem::createFile(QString username, QString filename){
+KKFilePtr KKFileSystem::createFile(QString filename, QString username){
     // Serve per garantire l'univocità del path.
     QString jump;
     jump = crypter->random_psw(jump);
