@@ -16,7 +16,7 @@
 
 #define INSERT_FILE_QRY "INSERT INTO `FILES` (`FILENAME`, `HASHNAME`, `USERNAME`, `CREATION_DATE`) VALUES (?, ?, ?, CURRENT_TIME())"
 #define INSERT_SHAREFILE_QRY "INSERT INTO `FILES_OWNERS` (`USERNAME`, `HASHNAME`, `JOIN_DATE`) VALUES (?, ?, CURRENT_TIME())"
-#define GET_USER_FILES_QRY "SELECT `HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` WHERE `USERNAME`= ?"
+#define GET_USER_FILES_QRY "SELECT `FILES_OWNERS`.`HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` JOIN `FILES` ON `FILES_OWNERS`.`HASHNAME` = `FILES`.`HASHNAME` WHERE `FILES_OWNERS`.`USERNAME`= ? ORDER BY `FILES`.`FILENAME`, `JOIN_DATE` DESC"
 #define GET_FILE_USERS_QRY "SELECT `USERNAME` FROM `FILES_OWNERS` WHERE `HASHNAME`= ?"
 #define COUNT_SHAREFILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `HASHNAME`= ? AND `USERNAME` = ?"
 #define COUNT_FILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES` WHERE `FILENAME`= ? AND `USERNAME` = ?"
@@ -198,7 +198,7 @@ int KKDataBase::addShareFile(QString filename, QString username) {
     return resCode;
 }
 
-int  KKDataBase::getUserFiles(KKUserPtr user, QStringList* files){
+int  KKDataBase::getUserFiles(QString username, QStringList* files){
     int resCode = DB_ERR_USER_FILES;
     if(!db.open()) {
         resCode = DB_ERR_NOT_OPEN_CONNECTION;
@@ -206,7 +206,7 @@ int  KKDataBase::getUserFiles(KKUserPtr user, QStringList* files){
         try {
             QSqlQuery query(db);
             query.prepare(GET_USER_FILES_QRY);
-            query.addBindValue(user->getUsername());
+            query.addBindValue(username);
             query.exec();
 
             if (files == nullptr)

@@ -32,7 +32,7 @@ public:
     /// file
     int addFile(QString filename, QString hashname, QString username);
     int addShareFile(QString filename, QString username);
-    int getUserFiles(KKUserPtr user, QStringList* files);
+    int getUserFiles(QString username, QStringList* files);
     int getFileUsers(QString hash, QStringList* users);
 
     // checks

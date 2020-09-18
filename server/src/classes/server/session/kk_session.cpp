@@ -137,7 +137,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
         output->append(user->getRegistrationDate());
         output->append(user->getImage());
 
-        result = db->getUserFiles(user, output);
+        result = db->getUserFiles(user->getUsername(), output);
 
         if (result != DB_USER_FILES_FOUND) {
             logger("Non è stato possibile recuperare i file associati a " + _body[0]);
@@ -199,7 +199,7 @@ void KKSession::handleUpdateUserRequest(KKPayload request)
 
 void KKSession::handleGetFilesRequest() {
     QStringList* output = new QStringList();
-    db->getUserFiles(user, output);
+    db->getUserFiles(user->getUsername(), output);
     this->sendResponse(GET_FILES, SUCCESS, *output);
 }
 
