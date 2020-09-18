@@ -40,7 +40,7 @@ KKClient::KKClient(QUrl url, QObject *parent)
     while (it.hasNext()) {
         avatars.push_back(it.next());
     }
-
+    mySiteId_ = "unknown";
     setInitState();
 }
 
@@ -119,13 +119,13 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == SIGNUP) {
         handleSignupResponse();
 
-    } else if(response.getRequestType() == GETFILES) {
+    } else if(response.getRequestType() == GET_FILES) {
         handleGetFilesResponse(response);
 
-    } else if(response.getRequestType() == OPENFILE) {
+    } else if(response.getRequestType() == OPEN_FILE) {
         handleOpenFileResponse(response);
 
-    } else if(response.getRequestType() == LOADFILE) {
+    } else if(response.getRequestType() == LOAD_FILE) {
         handleLoadFileResponse(response);
 
     } else if(response.getRequestType() == CRDT) {
@@ -410,7 +410,7 @@ void KKClient::sendGetFilesRequest()
     if (!timer_.isActive())
         timer_.start(TIMEOUT_VALUE);
 
-    bool sended = sendRequest(GETFILES, NONE, PAYLOAD_EMPTY_BODY);
+    bool sended = sendRequest(GET_FILES, NONE, PAYLOAD_EMPTY_BODY);
     if (sended) {
         state_ = CONNECTED_AND_LOGGED;
     }
@@ -450,7 +450,7 @@ void KKClient::sendOpenFileRequest(const QString& link, const QString& fileName)
         editor_->close();
     }
 
-    bool sended = sendRequest(OPENFILE, NONE, {link});
+    bool sended = sendRequest(OPEN_FILE, NONE, {link});
     if (sended) {
         state_ = CONNECTED_NOT_OPENFILE;
     }
@@ -491,7 +491,7 @@ bool KKClient::sendRequest(QString type, QString result, QStringList values) {
 
 void KKClient::logger(QString message)
 {
-    KKLogger::log(message, "CLIENT ["+mySiteId_+"]");
+    KKLogger::log(message, QString("CLIENT - %1").arg(mySiteId_));
 }
 
 /// MODAL ACTIONS
@@ -583,7 +583,7 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
 
 void KKClient::onSaveCrdtToFile() {
     if(currentfileValid_) {
-        sendRequest(SAVEFILE, NONE, {crdt_->getSiteId(), currentfile_});
+        sendRequest(SAVE_FILE, NONE, {crdt_->getSiteId(), currentfile_});
     }
 }
 

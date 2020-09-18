@@ -59,7 +59,7 @@ public slots:
 
 private:
     enum { MaxRecentMessages = 100 };
-    int participantCounter = 0;
+
     KKMapParticipantPtr participants;
     KKVectorPayloadPtr recentMessages;
     KKCrdtPtr crdt;
