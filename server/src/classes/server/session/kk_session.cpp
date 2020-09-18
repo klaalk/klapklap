@@ -134,6 +134,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
 void KKSession::handleLogoutRequest(KKPayload request) {
     Q_UNUSED(request)
     if(file.get() != nullptr) {
+        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {id}, "All");
         file->leave(sharedFromThis());
     }
         this->sendResponse(LOGOUT, SUCCESS, {"Logut eseguito"});
