@@ -36,6 +36,12 @@ OpenFileDialog::~OpenFileDialog()
     delete ui;
 }
 
+
+void OpenFileDialog::closeEvent(QCloseEvent *e)
+{
+    clear();
+}
+
 void OpenFileDialog::initializeFilesTableView() {
     ui->filesTableWidget->clear();
     ui->filesTableWidget->setColumnCount(3);
@@ -51,9 +57,9 @@ void OpenFileDialog::initializeFilesTableView() {
 }
 
 void OpenFileDialog::setUserInfo(const QStringList& info) {
-    ui->nameLineEdit->insert(info.value(0));
-    ui->surnameLineEdit->insert(info.value(1));
-    ui->aliasLineEdit->insert(info.value(5));
+    ui->nameLineEdit->setText(info.value(0));
+    ui->surnameLineEdit->setText(info.value(1));
+    ui->aliasLineEdit->setText(info.value(5));
     ui->emailLabel->setText("Email: " + info.value(2));
     ui->usernameLabel->setText("Username: " + info.value(4));
     QString registrationDate = info.value(6);
@@ -63,7 +69,7 @@ void OpenFileDialog::setUserInfo(const QStringList& info) {
 
 void OpenFileDialog::setUserFiles(const QStringList &files)
 {
-    initializeFilesTableView();
+    files_.clear();
     ui->filesTableWidget->setRowCount(files.size());
 
     int fileIndex = 0;
@@ -104,6 +110,16 @@ void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
     ui->filesTableWidget->setItem(fileIndex, 1, owner);
     ui->filesTableWidget->setItem(fileIndex, 2, date);
 }
+
+void OpenFileDialog::clear()
+{
+    ui->createFileNameLineEdit->clear();
+    selectedFilename.clear();
+    selectedLink.clear();
+    pastedFilename.clear();
+    pastedLink.clear();
+}
+
 
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 {

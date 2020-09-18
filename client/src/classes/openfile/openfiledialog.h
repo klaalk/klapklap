@@ -33,8 +33,7 @@ public:
     void setUserInfo(const QStringList& info);
     void setUserFiles(const QStringList& files);
     void setUserAvatar(const QString &avatar);
-    void addFile(int fileIndex, const QString& fileName);
-
+    void clear();
 private slots:
     void on_filesTableWidget_itemClicked(QTableWidgetItem *item);
     void on_openFileButton_clicked();
@@ -44,7 +43,11 @@ private slots:
     void on_saveChangesButton_clicked();
     void on_LogoutButton_clicked();
 
+protected:
+    void closeEvent(QCloseEvent *e) override;
+
 private:
+    void addFile(int fileIndex, const QString& fileName);
     void initializeFilesTableView();
 
     Ui::OpenFileDialog *ui;

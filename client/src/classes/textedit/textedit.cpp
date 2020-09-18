@@ -144,7 +144,7 @@ void TextEdit::closeEvent(QCloseEvent *e)
 {
     e->ignore();
     hide();
-    emit openFileDialog();
+    emit editorClosed();
 }
 
 void TextEdit::resizeEvent(QResizeEvent *event){

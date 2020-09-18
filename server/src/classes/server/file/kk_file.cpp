@@ -22,14 +22,12 @@ KKFile::~KKFile() {
 }
 
 void KKFile::join(KKParticipantPtr participant) {
-    participants->insert(participant->username, participant);
-    participantCounter++;
+    participants->insert(participant->id, participant);
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
 //    participants->insert(participant->id, nullptr);
-    participants->remove(participant->username);
-    participantCounter--;
+    participants->remove(participant->id);
 }
 
 void KKFile::deliver(QString type, QString result, QStringList message, QString username) {
@@ -48,7 +46,7 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
 
     if (!participants->isEmpty()) {
         std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
-            if(p->username != username) {
+            if(p->id != username) {
                 p->deliver(data);
             }
         });
@@ -170,13 +168,15 @@ QStringList KKFile::getCrdtText()
 
 int KKFile::getParticipantCounter() const
 {
-    return participantCounter;
+    return participants->size();
 }
 
 void KKFile::handleTimeout() {
-    if (participantCounter > 0) {
+
+    if (participants->size() > 0) {
         flushCrdtText();
     }
+
 }
 
 void KKFile::initCrdtText()
@@ -184,18 +184,21 @@ void KKFile::initCrdtText()
     QStringList text;
     if(file->open(QFile::ReadOnly)) {
         QTextStream stream(file.get());
-        while (!stream.atEnd()) {
-            QString line = stream.readLine();
-            int start = 0;
-            int nextFieldLength = 0;
-            do {
-                nextFieldLength = line.midRef(start, 3).toInt();
-                start += 3;
-                text.push_back(line.mid(start, nextFieldLength));
-                start += nextFieldLength;
-            } while (start < line.size());
-        }
+        QString line = stream.readAll();
+        line.remove('\r');
+
+        int start = 0;
+        int nextFieldLength = 0;
+        do {
+            nextFieldLength = line.midRef(start, 3).toInt();
+            start += 3;
+            text.push_back(line.mid(start, nextFieldLength));
+            start += nextFieldLength;
+        } while (start < line.size()-1);
+
+
         if(!text.isEmpty()) {
+            qDebug() << text;
             crdt->loadCrdt(text);
         }
         //crdt->print();

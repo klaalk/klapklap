@@ -92,7 +92,7 @@ int KKDataBase::loginUser(QString username, QString password, KKUserPtr user) {
     return resCode;
 }
 
-int KKDataBase::getUser(QString username, KKUserPtr userInfo) {
+int KKDataBase::getUser(QString username, KKUserPtr user) {
     int resCode = DB_ERR_USER_NOT_FOUND;
     if(!db.open()) {
         resCode = DB_ERR_NOT_OPEN_CONNECTION;
@@ -104,19 +104,18 @@ int KKDataBase::getUser(QString username, KKUserPtr userInfo) {
             query.exec();
             query.next();
 
-            userInfo->setId(query.value(0).toString());
-            userInfo->setName(query.value(1).toString());
-            userInfo->setSurname(query.value(2).toString());
-            userInfo->setEmail(query.value(3).toString());
-            userInfo->setUsername(query.value(4).toString());
-            userInfo->setAlias(query.value(5).toString());
-            userInfo->setImage(query.value(6).toString());
-            userInfo->setRegistrationDate(query.value(7).toString());
-            userInfo->setPassword(query.value(8).toString());
+            user->setId(query.value(0).toString());
+            user->setName(query.value(1).toString());
+            user->setSurname(query.value(2).toString());
+            user->setEmail(query.value(3).toString());
+            user->setUsername(query.value(4).toString());
+            user->setAlias(query.value(5).toString());
+            user->setImage(query.value(6).toString());
+            user->setRegistrationDate(query.value(7).toString());
+            user->setPassword(query.value(8).toString());
 
             db.close();
             resCode = DB_USER_FOUND;
-
         } catch (QException e) {
             db.close();
         }
@@ -210,13 +209,11 @@ int  KKDataBase::getUserFiles(KKUserPtr user, QStringList* files){
             query.addBindValue(user->getUsername());
             query.exec();
 
-            if (files == nullptr) {
+            if (files == nullptr)
                 files = new QStringList();
-            }
 
-            while(query.next()){
+            while(query.next())
                 (*files).push_back(query.value(0).toString() + FILENAME_SEPARATOR + query.value(1).toString());
-            }
 
             db.close();
             resCode = DB_USER_FILES_FOUND;

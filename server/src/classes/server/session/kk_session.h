@@ -37,10 +37,9 @@ public:
     ~KKSession();
 
     void deliver(KKPayloadPtr msg);
-    void sendResponse(QString type, QString result, QStringList values);
-    void setSocket(QSharedPointer<QWebSocket> Descriptor);
-
     QString getSessionId();
+    void setSocket(QSharedPointer<QWebSocket> Descriptor);
+    void sendResponse(QString type, QString result, QStringList values);
 
 public slots:
     void handleRequest(QString message);
@@ -48,18 +47,23 @@ public slots:
     void handleDisconnection();
 private:
     void handleLoginRequest(KKPayload request);
-    void handleLogoutRequest(KKPayload request);
     void handleSignupRequest(KKPayload request);
+    void handleLogoutRequest(KKPayload request);
+    void handleUpdateUserRequest(KKPayload request);
+
     void handleGetFilesRequest();
     void handleOpenFileRequest(KKPayload request);
-    void handleUpdateUserRequest(KKPayload request);
-    void handleChatRequest(KKPayload request);
-    void handleCrdtRequest(KKPayload request);
     void handleSaveFileRequest(KKPayload request);
     void handleLoadFileRequest(KKPayload request);
+    void handleQuitFileRequest();
+
+    void handleCrdtRequest(KKPayload request);
     void handleAlignChangeRequest(KKPayload request);
     void handleFormatChangeRequest(KKPayload request);
 
+    void handleChatRequest(KKPayload request);
+
+    void disconnectFromFile();
     void logger(QString message);
 
     QSharedPointer<QWebSocket> socket;

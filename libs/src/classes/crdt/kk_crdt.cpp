@@ -387,6 +387,9 @@ void KKCrdt::loadCrdt(QStringList crdt){
             start += nextFieldLength;
         } while (start < crdtChar.size());
 
+        if (fields.isEmpty())
+            continue;
+
         KKCharPtr charPtr = KKCharPtr(new KKChar(fields[0].at(0).toLatin1(), fields[1].toStdString()));
 
         QStringList ids = fields[2].split(";");
@@ -400,7 +403,7 @@ void KKCrdt::loadCrdt(QStringList crdt){
         text[text.size()-1].push_back(charPtr);
 
         // Se il carattere e' un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
-        if (charPtr->getValue()=='\n') {
+        if (charPtr->getValue() == '\n') {
             text.insert(text.end(), list<KKCharPtr>());
         }
     }
