@@ -243,6 +243,7 @@ private:
     int cursorPos=0;
     int lastCursorPos=0;
     int fontSize=0;
+    int maxFontSize=0;
     int selection_start=0;
     int selection_end=0;
     std::list<KKCharAndForm> lastTextAndForm;
