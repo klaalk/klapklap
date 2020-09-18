@@ -161,6 +161,14 @@ private slots:
     void about();
     void printPreview(QPrinter *);
     void onTextChange();
+    void justInsert(QString plainText);
+    void justDelete(QString plainText);
+    void deleteInsertA(QString plainText);
+    void deleteInsertB(QString plainText);
+    void shortestText(int diffLength,QString plainText);
+    void longestText(int diffLength,QString plainText);
+    void sameTextLength(QString plainText);
+    void updateCursors(QString plainText);
 
 private:
     void setupFileActions();
