@@ -61,11 +61,12 @@ void KKClient::initEditor()
     if (crdt_ != nullptr) delete crdt_;
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
 
+    if (chat_ != nullptr) delete chat_;
+    chat_ = new ChatDialog();
+
     if (editor_ != nullptr) delete editor_;
     editor_ = new TextEdit();
 
-    if (chat_ != nullptr) delete chat_;
-    chat_ = new ChatDialog();
 
     // Gestisco le richieste dell'editor
     connect(editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
@@ -458,10 +459,10 @@ void KKClient::sendOpenFileRequest(const QString& link, const QString& fileName)
 
 void KKClient::sendMessageRequest(QString username, QString message) {
     bool result = sendRequest(CHAT, NONE, {std::move(username), std::move(message)});
-//    if (!result || !socket_.isValid()) {
-//        modal_.setModal("Attenzione! Sembra che tu non sia connesso alla rete.", "Riprova", CHAT_ERROR);
-//        modal_.show();
-//    }
+    if (!result || !socket_.isValid()) {
+        modal_.setModal("Attenzione! Sembra che tu non sia connesso alla rete.", "Riprova", CHAT_ERROR);
+        modal_.show();
+    }
 }
 
 void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar)
@@ -520,11 +521,9 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
         modal_.hide();
         access_.showLoader(false);
 
-    } else if (modalType == CRDT_ERROR) {
-        delete crdt_;
-        editor_->resetState();
-        chat_->resetState();
-        initState();
+    } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR) {
+        modal_.hide();
+        editor_->close();
 
     } else if (modalType == OPENFILE_ERROR) {
         modal_.hide();

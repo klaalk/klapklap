@@ -123,7 +123,7 @@ QTextEdit[class="TextEdit"] {
 ChatDialog {
     border-left-style: solid;
     border-left-width: 1px;
-    border-left-color: rgba(33, 33, 33, 150);
+    border-left-color: rgba(33, 33, 33, 100);
 }
 
 QTextEdit[class="ChatTextEdit"], QListWidget[class="ParticipantList"] {
