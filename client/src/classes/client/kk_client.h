@@ -76,6 +76,7 @@ private slots:
     void logger(QString message);
 private:
     void setInitState();
+    void initCRDT();
     void initTextEdit();
     void initChatDialog();
     void handleSuccessResponse(KKPayload res);

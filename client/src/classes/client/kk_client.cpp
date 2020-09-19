@@ -52,7 +52,7 @@ void KKClient::setInitState() {
     socket_.open(QUrl(url_));
     initTextEdit();
     initChatDialog();
-
+    initCRDT();
     openFile_.hide();
     modal_.hide();
 
@@ -60,8 +60,16 @@ void KKClient::setInitState() {
     access_.showLoader(true);
 }
 
-void KKClient::initTextEdit() {
+void KKClient::initCRDT()
+{
+    logger("Inizializzazione CRDT...");
+    if (crdt_ != nullptr) delete crdt_;
+    crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
+    logger("Inizializzazione CRDT completata");
+}
 
+void KKClient::initTextEdit() {
+    logger("Inizializzazione editor di testo...");
     if (editor_ != nullptr) delete editor_;
     editor_ = new TextEdit();
     // Gestisco le richieste dell'editor
@@ -77,9 +85,12 @@ void KKClient::initTextEdit() {
     editor_->setMySiteId(mySiteId_);
     editor_->setCurrentFileName(currentfile_);
     editor_->hide();
+    logger("Inizializzazione editore di testo completata");
 }
 
 void KKClient::initChatDialog() {
+    logger("Inizializzazione chat di dialogo...");
+
     if (chat_ != nullptr) delete chat_;
     chat_ = new ChatDialog();
     // Gestisco le richieste della chat
@@ -88,6 +99,8 @@ void KKClient::initChatDialog() {
 
     chat_->setNickName(mySiteId_);
     chat_->hide();
+    logger("Inizializzazione chat di dialogo completata");
+
 }
 
 /// HANDLING
@@ -205,18 +218,15 @@ void KKClient::handleGetFilesResponse(KKPayload res)
 }
 
 void KKClient::handleOpenFileResponse(KKPayload response) {
-    currentfileValid_ = true;
     state_= CONNECTED_AND_OPENED;
+    currentfileValid_ = true;
 
-    if (crdt_ != nullptr)
-        delete crdt_;
-
-    crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
-
+    initCRDT();
     initTextEdit();
     initChatDialog();
 
     chat_->setParticipants(response.getBodyList());
+
     editor_->show();
     chat_->show();
     openFile_.hide();
