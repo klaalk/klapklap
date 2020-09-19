@@ -205,6 +205,8 @@ unsigned long KKCrdt::generateIdentifierBetween(unsigned long min, unsigned long
 void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
     int flag =0;
 
+
+    qDebug()<< "POSIZIONEEEE->"<< pos.getLine()<<pos.getCh();
     // Inizializzo la prima riga.
     if (pos.getLine() == text.size()) {
         text.insert(text.end(), list<KKCharPtr>());
@@ -213,20 +215,21 @@ void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
 
     // if inserting a newline, split line into two lines
     if (_char->getValue() == '\n') {
-        list<KKCharPtr> line_after(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end());//salvo cio che c'è dopo il /n
-        text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end()); //cancello cio che c'era dopo il /n
+        qDebug()<< "insert \n";
+        list<KKCharPtr> line_after(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end());//salvo cio che c'è dopo il \n
+        text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end()); //cancello cio che c'era dopo il \n
         if (line_after.empty()) { //se il /n è l'ultimo carattere del testo
             list<KKCharPtr> _list_char = {_char};
             text[pos.getLine()].splice(std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh())), _list_char);
             list<KKCharPtr> new_last_line = {};
             text.insert(std::next(text.begin(),static_cast<long>(pos.getLine()+1)),new_last_line); //aggiungi una riga vuota
 
-        } else {
-            text[pos.getLine()].push_back(_char); //inserisco il /n
-            list<KKCharPtr> line_before(text[pos.getLine()]); //salvo la riga col /n
-            text.erase(std::next(text.begin(),static_cast<long>(pos.getLine()))); //cancello la riga col /n
-            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine())),line_before); //aggiungo la riga che finisce col /n
-            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine()+1)),line_after); //aggiungo la riga di cio che sta dopo il /n
+        } else { //il \n NON è l'ultimo carattere del testo
+            text[pos.getLine()].push_back(_char); //inserisco il \n
+            list<KKCharPtr> line_before(text[pos.getLine()]); //salvo la riga col \n
+            text.erase(std::next(text.begin(),static_cast<long>(pos.getLine()))); //cancello la riga col \n
+            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine())),line_before); //aggiungo la riga che finisce col \n
+            text.insert(std::next(text.begin(),static_cast<long>(pos.getLine()+1)),line_after); //aggiungo la riga di cio che sta dopo il \n
         }
     } else { //se hai scritto un carattere
 //        if (text.at(pos.getLine()).empty() && flag==0) { //se la riga dove hai scritto il carattere è vuota, crea un altra riga
@@ -234,6 +237,9 @@ void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
 //        }
         list<KKCharPtr> _list_char = {_char};
         text[pos.getLine()].splice(std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh())), _list_char);
+
+
+
     }
 }
 
@@ -253,9 +259,15 @@ KKPosition KKCrdt::findInsertPosition(const KKCharPtr& _char){
     unsigned long mid_line;
     unsigned long max_line = total_lines-1;
 
+
     //controlla se la char va messa come primo carattere della prima riga
     if(text.empty() || text.at(0).empty() ||_char.get()->compareTo(*text[0].front().get()) <= 0) {
         return {0,0};
+    }
+
+
+    if(text[max_line].empty()){
+        max_line--;
     }
 
     list<KKCharPtr> last_line(text[max_line]);
@@ -816,7 +828,9 @@ KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font_, QStrin
     return new_Char;
 }
 
+void KKCrdt::checkBackSlashN(){
 
+}
 
 
 
