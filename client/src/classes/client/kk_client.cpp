@@ -571,7 +571,7 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     }
     if(editor_->clickedAny())
         editor_->updateSiteIdsMap(siteId,findPositions(siteId));
-    crdt_->print();
+    crdt_->printText();
 }
 
 void KKClient::onRemoveTextCrdt(int start, int end) {
@@ -592,7 +592,7 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
 
     if(editor_->clickedAny())
        editor_->updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
-    crdt_->print();
+    crdt_->printText();
 }
 
 void KKClient::onSaveCrdtToFile() {

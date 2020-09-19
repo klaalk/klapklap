@@ -448,6 +448,17 @@ void KKCrdt::print() {
     std::cout << "FINE STAMPA CRDT" << std::endl;
 }
 
+void KKCrdt::printText() {
+    std::cout << std::endl << "INIZIO STAMPA CRDT" << std::endl;
+    for (auto& i : text) {
+        for (const auto& x : i) {
+            std::cout << x->getValue();
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "FINE STAMPA CRDT" << std::endl;
+}
+
 void KKCrdt::printform() {
     std::cout << std::endl << "INIZIO STAMPA CRDT" << std::endl;
     for (auto& i : text) {
