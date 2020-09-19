@@ -117,4 +117,15 @@ QHeaderView::section {
 
 QTextEdit[class="TextEdit"] {
     border: 0px solid white;
+    min-width: 500px;
+}
+
+ChatDialog {
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-left-color: rgba(33, 33, 33, 150);
+}
+
+QTextEdit[class="ChatTextEdit"], QListWidget[class="ParticipantList"] {
+    border: 0px solid white;
 }

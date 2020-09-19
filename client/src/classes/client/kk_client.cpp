@@ -458,10 +458,10 @@ void KKClient::sendOpenFileRequest(const QString& link, const QString& fileName)
 
 void KKClient::sendMessageRequest(QString username, QString message) {
     bool result = sendRequest(CHAT, NONE, {std::move(username), std::move(message)});
-    if (!result || !socket_.isValid()) {
-        modal_.setModal("Attenzione! Sembra che tu non sia connesso alla rete.", "Riprova", CHAT_ERROR);
-        modal_.show();
-    }
+//    if (!result || !socket_.isValid()) {
+//        modal_.setModal("Attenzione! Sembra che tu non sia connesso alla rete.", "Riprova", CHAT_ERROR);
+//        modal_.show();
+//    }
 }
 
 void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar)
