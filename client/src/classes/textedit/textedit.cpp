@@ -76,7 +76,7 @@ TextEdit::TextEdit(QWidget *parent)
 
     // Set layout
     QHBoxLayout *layout = new QHBoxLayout;
-    setProperty("class", "crdtTextEdit");
+    textEdit->setProperty("class", "TextEdit");
     layout->addWidget(textEdit);
     //    layout->addWidget(myWidget2);
 
@@ -85,6 +85,7 @@ TextEdit::TextEdit(QWidget *parent)
     window->setLayout(layout);
 
     // Set QWidget as the central layout of the main window
+    setProperty("class", "EditorCentral");
     setCentralWidget(window);
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setupFileActions();
@@ -1311,6 +1312,12 @@ QBrush TextEdit::selectRandomColor(){
     }
     while (siteIdsColors_.values().contains(color));
     return color;
+}
+
+void TextEdit::setChatDialog(ChatDialog *value)
+{
+    chatDialog = value;
+    centralWidget()->layout()->addWidget(chatDialog);
 }
 
 QTextEdit* TextEdit::getTextEdit(){

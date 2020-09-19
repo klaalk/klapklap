@@ -40,37 +40,33 @@ KKClient::KKClient(QUrl url, QObject *parent)
         avatars.push_back(it.next());
     }
     mySiteId_ = "unknown";
-    setInitState();
+    initState();
 }
 
 /// INIT
 
-void KKClient::setInitState() {
+void KKClient::initState() {
     state_ = NOT_CONNECTED;
     timer_.start(TIMEOUT_VALUE);
     socket_.open(QUrl(url_));
-    initTextEdit();
-    initChatDialog();
-    initCRDT();
     openFile_.hide();
     modal_.hide();
-
     access_.show();
     access_.showLoader(true);
 }
 
-void KKClient::initCRDT()
+void KKClient::initEditor()
 {
-    logger("Inizializzazione CRDT...");
+    logger("Inizializzazione editor...");
     if (crdt_ != nullptr) delete crdt_;
     crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
-    logger("Inizializzazione CRDT completata");
-}
 
-void KKClient::initTextEdit() {
-    logger("Inizializzazione editor di testo...");
     if (editor_ != nullptr) delete editor_;
     editor_ = new TextEdit();
+
+    if (chat_ != nullptr) delete chat_;
+    chat_ = new ChatDialog();
+
     // Gestisco le richieste dell'editor
     connect(editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
     connect(editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
@@ -81,25 +77,19 @@ void KKClient::initTextEdit() {
     connect(editor_, &TextEdit::openFileDialog, this, &KKClient::onOpenFileDialog);
     connect(editor_, &TextEdit::editorClosed, this, &KKClient::onEditorClosed);
 
+    editor_->setChatDialog(chat_);
     editor_->setMySiteId(mySiteId_);
     editor_->setCurrentFileName(currentfile_);
     editor_->hide();
-    logger("Inizializzazione editore di testo completata");
-}
 
-void KKClient::initChatDialog() {
-    logger("Inizializzazione chat di dialogo...");
-
-    if (chat_ != nullptr) delete chat_;
-    chat_ = new ChatDialog();
     // Gestisco le richieste della chat
     connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
     connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
 
     chat_->setNickName(mySiteId_);
     chat_->hide();
-    logger("Inizializzazione chat di dialogo completata");
 
+    logger("Inizializzazione editor completata");
 }
 
 /// HANDLING
@@ -221,9 +211,7 @@ void KKClient::handleOpenFileResponse(KKPayload response) {
     state_= CONNECTED_AND_OPENED;
     currentfileValid_ = true;
 
-    initCRDT();
-    initTextEdit();
-    initChatDialog();
+    initEditor();
 
     chat_->setParticipants(response.getBodyList());
 
@@ -520,13 +508,13 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
     Q_UNUSED(btnText)
 
     if(modalType == CONNECTION_TIMEOUT) {
-        setInitState();
+        initState();
 
     } else if (modalType == LOGIN_TIMEOUT) {
-        setInitState();
+        initState();
 
     } else if (modalType == OPENFILE_TIMEOUT) {
-        setInitState();
+        initState();
 
     } else  if (modalType == LOGIN_ERROR) {
         modal_.hide();
@@ -536,7 +524,7 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
         delete crdt_;
         editor_->resetState();
         chat_->resetState();
-        setInitState();
+        initState();
 
     } else if (modalType == OPENFILE_ERROR) {
         modal_.hide();

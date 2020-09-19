@@ -19,6 +19,7 @@
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crdt/identifier/kk_identifier.h"
 #include "../../../../libs/src/constants/kk_constants.h"
+#include "../chat/chatdialog.h"
 
 class QAction;
 class QComboBox;
@@ -153,6 +154,8 @@ public:
     void stringDiffInv(std::string str1, std::string str2, unsigned long *lengthX, std::string *stringX );
     void stringDiff(std::string str1, std::string str2,unsigned long *posX, std::string *stringX);
     std::list<KKCharAndForm> fromStringKKCharAndFormList(std::string string, int pos);
+    void setChatDialog(ChatDialog *value);
+
 signals:
     void insertTextToCRDT(QString text, int position);
     void removeTextFromCRDT(int start, int end);
@@ -259,6 +262,7 @@ private:
     QFontComboBox *comboFont{};
     QComboBox *comboSize{};
     QToolBar *tb{};
+    ChatDialog* chatDialog;
     QMap<QString,QSharedPointer<QList<int>>> siteIds_;
     QMap<QString,QBrush> siteIdsColors_;
     QList<QString> siteIdsClicked_;

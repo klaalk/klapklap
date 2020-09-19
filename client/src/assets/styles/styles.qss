@@ -1,4 +1,4 @@
-QDialog {
+QDialog, QMainWindow {
     background-color: rgb(255, 255, 255);
     color: rgb(33, 33, 33);
 }
@@ -114,6 +114,7 @@ QHeaderView::section {
     font-size: 12px;
 }
 
-QTextEdit[class="crdtTextEdit"] {
-    margin: 30px 60px;
+
+QTextEdit[class="TextEdit"] {
+    border: 0px solid white;
 }
