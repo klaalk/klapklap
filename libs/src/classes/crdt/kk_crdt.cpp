@@ -206,7 +206,7 @@ void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
     int flag =0;
 
 
-    qDebug()<< "POSIZIONEEEE->"<< pos.getLine()<<pos.getCh();
+    //qDebug()<< "POSIZIONEEEE->"<< pos.getLine()<<pos.getCh();
     // Inizializzo la prima riga.
     if (pos.getLine() == text.size()) {
         text.insert(text.end(), list<KKCharPtr>());
@@ -215,7 +215,7 @@ void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
 
     // if inserting a newline, split line into two lines
     if (_char->getValue() == '\n') {
-        qDebug()<< "insert \n";
+        //qDebug()<< "insert \n";
         list<KKCharPtr> line_after(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end());//salvo cio che c'è dopo il \n
         text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())),text[pos.getLine()].end()); //cancello cio che c'era dopo il \n
         if (line_after.empty()) { //se il /n è l'ultimo carattere del testo
@@ -272,7 +272,7 @@ KKPosition KKCrdt::findInsertPosition(const KKCharPtr& _char){
 
     list<KKCharPtr> last_line(text[max_line]);
 
-    //controlla se la char va messa come primo carattere dell'ultima riga
+    //controlla se la char va messa come primo carattere dell'ultima riga DA RIVEDERE
     if(last_line.empty() && std::next(text[max_line-1].begin(),static_cast<long>(text[max_line-1].size()-1))->get()->getValue()=='\n' && _char.get()->compareTo(**std::next(text[max_line-1].begin(),static_cast<long>(text[max_line-1].size()-1)))>0){
         return KKPosition(max_line,0);
     }
@@ -282,7 +282,8 @@ KKPosition KKCrdt::findInsertPosition(const KKCharPtr& _char){
 
     //controlla se la char va messa come ultimo carattere dell'ultima riga
     if(_char.get()->compareTo(last_char)>0){
-        return findEndPosition(last_char, last_line, total_lines);
+        //return findEndPosition(last_char, last_line, total_lines);
+        return findEndPosition(last_char);
     }
 
     while (min_line +1 < max_line) {
@@ -317,13 +318,20 @@ KKPosition KKCrdt::findInsertPosition(const KKCharPtr& _char){
     
 }
 
-KKPosition KKCrdt::findEndPosition (KKChar last_char, const list<KKCharPtr>& last_line, unsigned long total_lines){
+KKPosition KKCrdt::findEndPosition(KKChar last_char){
     if (last_char.getValue() == '\n') {
-        return {total_lines,0};
+        return KKPosition(text.size()-1,0);
+        }else{
+        return KKPosition(text.size()-1,text[text.size()-1].size());
     }
-    return KKPosition(total_lines-1, static_cast<unsigned long>(last_line.size()));
-    
 }
+//KKPosition KKCrdt::findEndPosition (KKChar last_char, const list<KKCharPtr>& last_line, unsigned long total_lines){
+//    if (last_char.getValue() == '\n') {
+//        return {total_lines,0};
+//    }
+//    return KKPosition(total_lines-1, last_line.size());
+    
+//}
 
 unsigned long KKCrdt::findInsertIndexInLine(const KKCharPtr& _char, list<KKCharPtr> line){
     unsigned long left=0;
@@ -708,7 +716,7 @@ void KKCrdt::calculateLineCol(unsigned long global_pos, unsigned long *line, uns
         }
         tot+=text[i].size();
     }
-    qDebug() << "[calculateLineCol] line: " << *line << " - col: " << *col;
+    //qDebug() << "[calculateLineCol] line: " << *line << " - col: " << *col;
 
 }
 list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition end, QString font_, QString color_){

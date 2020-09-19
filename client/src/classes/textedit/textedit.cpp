@@ -33,6 +33,7 @@
 #include <QListWidgetItem>
 #include <QTextCharFormat>
 
+
 #if defined(QT_PRINTSUPPORT_LIB)
 #include <QtPrintSupport/qtprintsupportglobal.h>
 #if QT_CONFIG(printer)
@@ -807,7 +808,7 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
 
     if(cursor.hasSelection()) {
 
-        qDebug()<<"[mergeFormatOnWordOrSelection] Formato da mettere nella selezione: "<< format.font().toString()<< " "<< format.foreground().color().name();
+        //qDebug()<<"[mergeFormatOnWordOrSelection] Formato da mettere nella selezione: "<< format.font().toString()<< " "<< format.foreground().color().name();
 
         int posIniziale=cursor.position();
 
@@ -823,7 +824,7 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
             emit charFormatChange(i, fmt);
             std::next(lastTextAndForm.begin(),i)->setFont(fmt.font().toString());
             std::next(lastTextAndForm.begin(),i)->setColor(fmt.foreground().color().name());
-            printLastTextandForm();
+            //printLastTextandForm();
 
 
         }
@@ -834,7 +835,7 @@ void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     textEdit->mergeCurrentCharFormat(format);
     std::next(lastTextAndForm.begin(),cursor.position())->setFont(format.font().toString());
     std::next(lastTextAndForm.begin(),cursor.position())->setColor(format.foreground().color().name());
-    printLastTextandForm();
+    //printLastTextandForm();
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -940,7 +941,7 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
         cursorBlocked = true;
     else blockCursor = true;
 
-    qDebug()<<"[applyRemoteChanges]";
+    //qDebug()<<"[applyRemoteChanges]";
 
     std::list<KKCharAndForm> tmpList;
 
@@ -965,7 +966,7 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
         editorCurs.insertText(text);
         tmpList = fromStringKKCharAndFormList(text.toStdString(),globalPos);
         lastTextAndForm.splice(std::next(lastTextAndForm.begin(),globalPos),tmpList);
-        printLastTextandForm();
+        //printLastTextandForm();
 
         //Aggiorno formato
         for(int i=0;i<text.length();i++) {
@@ -980,7 +981,7 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
     } else if(operation == CRDT_DELETE) {
         editorCurs.deleteChar();
         lastTextAndForm.erase(std::next(lastTextAndForm.begin(),globalPos),std::next(lastTextAndForm.begin(),globalPos+1));
-        printLastTextandForm();
+        //printLastTextandForm();
 
         //Aggiorno la length.
         lastLength = lastLength - text.length();
@@ -1045,6 +1046,68 @@ void TextEdit::onTextChange() {
 
     updateCursors(plainText);
 }
+
+//ONTEXTCHANGE DI KLAUS
+//void TextEdit::onTextChange() {
+//    if(blockCursor) return;
+
+//    QString text = textEdit->toPlainText();
+
+//    dtl::Diff<char, string> d(lastText.toStdString(), text.toStdString());
+//    d.compose();
+
+//    vector<std::pair<long long, long long>> ins;
+//    vector<std::pair<long long, long long>> del;
+
+//    for (auto elem : d.getSes().getSequence()) {
+//        qDebug() << "elem info: after" << elem.second.afterIdx << " before " << elem.second.beforeIdx << " type " << elem.second.type;
+//        if (elem.second.type == dtl::SES_ADD)
+//            ins.push_back(std::pair<long long, long long>(elem.second.afterIdx-1, elem.second.afterIdx));
+//        if (elem.second.type == dtl::SES_DELETE)
+//            del.push_back(std::pair<long long, long long>(elem.second.beforeIdx-1, elem.second.beforeIdx));
+//    }
+
+//    if (del.size() > 0) {
+//        auto firstDelIndx = static_cast<int>(del.at(0).first);
+//        auto lastDelIndx = static_cast<int>(del.at(del.size()-1).second);
+//        qDebug() << "first del elem " << firstDelIndx << "last del elem" <<  lastDelIndx;
+
+//        emit removeTextFromCRDT(firstDelIndx, lastDelIndx);
+//        lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(firstDelIndx)),std::next(lastTextAndForm.begin(),lastDelIndx));
+//        diffText = lastText.mid(firstDelIndx, lastDelIndx-firstDelIndx);
+//        qDebug () << "DELETE: " << diffText;
+//        updateCursors(text);
+//    }
+
+//    if (ins.size()>0) {
+//        auto firstInsIndx = static_cast<int>(ins.at(0).first);
+//        auto lastInsIndx = static_cast<int>(ins.at(ins.size()-1).second);
+//        qDebug() << "first ins elem " << firstInsIndx << "last ins elem" <<  lastInsIndx;
+
+//        diffText = text.mid(firstInsIndx, lastInsIndx-firstInsIndx);
+//        emit insertTextToCRDT(diffText, firstInsIndx);
+//        std::list<KKCharAndForm> tmpList = fromStringKKCharAndFormList(diffText.toStdString(),static_cast<int>(lastInsIndx));
+//        lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(lastInsIndx)), tmpList);
+//        qDebug () << "INSERT: " << diffText;
+
+//        updateCursors(text);
+//    }
+
+//    if(wasTextSelected) {
+//        QTextCharFormat fmt = textEdit->textCursor().charFormat();
+
+//        if (cursorPos > selection_start) {
+//            qDebug() << "SELECT: " << text.mid(selection_start, cursorPos-selection_start);
+//            for (int i = selection_start; i < cursorPos; i++)
+//                emit charFormatChange(i, fmt);
+//        } else {
+//            qDebug() << "SELECT: " << text.mid(cursorPos, selection_start - cursorPos);
+//            for (int i = cursorPos; i < selection_start; i++)
+//                emit charFormatChange(i, fmt);
+//        }
+
+//    }
+//}
 
 void TextEdit::updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list){
 
@@ -1201,7 +1264,7 @@ void TextEdit::singleCharFormatChange(int remotePos, QString fontStr, QString co
     editorCurs.setCharFormat(format);
     std::next(lastTextAndForm.begin(),remotePos)->setFont(format.font().toString());
     std::next(lastTextAndForm.begin(),remotePos)->setColor(format.foreground().color().name());
-    printLastTextandForm();
+    //printLastTextandForm();
 
     editorCurs.setPosition(posIniziale);
     textEdit->setTextCursor(editorCurs);
@@ -1214,7 +1277,7 @@ void TextEdit::singleCharFormatChange(int remotePos, QString fontStr, QString co
 // TO CHECK
 void TextEdit::createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int globalPos){
 
-    qDebug()<<"[createCursorAndLabel]";
+    //qDebug()<<"[createCursorAndLabel]";
 
     QBrush color;
     if(remoteCurs == nullptr) {
@@ -1270,7 +1333,7 @@ bool TextEdit::clickedAny(){
 void TextEdit::shortestText(int diffLength,QString plainText){
     if(lastCursorPos-1>cursorPos){
         if(isTextSelected){
-            qDebug()<<"[shortestText]"<< plainText.mid(0,selection_start) << "  " << lastText.mid(0,selection_end-diffLength);
+            //qDebug()<<"[shortestText]"<< plainText.mid(0,selection_start) << "  " << lastText.mid(0,selection_end-diffLength);
             //if(plainText.mid(0,selection_start)==lastText.mid(0,selection_end-diffLength)){
            if(isEqualCharAndForm(0,selection_end-diffLength,0,selection_start)){
                 //solo cancellato
@@ -1279,13 +1342,13 @@ void TextEdit::shortestText(int diffLength,QString plainText){
         }
         //else if(plainText.mid(0,cursorPos)==lastText.mid(0,lastCursorPos-diffLength)){//hai solo cancellato
         else if(isEqualCharAndForm(0,lastCursorPos-diffLength,0,cursorPos)){
-            qDebug()<< "[shortestText]"<<plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-diffLength);
+            //qDebug()<< "[shortestText]"<<plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-diffLength);
             justDelete(plainText);
        }else{//hai cancellato e inserito
             deleteInsertA(plainText);
         }
     }else{
-        qDebug()<< "[shortestText]"<<plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-1);
+        //qDebug()<< "[shortestText]"<<plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-1);
         //if(plainText.mid(0,cursorPos)==lastText.mid(0,lastCursorPos-1)){//hai solo cancellato
         if(isEqualCharAndForm(0,lastCursorPos-1,0,cursorPos)){
             justDelete(plainText);
@@ -1297,7 +1360,7 @@ void TextEdit::shortestText(int diffLength,QString plainText){
 void TextEdit::longestText(int diffLength,QString plainText){
     //if(lastText.mid(lastCursorPos)==plainText.mid(cursorPos) && lastText.mid(0,lastCursorPos) == plainText.mid(0,cursorPos-diffLength)){//hai solo inserito
     if(isEqualCharAndForm(lastCursorPos,lastText.length(),cursorPos,plainText.length()) && isEqualCharAndForm(0,lastCursorPos,0,cursorPos-diffLength)){
-    qDebug()<<"[longestText]"<< lastText.mid(lastCursorPos) << "  " << plainText.mid(cursorPos) << "  " << lastText.mid(0,lastCursorPos) << "  " << plainText.mid(0,cursorPos-diffLength);
+    //qDebug()<<"[longestText]"<< lastText.mid(lastCursorPos) << "  " << plainText.mid(cursorPos) << "  " << lastText.mid(0,lastCursorPos) << "  " << plainText.mid(0,cursorPos-diffLength);
         justInsert(plainText);
     }else{//hai cancellato e inserito
         if(cursorPos==lastCursorPos+diffLength){
@@ -1318,12 +1381,12 @@ void TextEdit::sameTextLength(QString plainText){
             emit insertTextToCRDT(plainText.mid(lastCursorPos, cursorPos-lastCursorPos), lastCursorPos);
             tmpList = fromStringKKCharAndFormList(plainText.mid(lastCursorPos, cursorPos-lastCursorPos).toStdString(),static_cast<int>(lastCursorPos));
             lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(lastCursorPos)),tmpList);
-             printLastTextandForm();
+             //printLastTextandForm();
         }
     }else{
         //if(lastText.mid(0,lastCursorPos)!=plainText.mid(0,cursorPos)){//hai cancellato e scritto
         if(!isEqualCharAndForm(selection_start,selection_end,selection_start,selection_end)){
-            qDebug()<<lastText.mid(0,lastCursorPos)<<"  "<<plainText.mid(0,cursorPos);
+            //qDebug()<<lastText.mid(0,lastCursorPos)<<"  "<<plainText.mid(0,cursorPos);
             deleteInsertA(plainText);
         }
     }
@@ -1333,43 +1396,43 @@ void TextEdit::sameTextLength(QString plainText){
 void TextEdit::justInsert(QString plainText){
     std::list<KKCharAndForm> tmpList;
     diffText=plainText.mid(lastCursorPos, plainText.length() - lastLength);// Salva in diffText le cose nuove scritte
-    qDebug() << "[onTextChange] Testo inserito: " << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
+    //qDebug() << "[onTextChange] Testo inserito: " << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
     tmpList = fromStringKKCharAndFormList(diffText.toStdString(),static_cast<int>(lastCursorPos));
     lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(lastCursorPos)),tmpList);
-    printLastTextandForm();
+    //printLastTextandForm();
     emit insertTextToCRDT(diffText, lastCursorPos);
 }
 
 void TextEdit::justDelete(QString plainText){
     if(isTextSelected){
         diffText=lastText.mid(selection_start, selection_end);
-        qDebug() << "[onTextChange] Testo cancellato: " << diffText << "Selection start: >" << selection_start << "< Selection end: >" << selection_end << "<";
+        //qDebug() << "[onTextChange] Testo cancellato: " << diffText << "Selection start: >" << selection_start << "< Selection end: >" << selection_end << "<";
 
         lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(selection_start)),std::next(lastTextAndForm.begin(),selection_end));
-         printLastTextandForm();
+         //printLastTextandForm();
          emit removeTextFromCRDT(selection_start, selection_end);
 
     }
     else {
         if (cursorPos < lastCursorPos) {
             diffText = lastText.mid(cursorPos, lastLength - plainText.length());
-            qDebug() << "[onTextChange] Testo cancellato (indietro):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
+            //qDebug() << "[onTextChange] Testo cancellato (indietro):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
 
             lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(cursorPos)),std::next(lastTextAndForm.begin(),lastCursorPos));
-             printLastTextandForm();
+             //printLastTextandForm();
              emit removeTextFromCRDT(cursorPos, lastCursorPos);
         } else {
             int diffLength = lastLength - plainText.length();
             diffText = lastText.mid(cursorPos, diffLength);
-            qDebug() << "[onTextChange] Testo cancellato (avanti):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
+            //qDebug() << "[onTextChange] Testo cancellato (avanti):" << diffText << "Current: >" << cursorPos << "< Last: >" << lastCursorPos << "<";
             emit removeTextFromCRDT(cursorPos, cursorPos + diffLength);
             lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(cursorPos)),std::next(lastTextAndForm.begin(), cursorPos + diffLength));
-            printLastTextandForm();
+            //printLastTextandForm();
         }}
 
 }
 void TextEdit::deleteInsertA(QString plainText){
-     qDebug()<<"[deleteInsertA]";
+     //qDebug()<<"[deleteInsertA]";
     std::string str1;
     std::string str2;
     std::string stringX;
@@ -1378,19 +1441,17 @@ void TextEdit::deleteInsertA(QString plainText){
     str1 = plainText.mid(0,cursorPos).toStdString();
     str2 = lastText.mid(0,lastCursorPos).toStdString();
     stringDiff(str1,str2, &posX, &stringX);
-
     lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(posX)),std::next(lastTextAndForm.begin(),lastCursorPos));
-
-
     tmpList = fromStringKKCharAndFormList(stringX,static_cast<int>(posX));
     lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(posX)),tmpList);
-     printLastTextandForm();
-      emit removeTextFromCRDT(static_cast<int>(posX), lastCursorPos);
+     //printLastTextandForm();
+     emit removeTextFromCRDT(static_cast<int>(posX), lastCursorPos);
      emit insertTextToCRDT( QString::fromStdString (stringX), static_cast<int>(posX));
+    qDebug()<<"CANCELLA da:"<<posX<<" a "<< lastCursorPos << "e INSERISCI"<< QString::fromStdString (stringX)<<" in pos:"<< posX;
 }
 
 void TextEdit::deleteInsertB(QString plainText){
-     qDebug()<<"[deleteInsertB]";
+     //qDebug()<<"[deleteInsertB]";
     std::string str1;
     std::string str2;
     std::string stringX;
@@ -1399,14 +1460,13 @@ void TextEdit::deleteInsertB(QString plainText){
     str1 = lastText.mid(lastCursorPos).toStdString();
     str2 = plainText.mid(lastCursorPos).toStdString();
     stringDiffInv(str1,str2, &lengthX, &stringX);
-
     lastTextAndForm.erase(std::next(lastTextAndForm.begin(),static_cast<int>(lastCursorPos)),std::next(lastTextAndForm.begin(),lastCursorPos+static_cast<int>(lengthX)));
-
     tmpList = fromStringKKCharAndFormList(stringX,static_cast<int>(lastCursorPos));
     lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(lastCursorPos)),tmpList);
-    printLastTextandForm();
+    //printLastTextandForm();
     emit removeTextFromCRDT(lastCursorPos,lastCursorPos+static_cast<int>(lengthX)) ;
     emit insertTextToCRDT( QString::fromStdString (stringX), lastCursorPos);
+    qDebug()<<"CANCELLA da:"<<lastCursorPos<<" a "<< lastCursorPos+static_cast<int>(lengthX) << "e INSERISCI"<< QString::fromStdString (stringX)<<" in pos:"<< lastCursorPos;
 }
 
 void TextEdit::stringDiffInv(std::string str1, std::string str2,unsigned long *lengthX, std::string *stringX){
@@ -1417,8 +1477,8 @@ void TextEdit::stringDiffInv(std::string str1, std::string str2,unsigned long *l
     QString font;
     QString color;
 
-    qDebug()<<"[stringDiffInv]";
-    for(KKCharAndForm ch: lastTextAndForm) qDebug()<<ch.getValue();
+    //qDebug()<<"[stringDiffInv]";
+    //for(KKCharAndForm ch: lastTextAndForm) Debug()<<ch.getValue();
 
     for(i=0; i < std::max(str1.length(),str2.length()); i++){
         getCurrentFontAndColor(static_cast<int>(i),&font,&color);
@@ -1439,7 +1499,7 @@ void TextEdit::stringDiff(std::string str1, std::string str2,unsigned long *posX
     QString font;
     QString color;
 
-    qDebug()<<"[stringDiff]";
+    //qDebug()<<"[stringDiff]";
     for(KKCharAndForm ch: lastTextAndForm) qDebug()<<ch.getValue();
 
     for(i=0; i < std::max(str1.length(),str2.length()); i++){
@@ -1462,8 +1522,8 @@ void TextEdit::updateCursors(QString plainText){
     int curPos_ = editorCurs.position();
     for (KKCursor* c : cursors_.values()) {
         if (c !=nullptr && c->getGlobalPositon() > editorCurs.position()) {
-            qDebug() << "[onTextChange] Cursor global: " << c->getGlobalPositon();
-            qDebug() << "[onTextChange] Editor global: " << editorCurs.position();
+            //qDebug() << "[onTextChange] Cursor global: " << c->getGlobalPositon();
+            //qDebug() << "[onTextChange] Editor global: " << editorCurs.position();
 
             if (plainText.length() - lastLength > 0) {
                 c->setGlobalPositon(c->getGlobalPositon() + diffText.length());
@@ -1483,7 +1543,7 @@ void TextEdit::updateCursors(QString plainText){
 
 std::list<KKCharAndForm> TextEdit::fromStringKKCharAndFormList(std::string string, int pos){ //prende una stringa e una posizione, crea una lista di kkcharandfont e la inserisce nella lasttextandfont alla posizione passata
 
-    qDebug()<<"[fromStringKKCharAndFormList]";
+    //qDebug()<<"[fromStringKKCharAndFormList]";
 
     std::list<KKCharAndForm> listTmp;
     int i;
@@ -1503,7 +1563,7 @@ bool TextEdit::isEqualCharAndForm(int startLastText, int endLastText, int startP
     QString font;
     QString color;
 
-    qDebug()<<"[isEqualCharAndForm]";
+    //qDebug()<<"[isEqualCharAndForm]";
     if(endLastText-startLastText!=endPlain-startPlain) return false;
     for(i=0; i < endLastText-startLastText; i++){
         if(std::next(lastTextAndForm.begin(), startLastText+i)->getValue() != textEdit->toPlainText().at(startPlain+i)) return false;
@@ -1519,6 +1579,7 @@ void TextEdit::printLastTextandForm(){
     qDebug()<<"[INIZIO STAMPA LASTTEXTANDFONT]";
     for(KKCharAndForm ch:lastTextAndForm){
         qDebug()<<ch.getValue();//<<ch.getFont()<<ch.getColor()<<"  ";
+
 
     }
     qDebug()<<"[FINE STAMPA LASTTEXTANDFONT]";

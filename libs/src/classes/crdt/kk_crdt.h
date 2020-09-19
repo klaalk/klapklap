@@ -62,7 +62,8 @@ public:
 
     KKPosition findInsertPosition(const KKCharPtr& _char);
     KKPosition findPos (const KKCharPtr& _Char,bool *flag);
-    KKPosition findEndPosition (KKChar last_char,  const list<KKCharPtr>& last_line, unsigned long total_lines);
+    KKPosition findEndPosition (KKChar last_char);
+    //KKPosition findEndPosition (KKChar last_char,  const list<KKCharPtr>& last_line, unsigned long total_lines);
     unsigned long findIndexInLine(const KKCharPtr& _Char, list<KKCharPtr> line,bool *flag);
     unsigned long findInsertIndexInLine(const KKCharPtr& _char, list<KKCharPtr> line);
 
