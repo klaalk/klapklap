@@ -195,14 +195,7 @@ private slots:
     void about();
     void printPreview(QPrinter *);
     void onTextChange();
-    void justInsert(QString plainText);
-    void justDelete(QString plainText);
-    void deleteInsertA(QString plainText);
-    void deleteInsertB(QString plainText);
-    void shortestText(int diffLength,QString plainText);
-    void longestText(int diffLength,QString plainText);
-    void sameTextLength(QString plainText);
-    void updateCursors(QString plainText);
+
 
 private:
     void setupFileActions();
@@ -219,6 +212,16 @@ private:
     void colorText(const QString& siteId);
     void clearColorText(const QString& name);
     void modifyLabels();
+    void justInsert(QString plainText);
+    void justDelete(QString plainText);
+    void deleteInsertA(QString plainText);
+    void deleteInsertB(QString plainText);
+    void shortestText(int diffLength,QString plainText);
+    void longestText(int diffLength,QString plainText);
+    void sameTextLength(QString plainText);
+    void updateCursors(QString plainText);
+    bool isEqualCharAndForm(int startLastText, int endLastText, int startPlain, int endPlain);
+    void printLastTextandForm();
     QBrush selectRandomColor();
 
     QAction *actionSave{};
