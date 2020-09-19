@@ -40,7 +40,6 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/chat/chatdialog.h\
                 classes/openfile/openfiledialog.h \
                 classes/modal/modaldialog.h \
-                classes/openfile/sharefiledialog.h \
                 classes/openfile/chooseavatardialog.h
 
 SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
@@ -57,7 +56,6 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 main.cpp \
                 classes/openfile/openfiledialog.cpp \
                 classes/modal/modaldialog.cpp \
-                classes/openfile/sharefiledialog.cpp \
                 classes/openfile/chooseavatardialog.cpp
 
 RESOURCES += assets/client.qrc
@@ -67,8 +65,7 @@ FORMS += \
         ui/chooseavatardialog.ui \
         ui/modaldialog.ui \
         ui/chatdialog.ui \
-        ui/openfiledialog.ui \
-        ui/sharefiledialog.ui
+        ui/openfiledialog.ui
 
 build_all:!build_pass {
     CONFIG -= build_all

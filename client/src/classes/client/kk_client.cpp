@@ -10,7 +10,6 @@
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url_(std::move(url)) {
 
-
     // Gestisco l' apertura della connessione al socket
     connect(&socket_, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);
 
@@ -139,8 +138,10 @@ void KKClient::handleSuccessResponse(KKPayload response) {
 
     } else if(response.getRequestType() == LOAD_FILE) {
         handleLoadFileResponse(response);
+
     } else if(response.getRequestType() == QUIT_FILE) {
         handleQuitFileResponse();
+
     } else if(response.getRequestType() == CRDT) {
         handleCrdtResponse(response);
 
@@ -151,7 +152,6 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == ADDED_PARTECIPANT) {
         QStringList list = response.getBodyList();
         chat_->addParticipant(list[0]);
-        qDebug() << "Added participant: " << list[0];
 
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
         QStringList list = response.getBodyList();
@@ -252,10 +252,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     // Ottengo i campi della risposta
     QStringList bodyList_ = response.getBodyList();
 
-    // Stampo i campi
-    // for(const QString& l : bodyList_)
-    //  qDebug() << l;
-
     bool isInsert = bodyList_[0] == CRDT_INSERT;
     int increment = isInsert ? 0 : 1;
     QString siteId = bodyList_[1 + increment];
@@ -276,7 +272,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 
     unsigned long remotePos = isInsert ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
     QString labelName = isInsert ? siteId : bodyList_[1];
-
     editor_->applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos), char_->getKKCharFont(), char_->getKKCharColor());
 
     if(editor_->clickedAny())
@@ -320,6 +315,7 @@ void KKClient::handleCharFormatChange(KKPayload response){
 void KKClient::handleErrorResponse(KKPayload response){
     if (response.getResultType() == BAD_REQUEST) {
         handleClientErrorResponse(response);
+
     } else if (response.getResultType() == INTERNAL_SERVER_ERROR) {
         handleServerErrorResponse(response);
 

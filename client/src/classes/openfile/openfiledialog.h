@@ -11,7 +11,6 @@
 #include <QImageReader>
 
 #include <classes/openfile/chooseavatardialog.h>
-#include <classes/openfile/sharefiledialog.h>
 #include <../../libs/src/classes/crypt/kk_crypt.h>
 #include <../../libs/src/constants/kk_constants.h>
 
@@ -64,7 +63,6 @@ private:
 
     QMap<QString, QString> files_;
 
-    ShareFileDialog shareFileDialog;
     ChooseAvatarDialog chooseAvatarDialog;
 };
 
