@@ -95,7 +95,6 @@ private:
     void handleServerErrorResponse(KKPayload res);
     bool sendRequest(QString type, QString result, QStringList values);
 
-    QString mySiteId_;
     QString myNickName_;
     QStringList avatars;
 

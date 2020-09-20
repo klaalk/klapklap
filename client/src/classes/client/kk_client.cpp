@@ -59,7 +59,7 @@ void KKClient::initEditor()
 {
     logger("Inizializzazione editor...");
     if (crdt_ != nullptr) delete crdt_;
-    crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
+    crdt_ = new KKCrdt(user_->getUsername().toStdString(), casuale);
 
     if (chat_ != nullptr) delete chat_;
     chat_ = new ChatDialog();
@@ -277,7 +277,7 @@ void KKClient::handleLoginResponse(KKPayload res) {
 
     access_.hide();
     openFile_.show();
-    logger("[handleLoginResponse] - Site id: " + mySiteId_);
+    logger("[handleLoginResponse] - Site id: " + user_->getUsername());
 }
 
 void KKClient::handleLogoutResponse(KKPayload res) {
@@ -533,7 +533,8 @@ bool KKClient::sendRequest(QString type, QString result, QStringList values) {
 
 void KKClient::logger(QString message)
 {
-    KKLogger::log(message, QString("CLIENT - %1").arg(mySiteId_));
+    QString identifier = (user_!=nullptr) ? user_->getUsername() : "unknown";
+    KKLogger::log(message, QString("CLIENT - %1").arg(identifier));
 }
 
 /// MODAL ACTIONS
@@ -616,7 +617,7 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
 
     std::for_each(deletedChars.begin(), deletedChars.end(),[&](const KKCharPtr& char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendCrdtRequest({ CRDT_DELETE, mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids, font_, color_});
+        sendCrdtRequest({ CRDT_DELETE, user_->getUsername(), QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids, font_, color_});
     });
 
     if(editor_->clickedAny())
@@ -675,7 +676,7 @@ void KKClient::onSelectionFormatChange(int selectionStart, int selectionEnd, QTe
 
     std::for_each(changedChars.begin(), changedChars.end(),[&](const KKCharPtr& char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendRequest(CHARFORMAT_CHANGE, NONE, {mySiteId_, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
+        sendRequest(CHARFORMAT_CHANGE, NONE, {user_->getUsername(), QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
     });
 
 }
@@ -687,7 +688,7 @@ void KKClient::onCharFormatChanged(int pos, QTextCharFormat format){
      KKCharPtr _char = crdt_->changeSingleKKCharFormat(KKPosition(static_cast<unsigned long>(line),static_cast<unsigned long>(col)),format.font().toString(), format.foreground().color().name());
 
      QString ids = QString::fromStdString(_char->getIdentifiersString());
-     sendRequest(CHARFORMAT_CHANGE, NONE, {mySiteId_, QString::fromStdString(_char->getSiteId()), QString(_char->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
+     sendRequest(CHARFORMAT_CHANGE, NONE, {user_->getUsername(), QString::fromStdString(_char->getSiteId()), QString(_char->getValue()), ids,format.font().toString() ,  format.foreground().color().name()});
  }
 
 
