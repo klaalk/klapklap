@@ -38,12 +38,9 @@ public:
     void setHash(QString hash);
     QString getHash();
 
-    KKVectorPayloadPtr getRecentMessages();
-    KKMapParticipantPtr getParticipants();
-
-    void addOwner(QString owner);
-    void setOwners(QSharedPointer<QStringList> owners);
-    QSharedPointer<QStringList> getOwners();
+    void addUser(QString user);
+    void setUsers(QStringList users);
+    QStringList getUsers();
 
     void applyRemoteInsert(QStringList bodyList);
     void applyRemoteCharFormatChange(QStringList bodyList);
@@ -51,6 +48,8 @@ public:
     void flushCrdtText();
 
     QStringList getCrdtText();
+    QStringList getParticipants();
+    KKVectorPayloadPtr getRecentMessages();
 
     int getParticipantCounter() const;
 
@@ -63,7 +62,7 @@ private:
     KKMapParticipantPtr participants;
     KKVectorPayloadPtr recentMessages;
     KKCrdtPtr crdt;
-    QSharedPointer<QStringList> owners;
+    QStringList users;
     QSharedPointer<QFile> file;
     QSharedPointer<QTimer> timer;
     QString hash;

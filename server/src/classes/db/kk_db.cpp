@@ -16,8 +16,8 @@
 
 #define INSERT_FILE_QRY "INSERT INTO `FILES` (`FILENAME`, `HASHNAME`, `USERNAME`, `CREATION_DATE`) VALUES (?, ?, ?, CURRENT_TIME())"
 #define INSERT_SHAREFILE_QRY "INSERT INTO `FILES_OWNERS` (`USERNAME`, `HASHNAME`, `JOIN_DATE`) VALUES (?, ?, CURRENT_TIME())"
-#define GET_USER_FILES_QRY "SELECT `FILES_OWNERS`.`HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` JOIN `FILES` ON `FILES_OWNERS`.`HASHNAME` = `FILES`.`HASHNAME` WHERE `FILES_OWNERS`.`USERNAME`= ? ORDER BY `FILES`.`FILENAME`, `JOIN_DATE` DESC"
-#define GET_FILE_USERS_QRY "SELECT `USERNAME` FROM `FILES_OWNERS` WHERE `HASHNAME`= ?"
+#define GET_USER_FILES_QRY "SELECT `FILES_OWNERS`.`HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` JOIN `FILES` ON `FILES_OWNERS`.`HASHNAME` = `FILES`.`HASHNAME` WHERE `FILES_OWNERS`.`USERNAME`= ? ORDER BY `JOIN_DATE` DESC, `FILES`.`FILENAME`"
+#define GET_FILE_USERS_QRY "SELECT `USERS`.`USERNAME`, `USERS`.`ALIAS`, `USERS`.`IMAGE` FROM `FILES_OWNERS` JOIN `USERS` ON `USERS`.`USERNAME` = `FILES_OWNERS`.`USERNAME` WHERE `HASHNAME`= ?"
 #define COUNT_SHAREFILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `HASHNAME`= ? AND `USERNAME` = ?"
 #define COUNT_FILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES` WHERE `FILENAME`= ? AND `USERNAME` = ?"
 
@@ -239,7 +239,11 @@ int KKDataBase::getFileUsers(QString hash, QStringList* users)
             query.exec();
             db.close();
             while (query.next()) {
-                *users << query.value(0).toString();
+                QString user = query.value(0).toString()
+                        + ":" + query.value(1).toString()
+                        + ":" + query.value(2).toString();
+
+                users->push_back(user);
             }
             if (users->length() > 0)
                 resCode = DB_FILE_EXIST;

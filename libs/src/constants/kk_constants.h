@@ -35,6 +35,7 @@
 #define CRDT "CRDT"
 #define CHAT "CHAT"
 #define ALIGNMENT_CHANGE "AGNC"
+#define SET_PARTECIPANTS "STPR"
 #define ADDED_PARTECIPANT "ADPR"
 #define REMOVED_PARTECIPANT "RMPR"
 #define CHARFORMAT_CHANGE "CHCF"
@@ -115,6 +116,7 @@
 /// Error Modal Types
 #define LOGIN_ERROR "LogginError"
 #define SIGNUP_ERROR "LogginError"
+#define UPDATE_USER_ERROR "UpdateUserError"
 #define OPENFILE_ERROR "OpenfileError"
 #define CRDT_ERROR "CrdtError"
 #define CHAT_ERROR "ChatError"
@@ -131,5 +133,12 @@
 
 /// File system errors
 #define FILE_SYSTEM_CREATE_ERROR nullptr
+
+/// Regular Expressions
+#define EMAIL_REGEX QRegularExpression("(^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b)")
+#define PASSWORD_REGEX QRegularExpression("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+#define USERNAME_REGEX QRegularExpression("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$")
+#define NAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
+#define SURNAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
 
 #endif //SERVER_KK_CONSTANTS_H

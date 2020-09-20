@@ -5,12 +5,13 @@
 #ifndef SERVER_KK_DB_H
 #define SERVER_KK_DB_H
 
-#include "../../../../libs/src/classes/crypt/kk_crypt.h"
-#include "../../../../libs/src/constants/kk_constants.h"
-
 #include <QtSql>
 #include <QSqlDatabase>
-#include <classes/user/kk_user.h>
+
+#include "../../../../libs/src/classes/crypt/kk_crypt.h"
+#include "../../../../libs/src/classes/user/kk_user.h"
+#include "../../../../libs/src/constants/kk_constants.h"
+
 
 
 class KKDataBase {

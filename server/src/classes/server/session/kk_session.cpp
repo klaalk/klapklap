@@ -204,107 +204,15 @@ void KKSession::handleGetFilesRequest() {
 }
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
-    QStringList* response = new QStringList();
-    QStringList* ids = new QStringList();
+    QStringList params = request.getBodyList();
 
-    QString message, result;
-    bool isActiveFile = false;
 
-    disconnectFromFile();
-
-    if (request.getBodyList().size() > 0) {
-        QString filename = request.getBodyList()[0];
-        auto search = files->find(filename);
-        if (search != files->end()) {
-            // Controllo se il file risulta tra quelli già aperti.
-            file = files->value(filename);
-            isActiveFile = true;
-
-        } else {
-            // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
-            if (db->getFileUsers(filename, ids) == DB_FILE_NOT_EXIST) {
-
-                // File non esistente, controllo se l'utente ha già creato il file con lo stesso nome
-                if (db->existFileByUsername(filename, user->getUsername()) == DB_FILE_NOT_EXIST) {
-
-                    file = fileSystem->createFile(filename, user->getUsername());
-
-                    if (file != FILE_SYSTEM_CREATE_ERROR)
-                        db->addFile(filename, file->getHash(), user->getUsername());
-
-                } else {
-                    message = "Errore in fase di richiesta: nome file già esistente";
-                    result = BAD_REQUEST;
-                }
-            } else {
-                // File esistente
-                file = fileSystem->openFile(filename);
-            }
-            isActiveFile = false;
-        }
+    if (params.size() > 0) {
+        disconnectFromFile();
+        connectToFile(params.at(0));
 
     } else {
-        message = "Errore in fase di richiesta: non è stato inserito nessun nome file";
-        result = BAD_REQUEST;
-    }
-
-    if (file != FILE_SYSTEM_CREATE_ERROR) {
-
-        if(!isActiveFile) {
-            // Inserisco il file nella mappa dei file attivi
-            files->insert(file->getHash(), file);
-            file->setOwners(QSharedPointer<QStringList>(ids));
-            file->initCrdtText();
-        }
-
-        if( db->existShareFileByUsername(file->getHash(), user->getUsername()) == DB_FILE_NOT_EXIST) {
-
-            if (db->addShareFile(file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
-                result = SUCCESS;
-                message = "File aperto con successo, sei stato aggiunto come partecipante";
-                file->join(sharedFromThis());
-                file->addOwner(user->getUsername());
-            } else {
-                result = INTERNAL_SERVER_ERROR;
-                message = "Errore in fase di inserimento partecipante per il file richiesto";
-            }
-
-        } else {
-            result = SUCCESS;
-            message = "File aperto con successo, partecipazione confermata";
-            file->join(sharedFromThis());
-        }
-        // Rispondo con la list di tutti partecipanti al file (attivi o non attivi)
-        KKMapParticipantPtr participants = file->getParticipants();
-        for(QString id : *file->getOwners()) {
-            auto entry = participants->find(id);
-            response->push_back(id + ":" + (entry != participants->end() ? PARTICIPANT_ONLINE : PARTICIPANT_OFFLINE));
-        }
-
-    } else {
-        if (result.isEmpty())
-            result = INTERNAL_SERVER_ERROR;
-        if (message.isEmpty())
-            message = "Errore nel filesystem durante l'apertura del nuovo file";
-    }
-
-    logger(message);
-    response->push_front(message);
-    sendResponse(OPEN_FILE, result, *response);
-
-    if (result == SUCCESS) {
-
-        sendResponse(LOAD_FILE, SUCCESS, {file->getCrdtText()});
-        // Aggiorno con gli ultimi messaggi mandati.
-        KKVectorPayloadPtr queue = file->getRecentMessages();
-        if(queue->length() > 0) {
-            std::for_each(queue->begin(), queue->end(), [&](KKPayloadPtr d){
-                socket->sendTextMessage(d->encode());
-            });
-        }
-
-        // Dico a tutti che c'è un nuovo partecipante.
-        file->deliver(ADDED_PARTECIPANT, SUCCESS, {user->getUsername()}, "All");
+        sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: non è stato inserito nessun nome file"});
     }
 }
 
@@ -351,10 +259,90 @@ void KKSession::handleChatRequest(KKPayload request) {
     file->deliver(CHAT, SUCCESS, request.getBodyList(), "All");
 }
 
+void KKSession::connectToFile(QString filename)
+{
+    QStringList users;
+    bool sendFileInfo = false;
+
+    auto search = files->find(filename);
+    if (search != files->end()) {
+        // Controllo se il file risulta tra quelli già aperti.
+        file = files->value(filename);
+
+    } else {
+        // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
+        if (db->getFileUsers(filename, &users) == DB_FILE_NOT_EXIST) {
+            // File non esistente, controllo se l'utente ha già creato il file con lo stesso nome
+            if (db->existFileByUsername(filename, user->getUsername()) == DB_FILE_NOT_EXIST) {
+                file = fileSystem->createFile(filename, user->getUsername());
+
+                if (file != FILE_SYSTEM_CREATE_ERROR) {
+                    if (db->addFile(filename, file->getHash(), user->getUsername()) != DB_INSERT_FILE_SUCCESS) {
+                        file = FILE_SYSTEM_CREATE_ERROR;
+                        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemnto del nuovo file nel database"});
+                    }
+                }
+
+            } else
+                sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: nome file già esistente"});
+
+        } else
+            file = fileSystem->openFile(filename);
+
+        if (file != FILE_SYSTEM_CREATE_ERROR) {
+            // Inserisco il file nella mappa dei file attivi
+            file->initCrdtText();
+            files->insert(file->getHash(), file);
+            file->setUsers(users);
+        }
+    }
+
+    if (file != FILE_SYSTEM_CREATE_ERROR) {
+
+        if( db->existShareFileByUsername(file->getHash(), user->getUsername()) == DB_FILE_NOT_EXIST) {
+
+            if (db->addShareFile(file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
+                file->join(sharedFromThis());
+                file->addUser(QString("%1:%2:%3").arg(user->getUsername(), user->getAlias(), user->getImage()));
+
+                sendFileInfo = true;
+                sendResponse(OPEN_FILE, SUCCESS, {"File aperto con successo, sei stato aggiunto come partecipante"});
+
+            } else
+                sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore in fase di inserimento partecipante per il file richiesto"});
+
+        } else {
+            file->join(sharedFromThis());
+            sendFileInfo = true;
+            sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata"});
+        }
+
+    } else
+        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nel filesystem durante l'apertura del nuovo file"});
+
+
+    if (sendFileInfo) {
+        sendResponse(LOAD_FILE, SUCCESS, {file->getCrdtText()});
+        sendResponse(SET_PARTECIPANTS, SUCCESS, {file->getParticipants()});
+
+        // Aggiorno con gli ultimi messaggi mandati.
+        KKVectorPayloadPtr queue = file->getRecentMessages();
+        if(queue->length() > 0) {
+            std::for_each(queue->begin(), queue->end(), [&](KKPayloadPtr d){
+                socket->sendTextMessage(d->encode());
+            });
+        }
+
+        // Dico a tutti che c'è un nuovo partecipante.
+        file->deliver(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}, "All");
+    }
+
+}
+
 void KKSession::disconnectFromFile()
 {
     if(!file.isNull()) {
-        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername()}, "All");
+        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias()}, "All");
         file->leave(sharedFromThis());
 
         if (file->getParticipantCounter() < 1) {

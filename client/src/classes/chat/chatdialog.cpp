@@ -63,9 +63,8 @@ ChatDialog::ChatDialog(QWidget *parent)
     listWidget->setFocusPolicy(Qt::NoFocus);
     connect(listWidget, &QListWidget::itemClicked, this, &ChatDialog::onItemClicked);
     connect(lineEdit, &QLineEdit::returnPressed, this, &ChatDialog::returnPressed);
-
-    greenIcon = new QIcon(":/images/common/green-icon.png");
-    greyIcon = new QIcon(":/images/common/grey-icon.png");
+    colorOnline = new QColor(25, 118, 210);
+    colorOffline = new QColor(33, 33, 33);
 }
 
 void ChatDialog::resetState(){
@@ -88,7 +87,7 @@ void ChatDialog::appendMessage(const QString &from, const QString &message)
     QTextCursor cursor(textEdit->textCursor());
     cursor.movePosition(QTextCursor::End);
     QTextTable *table = cursor.insertTable(1, 2, tableFormat);
-    table->cellAt(0, 0).firstCursorPosition().insertText('<' + from + "> ");
+    table->cellAt(0, 0).firstCursorPosition().insertText(from + " > ");
     table->cellAt(0, 1).firstCursorPosition().insertText(message);
     QScrollBar *bar = textEdit->verticalScrollBar();
     bar->setValue(bar->maximum());
@@ -112,44 +111,51 @@ void ChatDialog::returnPressed()
     lineEdit->clear();
 }
 
-void ChatDialog::addParticipant(const QString &nick)
+void ChatDialog::addParticipant(const QString &username, const QString &nick, const QString &avatar)
 {
     if (nick.isEmpty())
         return;
+
+    setParticipantState(username, nick, avatar, PARTICIPANT_ONLINE);
 
     QColor color = textEdit->textColor();
     textEdit->setTextColor(Qt::gray);
     textEdit->append(tr("* %1 has joined").arg(nick));
     textEdit->setTextColor(color);
-
-    setParticipantState(nick, PARTICIPANT_ONLINE);
 }
 
-void ChatDialog::removeParticipant(const QString &nick)
+void ChatDialog::removeParticipant(const QString &username, const QString &nick)
 {
 
-    setParticipantState(nick, PARTICIPANT_OFFLINE);
+    setParticipantState(username, nick, QString(), PARTICIPANT_OFFLINE);
 
     QColor color = textEdit->textColor();
     textEdit->setTextColor(Qt::gray);
     textEdit->append(tr("* %1 has left").arg(nick));
     textEdit->setTextColor(color);
-    emit siteIdClicked(nick, true);
+
+    emit siteIdClicked(username, true);
 }
 
 void ChatDialog::setParticipants(const QStringList participants)
 {
-    for(int i = 1; i < participants.length(); i++) {
-        QStringList participant = participants.at(i).split(":");
-        QString nick = participant[0];
-        QString state = participant[1];
-        this->participants.insert(nick, state);
+    for(QString participant : participants) {
+
+        QStringList params = participant.split(":");
+        QString username = params.at(0);
+        QString nick = params.at(1);
+        QString avatar = params.at(2);
+        QString state = params.at(3);
+        this->participants.insert(username, state);
+
         QListWidgetItem* item = new QListWidgetItem();
+        item->setData(0, username);
         item->setText(nick);
+        item->setIcon(QIcon(":/images/avatars/"+avatar));
         if (state == PARTICIPANT_ONLINE)
-           item->setIcon(*greenIcon);
+           item->setTextColor(*colorOnline);
         else
-           item->setIcon(*greyIcon);
+           item->setTextColor(*colorOffline);
 
         listWidget->addItem(item);
     }
@@ -169,27 +175,34 @@ void ChatDialog::onItemClicked(QListWidgetItem *item) {
     if(!item) {
         return;
     }
-    QString siteId = item->text();
+    QString siteId = item->data(0).toString();
+    qDebug() << "CHAT SITE ID: " << siteId;
     emit siteIdClicked(siteId, false);
 }
 
-void ChatDialog::setParticipantState(const QString &nick, const QString &state)
+void ChatDialog::setParticipantState(const QString &username, const QString &nick, const QString &avatar, const QString &state)
 {
     if (!nick.isEmpty()) {
         QListWidgetItem* item = findParticipantItem(nick);
-        if (item == nullptr) {
 
+        if (item == nullptr) {
             item = new QListWidgetItem();
+            item->setData(0, username);
             item->setText(nick);
+            item->setIcon(QIcon(":/images/avatars/"+avatar));
             listWidget->addItem(item);
         }
 
         if (state == PARTICIPANT_ONLINE)
-           item->setIcon(*greenIcon);
+           item->setTextColor(*colorOnline);
         else
-           item->setIcon(*greyIcon);
+           item->setTextColor(*colorOffline);
 
-        item->setText(nick);
+        if (!nick.isEmpty())
+            item->setText(nick);
+
+        if (!avatar.isEmpty())
+            item->setIcon(QIcon(":/images/avatars/"+avatar));
     }
     participants_label->setText(QString("Participants (%1)").arg(participants.values().length()));
 }

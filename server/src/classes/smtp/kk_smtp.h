@@ -5,8 +5,8 @@
 
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../../../../libs/src/constants/kk_constants.h"
+#include "../../../../libs/src/classes/user/kk_user.h"
 
-#include <classes/user/kk_user.h>
 
 class KKSmtp {
 private:

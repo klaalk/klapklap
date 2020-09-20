@@ -10,9 +10,11 @@
 #include <QScrollArea>
 #include <QImageReader>
 
+#include "../../../../libs/src/classes/user/kk_user.h"
+#include "../../libs/src/classes/crypt/kk_crypt.h"
+#include "../../libs/src/constants/kk_constants.h"
+
 #include <classes/openfile/chooseavatardialog.h>
-#include <../../libs/src/classes/crypt/kk_crypt.h>
-#include <../../libs/src/constants/kk_constants.h>
 
 namespace Ui {
 class OpenFileDialog;
@@ -29,10 +31,18 @@ public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
     ~OpenFileDialog();
 
-    void setUserInfo(const QStringList& info);
-    void setUserFiles(const QStringList& files);
-    void setUserAvatar(const QString &avatar);
+    void setUser(KKUser* info);
+    void setAvatar(const QString &avatar);
+    void setUserFiles(const QStringList& files);    
+    void setName(const QString &value);
+    void setSurname(const QString &value);
+    void setAlias(const QString &value);
+    QString getAvatar() const;
+    QString getName() const;
+    QString getSurname() const;
+    QString getAlias() const;
     void clear();
+
 private slots:
     void on_filesTableWidget_itemClicked(QTableWidgetItem *item);
     void on_openFileButton_clicked();
@@ -41,6 +51,18 @@ private slots:
     void on_createFileNameLineEdit_textChanged(const QString &arg1);
     void on_saveChangesButton_clicked();
     void on_LogoutButton_clicked();
+
+    void on_nameLineEdit_textChanged(const QString &arg1);
+
+    void on_surnameLineEdit_textChanged(const QString &arg1);
+
+    void on_aliasLineEdit_textChanged(const QString &arg1);
+
+    void on_nameLineEdit_editingFinished();
+
+    void on_surnameLineEdit_editingFinished();
+
+    void on_aliasLineEdit_editingFinished();
 
 protected:
     void closeEvent(QCloseEvent *e) override;
@@ -60,10 +82,20 @@ private:
     QString pastedFilename;
 
     QString avatar;
+    QString name;
+    QString surname;
+    QString alias;
 
     QMap<QString, QString> files_;
-
     ChooseAvatarDialog chooseAvatarDialog;
+
+    bool showHintName = false;
+    bool showHintSurname = false;
+    bool showHintAlias = false;
+
+    bool checkEditForm();
+    bool chackEditChanges();
+    bool regexMatch(const QString& value, QRegularExpression regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage);
 };
 
 #endif // OPENFILEDIALOG_H

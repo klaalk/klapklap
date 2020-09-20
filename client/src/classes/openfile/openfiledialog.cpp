@@ -21,16 +21,13 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
 {
     // Setting up window
     ui->setupUi(this);
-    setFixedSize(this->size());
-
-    QPixmap image = QPixmap(":images/common/logout-icon.png");
-    QIcon ButtonIcon(image);
-    ui->LogoutButton->setIcon(ButtonIcon);
-    ui->LogoutButton->setIconSize(image.rect().size());
+    setFixedSize(size());
 
     // Setting up table view
     initializeFilesTableView();
-    connect(&chooseAvatarDialog, &ChooseAvatarDialog::updateAvatarRequest, this, &OpenFileDialog::setUserAvatar);
+    connect(&chooseAvatarDialog, &ChooseAvatarDialog::updateAvatarRequest, this, &OpenFileDialog::setAvatar);
+
+    ui->saveChangesButton->setEnabled(false);
     // Start showing layouts
     ui->accountLayout->show();
     ui->documentsLayout->show();
@@ -44,6 +41,7 @@ OpenFileDialog::~OpenFileDialog()
 
 void OpenFileDialog::closeEvent(QCloseEvent *e)
 {
+    Q_UNUSED(e)
     clear();
 }
 
@@ -61,15 +59,19 @@ void OpenFileDialog::initializeFilesTableView() {
     ui->filesTableWidget->horizontalHeader()->setStretchLastSection(true);
 }
 
-void OpenFileDialog::setUserInfo(const QStringList& info) {
-    ui->nameLineEdit->setText(info.value(0));
-    ui->surnameLineEdit->setText(info.value(1));
-    ui->aliasLineEdit->setText(info.value(5));
-    ui->emailLabel->setText("Email: " + info.value(2));
-    ui->usernameLabel->setText("Username: " + info.value(4));
-    QString registrationDate = info.value(6);
-    QDateTime registrationDateTime = QDateTime::fromString(registrationDate, Qt::ISODate);
+void OpenFileDialog::setUser(KKUser* user) {
+    ui->emailLabel->setText(user->getEmail());
+
+    ui->usernameLabel->setText("Username: " + user->getUsername());
+
+    QDateTime registrationDateTime = QDateTime::fromString(user->getRegistrationDate(), Qt::ISODate);
     ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
+
+    avatar = user->getImage();
+    setAvatar(user->getImage());
+    setName(user->getName());
+    setSurname(user->getSurname());
+    setAlias(user->getAlias());
 }
 
 void OpenFileDialog::setUserFiles(const QStringList &files)
@@ -84,7 +86,7 @@ void OpenFileDialog::setUserFiles(const QStringList &files)
     }
 }
 
-void OpenFileDialog::setUserAvatar(const QString &avatar)
+void OpenFileDialog::setAvatar(const QString &avatar)
 {
     QString path = ":images/avatars/"+avatar;
     bool exist = QFile::exists(path);
@@ -93,10 +95,54 @@ void OpenFileDialog::setUserAvatar(const QString &avatar)
         QIcon ButtonIcon(image);
         ui->changeImageButton->setIcon(ButtonIcon);
         ui->changeImageButton->setIconSize(image.rect().size());
-        this->avatar = avatar;
+        ui->changeImageButton->setWhatsThis(avatar);
+
+        ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
+
     } else
        qDebug() << "[setUserAvatar] Avatar not exist: " + path;
+
 }
+
+
+void OpenFileDialog::setAlias(const QString &value)
+{
+    ui->aliasLineEdit->setText(value);
+    alias = value;
+}
+
+void OpenFileDialog::setSurname(const QString &value)
+{
+    ui->surnameLineEdit->setText(value);
+    surname = value;
+}
+
+void OpenFileDialog::setName(const QString &value)
+{
+    ui->nameLineEdit->setText(value);
+    name = value;
+}
+
+QString OpenFileDialog::getAvatar() const
+{
+    return avatar;
+}
+
+QString OpenFileDialog::getName() const
+{
+    return name;
+}
+
+QString OpenFileDialog::getSurname() const
+{
+    return surname;
+}
+
+QString OpenFileDialog::getAlias() const
+{
+    return alias;
+}
+
 
 void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
     QStringList splittedFileRow = fileRow.split(FILENAME_SEPARATOR);
@@ -123,6 +169,10 @@ void OpenFileDialog::clear()
     selectedLink.clear();
     pastedFilename.clear();
     pastedLink.clear();
+    avatar.clear();
+    name.clear();
+    surname.clear();
+    alias.clear();
 }
 
 
@@ -213,13 +263,85 @@ void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEd
 
 void OpenFileDialog::on_saveChangesButton_clicked()
 {
-    QString name = ui->nameLineEdit->text();
-    QString surname = ui->surnameLineEdit->text();
-    QString alias = ui->aliasLineEdit->text();
+    name = ui->nameLineEdit->text();
+    surname = ui->surnameLineEdit->text();
+    alias = ui->aliasLineEdit->text();
+    avatar = ui->changeImageButton->whatsThis();
     emit updateAccountRequest(name, surname, alias, avatar);
 }
 
 void OpenFileDialog::on_LogoutButton_clicked()
 {
     emit logoutRequest();
+}
+
+bool OpenFileDialog::checkEditForm() {
+
+    bool isValidName = regexMatch(ui->nameLineEdit->text(), NAME_REGEX, showHintName, ui->editHintLabel, "*name must contain only alphabetic characters");
+    if (!isValidName) return false;
+
+    bool isValidSurname = regexMatch(ui->surnameLineEdit->text(), SURNAME_REGEX, showHintSurname, ui->editHintLabel, "*surname must contain only alphabetic characters");
+    if (!isValidSurname) return false;
+
+    bool isValidAlias = regexMatch(ui->aliasLineEdit->text(), USERNAME_REGEX, showHintAlias, ui->editHintLabel, "*insert a valid alias");
+    if (!isValidAlias) return false;
+
+    return isValidName && isValidSurname && isValidAlias;
+}
+
+bool OpenFileDialog::chackEditChanges()
+{
+    bool isChanged = name != ui->nameLineEdit->text()
+            || surname != ui->surnameLineEdit->text()
+            || alias != ui->aliasLineEdit->text()
+            || avatar != ui->changeImageButton->whatsThis();
+    return isChanged;
+}
+
+bool OpenFileDialog::regexMatch(const QString& value, QRegularExpression regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage) {
+    if (!(regex).match(value).hasMatch()) {
+        if (canShowHint)
+            hintLabel->setText(hintMessage);
+        return false;
+    }
+    hintLabel->setText("");
+    return true;
+}
+
+void OpenFileDialog::on_nameLineEdit_textChanged(const QString &arg1)
+{
+    Q_UNUSED( arg1 )
+
+    ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
+}
+
+void OpenFileDialog::on_surnameLineEdit_textChanged(const QString &arg1)
+{
+    Q_UNUSED( arg1 )
+    ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
+}
+
+void OpenFileDialog::on_aliasLineEdit_textChanged(const QString &arg1)
+{
+    Q_UNUSED( arg1 )
+    ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
+
+}
+
+void OpenFileDialog::on_nameLineEdit_editingFinished()
+{
+    showHintName = ui->nameLineEdit->text().size() > 0;
+    ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
+}
+
+void OpenFileDialog::on_surnameLineEdit_editingFinished()
+{
+    showHintSurname = ui->surnameLineEdit->text().size() > 0;
+    ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
+}
+
+void OpenFileDialog::on_aliasLineEdit_editingFinished()
+{
+    showHintAlias = ui->aliasLineEdit->text().size() > 0;
+    ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
 }

@@ -10,12 +10,7 @@ AccessDialog::AccessDialog(QWidget *parent) :
     QDialog(parent),
     ui_(new Ui::AccessDialog),
     gif_(new QMovie(":/gif/animation.gif")),
-    logo_(new QPixmap(":/images/logo.jpg")),
-    emailRegexp_(new QRegularExpression(R"(^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b)")),
-    passwordRegexp_(new QRegularExpression("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")),
-    usernameRegexp_(new QRegularExpression("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$")),
-    nameRegexp_(new QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")),
-    surnameRegexp_(new QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")) {
+    logo_(new QPixmap(":/images/logo.jpg")) {
     ui_->setupUi(this);
 
     QFile styleFile( ":/styles/access-dialog.qss");
@@ -26,6 +21,7 @@ AccessDialog::AccessDialog(QWidget *parent) :
     ui_->gif_viewer->setMovie(gif_);
     ui_->logo_view->setPixmap((*logo_).scaled(200,190,Qt::KeepAspectRatio));
     ui_->signup_widget->hide();
+
 #ifdef test
     ui_->login_btn->setEnabled(true);
 #endif
@@ -35,11 +31,6 @@ AccessDialog::~AccessDialog(){
     delete ui_;
     delete gif_;
     delete logo_;
-    delete emailRegexp_;
-    delete passwordRegexp_;
-    delete usernameRegexp_;
-    delete nameRegexp_;
-    delete surnameRegexp_;
 }
 
 void AccessDialog::enableLoginBtn() {
@@ -200,10 +191,10 @@ bool AccessDialog::checkLoginForm() {
     QString username = ui_->login_username_input->text();
     QString password = ui_->login_password_input->text();
 
-    bool isValidUsername = regexMatch(username, usernameRegexp_, showHintEmail, ui_->login_hint_label, "*insert a valid username");
+    bool isValidUsername = regexMatch(username, USERNAME_REGEX, showHintEmail, ui_->login_hint_label, "*insert a valid username");
     if (!isValidUsername) return false;
 
-    bool isValidPassword = regexMatch(password, passwordRegexp_, showHintPassword, ui_->login_hint_label_2, "*insert password with minimum eight characters, at least one letter and one number");
+    bool isValidPassword = regexMatch(password, PASSWORD_REGEX, showHintPassword, ui_->login_hint_label_2, "*insert password with minimum eight characters, at least one letter and one number");
     if (!isValidPassword) return false;
 
 #ifdef test
@@ -220,26 +211,26 @@ bool AccessDialog::checkSingupForm() {
     QString surname = ui_->signup_surname_input->text();
     QString username = ui_->signup_username_input->text();
 
-    bool isValidName = regexMatch(name, nameRegexp_, showHintName, ui_->signup_hint_label, "*name must contain only alphabetic characters");
+    bool isValidName = regexMatch(name, NAME_REGEX, showHintName, ui_->signup_hint_label, "*name must contain only alphabetic characters");
     if (!isValidName) return false;
 
-    bool isValidSurname = regexMatch(surname, surnameRegexp_, showHintSurname,ui_->signup_hint_label, "*surname must contain only alphabetic characters");
+    bool isValidSurname = regexMatch(surname, SURNAME_REGEX, showHintSurname, ui_->signup_hint_label, "*surname must contain only alphabetic characters");
     if (!isValidSurname) return false;
 
-    bool isValidEmail = regexMatch(email, emailRegexp_, showHintEmail, ui_->signup_hint_label, "*insert a valid email");
+    bool isValidEmail = regexMatch(email, EMAIL_REGEX, showHintEmail, ui_->signup_hint_label, "*insert a valid email");
     if (!isValidEmail) return false;
 
-    bool isValidUsername = regexMatch(username, usernameRegexp_, showHintUsername, ui_->signup_hint_label, "*insert a valid username");
+    bool isValidUsername = regexMatch(username, USERNAME_REGEX, showHintUsername, ui_->signup_hint_label, "*insert a valid username");
     if (!isValidUsername) return false;
 
-    bool isValidPassword = regexMatch(password, passwordRegexp_, showHintPassword, ui_->signup_hint_label, "*insert password with minimum eight characters, at least one letter and one number");
+    bool isValidPassword = regexMatch(password, PASSWORD_REGEX, showHintPassword, ui_->signup_hint_label, "*insert password with minimum eight characters, at least one letter and one number");
     if (!isValidPassword) return false;
 
     return isValidEmail && isValidPassword && isValidName && isValidSurname && isValidUsername;
 }
 
-bool AccessDialog::regexMatch(const QString& value, QRegularExpression *regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage) {
-    if (!(*regex).match(value).hasMatch()) {
+bool AccessDialog::regexMatch(const QString& value, QRegularExpression regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage) {
+    if (!(regex).match(value).hasMatch()) {
         if (canShowHint)
             hintLabel->setText(hintMessage);
         return false;

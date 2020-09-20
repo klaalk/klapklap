@@ -12,7 +12,6 @@
 #include <QThreadPool>
 #include <QtCore/QByteArray>
 
-#include <classes/user/kk_user.h>
 #include <classes/db/kk_db.h>
 #include <classes/server/file/kk_file.h>
 #include <classes/server/filesys/kk_filesys.h>
@@ -21,6 +20,7 @@
 
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../../libs/src/classes/logger/kk_logger.h"
+#include "../../../../../libs/src/classes/user/kk_user.h"
 #include "../../../../../libs/src/constants/kk_constants.h"
 
 //#define ENV
@@ -63,6 +63,7 @@ private:
 
     void handleChatRequest(KKPayload request);
 
+    void connectToFile(QString filename);
     void disconnectFromFile();
     void logger(QString message);
 

@@ -39,7 +39,7 @@ KKClient::KKClient(QUrl url, QObject *parent)
     while (it.hasNext()) {
         avatars.push_back(it.next());
     }
-    mySiteId_ = "unknown";
+
     initState();
 }
 
@@ -79,7 +79,7 @@ void KKClient::initEditor()
     connect(editor_, &TextEdit::editorClosed, this, &KKClient::onEditorClosed);
 
     editor_->setChatDialog(chat_);
-    editor_->setMySiteId(mySiteId_);
+    editor_->setMySiteId(user_->getUsername());
     editor_->setCurrentFileName(currentfile_);
     editor_->hide();
 
@@ -87,7 +87,7 @@ void KKClient::initEditor()
     connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
     connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
 
-    chat_->setNickName(mySiteId_);
+    chat_->setNickName(user_->getAlias());
     chat_->hide();
 
     logger("Inizializzazione editor completata");
@@ -100,6 +100,27 @@ void KKClient::handleOpenedConnection() {
     state_ = CONNECTED;
     timer_.stop();
     access_.showLoader(false);
+}
+
+void KKClient::handleTimeOutConnection() {
+    logger("[handleTimeOutConnection] - Websocket time out connection");
+    timer_.stop();
+    modal_.setModal("Non è stato possibile connettersi al server", "Riprova", CONNECTION_TIMEOUT);
+    modal_.show();
+    socket_.close();
+}
+
+void KKClient::handleErrorConnection(QAbstractSocket::SocketError error) {
+    logger(&"[handleErrorConnection] - Websocket not connected: " [error]);
+    socket_.close();
+}
+
+void KKClient::handleSslErrors(const QList<QSslError> &errors) {
+    Q_UNUSED(errors)
+    // WARNING: Never ignore SSL errors in production code.
+    // The proper way to handle self-signed certificates is to add a custom root
+    // to the CA store.
+    socket_.ignoreSslErrors();
 }
 
 void KKClient::handleResponse(const QString& message) {
@@ -121,6 +142,12 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == SIGNUP) {
         handleSignupResponse();
 
+    } else if (response.getRequestType() == LOGOUT ) {
+        handleLogoutResponse(response);
+
+    } else if (response.getRequestType() == UPDATE_USER ) {
+        handleUpdateUserResponse();
+
     } else if(response.getRequestType() == GET_FILES) {
         handleGetFilesResponse(response);
 
@@ -140,13 +167,17 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         QStringList bodyList = response.getBodyList();
         chat_->appendMessage(bodyList[0], bodyList[1]);
 
+    } else if(response.getRequestType() == SET_PARTECIPANTS) {
+        QStringList participants = response.getBodyList();
+        chat_->setParticipants(participants);
+
     } else if(response.getRequestType() == ADDED_PARTECIPANT) {
-        QStringList list = response.getBodyList();
-        chat_->addParticipant(list[0]);
+        QStringList params = response.getBodyList();
+        chat_->addParticipant(params.at(0), params.at(1), params.at(2));
 
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
-        QStringList list = response.getBodyList();
-        chat_->removeParticipant(list[0]);
+        QStringList params = response.getBodyList();
+        chat_->removeParticipant(params.at(0), params.at(1));
 
     } else if(response.getRequestType() == ALIGNMENT_CHANGE){
         handleAlignmentChange(response);
@@ -154,29 +185,98 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == CHARFORMAT_CHANGE){
         handleCharFormatChange(response);
 
-    } else if (response.getRequestType() == LOGOUT ) {
-        handleLogoutResponse(response);
-    }else {
-        modal_.setModal("L'operazione è andata a buon fine.", "Chiudi", GENERIC_SUCCESS);
+    } else {
+        modal_.setModal("L'operazione è andata a buon fine", "Chiudi", GENERIC_SUCCESS);
         modal_.show();
     }
 }
 
+void KKClient::handleErrorResponse(KKPayload response){
+    if (response.getResultType() == BAD_REQUEST) {
+        handleClientErrorResponse(response);
+    } else if (response.getResultType() == INTERNAL_SERVER_ERROR) {
+        handleServerErrorResponse(response);
+    } else {
+        modal_.setModal("Errore generico\nNon è stato possibile gestire l'errore conn il server", "Chiudi", GENERIC_ERROR);
+        modal_.show();
+    }
+}
+
+void KKClient::handleClientErrorResponse(KKPayload response) {
+    QString message, button, modal;
+
+    if (state_ == CONNECTED_NOT_LOGGED) {
+        message = "Hai inserito delle credenziali non valide.\nControlla che email e/o password siano corretti.";
+        button = "Chiudi";
+        modal = LOGIN_ERROR;
+
+    } else if (state_ == CONNECTED_NOT_SIGNED) {
+        message = "La registrazione non è andata a buon fine. Username e/o Email esistenti!";
+        button = "Riprova";
+        modal = SIGNUP_ERROR;
+
+    } else if (state_ == CONNECTED_NOT_OPENFILE) {
+        message = "Non è stato possibile scaricare il file dal server";
+        button = "Chiudi";
+        modal = OPENFILE_ERROR;
+
+    } else if (state_ == CONNECTED_AND_OPENED) {
+        message = "Non è stato possibile aggiornare il file dal server";
+        button = "Chiudi";
+        modal = CRDT_ERROR;
+
+    } else {
+        message = " Errore generico nella risposta del server";
+        button = "Chiudi";
+        modal = GENERIC_ERROR;
+    }
+
+    QString remoteMessage = response.getBodyList().at(0);
+    message.append(".\n").append(remoteMessage);
+    modal_.setModal(message, button, modal);
+    modal_.show();
+}
+
+void KKClient::handleServerErrorResponse(KKPayload res) {
+    Q_UNUSED(res)
+    QString message, button, modal;
+
+    if (res.getRequestType() == UPDATE_USER) {
+        message = "Non è stato possibile procedere con il salvataggio!";
+        button = "Chiudi";
+        modal = UPDATE_USER_ERROR;
+    } else {
+        message = "Errore interno al server. Non è possibile procedere con la richiesta!";
+        button = "Riprova";
+        modal = SERVER_ERROR;
+    }
+    modal_.setModal(message, button, modal);
+    modal_.show();
+}
+
+
 void KKClient::handleLoginResponse(KKPayload res) {
     state_= CONNECTED;
     // La risposta dovrebbe contenere le info dell'utente e poi i suoi file
-    QStringList bodyList = res.getBodyList();
-    mySiteId_ = bodyList.value(4);
-    access_.hide();
-#ifndef test
+    QStringList params = res.getBodyList();
+
+    if (user_ != nullptr) delete user_;
+    user_ = new KKUser();
+
+    user_->setName(params.at(0));
+    user_->setSurname(params.at(1));
+    user_->setEmail(params.at(2));
+    user_->setUsername(params.at(4));
+    user_->setAlias(params.at(5));
+    user_->setRegistrationDate(params.at(6));
+    user_->setImage(params.at(7));
+
     openFile_.clear();
-    openFile_.setUserInfo(bodyList.mid(0, 7));
-    openFile_.setUserAvatar(bodyList.value(7));
-    openFile_.setUserFiles(bodyList.mid(8, bodyList.size()));
+    openFile_.setUser(user_);
+    openFile_.setUserFiles(params.mid(8, params.size()));
+
+    access_.hide();
     openFile_.show();
-#else
-    this->sendOpenFileRequest("testboh13.txt");
-#endif
     logger("[handleLoginResponse] - Site id: " + mySiteId_);
 }
 
@@ -194,6 +294,18 @@ void KKClient::handleLogoutResponse(KKPayload res) {
     access_.show();
 }
 
+void KKClient::handleUpdateUserResponse()
+{
+    if (user_ != nullptr) {
+        user_->setAlias(openFile_.getAlias());
+        user_->setName(openFile_.getName());
+        user_->setSurname(openFile_.getSurname());
+        user_->setImage(openFile_.getAvatar());
+    }
+    modal_.setModal("Le tue informazioni sono state aggiornate con susccesso", "Chiudi", GENERIC_SUCCESS);
+    modal_.show();
+}
+
 
 void KKClient::handleSignupResponse() {
     state_ = CONNECTED;
@@ -208,26 +320,22 @@ void KKClient::handleGetFilesResponse(KKPayload res)
     openFile_.show();
 }
 
-void KKClient::handleOpenFileResponse(KKPayload response) {
+void KKClient::handleOpenFileResponse(KKPayload res) {
+    Q_UNUSED(res)
     state_= CONNECTED_AND_OPENED;
     currentfileValid_ = true;
-
     initEditor();
-
-    chat_->setParticipants(response.getBodyList());
-
+    openFile_.hide();
     editor_->show();
     chat_->show();
-    openFile_.hide();
 }
 
-void KKClient::handleLoadFileResponse(KKPayload response) {
-    QStringList bodyList = response.getBodyList();
+void KKClient::handleLoadFileResponse(KKPayload res) {
+    QStringList bodyList = res.getBodyList();
     if (bodyList.isEmpty())
         return;
 
     crdt_->loadCrdt(bodyList);
-    //crdt_->print();
     editor_->loadCrdt(crdt_->text);
 }
 
@@ -299,81 +407,6 @@ void KKClient::handleCharFormatChange(KKPayload response){
 
     qDebug()<<"[handleCharFormatChange] char_value="<<char_->getValue()<<"remotePos="<<remotePos<<fontStr<<colorStr;
     editor_->singleCharFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
-}
-
-void KKClient::handleErrorResponse(KKPayload response){
-    if (response.getResultType() == BAD_REQUEST) {
-        handleClientErrorResponse(response);
-
-    } else if (response.getResultType() == INTERNAL_SERVER_ERROR) {
-        handleServerErrorResponse(response);
-
-    } else {
-        modal_.setModal("Errore generico. Non è stato possibile gestire l'errore.", "Chiudi", GENERIC_ERROR);
-        modal_.show();
-    }
-}
-
-void KKClient::handleClientErrorResponse(KKPayload response) {
-    QString message, button, modal;
-
-    if (state_ == CONNECTED_NOT_LOGGED) {
-        message = "Hai inserito delle credenziali non valide.\nControlla che email e/o password siano corretti.";
-        button = "Chiudi";
-        modal = LOGIN_ERROR;
-
-    } else if (state_ == CONNECTED_NOT_SIGNED) {
-        message = "La registrazione non è andata a buon fine. Username e/o Email esistenti!";
-        button = "Riprova";
-        modal = SIGNUP_ERROR;
-
-    } else if (state_ == CONNECTED_NOT_OPENFILE) {
-        message = "Non è stato possibile scaricare il file dal server";
-        button = "Chiudi";
-        modal = OPENFILE_ERROR;
-
-    } else if (state_ == CONNECTED_AND_OPENED) {
-        message = "Non è stato possibile aggiornare il file dal server";
-        button = "Chiudi";
-        modal = CRDT_ERROR;
-
-    } else {
-        message = " Errore generico nella risposta del server";
-        button = "Chiudi";
-        modal = GENERIC_ERROR;
-    }
-
-    QString remoteMessage = response.getBodyList().at(0);
-    message.append(".\n").append(remoteMessage);
-    modal_.setModal(message, button, modal);
-    modal_.show();
-}
-
-void KKClient::handleServerErrorResponse(KKPayload res) {
-    Q_UNUSED(res)
-    modal_.setModal("Errore interno al server, non è possibile procedere.", "Riprova", SERVER_ERROR);
-    modal_.show();
-}
-
-void KKClient::handleTimeOutConnection() {
-    logger("[handleTimeOutConnection] - Websocket time out connection");
-    timer_.stop();
-    modal_.setModal("Non è stato possibile connettersi al server.", "Riprova", CONNECTION_TIMEOUT);
-    modal_.show();
-    socket_.close();
-}
-
-void KKClient::handleErrorConnection(QAbstractSocket::SocketError error) {
-    logger(&"[handleErrorConnection] - Websocket not connected: " [error]);
-    socket_.close();
-}
-
-void KKClient::handleSslErrors(const QList<QSslError> &errors) {
-    Q_UNUSED(errors)
-    // WARNING: Never ignore SSL errors in production code.
-    // The proper way to handle self-signed certificates is to add a custom root
-    // to the CA store.
-    socket_.ignoreSslErrors();
 }
 
 /// SENDING
@@ -460,16 +493,16 @@ void KKClient::sendOpenFileRequest(const QString& link, const QString& fileName)
 void KKClient::sendMessageRequest(QString username, QString message) {
     bool result = sendRequest(CHAT, NONE, {std::move(username), std::move(message)});
     if (!result || !socket_.isValid()) {
-        modal_.setModal("Attenzione! Sembra che tu non sia connesso alla rete.", "Riprova", CHAT_ERROR);
+        modal_.setModal("Attenzione!\nSembra che tu non sia connesso alla rete", "Riprova", CHAT_ERROR);
         modal_.show();
     }
 }
 
 void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar)
 {
-    bool result = sendRequest(UPDATE_USER, NONE, {mySiteId_, name, surname, alias, avatar});
+    bool result = sendRequest(UPDATE_USER, NONE, {user_->getUsername(), name, surname, alias, avatar});
     if (!result || !socket_.isValid()) {
-        modal_.setModal("Non è stato possibile aggiornare l'account.", "Chiudi", GENERIC_ERROR);
+        modal_.setModal("Non è stato possibile aggiornare l'account", "Chiudi", GENERIC_ERROR);
         modal_.show();
     }
 }
@@ -478,7 +511,7 @@ void KKClient::onEditorClosed()
 {
     bool result = sendRequest(QUIT_FILE, NONE, {});
     if (!result || !socket_.isValid()) {
-        modal_.setModal("Non è stato possibile chiudere il file.", "Chiudi", GENERIC_ERROR);
+        modal_.setModal("Non è stato possibile chiudere il file", "Chiudi", GENERIC_ERROR);
         modal_.show();
     }
 }
@@ -486,7 +519,7 @@ void KKClient::onEditorClosed()
 void KKClient::sendCrdtRequest(QStringList crdt) {
     bool result = sendRequest(CRDT, NONE, std::move(crdt));
     if (!result || !socket_.isValid()) {
-        modal_.setModal("Non è stato possibile aggiornare il file dal server!", "Riprova", CRDT_ERROR);
+        modal_.setModal("Non è stato possibile aggiornare il file dal server", "Riprova", CRDT_ERROR);
         modal_.show();
     }
 }
@@ -520,6 +553,9 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
     } else  if (modalType == LOGIN_ERROR) {
         modal_.hide();
         access_.showLoader(false);
+
+    } else if (modalType == UPDATE_USER_ERROR) {
+        openFile_.setUser(user_);
 
     } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR) {
         modal_.hide();

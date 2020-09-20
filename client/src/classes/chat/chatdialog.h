@@ -64,8 +64,8 @@ public:
     void resetState();
     void setNickName(QString nick);
     void appendMessage(const QString &from, const QString &message);
-    void addParticipant(const QString &nick);
-    void removeParticipant(const QString &nick);
+    void addParticipant(const QString &username, const QString &nick, const QString &avatar);
+    void removeParticipant(const QString &username, const QString &nick);
     void setParticipants(const QStringList participants);
 
 signals:
@@ -76,14 +76,14 @@ private slots:
     void returnPressed();
     void showInformation();
     void onItemClicked(QListWidgetItem *item);
-    void setParticipantState(const QString &nick, const QString &state);
+    void setParticipantState(const QString &username, const QString &nick, const QString &avatar, const QString &state);
     QListWidgetItem* findParticipantItem(const QString &nick);
 private:
     QString myNickName;
     QTextTableFormat tableFormat;
     QMap<QString, QString> participants;
-    QIcon* greyIcon;
-    QIcon* greenIcon;
+    QColor* colorOnline;
+    QColor* colorOffline;
 };
 
 #endif

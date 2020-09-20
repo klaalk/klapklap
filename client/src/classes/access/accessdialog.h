@@ -8,6 +8,8 @@
 #include <QString>
 #include <QStringBuilder>
 
+#include "../../../../libs/src/constants/kk_constants.h"
+
 namespace Ui {
 class AccessDialog;
 }
@@ -54,11 +56,7 @@ private:
     Ui::AccessDialog *ui_ = nullptr;
     QMovie *gif_;
     QPixmap *logo_;
-    QRegularExpression *emailRegexp_;
-    QRegularExpression *passwordRegexp_;
-    QRegularExpression *usernameRegexp_;
-    QRegularExpression *nameRegexp_;
-    QRegularExpression *surnameRegexp_;
+
     bool showHintEmail = false;
     bool showHintPassword = false;
     bool showHintName = false;
@@ -67,7 +65,7 @@ private:
 
     bool checkLoginForm();
     bool checkSingupForm();
-    bool regexMatch(const QString& value, QRegularExpression* regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage);
+    bool regexMatch(const QString& value, QRegularExpression regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage);
 };
 
 #endif // ACCESSDIALOG_H

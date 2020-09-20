@@ -29,6 +29,7 @@
 #include "../../../../libs/src/classes/crdt/kk_crdt.h"
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
+#include "../../../../libs/src/classes/user/kk_user.h"
 
 #include "../access/accessdialog.h"
 #include "../chat/chatdialog.h"
@@ -80,6 +81,7 @@ private:
     void handleSuccessResponse(KKPayload res);
     void handleLoginResponse(KKPayload res);
     void handleLogoutResponse(KKPayload res);
+    void handleUpdateUserResponse();
     void handleSignupResponse();
     void handleGetFilesResponse(KKPayload res);
     void handleOpenFileResponse(KKPayload res);
@@ -94,6 +96,7 @@ private:
     bool sendRequest(QString type, QString result, QStringList values);
 
     QString mySiteId_;
+    QString myNickName_;
     QStringList avatars;
 
     QString state_;
@@ -107,6 +110,7 @@ private:
     OpenFileDialog openFile_;
     ModalDialog modal_;
 
+    KKUser* user_{};
     KKCrdt* crdt_{};
     TextEdit* editor_{};
     ChatDialog* chat_{};

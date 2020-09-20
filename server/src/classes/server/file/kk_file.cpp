@@ -73,30 +73,21 @@ QString KKFile::getHash()
     return this->hash;
 }
 
-KKMapParticipantPtr KKFile::getParticipants()
+void KKFile::addUser(QString user)
 {
-    return this->participants;
-}
-
-KKVectorPayloadPtr KKFile::getRecentMessages() {
-    return recentMessages;
-}
-
-void KKFile::addOwner(QString owner)
-{
-    if (!owner.isEmpty()) {
-        owners->push_back(owner);
+    if (!user.isEmpty()) {
+        users.push_back(user);
     }
 }
 
-void KKFile::setOwners(QSharedPointer<QStringList> owners_)
+void KKFile::setUsers(QStringList users_)
 {
-    owners = owners_;
+    users = users_;
 }
 
-QSharedPointer<QStringList> KKFile::getOwners()
+QStringList KKFile::getUsers()
 {
-    return owners;
+    return users;
 }
 
 void KKFile::applyRemoteInsert(QStringList bodyList)
@@ -161,9 +152,30 @@ void KKFile::flushCrdtText()
     }
 }
 
+
 QStringList KKFile::getCrdtText()
 {
     return crdt->saveCrdt();
+}
+
+
+QStringList KKFile::getParticipants()
+{
+    // Rispondo con la list di tutti partecipanti al file (attivi o non attivi)
+    QStringList participants_;
+
+    for(QString user : users) {
+        QString id = user.split(":").at(0);
+        QString state = participants->find(id) != participants->end() ? PARTICIPANT_ONLINE : PARTICIPANT_OFFLINE;
+        participants_.push_back(user + ":" + state);
+    }
+
+    return participants_;
+}
+
+KKVectorPayloadPtr KKFile::getRecentMessages()
+{
+    return recentMessages;
 }
 
 int KKFile::getParticipantCounter() const
