@@ -149,7 +149,7 @@ void ChatDialog::setParticipants(const QStringList participants)
         this->participants.insert(username, state);
 
         QListWidgetItem* item = new QListWidgetItem();
-        item->setData(0, username);
+        item->setWhatsThis(username);
         item->setText(nick);
         item->setIcon(QIcon(":/images/avatars/"+avatar));
         if (state == PARTICIPANT_ONLINE)
@@ -175,8 +175,7 @@ void ChatDialog::onItemClicked(QListWidgetItem *item) {
     if(!item) {
         return;
     }
-    QString siteId = item->data(0).toString();
-    qDebug() << "CHAT SITE ID: " << siteId;
+    QString siteId = item->whatsThis();
     emit siteIdClicked(siteId, false);
 }
 
@@ -187,7 +186,7 @@ void ChatDialog::setParticipantState(const QString &username, const QString &nic
 
         if (item == nullptr) {
             item = new QListWidgetItem();
-            item->setData(0, username);
+            item->setWhatsThis(username);
             item->setText(nick);
             item->setIcon(QIcon(":/images/avatars/"+avatar));
             listWidget->addItem(item);
