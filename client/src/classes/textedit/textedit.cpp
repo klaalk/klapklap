@@ -1120,8 +1120,8 @@ void TextEdit::updateSiteIdsMap(const QString& siteId, const QSharedPointer<QLis
 
     if(siteIdsClicked_.contains(siteId))
         colorText(siteId);
-    else if(clickedAny())
-        clearColorText(siteId);
+    else
+        clearColorText(siteId); 
 }
 
 void TextEdit::siteIdClicked(const QString& siteId){
