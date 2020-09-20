@@ -1345,7 +1345,7 @@ void TextEdit::shortestText(int diffLength,QString plainText){
             //qDebug()<< "[shortestText]"<<plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-diffLength);
             justDelete(plainText);
        }else{//hai cancellato e inserito
-            deleteInsertA(plainText);
+            deleteInsertA(plainText,lastText);
         }
     }else{
         //qDebug()<< "[shortestText]"<<plainText.mid(0,cursorPos) << "  " << lastText.mid(0,lastCursorPos-1);
@@ -1353,7 +1353,7 @@ void TextEdit::shortestText(int diffLength,QString plainText){
         if(isEqualCharAndForm(0,lastCursorPos-1,0,cursorPos)){
             justDelete(plainText);
         }else{//hai cancellato e inserito
-            deleteInsertB(plainText);
+            deleteInsertB(plainText,lastText);
         }
     }
 }
@@ -1364,9 +1364,9 @@ void TextEdit::longestText(int diffLength,QString plainText){
         justInsert(plainText);
     }else{//hai cancellato e inserito
         if(cursorPos==lastCursorPos+diffLength){
-            deleteInsertA(plainText);
+            deleteInsertA(plainText,lastText);
         }else{
-            deleteInsertB(plainText);
+            deleteInsertB(plainText,lastText);
         }
     }
 }
@@ -1381,13 +1381,14 @@ void TextEdit::sameTextLength(QString plainText){
             emit insertTextToCRDT(plainText.mid(lastCursorPos, cursorPos-lastCursorPos), lastCursorPos);
             tmpList = fromStringKKCharAndFormList(plainText.mid(lastCursorPos, cursorPos-lastCursorPos).toStdString(),static_cast<int>(lastCursorPos));
             lastTextAndForm.splice(std::next(lastTextAndForm.begin(),static_cast<int>(lastCursorPos)),tmpList);
+            qDebug()<<"CANCELLA da:"<<lastText[lastCursorPos]<<lastCursorPos<<" a "<< lastText[cursorPos]<<cursorPos << "e INSERISCI"<< plainText.mid(lastCursorPos, cursorPos-lastCursorPos)<<" in pos:"<< lastCursorPos;
              //printLastTextandForm();
         }
     }else{
         //if(lastText.mid(0,lastCursorPos)!=plainText.mid(0,cursorPos)){//hai cancellato e scritto
         if(!isEqualCharAndForm(selection_start,selection_end,selection_start,selection_end)){
             //qDebug()<<lastText.mid(0,lastCursorPos)<<"  "<<plainText.mid(0,cursorPos);
-            deleteInsertA(plainText);
+            deleteInsertA(plainText,lastText);
         }
     }
     }
@@ -1431,7 +1432,7 @@ void TextEdit::justDelete(QString plainText){
         }}
 
 }
-void TextEdit::deleteInsertA(QString plainText){
+void TextEdit::deleteInsertA(QString plainText,QString lastText){
      //qDebug()<<"[deleteInsertA]";
     std::string str1;
     std::string str2;
@@ -1447,10 +1448,10 @@ void TextEdit::deleteInsertA(QString plainText){
      //printLastTextandForm();
      emit removeTextFromCRDT(static_cast<int>(posX), lastCursorPos);
      emit insertTextToCRDT( QString::fromStdString (stringX), static_cast<int>(posX));
-    qDebug()<<"CANCELLA da:"<<posX<<" a "<< lastCursorPos << "e INSERISCI"<< QString::fromStdString (stringX)<<" in pos:"<< posX;
+    qDebug()<<"CANCELLA da:"<< lastText[static_cast<int>(posX)] <<posX<<" a "<< lastText[lastCursorPos]<<lastCursorPos << "e INSERISCI"<< QString::fromStdString (stringX)<<" in pos:"<< posX;
 }
 
-void TextEdit::deleteInsertB(QString plainText){
+void TextEdit::deleteInsertB(QString plainText,QString lastText){
      //qDebug()<<"[deleteInsertB]";
     std::string str1;
     std::string str2;
@@ -1466,7 +1467,7 @@ void TextEdit::deleteInsertB(QString plainText){
     //printLastTextandForm();
     emit removeTextFromCRDT(lastCursorPos,lastCursorPos+static_cast<int>(lengthX)) ;
     emit insertTextToCRDT( QString::fromStdString (stringX), lastCursorPos);
-    qDebug()<<"CANCELLA da:"<<lastCursorPos<<" a "<< lastCursorPos+static_cast<int>(lengthX) << "e INSERISCI"<< QString::fromStdString (stringX)<<" in pos:"<< lastCursorPos;
+    qDebug()<<"CANCELLA da:"<<lastText[lastCursorPos]<<lastCursorPos<<" a "<< lastText[lastCursorPos+static_cast<int>(lengthX)]<< lastCursorPos+static_cast<int>(lengthX)<< "e INSERISCI"<< QString::fromStdString (stringX)<<" in pos:"<< lastCursorPos;
 }
 
 void TextEdit::stringDiffInv(std::string str1, std::string str2,unsigned long *lengthX, std::string *stringX){
