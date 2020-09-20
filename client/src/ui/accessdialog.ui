@@ -768,6 +768,12 @@
              <property name="text">
               <string>Login</string>
              </property>
+             <property name="autoDefault">
+              <bool>false</bool>
+             </property>
+             <property name="default">
+              <bool>true</bool>
+             </property>
              <property name="class" stdset="0">
               <string>PrimaryBtn</string>
              </property>
@@ -822,11 +828,17 @@
              <property name="cursor">
               <cursorShape>PointingHandCursor</cursorShape>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
              <property name="styleSheet">
               <string notr="true"/>
              </property>
              <property name="text">
               <string>Registrati</string>
+             </property>
+             <property name="autoDefault">
+              <bool>false</bool>
              </property>
              <property name="class" stdset="0">
               <string>SecondaryBtn</string>

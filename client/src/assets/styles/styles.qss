@@ -1,4 +1,4 @@
-QDialog {
+QDialog, QMainWindow {
     background-color: rgb(255, 255, 255);
     color: rgb(33, 33, 33);
 }
@@ -50,6 +50,41 @@ QPushButton[class="IconBtn"] {
     border-radius: 5px;
 }
 
+QPushButton[class="PrimaryOutlineBtn"], QPushButton[class="SecondaryOutlineBtn"] {
+    min-height: 23px;
+    max-height: 23px;
+    height: 23px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: 'MS Shell Dlg 2';
+    border: 0px solid  white;
+    background-color: rgb(255, 255, 255);
+}
+
+QPushButton[class="PrimaryOutlineBtn"] {
+    color: rgba(25, 118, 210, 200);
+}
+
+QPushButton[class="PrimaryOutlineBtn"]:hover:!pressed  {
+   color: rgba(25, 118, 210, 255);
+}
+
+QPushButton[class="PrimaryOutlineBtn"]:disabled {
+   color: rgba(25, 118, 210, 100);
+}
+
+QPushButton[class="SecondaryOutlineBtn"] {
+    color: rgba(255, 82, 82, 200);
+}
+
+QPushButton[class="SecondaryOutlineBtn"]:hover:!pressed  {
+   color: rgba(255, 82, 82, 255);
+}
+
+QPushButton[class="SecondaryOutlineBtn"]:disabled {
+   color: rgba(255, 82, 82, 100);
+}
+
 QLineEdit {
     min-height: 23px;
     max-height: 23px;
@@ -79,6 +114,18 @@ QHeaderView::section {
     font-size: 12px;
 }
 
-QTextEdit[class="crdtTextEdit"] {
-    margin: 30px 60px;
+
+QTextEdit[class="TextEdit"] {
+    border: 0px solid white;
+    min-width: 500px;
+}
+
+ChatDialog {
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-left-color: rgba(33, 33, 33, 100);
+}
+
+QTextEdit[class="ChatTextEdit"], QListWidget[class="ParticipantList"] {
+    border: 0px solid white;
 }

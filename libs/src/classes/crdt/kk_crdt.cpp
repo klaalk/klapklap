@@ -237,9 +237,6 @@ void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
 //        }
         list<KKCharPtr> _list_char = {_char};
         text[pos.getLine()].splice(std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh())), _list_char);
-
-
-
     }
 }
 
@@ -249,7 +246,6 @@ unsigned long KKCrdt::remoteInsert(const KKCharPtr& _char){
     KKPosition pos = findInsertPosition(_char);
     insertChar(_char, pos);
     global_pos = generateGlobalPos(pos);
-    this->print();
     return global_pos;
 }
 
@@ -448,6 +444,17 @@ void KKCrdt::print() {
     std::cout << "FINE STAMPA CRDT" << std::endl;
 }
 
+void KKCrdt::printText() {
+    std::cout << std::endl << "INIZIO STAMPA CRDT" << std::endl;
+    for (auto& i : text) {
+        for (const auto& x : i) {
+            std::cout << x->getValue();
+        }
+    }
+    std::cout << std::endl;
+    std::cout << "FINE STAMPA CRDT" << std::endl;
+}
+
 void KKCrdt::printform() {
     std::cout << std::endl << "INIZIO STAMPA CRDT" << std::endl;
     for (auto& i : text) {
@@ -508,7 +515,6 @@ bool new_line_removed=false;
     }
     }
     //text.emplace_back();
-    this->print();
     return chars;
 }
 
@@ -620,7 +626,6 @@ unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
     removeEmptyLines();
     //text.emplace_back();
     global_pos= generateGlobalPos(pos);
-    this->print();
     return global_pos;
 }
 

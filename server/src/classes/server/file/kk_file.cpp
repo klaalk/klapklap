@@ -198,7 +198,6 @@ void KKFile::initCrdtText()
 
 
         if(!text.isEmpty()) {
-            qDebug() << text;
             crdt->loadCrdt(text);
         }
         //crdt->print();

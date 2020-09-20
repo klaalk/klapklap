@@ -1,6 +1,7 @@
 #include "openfiledialog.h"
 #include "ui_openfiledialog.h"
 
+#include <QClipboard>
 #include <QDateTime>
 #include <QImageWriter>
 #include <QMessageBox>
@@ -21,7 +22,11 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
     // Setting up window
     ui->setupUi(this);
     setFixedSize(this->size());
-    setStyleSheet("OpenFileDialog {background-color: white;}");
+
+    QPixmap image = QPixmap(":images/common/logout-icon.png");
+    QIcon ButtonIcon(image);
+    ui->LogoutButton->setIcon(ButtonIcon);
+    ui->LogoutButton->setIconSize(image.rect().size());
 
     // Setting up table view
     initializeFilesTableView();
@@ -154,8 +159,8 @@ void OpenFileDialog::on_openFileButton_clicked()
 void OpenFileDialog::on_shareFileButton_clicked()
 {
     QString link = (pastedLink != nullptr && !pastedLink.isEmpty()) ? pastedLink : selectedLink;
-    shareFileDialog.setShareFileLink(link);
-    shareFileDialog.show();
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(link);
 }
 
 void OpenFileDialog::on_changeImageButton_clicked()

@@ -72,6 +72,7 @@ public:
 
     vector<KKIdentifierPtr> slice(vector<KKIdentifierPtr> const &v,int i);//FORSE DA TOGLIERE
     void print();
+    void printText();
     void printform();
     strategy findStrategy();//trova la strategia migliore per assegnare un identifier alla position della nuova Char
     QStringList saveCrdt(); //ritorna una stringa dove è "salvato" il crdt

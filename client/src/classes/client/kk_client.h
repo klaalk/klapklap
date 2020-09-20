@@ -75,9 +75,8 @@ private slots:
     void onCharFormatChanged(int pos, QTextCharFormat format);
     void logger(QString message);
 private:
-    void setInitState();
-    void initTextEdit();
-    void initChatDialog();
+    void initState();
+    void initEditor();
     void handleSuccessResponse(KKPayload res);
     void handleLoginResponse(KKPayload res);
     void handleLogoutResponse(KKPayload res);

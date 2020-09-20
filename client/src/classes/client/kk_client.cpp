@@ -10,7 +10,6 @@
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url_(std::move(url)) {
 
-
     // Gestisco l' apertura della connessione al socket
     connect(&socket_, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);
 
@@ -41,29 +40,34 @@ KKClient::KKClient(QUrl url, QObject *parent)
         avatars.push_back(it.next());
     }
     mySiteId_ = "unknown";
-    setInitState();
+    initState();
 }
 
 /// INIT
 
-void KKClient::setInitState() {
+void KKClient::initState() {
     state_ = NOT_CONNECTED;
     timer_.start(TIMEOUT_VALUE);
     socket_.open(QUrl(url_));
-    initTextEdit();
-    initChatDialog();
-
     openFile_.hide();
     modal_.hide();
-
     access_.show();
     access_.showLoader(true);
 }
 
-void KKClient::initTextEdit() {
+void KKClient::initEditor()
+{
+    logger("Inizializzazione editor...");
+    if (crdt_ != nullptr) delete crdt_;
+    crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
+
+    if (chat_ != nullptr) delete chat_;
+    chat_ = new ChatDialog();
 
     if (editor_ != nullptr) delete editor_;
     editor_ = new TextEdit();
+
+
     // Gestisco le richieste dell'editor
     connect(editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
     connect(editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
@@ -74,20 +78,19 @@ void KKClient::initTextEdit() {
     connect(editor_, &TextEdit::openFileDialog, this, &KKClient::onOpenFileDialog);
     connect(editor_, &TextEdit::editorClosed, this, &KKClient::onEditorClosed);
 
+    editor_->setChatDialog(chat_);
     editor_->setMySiteId(mySiteId_);
     editor_->setCurrentFileName(currentfile_);
     editor_->hide();
-}
 
-void KKClient::initChatDialog() {
-    if (chat_ != nullptr) delete chat_;
-    chat_ = new ChatDialog();
     // Gestisco le richieste della chat
     connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
     connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
 
     chat_->setNickName(mySiteId_);
     chat_->hide();
+
+    logger("Inizializzazione editor completata");
 }
 
 /// HANDLING
@@ -126,8 +129,10 @@ void KKClient::handleSuccessResponse(KKPayload response) {
 
     } else if(response.getRequestType() == LOAD_FILE) {
         handleLoadFileResponse(response);
+
     } else if(response.getRequestType() == QUIT_FILE) {
         handleQuitFileResponse();
+
     } else if(response.getRequestType() == CRDT) {
         handleCrdtResponse(response);
 
@@ -138,7 +143,6 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == ADDED_PARTECIPANT) {
         QStringList list = response.getBodyList();
         chat_->addParticipant(list[0]);
-        qDebug() << "Added participant: " << list[0];
 
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
         QStringList list = response.getBodyList();
@@ -205,18 +209,13 @@ void KKClient::handleGetFilesResponse(KKPayload res)
 }
 
 void KKClient::handleOpenFileResponse(KKPayload response) {
-    currentfileValid_ = true;
     state_= CONNECTED_AND_OPENED;
+    currentfileValid_ = true;
 
-    if (crdt_ != nullptr)
-        delete crdt_;
-
-    crdt_ = new KKCrdt(mySiteId_.toStdString(), casuale);
-
-    initTextEdit();
-    initChatDialog();
+    initEditor();
 
     chat_->setParticipants(response.getBodyList());
+
     editor_->show();
     chat_->show();
     openFile_.hide();
@@ -242,10 +241,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     // Ottengo i campi della risposta
     QStringList bodyList_ = response.getBodyList();
 
-    // Stampo i campi
-    // for(const QString& l : bodyList_)
-    //  qDebug() << l;
-
     bool isInsert = bodyList_[0] == CRDT_INSERT;
     int increment = isInsert ? 0 : 1;
     QString siteId = bodyList_[1 + increment];
@@ -266,7 +261,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 
     unsigned long remotePos = isInsert ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
     QString labelName = isInsert ? siteId : bodyList_[1];
-
     editor_->applyRemoteChanges(bodyList_[0], labelName, text, static_cast<int>(remotePos), char_->getKKCharFont(), char_->getKKCharColor());
 
     if(editor_->clickedAny())
@@ -310,6 +304,7 @@ void KKClient::handleCharFormatChange(KKPayload response){
 void KKClient::handleErrorResponse(KKPayload response){
     if (response.getResultType() == BAD_REQUEST) {
         handleClientErrorResponse(response);
+
     } else if (response.getResultType() == INTERNAL_SERVER_ERROR) {
         handleServerErrorResponse(response);
 
@@ -514,23 +509,21 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
     Q_UNUSED(btnText)
 
     if(modalType == CONNECTION_TIMEOUT) {
-        setInitState();
+        initState();
 
     } else if (modalType == LOGIN_TIMEOUT) {
-        setInitState();
+        initState();
 
     } else if (modalType == OPENFILE_TIMEOUT) {
-        setInitState();
+        initState();
 
     } else  if (modalType == LOGIN_ERROR) {
         modal_.hide();
         access_.showLoader(false);
 
-    } else if (modalType == CRDT_ERROR) {
-        delete crdt_;
-        editor_->resetState();
-        chat_->resetState();
-        setInitState();
+    } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR) {
+        modal_.hide();
+        editor_->close();
 
     } else if (modalType == OPENFILE_ERROR) {
         modal_.hide();
@@ -571,7 +564,7 @@ void KKClient::onInsertTextCrdt(const QString& diffText, int position) {
     }
     if(editor_->clickedAny())
         editor_->updateSiteIdsMap(siteId,findPositions(siteId));
-    crdt_->print();
+    crdt_->printText();
 }
 
 void KKClient::onRemoveTextCrdt(int start, int end) {
@@ -592,7 +585,7 @@ void KKClient::onRemoveTextCrdt(int start, int end) {
 
     if(editor_->clickedAny())
        editor_->updateSiteIdsMap(crdt_->getSiteId(),findPositions(crdt_->getSiteId()));
-    crdt_->print();
+    crdt_->printText();
 }
 
 void KKClient::onSaveCrdtToFile() {
