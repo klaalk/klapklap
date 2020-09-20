@@ -32,7 +32,7 @@ void KKFile::leave(KKParticipantPtr participant) {
 
 int KKFile::deliver(QString type, QString result, QStringList message, QString username) {
     KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
-    int code=-1;
+    int code=-1; //TODO: check if is better 0
     if (type == CRDT) {
         code=applyRemoteInsertSafe(data->getBodyList());
     } else if (type == CHARFORMAT_CHANGE) {

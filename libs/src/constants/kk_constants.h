@@ -122,6 +122,7 @@
 #define CHAT_ERROR "ChatError"
 #define GENERIC_ERROR "GenericError"
 #define SERVER_ERROR "ServerError"
+#define INPUT_ERROR "InputOnClientError"
 
 /// File system costants
 #define LOG_FILE "log"

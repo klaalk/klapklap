@@ -245,7 +245,11 @@ void KKClient::handleServerErrorResponse(KKPayload res) {
         message = "Non è stato possibile procedere con il salvataggio!";
         button = "Chiudi";
         modal = UPDATE_USER_ERROR;
-    } else {
+    }else if (res.getRequestType() == QUIT_FILE) {
+        message = "Non è stato possibile effettuare la modifica, il file adesso verrà chiuso!";
+        button = "Chiudi";
+        modal = INPUT_ERROR;
+    }else {
         message = "Errore interno al server. Non è possibile procedere con la richiesta!";
         button = "Riprova";
         modal = SERVER_ERROR;
@@ -341,6 +345,7 @@ void KKClient::handleLoadFileResponse(KKPayload res) {
 
 void KKClient::handleQuitFileResponse()
 {
+    editor_->hide();
     chat_->hide();
     sendGetFilesRequest();
 }
@@ -558,7 +563,7 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
     } else if (modalType == UPDATE_USER_ERROR) {
         openFile_.setUser(user_);
 
-    } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR) {
+    } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR || modalType == INPUT_ERROR) {
         modal_.hide();
         editor_->close();
 
