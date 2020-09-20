@@ -30,13 +30,13 @@ void KKFile::leave(KKParticipantPtr participant) {
     participants->remove(participant->id);
 }
 
-void KKFile::deliver(QString type, QString result, QStringList message, QString username) {
+int KKFile::deliver(QString type, QString result, QStringList message, QString username) {
     KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
-
+    int code=-1;
     if (type == CRDT) {
-        applyRemoteInsert(data->getBodyList());
+        code=applyRemoteInsertSafe(data->getBodyList());
     } else if (type == CHARFORMAT_CHANGE) {
-        applyRemoteCharFormatChange(data->getBodyList());
+        code=applyRemoteCharFormatChangeSafe(data->getBodyList());
     } else if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
         recentMessages->push_back(data);
     }
@@ -51,6 +51,7 @@ void KKFile::deliver(QString type, QString result, QStringList message, QString 
             }
         });
     }
+    return code;
 }
 
 void KKFile::setFile(QSharedPointer<QFile> file)
@@ -88,6 +89,27 @@ void KKFile::setUsers(QStringList users_)
 QStringList KKFile::getUsers()
 {
     return users;
+}
+
+int KKFile::applyRemoteInsertSafe(QStringList bodyList){
+    try {
+        applyRemoteInsert(bodyList);
+        return 200;
+    } catch (QException e) {
+        KKLogger::log(e.what(),"applyRemoteInsertSafe");
+        return -200;
+    }
+}
+
+int KKFile::applyRemoteCharFormatChangeSafe(QStringList bodyList){
+    try {
+        applyRemoteCharFormatChange(bodyList);
+        return 200;
+    } catch (QException e) {
+       KKLogger::log(e.what(),"applyRemoteCharFormatChangeSafe");
+       return -200;
+    }
+
 }
 
 void KKFile::applyRemoteInsert(QStringList bodyList)

@@ -14,6 +14,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QWebSocket>
+#include <QException>
 #include <QFile>
 #include <QTimer>
 
@@ -30,7 +31,7 @@ public:
     ~KKFile();
     void join(KKParticipantPtr participant);
     void leave(KKParticipantPtr participant);
-    void deliver(QString type, QString result, QStringList values, QString myNick);
+    int deliver(QString type, QString result, QStringList values, QString myNick);
 
     void setFile(QSharedPointer<QFile> file);
     QSharedPointer<QFile> getFile();
@@ -44,6 +45,8 @@ public:
 
     void applyRemoteInsert(QStringList bodyList);
     void applyRemoteCharFormatChange(QStringList bodyList);
+    int applyRemoteInsertSafe(QStringList bodyList);
+    int applyRemoteCharFormatChangeSafe(QStringList bodyList);
     void initCrdtText();
     void flushCrdtText();
 

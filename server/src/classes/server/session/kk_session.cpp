@@ -244,15 +244,24 @@ void KKSession::handleQuitFileRequest()
     sendResponse(QUIT_FILE, SUCCESS, {});
 }
 void KKSession::handleCrdtRequest(KKPayload request) {
-    file->deliver(CRDT, SUCCESS, request.getBodyList(), user->getUsername());
+    if(file->deliver(CRDT, SUCCESS, request.getBodyList(), user->getUsername())<0){
+        disconnectFromFile();
+        sendResponse(QUIT_FILE, SUCCESS, {});
+    }
 }
 
 void KKSession::handleAlignChangeRequest(KKPayload request){
-    file->deliver(ALIGNMENT_CHANGE, SUCCESS, request.getBodyList(), user->getUsername());
+    if(file->deliver(ALIGNMENT_CHANGE, SUCCESS, request.getBodyList(), user->getUsername())<0){
+        disconnectFromFile();
+        sendResponse(QUIT_FILE, SUCCESS, {});
+    }
 }
 
 void KKSession::handleFormatChangeRequest(KKPayload request){
-    file->deliver(CHARFORMAT_CHANGE,SUCCESS,request.getBodyList(), user->getUsername());
+    if(file->deliver(CHARFORMAT_CHANGE,SUCCESS,request.getBodyList(), user->getUsername())<0){
+        disconnectFromFile();
+        sendResponse(QUIT_FILE, SUCCESS, {});
+    }
 }
 
 void KKSession::handleChatRequest(KKPayload request) {
