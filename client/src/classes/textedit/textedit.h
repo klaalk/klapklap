@@ -217,8 +217,8 @@ private:
     void modifyLabels();
     void justInsert(QString plainText);
     void justDelete(QString plainText);
-    void deleteInsertA(QString plainText);
-    void deleteInsertB(QString plainText);
+    void deleteInsertA(QString plainText,QString lastText);
+    void deleteInsertB(QString plainText,QString lastText);
     void shortestText(int diffLength,QString plainText);
     void longestText(int diffLength,QString plainText);
     void sameTextLength(QString plainText);
