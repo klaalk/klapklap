@@ -481,16 +481,17 @@ vector<KKIdentifierPtr> KKCrdt::slice(vector<KKIdentifierPtr> const &v, int i) {
 }
 
 list<KKCharPtr> KKCrdt::localDelete(KKPosition start_pos, KKPosition end_pos){
-    bool new_line_removed=false;
+bool new_line_removed=false;
     list<KKCharPtr> chars;
 
-    if(start_pos.getLine() != end_pos.getLine()){ //controlla se hai cancellato piu di una riga
+    if(start_pos.getLine() != end_pos.getLine()){ //controlla se hai cancellato su piu di una riga
         new_line_removed = true;
         chars = deleteMultipleLines(start_pos,end_pos);
     }else{
         chars = deleteSingleLine(start_pos, end_pos);
         list<KKCharPtr>::iterator it;
         it=chars.begin();
+
         for (it = chars.begin(); it!= chars.end(); it++) { //controlla se hai cancellato un \n
             if(it->get()->getValue() == '\n'){
                 new_line_removed=true;
@@ -498,8 +499,13 @@ list<KKCharPtr> KKCrdt::localDelete(KKPosition start_pos, KKPosition end_pos){
         }
     }
     removeEmptyLines();
-    if(new_line_removed && !text[start_pos.getLine()+1].empty()){
+//xxx
+    if(!text[start_pos.getLine()].empty()){
+    char ch=std::next(text[start_pos.getLine()].begin(),text[start_pos.getLine()].size()-1)->get()->getValue();
+    if(new_line_removed && !text[start_pos.getLine()+1].empty() && ch!='\n' ){
+    //if(new_line_removed){
         mergeLines(start_pos.getLine());
+    }
     }
     //text.emplace_back();
     this->print();
@@ -542,14 +548,32 @@ void KKCrdt::removeEmptyLines(){
 
     vector<list<KKCharPtr>>::iterator it;
     it=text.begin();
+    bool flag=false;
 
-    for(unsigned long line=0; line<text.size(); line++){
+    //xxx
+
+    for(auto it = text.end()-1; it>=text.begin();it--){ //controlla se l'ultimo carattere scritto è un \n
+        if(!it->empty()){
+            if(std::next(it->begin(),it->size()-1)->get()->getValue()=='\n'){
+                flag=true;}
+                break;
+
+        }
+    }
+
+    for(unsigned long line=0; line < text.size(); line++){
         if(text[line].empty()){
             text.erase(it);
-            line --;
+            line--;
             it--;
         }
         it++;
+    }
+//xxx
+    if(flag){
+        list<KKCharPtr> new_last_line = {};
+        text.insert(std::next(text.begin(),text.size()),new_last_line); //aggiungi una riga vuota
+
     }
     if(text.empty()){
         text[0] = list<KKCharPtr>(); //occhio
@@ -558,6 +582,7 @@ void KKCrdt::removeEmptyLines(){
 }
 
 void KKCrdt::mergeLines(unsigned long line){
+
 
     text[line].splice(std::next(text[line].begin(), static_cast<long>(text[line].size())),text[line+1]);
 
@@ -585,8 +610,11 @@ unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
 
     text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())));//rimuove il carattere cancellato
 
+//xxx
     if(_Char->getValue()=='\n' && !text[pos.getLine()+1].empty()){ //se il carattere era un \n ricollega le linee
-        mergeLines(pos.getLine());
+    //if(_Char->getValue()=='\n'){
+            mergeLines(pos.getLine());
+
     }
 
     removeEmptyLines();
