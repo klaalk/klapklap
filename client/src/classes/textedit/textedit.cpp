@@ -844,7 +844,7 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
         cursorBlocked = true;
     else blockCursor = true;
 
-
+    qDebug() << "[applyRemoteChanges]" << " value: " << text << " user: " << name <<  " position: " << position << " font: " << font << " color: " << color;
 
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
@@ -878,8 +878,6 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
 
     // Muovo il cursore dopo l'aggiornamento
     remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
-
-    qDebug() << "[applyRemoteChanges]" << " value: " << text << " user: " << name <<  " position: " << position << " font: " << font << " color: " << color;
 
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for(KKCursor* c : cursors.values()) {
@@ -1054,8 +1052,9 @@ void TextEdit::singleCharFormatChange(int position, QString font, QString color)
     QTextCursor editorCurs = textEdit->textCursor();
     int posIniziale = editorCurs.position();
 
-    QFont fontNuovo(font);
+    QFont fontNuovo;
     QColor coloreNuovo(color);
+    fontNuovo.fromString(font);
     QTextCharFormat format;
 
     editorCurs.setPosition(position);
