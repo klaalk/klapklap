@@ -155,10 +155,6 @@ void KKFile::applyRemoteCharFormatChange(QStringList bodyList){
 void KKFile::flushCrdtText()
 {
     QStringList crdtText = crdt->saveCrdt();
-    if (crdtText.isEmpty()) {
-        KKLogger::log("Nothing to flush, CRDT is empty", hash);
-        return;
-    }
 
     bool result = file.get()->open(QIODevice::WriteOnly | QIODevice::Text);
     if(result){
