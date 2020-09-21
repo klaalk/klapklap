@@ -854,10 +854,13 @@ unsigned long KKCrdt::remoteFormatChange(const KKCharPtr& _char,QString font_, Q
 
 
 KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font_, QString color_){
-    std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharFont(font_);
-    std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharColor(color_);
     list<KKCharPtr>::iterator ch;
     ch = std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()));
+
+    if (ch->get() != nullptr && ch->get()->getKKCharFont() == font_ && ch->get()->getKKCharColor() == color_)
+        return nullptr;
+    std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharFont(font_);
+    std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()))->get()->setKKCharColor(color_);
 
     KKCharPtr new_Char = KKCharPtr(new KKChar(ch->get()->getValue(), ch->get()->getSiteId(), font_, color_));
     vector<KKIdentifierPtr> new_ids;
@@ -868,11 +871,6 @@ KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font_, QStrin
     new_Char.get()->insertPosition(new_ids);
     return new_Char;
 }
-
-void KKCrdt::checkBackSlashN(){
-
-}
-
 
 
 

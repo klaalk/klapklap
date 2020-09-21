@@ -15,6 +15,7 @@
 #include <QLabel>
 #include <QListWidgetItem>
 
+#include "../../../../libs/src/classes/dtl/dtl.hpp"
 #include "../../../../libs/src/classes/crdt/char/kk_char.h"
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crdt/identifier/kk_identifier.h"
@@ -149,7 +150,7 @@ public:
     QString getMySiteId();
     QTextEdit* getTextEdit();
     void alignmentRemoteChange(QString alignment);
-    void singleCharFormatChange(int remotePos,QString fontStr,QString colorStr); //imposta il formato passato della char che si trova alla posizione passata
+    void singleCharFormatChange(int position, QString font, QString color); //imposta il formato passato della char che si trova alla posizione passata
     QTextEdit *textEdit;
     void stringDiffInv(std::string str1, std::string str2, unsigned long *lengthX, std::string *stringX );
     void stringDiff(std::string str1, std::string str2,unsigned long *posX, std::string *stringX);
@@ -157,12 +158,12 @@ public:
     void setChatDialog(ChatDialog *value);
 
 signals:
-    void insertTextToCRDT(QString text, int position);
-    void removeTextFromCRDT(int start, int end);
+    void insertTextToCRDT(char value, unsigned long position);
+    void removeTextFromCRDT(unsigned long start, unsigned long end);
     void saveCRDTtoFile();
     void alignChange(QString alignment);
     void selectionFormatChanged(int selectionStart, int selectionEnd, QTextCharFormat format);
-    void charFormatChange(int pos, QTextCharFormat format);
+    void charFormatChange(unsigned long pos);
 
     void openFileDialog();
     void editorClosed();
@@ -204,27 +205,17 @@ private:
     void setupFileActions();
     void setupEditActions();
     void setupTextActions();
-    bool maybeSave();
 
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     void fontChanged(const QFont &f);
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
-    void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int globalPos);
+    void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
     void colorText(const QString& siteId);
     void clearColorText(const QString& name);
     void modifyLabels();
-    void justInsert(QString plainText);
-    void justDelete(QString plainText);
-    void deleteInsertA(QString plainText,QString lastText);
-    void deleteInsertB(QString plainText,QString lastText);
-    void shortestText(int diffLength,QString plainText);
-    void longestText(int diffLength,QString plainText);
-    void sameTextLength(QString plainText);
-    void updateCursors(QString plainText);
-    bool isEqualCharAndForm(int startLastText, int endLastText, int startPlain, int endPlain);
-    void printLastTextandForm();
+    void updateCursors(int position, int value);
     QBrush selectRandomColor();
 
     QAction *actionSave{};
@@ -244,20 +235,12 @@ private:
     QAction *actionPaste{};
 #endif
     bool blockCursor = false;
-    bool isTextSelected = false;
-    int lastLength = 0;
-    int cursorPos=0;
-    int lastCursorPos=0;
     int fontSize=0;
     int maxFontSize=0;
-    int selection_start=0;
-    int selection_end=0;
-    std::list<KKCharAndForm> lastTextAndForm;
     QString lastText;
-    QString mySiteId_;
-    QString diffText;
+    QString siteId;
     QString fileName;
-    QMap <QString,KKCursor*> cursors_;
+    QMap <QString,KKCursor*> cursors;
     QComboBox *comboStyle{};
     QFontComboBox *comboFont{};
     QComboBox *comboSize{};

@@ -66,14 +66,14 @@ private slots:
     void sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar);
 
     void onEditorClosed();
-    void onInsertTextCrdt(const QString& diffText, int position);
-    void onRemoveTextCrdt(int start, int end);
+    void onInsertTextCrdt(char value, unsigned long position);
+    void onRemoveTextCrdt(unsigned long start, unsigned long end);
     void onSaveCrdtToFile();
     void onOpenFileDialog();
     void onSiteIdClicked(const QString& siteId, bool logout);
     void onAlignmentChange(QString alignment);
     void onSelectionFormatChange(int selectionStart, int selectionEnd, QTextCharFormat format);
-    void onCharFormatChanged(int pos, QTextCharFormat format);
+    void onCharFormatChanged(unsigned long pos);
     void logger(QString message);
 private:
     void initState();
