@@ -870,7 +870,7 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
     KKCursor* remoteCurs = cursors.value(name);
 
     //Se non esiste quel cursore lo creo e lo memorizzo insieme alla label associata.
-    if (remoteCurs != nullptr)
+    if (remoteCurs == nullptr)
        createCursorAndLabel(remoteCurs,name,position);
 
     // Aggiorno il cursore remoto
