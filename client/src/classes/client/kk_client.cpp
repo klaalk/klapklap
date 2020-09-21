@@ -596,8 +596,8 @@ void KKClient::onInsertTextCrdt(char value, unsigned long position) {
     QString ids = QString::fromStdString(char_->getIdentifiersString());
     sendCrdtRequest({CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
 
-    if(editor_->clickedAny())
-        editor_->updateSiteIdsMap(siteId,findPositions(siteId));
+//    if(editor_->clickedAny())
+    editor_->updateSiteIdsMap(siteId,findPositions(siteId));
 }
 
 void KKClient::onRemoveTextCrdt(unsigned long start, unsigned long end) {

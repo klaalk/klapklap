@@ -832,6 +832,7 @@ void TextEdit::modifyLabels() {
         c->setLabelsSize(font);
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
+
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
@@ -879,19 +880,21 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& name,
     // Muovo il cursore dopo l'aggiornamento
     remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
 
+    if(name != siteId)
+        remoteCurs->showLabels();
+
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for(KKCursor* c : cursors.values()) {
        if(c->getGlobalPositon() > position && c!=remoteCurs){
            if(operation == CRDT_INSERT) {
-               c->setGlobalPositon(c->getGlobalPositon()+(text.length()-1));
+               c->setGlobalPositon(c->getGlobalPositon() + text.length());
            } else if(operation == CRDT_DELETE) {
-               c->setGlobalPositon(c->getGlobalPositon()-(text.length()-1));
+               c->setGlobalPositon(c->getGlobalPositon() - text.length());
            }
            editorCurs.setPosition(c->getGlobalPositon());
            c->moveLabels(textEdit->cursorRect(editorCurs));
        }
     }
-
     // Riporto il cursore dell'editor alla posizione di partenza.
     if(cursorPos >= position){
        if(operation == CRDT_INSERT) {
@@ -920,10 +923,13 @@ void TextEdit::onTextChange() {
     auto seq = d.getSes().getSequence();
     unsigned long add = 0;
     unsigned long del = static_cast<unsigned long>(seq.size())-1;
-
+    int counter = 0;
+    int firstInsIdx = INT_MAX, firstDelIdx = INT_MAX;
     while (add < seq.size()) {
         auto elem = seq.at(add);
         if (elem.second.type == dtl::SES_ADD) {
+            counter++;
+            firstInsIdx = firstInsIdx > elem.second.afterIdx-1 ? elem.second.afterIdx-1 : firstInsIdx;
             emit insertTextToCRDT(elem.first, static_cast<unsigned long>(elem.second.afterIdx-1));
         }
         if (elem.second.type == dtl::SES_COMMON) {
@@ -931,13 +937,15 @@ void TextEdit::onTextChange() {
         }
         elem = seq.at(del);
         if (elem.second.type == dtl::SES_DELETE) {
+            counter--;
+            firstDelIdx = firstDelIdx > elem.second.beforeIdx-1 ? elem.second.beforeIdx-1 : firstDelIdx;
             emit removeTextFromCRDT(static_cast<unsigned long>(elem.second.beforeIdx-1),
                                     static_cast<unsigned long>(elem.second.beforeIdx));
         }
         add++;
         del--;
     }
-
+    updateCursors(firstInsIdx < firstDelIdx ? firstInsIdx : firstDelIdx, counter);
     lastText = text;
 }
 
@@ -969,25 +977,32 @@ void TextEdit::colorText(const QString& siteId){
         cursorBlocked=true;
     else blockCursor=true;
 
-
-    //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
-    QBrush color;
-    if (!siteIdsColors_.contains(siteId)) {
-        color = selectRandomColor();
-        siteIdsColors_.insert(siteId,color);
-    }
-    else color = siteIdsColors_.value(siteId);
+    //qDebug()<<"[colorText]";
 
     QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat fmt;
+    QBrush color;
+
+    //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
+    if(!siteIdsColors_.contains(siteId)){
+        color=selectRandomColor();
+        siteIdsColors_.insert(siteId,color);
+    }
+    else color=siteIdsColors_.value(siteId);
+
+    int last = cursor.position();
+
     for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
         if (cursor.charFormat().background()!=color){
-            QTextCharFormat fmt = cursor.charFormat();
+            fmt=cursor.charFormat();
             fmt.setBackground(color);
             cursor.mergeCharFormat(fmt);
         }
     }
+    cursor.setPosition(last);
+    textEdit->setTextCursor(cursor);
 
     if(!siteIdsClicked_.contains(siteId))
         siteIdsClicked_.push_front(siteId);
@@ -999,32 +1014,37 @@ void TextEdit::colorText(const QString& siteId){
 
 void TextEdit::clearColorText(const QString& siteId){
 
-    if(!siteIds_.contains(siteId))
-        return;
+    if(!siteIds_.contains(siteId)) return;
 
-    bool cursorBlocked = false;
+    bool cursorBlocked=false;
     if(blockCursor)
-        cursorBlocked = true;
-    else blockCursor = true;
+        cursorBlocked=true;
+    else blockCursor=true;
+
+    //qDebug()<<"[clearColorText]";
 
     QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat fmt;
 
-    for(int pos : *siteIds_.value(siteId)) {
+    int last = cursor.position();
+
+    for(int pos : *siteIds_.value(siteId)){
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
-
         if (cursor.charFormat().background()!=Qt::white){
-            QTextCharFormat fmt = cursor.charFormat();
+            fmt = cursor.charFormat();
             fmt.setBackground(Qt::white);
             cursor.mergeCharFormat(fmt);
         }
     }
 
+    cursor.setPosition(last);
+    textEdit->setTextCursor(cursor);
+
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
 }
-
 
 void TextEdit::getCurrentFontAndColor(int pos, QString *font, QString *color) {
     bool cursorBlocked=false;
