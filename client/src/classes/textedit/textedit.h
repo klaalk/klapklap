@@ -38,6 +38,7 @@ private:
 
 
     QString backgorundColor;
+    QString siteId;
 
     QLabel* name;
     QLabel* earpiece;
@@ -57,7 +58,7 @@ private:
     }
 
 public:
-    KKCursor(int position): globalPositon(position){}
+    KKCursor(QString siteId, int position): globalPositon(position), siteId(siteId){}
 
     void setLabels(QLabel *name_, QLabel *earpiece_) {
         name = name_;
@@ -96,6 +97,10 @@ public:
 
     QString getLabelName(){
         return this->name->text();
+    }
+
+    QString getSiteId() {
+        return siteId;
     }
 };
 
@@ -155,6 +160,9 @@ public:
     void applySiteIdClicked(const QString& name);
 
     void setCurrentFileName(const QString &fileName);
+    void setParticipantAlias(QStringList participants);
+    void addParticipant(const QString &username, const QString &nick);
+    void removeParticipant(const QString &username);
     void setChatDialog(ChatDialog *value);
     void setMySiteId(QString mySiteId);
 
@@ -209,7 +217,7 @@ private:
     void colorText(const QString& siteId);
     void clearColorText(const QString& name);
 
-    void updateCursors(int position, int value);
+    void updateCursors(QString siteId, int position, int value);
     void updateLabels();
     void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
     QBrush selectRandomColor();
@@ -230,6 +238,7 @@ private:
     QAction *actionCopy{};
     QAction *actionPaste{};
 #endif
+    bool isColored = false;
     bool blockCursor = false;
     int fontSize=0;
     int maxFontSize=0;
@@ -245,6 +254,7 @@ private:
     QMap<QString, QSharedPointer<QList<int>>> siteIdsPositions;
     QMap<QString, QBrush> siteIdsColors;
     QList<QString> siteIdsClicked;
+    QMap<QString, QString> participantsAlias;
     QList<QBrush> colors_={QColor(244,67,54,127),
                            QColor(240,98,146,71),
                            QColor(156,39,176,71),

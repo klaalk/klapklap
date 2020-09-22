@@ -170,14 +170,17 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == SET_PARTECIPANTS) {
         QStringList participants = response.getBodyList();
         chat_->setParticipants(participants);
+        editor_->setParticipantAlias(participants);
 
     } else if(response.getRequestType() == ADDED_PARTECIPANT) {
         QStringList params = response.getBodyList();
         chat_->addParticipant(params.at(0), params.at(1), params.at(2));
+        editor_->addParticipant(params.at(0), params.at(1));
 
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
         QStringList params = response.getBodyList();
         chat_->removeParticipant(params.at(0), params.at(1));
+        editor_->removeParticipant(params.at(0));
 
     } else if(response.getRequestType() == ALIGNMENT_CHANGE){
         handleAlignmentChange(response);
@@ -635,8 +638,8 @@ QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
 
 void KKClient::onSiteIdClicked(const QString& siteId)
 {
-    onUpdateSiteIdsPositions(siteId);
     editor_->applySiteIdClicked(siteId);
+    onUpdateSiteIdsPositions(siteId);
 }
 
 void KKClient::onUpdateSiteIdsPositions(const QString &siteId)

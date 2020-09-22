@@ -173,7 +173,7 @@ void TextEdit::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
             applyRemoteChanges(CRDT_INSERT,
                                QString::fromStdString(charPtr->getSiteId()),
                                QChar::fromLatin1(charPtr->getValue()),
-                               editorCurs.position()+1,
+                               editorCurs.position(),
                                charPtr->getKKCharFont(),
                                charPtr->getKKCharColor()
                                );
@@ -232,52 +232,56 @@ void TextEdit::applyRemoteFormatChange(int position, QString font, QString color
         blockCursor=false;
 }
 
-void TextEdit::applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int position, const QString& font, const QString& color) {
+void TextEdit::applyRemoteChanges(const QString& operation, const QString& siteId, const QString& text, int position, const QString& font, const QString& color) {
     //Blocco il cursore dell'editor.
     bool cursorBlocked = false;
     if (blockCursor)
         cursorBlocked = true;
     else blockCursor = true;
 
+    qDebug() << "[applyRemoteChanges]" << " value: " << text << " site id: " << siteId <<  " position: " << position << " font: " << font << " color: " << color;
 
-    //Faccio dei controlli sulla fattibilità dell'operazione.
-    position = position > lastText.size() ? lastText.size() : position;
-    position = position < 0 ? 0 : position;
-
-    qDebug() << "[applyRemoteChanges]" << " value: " << text << " user: " << name <<  " position: " << position << " font: " << font << " color: " << color;
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
+
     // Muovo il cursore dell'editor.
     editorCurs.setPosition(position);
+
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
        editorCurs.insertText(text);
+
        //Aggiorno formato
        applyRemoteFormatChange(position, font, color);
 
     } else if(operation == CRDT_DELETE) {
+
        editorCurs.deleteChar();
     }
 
-    //Prelevo il cursore remoto.
-    KKCursor* remoteCurs = cursors.value(name);
 
-    //Se non esiste quel cursore lo creo e lo memorizzo insieme alla label associata.
-    if (remoteCurs == nullptr)
-       createCursorAndLabel(remoteCurs, name, position);
+    if(siteId != this->siteId) {
+        //Prelevo il cursore remoto.
+        KKCursor* remoteCurs = cursors.value(siteId);
 
-    // Aggiorno il cursore remoto
-    remoteCurs->setGlobalPositon(position);
+        //Se non esiste quel cursore lo creo e lo memorizzo insieme alla label associata.
+        if (remoteCurs == nullptr)
+           createCursorAndLabel(remoteCurs, siteId, position);
 
-    // Muovo il cursore dopo l'aggiornamento
-    remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
-    if(name != siteId)
+        // Aggiorno il cursore remoto
+        remoteCurs->setGlobalPositon(position);
+
+        // Muovo il cursore dopo l'aggiornamento
+        remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
+
+        // Mostro le labels
         remoteCurs->showLabels();
+    }
 
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     qDebug() << "[applyRemoteChanges] - updateCursors" << " start: " << position << " length: " << text.size();
 
-    updateCursors(position, operation == CRDT_INSERT ? text.size() : -text.size());
+    updateCursors(siteId, position, operation == CRDT_INSERT ? text.size() : -text.size());
 
     lastText = textEdit->toPlainText();
 
@@ -294,17 +298,15 @@ void TextEdit::applySiteIdsPositions(const QString& siteId, const QSharedPointer
 
     if (siteIdsClicked.contains(siteId))
         colorText(siteId);
-    else clearColorText(siteId);
+    else if (clickedAny() || isColored)
+        clearColorText(siteId);
 }
 
 void TextEdit::applySiteIdClicked(const QString& siteId){
-    if(siteIdsClicked.contains(siteId)) {
-        clearColorText(siteId);
+    if(siteIdsClicked.contains(siteId))
         siteIdsClicked.removeOne(siteId);
-    }
-    else {
-        colorText(siteId);
-    }
+    else
+        siteIdsClicked.push_back(siteId);
 }
 
 void TextEdit::setCurrentFileName(const QString &fileName)
@@ -321,6 +323,33 @@ void TextEdit::setCurrentFileName(const QString &fileName)
     setWindowTitle(QString("%1 - %2").arg(shownName, siteId));
     setWindowModified(false);
 }
+
+void TextEdit::setParticipantAlias(QStringList participants)
+{
+    for(QString participant : participants) {
+        QStringList params = participant.split(":");
+        QString username = params.at(0);
+        QString nick = params.at(1);
+        participantsAlias.insert(username, nick);
+    }
+}
+
+void TextEdit::addParticipant(const QString &username, const QString &nick)
+{
+    if (username.isEmpty() || nick.isEmpty())
+        return;
+
+    participantsAlias.insert(username, nick);
+}
+
+void TextEdit::removeParticipant(const QString &username)
+{
+    if (username.isEmpty())
+        return;
+
+    participantsAlias.remove(username);
+}
+
 
 void TextEdit::setChatDialog(ChatDialog *value)
 {
@@ -619,8 +648,7 @@ void TextEdit::onFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
-    updateLabels();
-    //emit updateSiteIdsPositions(siteId);
+//    updateLabels();
 }
 
 void TextEdit::onCursorPositionChanged()
@@ -713,13 +741,16 @@ void TextEdit::onTextChange() {
         start++;
         end--;
         if ((elem.second.type != dtl::SES_DELETE || start >= seq.size()) && startDelIdx != -1 && endDelIdx != -1) {
+            cursor.setPosition(static_cast<int>(startDelIdx-1));
             emit removeTextFromCRDT(static_cast<unsigned long>(startDelIdx-1), static_cast<unsigned long>(endDelIdx));
             startDelIdx = -1;
             endDelIdx = -1;
         }
     }
     qDebug() << "[onTextChange] - updateCursors" << " start: " << position << " length: " << length ;
-    updateCursors(static_cast<int>(position), length);
+    cursor.setPosition(position + length > 0 ? static_cast<int>(position + length) : 0);
+    textEdit->setTextCursor(cursor);
+    updateCursors(siteId, static_cast<int>(position), length);
     emit updateSiteIdsPositions(siteId);
     lastText = text;
 }
@@ -1016,28 +1047,34 @@ void TextEdit::colorText(const QString& siteId){
     if(!siteIdsPositions.contains(siteId))
         return;
 
+    isColored = true;
+
     bool cursorBlocked=false;
     if(blockCursor)
         cursorBlocked=true;
     else blockCursor=true;
 
     //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
+    QBrush color;
+
     if(siteIdsColors.contains(siteId)) {
-        QTextCursor cursor = textEdit->textCursor();
-        QBrush color = siteIdsColors.value(siteId);
-        for(int pos : *siteIdsPositions.value(siteId)) {
-            qDebug() << "[colorText] - setPosition: " << pos;
-            cursor.setPosition(pos);
-            cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
-            if (cursor.charFormat().background() != color){
-                QTextCharFormat fmt = cursor.charFormat();
-                fmt.setBackground(color);
-                cursor.mergeCharFormat(fmt);
-            }
+        color = siteIdsColors.value(siteId);
+    } else if (siteId == this->siteId) {
+        color = selectRandomColor();
+        siteIdsColors.insert(this->siteId, color);
+    }
+
+    QTextCursor cursor = textEdit->textCursor();
+    for(int pos : *siteIdsPositions.value(siteId)) {
+        qDebug() << "[colorText] - setPosition: " << pos;
+        cursor.setPosition(pos);
+        cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
+        if (cursor.charFormat().background() != color){
+            QTextCharFormat fmt = cursor.charFormat();
+            fmt.setBackground(color);
+            cursor.mergeCharFormat(fmt);
         }
     }
-    if(!siteIdsClicked.contains(siteId))
-        siteIdsClicked.push_back(siteId);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -1047,7 +1084,7 @@ void TextEdit::colorText(const QString& siteId){
 void TextEdit::clearColorText(const QString& siteId){
     if(!siteIdsPositions.contains(siteId))
         return;
-
+    isColored = false;
     bool cursorBlocked=false;
     if(blockCursor)
         cursorBlocked=true;
@@ -1069,7 +1106,7 @@ void TextEdit::clearColorText(const QString& siteId){
         blockCursor=false;
 }
 
-void TextEdit::updateCursors(int position, int value){
+void TextEdit::updateCursors(QString siteId, int position, int value){
     bool cursorBlocked=false;
     if(blockCursor)
         cursorBlocked=true;
@@ -1078,8 +1115,10 @@ void TextEdit::updateCursors(int position, int value){
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
     for (KKCursor* c : cursors.values()) {
-        if (c !=nullptr && c->getGlobalPositon() > position) {
-            qDebug() << "[updateCursors] - setPosition: " << (c->getGlobalPositon() + value);
+        if (c !=nullptr && c->getGlobalPositon() > position && c->getSiteId() != siteId) {
+            int nuovaPos = c->getGlobalPositon() + value;
+            nuovaPos = nuovaPos >= 0 ? nuovaPos : 0;
+            qDebug() << "[updateCursors] - setPosition: " << (nuovaPos);
             c->setGlobalPositon(c->getGlobalPositon() + value);
             editorCurs.setPosition(c->getGlobalPositon());
             c->setLabelsSize(editorCurs.charFormat().font().pointSize());
@@ -1089,7 +1128,7 @@ void TextEdit::updateCursors(int position, int value){
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
-        blockCursor=false;
+        blockCursor = false;
 }
 
 void TextEdit::updateLabels() {
@@ -1113,10 +1152,10 @@ void TextEdit::updateLabels() {
 
 void TextEdit::createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion) {
     //Creo il cursore
-    remoteCurs = new KKCursor(postion);
+    remoteCurs = new KKCursor(name, postion);
 
     // Creo le label
-    QLabel* qLbl = new QLabel(name, textEdit);
+    QLabel* qLbl = new QLabel(participantsAlias.value(name), textEdit);
     QLabel* qLbl2 = new QLabel("|", textEdit);
 
     //Seleziono randomicamente un colore dalla lista dei colori, controllo se era già stato usato.

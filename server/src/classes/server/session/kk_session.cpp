@@ -331,8 +331,8 @@ void KKSession::connectToFile(QString filename)
 
 
     if (sendFileInfo) {
-        sendResponse(LOAD_FILE, SUCCESS, {file->getCrdtText()});
         sendResponse(SET_PARTECIPANTS, SUCCESS, {file->getParticipants()});
+        sendResponse(LOAD_FILE, SUCCESS, {file->getCrdtText()});
 
         // Aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
