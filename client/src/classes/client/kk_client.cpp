@@ -407,7 +407,7 @@ void KKClient::handleCharFormatChange(KKPayload response){
     }
     unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
     editor_->applyRemoteFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
-    //editor_->applySiteIdsPositions(siteId, findPositions(siteId));
+    editor_->applySiteIdsPositions(siteId, findPositions(siteId));
 }
 
 /// SENDING
