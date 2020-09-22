@@ -292,17 +292,17 @@ void TextEdit::applySiteIdsPositions(const QString& siteId, const QSharedPointer
 
     siteIdsPositions.insert(siteId, list);
 
-    if (clickedOne(siteId))
+    if (siteIdsClicked.contains(siteId))
         colorText(siteId);
+    else clearColorText(siteId);
 }
 
 void TextEdit::applySiteIdClicked(const QString& siteId){
     if(siteIdsClicked.contains(siteId)) {
-        siteIdsClicked.removeOne(siteId);
         clearColorText(siteId);
+        siteIdsClicked.removeOne(siteId);
     }
     else {
-        siteIdsClicked.push_back(siteId);
         colorText(siteId);
     }
 }
@@ -620,7 +620,7 @@ void TextEdit::onFormatChanged(const QTextCharFormat &format)
     fontChanged(format.font());
     colorChanged(format.foreground().color());
     updateLabels();
-    emit updateSiteIdsPositions(siteId);
+    //emit updateSiteIdsPositions(siteId);
 }
 
 void TextEdit::onCursorPositionChanged()
@@ -1036,6 +1036,9 @@ void TextEdit::colorText(const QString& siteId){
             }
         }
     }
+    if(!siteIdsClicked.contains(siteId))
+        siteIdsClicked.push_back(siteId);
+
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
