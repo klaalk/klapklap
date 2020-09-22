@@ -70,7 +70,7 @@ public:
 
 signals:
     void sendMessageEvent(QString username, QString message);
-    void siteIdClicked(QString nickname,bool logout);
+    void siteIdClicked(QString nickname);
 
 private slots:
     void returnPressed();

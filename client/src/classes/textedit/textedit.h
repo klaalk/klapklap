@@ -134,40 +134,37 @@ class TextEdit : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    TextEdit(QWidget *parent = nullptr);
-    bool clickedOne(const QString& siteId);
-    bool clickedAny();
-    void setCurrentFileName(const QString &fileName);
-    bool load(const QString &f);
-    void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
-    void resetState();
-    void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
-    void siteIdClicked(const QString& name);
-    void updateSiteIdsMap(const QString& siteId, const QSharedPointer<QList<int>>& list);
-    void getCurrentFontAndColor(int pos, QString *font, QString *color);
-    void setMySiteId(QString mySiteId);
-    QString getMySiteId();
-    QTextEdit* getTextEdit();
-    void alignmentRemoteChange(QString alignment);
-    void singleCharFormatChange(int position, QString font, QString color); //imposta il formato passato della char che si trova alla posizione passata
-    QTextEdit *textEdit;
-    void stringDiffInv(std::string str1, std::string str2, unsigned long *lengthX, std::string *stringX );
-    void stringDiff(std::string str1, std::string str2,unsigned long *posX, std::string *stringX);
-    std::list<KKCharAndForm> fromStringKKCharAndFormList(std::string string, int pos);
-    void setChatDialog(ChatDialog *value);
-
 signals:
-    void insertTextToCRDT(char value, unsigned long position);
+    void insertTextToCRDT(char value, unsigned long position, QString font_, QString color_);
     void removeTextFromCRDT(unsigned long start, unsigned long end);
     void saveCRDTtoFile();
     void alignChange(QString alignment);
-    void selectionFormatChanged(int selectionStart, int selectionEnd, QTextCharFormat format);
-    void charFormatChange(unsigned long pos);
-
+    void charFormatChange(unsigned long pos, QString font_, QString color_);
+    void updateSiteIdsPositions(QString siteId);
     void openFileDialog();
     void editorClosed();
 
+public:
+    TextEdit(QWidget *parent = nullptr);
+    bool load(const QString &f);
+    void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
+    void applyRemoteAlignmentChange(QString alignment);
+    void applyRemoteFormatChange(int position, QString font, QString color);
+    void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
+    void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);
+    void applySiteIdClicked(const QString& name);
+
+    void setCurrentFileName(const QString &fileName);
+    void setChatDialog(ChatDialog *value);
+    void setMySiteId(QString mySiteId);
+
+    QString getMySiteId();
+    QTextEdit* getTextEdit();
+
+    bool clickedOne(const QString& siteId);
+    bool clickedAny();
+
+    QTextEdit *textEdit;
 public slots:
     void fileNew();
 
@@ -192,30 +189,29 @@ private slots:
     void textColor();
     void textAlign(QAction *a);
 
-    void currentCharFormatChanged(const QTextCharFormat &format);
-    void cursorPositionChanged();
-
-    void clipboardDataChanged();
-    void about();
-    void printPreview(QPrinter *);
+    void onAbout();
+    void onPrintPreview(QPrinter *);
+    void onClipboardDataChanged();
+    void onFormatChanged(const QTextCharFormat &format);
+    void onCursorPositionChanged();
     void onTextChange();
-
-
 private:
+    void resetState();
     void setupFileActions();
     void setupEditActions();
     void setupTextActions();
 
-    void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
+    void mergeFormat(const QTextCharFormat &format);
     void fontChanged(const QFont &f);
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
-    void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
     void colorText(const QString& siteId);
     void clearColorText(const QString& name);
-    void modifyLabels();
+
     void updateCursors(int position, int value);
+    void updateLabels();
+    void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
     QBrush selectRandomColor();
 
     QAction *actionSave{};
@@ -246,9 +242,9 @@ private:
     QComboBox *comboSize{};
     QToolBar *tb{};
     ChatDialog* chatDialog;
-    QMap<QString,QSharedPointer<QList<int>>> siteIds_;
-    QMap<QString,QBrush> siteIdsColors_;
-    QList<QString> siteIdsClicked_;
+    QMap<QString, QSharedPointer<QList<int>>> siteIdsPositions;
+    QMap<QString, QBrush> siteIdsColors;
+    QList<QString> siteIdsClicked;
     QList<QBrush> colors_={QColor(244,67,54,127),
                            QColor(240,98,146,71),
                            QColor(156,39,176,71),
