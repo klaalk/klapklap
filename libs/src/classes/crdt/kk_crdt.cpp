@@ -618,7 +618,7 @@ void KKCrdt::removeEmptyLines(){
         text.insert(std::next(text.begin(),static_cast<long>(text.size())),new_last_line); //aggiungi una riga vuota
         //unsigned long elem=*std::next(linesAlignment.begin(),static_cast<long>(text.size()-1));
         //linesAlignment.insert(std::next(linesAlignment.begin(),static_cast<long>(text.size())),elem);
-        linesAlignment.insert(linesAlignment.begin()+static_cast<int>(text.size()),linesAlignment[text.size()-1]);
+        linesAlignment.insert(linesAlignment.begin()+static_cast<int>(text.size()-1),linesAlignment[text.size()-1]);
 
 
     }
