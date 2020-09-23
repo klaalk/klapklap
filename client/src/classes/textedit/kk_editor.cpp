@@ -182,28 +182,63 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
         }
     }
 }
-
-void KKEditor::applyRemoteAlignmentChange(QString alignment)
+void KKEditor::alignmentRemoteChange(int alignment, unsigned long alignPos)
 {
-    if (alignment=="left") {
+    int curStartPos;
+
+
+
+    curStartPos = textEdit->textCursor().position();
+    QTextCursor tmpCursor = textEdit->textCursor();
+    tmpCursor.setPosition(static_cast<int>(alignPos));
+    textEdit->setTextCursor(tmpCursor);
+
+    QTextBlockFormat f;
+
+    if (alignment==1) {
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
         actionAlignLeft->setChecked(true);
     }
-    else if (alignment=="center") {
+    else if (alignment==2) {
         textEdit->setAlignment(Qt::AlignHCenter);
         actionAlignCenter->setChecked(true);
     }
-    else if (alignment=="right") {
+    else if (alignment==3) {
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
         actionAlignRight->setChecked(true);
     }
-    else if (alignment=="justify") {
+    else if (alignment==4) {
         textEdit->setAlignment(Qt::AlignJustify);
         actionAlignJustify->setChecked(true);
     }
 
+    tmpCursor.setPosition(curStartPos);
+    textEdit->setTextCursor(tmpCursor);
+
     updateLabels();
+
 }
+//void KKEditor::applyRemoteAlignmentChange(QString alignment)
+//{
+//    if (alignment=="left") {
+//        textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
+//        actionAlignLeft->setChecked(true);
+//    }
+//    else if (alignment=="center") {
+//        textEdit->setAlignment(Qt::AlignHCenter);
+//        actionAlignCenter->setChecked(true);
+//    }
+//    else if (alignment=="right") {
+//        textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
+//        actionAlignRight->setChecked(true);
+//    }
+//    else if (alignment=="justify") {
+//        textEdit->setAlignment(Qt::AlignJustify);
+//        actionAlignJustify->setChecked(true);
+//    }
+
+//    updateLabels();
+//}
 
 void KKEditor::applyRemoteFormatChange(int position, QString font, QString color){
     qDebug() << "[applyRemoteFormatChange]" << " position: " << position << " font: " << font << " color: " << color;
@@ -585,25 +620,46 @@ void KKEditor::textColor()
 
 void KKEditor::textAlign(QAction *a)
 {
-    QString alignment;
+    int alignment;
+    int alignStart;
+    int alignEnd;
+
     if (a == actionAlignLeft){
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
-        alignment="left";
+        alignment=1;
     }
     else if (a == actionAlignCenter){
-        alignment="center";
+        alignment=2;
         textEdit->setAlignment(Qt::AlignHCenter);
     }
     else if (a == actionAlignRight){
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
-        alignment="right";
-    }
-    else if (a == actionAlignJustify){
-        alignment="justify";
+        alignment=3;
+    }else if (a == actionAlignJustify){
+        alignment=4;
         textEdit->setAlignment(Qt::AlignJustify);
     }
+
+    qDebug()<<"CURLINNUM:"<<textEdit->textCursor().block().blockNumber();
+    qDebug()<<"CURCOLNUM:"<<textEdit->textCursor().columnNumber();
+
+
+    if(textEdit->textCursor().hasSelection()){
+        if(textEdit->textCursor().selectionEnd() > textEdit->textCursor().selectionStart()){
+            alignStart=textEdit->textCursor().selectionStart();
+            alignEnd=textEdit->textCursor().selectionEnd();
+        }else{
+            alignStart=textEdit->textCursor().selectionEnd();
+            alignEnd=textEdit->textCursor().selectionStart();
+        }
+
+    }else{
+        alignStart = textEdit->textCursor().position();
+        alignEnd = alignStart;
+    }
+
     updateLabels();
-    emit(alignChange(alignment));
+    emit(alignChange(alignment,alignStart,alignEnd));
 }
 
 void KKEditor::onAbout()

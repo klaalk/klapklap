@@ -37,6 +37,7 @@ public:
     strategy _strategy;
     vector<strategy> strategy_cache;
     unsigned long base;
+    list<unsigned long> linesAlignment;
     QString getSiteId(){return QString::fromStdString(siteid);}
     KKCrdt(string siteid, strategy strategy); //costruttore
     ~KKCrdt();//distruttore
@@ -80,7 +81,10 @@ public:
     list<KKCharPtr> changeMultipleKKCharFormat(KKPosition start, KKPosition end,QString font_, QString color_);//cambia il formato di tutte le KKChar comprese tra le due posizioni e restituisce la lista delle KKChar cambiate
     unsigned long remoteFormatChange(const KKCharPtr& _char,QString font_, QString color_);
     KKCharPtr changeSingleKKCharFormat(KKPosition pos, QString font_, QString color_);
-    void checkBackSlashN();
+    void setLineAlignment(long idx,unsigned long align);
+    unsigned long getLineAlignment(long idx);
+    bool checkLine(unsigned long lineIdx);
+    void printLinesAlignment();
 };
 
 typedef QSharedPointer<KKCrdt> KKCrdtPtr;

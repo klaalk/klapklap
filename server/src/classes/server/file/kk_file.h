@@ -47,6 +47,7 @@ public:
     void applyRemoteCharFormatChange(QStringList bodyList);
     int applyRemoteInsertSafe(QStringList bodyList);
     int applyRemoteCharFormatChangeSafe(QStringList bodyList);
+    void applyRemoteAlignmentChange(QStringList bodylist);
     void initCrdtText();
     void flushCrdtText();
 
