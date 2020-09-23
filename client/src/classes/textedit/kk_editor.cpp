@@ -1026,7 +1026,7 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
     for (KKCursor* c : cursors.values()) {
-        if (c !=nullptr && c->getGlobalPositon() > position && c->getSiteId() != siteId) {
+        if (c !=nullptr && (c->getGlobalPositon() > position || c->getSiteId()==siteId) ) {
             int nuovaPos = c->getGlobalPositon() + value;
             nuovaPos = nuovaPos >= 0 ? nuovaPos : 0;
             qDebug() << "[updateCursors] - " << c->getLabelName() << " PREV " << c->getGlobalPositon() << " POS " << nuovaPos;
@@ -1048,9 +1048,9 @@ void KKEditor::updateLabels() {
     }
 }
 
-void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion) {
+void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int position) {
     //Creo il cursore
-    remoteCurs = new KKCursor(name, postion);
+    remoteCurs = new KKCursor(name, position);
 
     // Creo le label
     QLabel* qLbl = new QLabel(participantsAlias.value(name), textEdit);
