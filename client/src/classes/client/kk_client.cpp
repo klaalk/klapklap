@@ -638,8 +638,8 @@ QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
 
 void KKClient::onSiteIdClicked(const QString& siteId)
 {
-    editor_->applySiteIdClicked(siteId);
     onUpdateSiteIdsPositions(siteId);
+    editor_->applySiteIdClicked(siteId);
 }
 
 void KKClient::onUpdateSiteIdsPositions(const QString &siteId)

@@ -277,15 +277,17 @@ void KKEditor::applySiteIdsPositions(const QString& siteId, const QSharedPointer
 
     if (siteIdsClicked.contains(siteId))
         colorText(siteId);
-    else if (isColored)
+    else
         clearColorText(siteId);
 }
 
 void KKEditor::applySiteIdClicked(const QString& siteId){
-    if(siteIdsClicked.contains(siteId))
+    if(siteIdsClicked.contains(siteId)){
+        clearColorText(siteId);
         siteIdsClicked.removeOne(siteId);
+    }
     else
-        siteIdsClicked.push_back(siteId);
+        colorText(siteId);
 }
 
 void KKEditor::setCurrentFileName(const QString &fileName)
@@ -988,9 +990,10 @@ void KKEditor::colorText(const QString& siteId){
             QTextCharFormat fmt = cursor.charFormat();
             fmt.setBackground(color);
             cursor.mergeCharFormat(fmt);
-            isColored = true;
         }
     }
+    if(!siteIdsClicked.contains(siteId))
+        siteIdsClicked.push_back(siteId);
 }
 
 void KKEditor::clearColorText(const QString& siteId){
