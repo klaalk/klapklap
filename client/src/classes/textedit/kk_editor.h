@@ -21,6 +21,7 @@
 #include "../../../../libs/src/classes/crdt/identifier/kk_identifier.h"
 #include "../../../../libs/src/constants/kk_constants.h"
 #include "../chat/chatdialog.h"
+#include "./kk_textedit.h"
 
 class QAction;
 class QComboBox;
@@ -135,7 +136,7 @@ public:
     }
 };
 
-class TextEdit : public QMainWindow
+class KKEditor : public QMainWindow
 {
     Q_OBJECT
 
@@ -150,7 +151,7 @@ signals:
     void editorClosed();
 
 public:
-    TextEdit(QWidget *parent = nullptr);
+    KKEditor(QWidget *parent = nullptr);
     bool load(const QString &f);
     void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
     void applyRemoteAlignmentChange(QString alignment);
@@ -167,12 +168,12 @@ public:
     void setMySiteId(QString mySiteId);
 
     QString getMySiteId();
-    QTextEdit* getTextEdit();
+    KKTextEdit* getTextEdit();
 
     bool clickedOne(const QString& siteId);
     bool clickedAny();
 
-    QTextEdit *textEdit;
+    KKTextEdit *textEdit;
 public slots:
     void fileNew();
 
@@ -202,7 +203,7 @@ private slots:
     void onClipboardDataChanged();
     void onFormatChanged(const QTextCharFormat &format);
     void onCursorPositionChanged();
-    void onTextChange();
+    void onTextChange(QString operation, QString diff, int start, int end);
 private:
     void resetState();
     void setupFileActions();
@@ -278,5 +279,5 @@ private:
                           };
 
 };
-typedef QSharedPointer<TextEdit> textedit_ptr;
+typedef QSharedPointer<KKEditor> textedit_ptr;
 #endif // TEXTEDIT_H

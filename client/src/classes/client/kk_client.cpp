@@ -65,18 +65,18 @@ void KKClient::initEditor()
     chat_ = new ChatDialog();
 
     if (editor_ != nullptr) delete editor_;
-    editor_ = new TextEdit();
+    editor_ = new KKEditor();
 
 
     // Gestisco le richieste dell'editor
-    connect(editor_, &TextEdit::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
-    connect(editor_, &TextEdit::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
-    connect(editor_, &TextEdit::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
-    connect(editor_,&TextEdit::alignChange, this, &KKClient::onAlignmentChange);
-    connect(editor_,&TextEdit::charFormatChange, this, &KKClient::onCharFormatChanged);
-    connect(editor_, &TextEdit::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
-    connect(editor_, &TextEdit::openFileDialog, this, &KKClient::onOpenFileDialog);
-    connect(editor_, &TextEdit::editorClosed, this, &KKClient::onEditorClosed);
+    connect(editor_, &KKEditor::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
+    connect(editor_, &KKEditor::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
+    connect(editor_, &KKEditor::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
+    connect(editor_,&KKEditor::alignChange, this, &KKClient::onAlignmentChange);
+    connect(editor_,&KKEditor::charFormatChange, this, &KKClient::onCharFormatChanged);
+    connect(editor_, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
+    connect(editor_, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialog);
+    connect(editor_, &KKEditor::editorClosed, this, &KKClient::onEditorClosed);
 
     editor_->setChatDialog(chat_);
     editor_->setMySiteId(user_->getUsername());

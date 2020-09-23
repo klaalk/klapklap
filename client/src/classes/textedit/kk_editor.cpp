@@ -2,7 +2,7 @@
 // Created by Klaus on 26/05/2019.
 //
 
-#include "textedit.h"
+#include "kk_editor.h"
 #include <QPlainTextEdit>
 #include <QAction>
 #include <QApplication>
@@ -58,7 +58,8 @@ const QString rsrcPath = ":/icon_set/png";
 
 
 
-TextEdit::TextEdit(QWidget *parent)
+
+KKEditor::KKEditor(QWidget *parent)
     : QMainWindow(parent)
 {
 #ifdef Q_OS_OSX
@@ -68,11 +69,11 @@ TextEdit::TextEdit(QWidget *parent)
     setWindowTitle(QCoreApplication::applicationName());
 
     this->setMouseTracking(true);
-    textEdit = new QTextEdit(this);
+    textEdit = new KKTextEdit(this);
     //Collega funzioni nostre a funzioni di QTextEdit
-    connect(textEdit, &QTextEdit::currentCharFormatChanged, this, &TextEdit::onFormatChanged);
-    connect(textEdit, &QTextEdit::cursorPositionChanged, this, &TextEdit::onCursorPositionChanged);
-    connect(textEdit, &QTextEdit::textChanged, this, &TextEdit::onTextChange);
+    connect(textEdit, &QTextEdit::currentCharFormatChanged, this, &KKEditor::onFormatChanged);
+    connect(textEdit, &QTextEdit::cursorPositionChanged, this, &KKEditor::onCursorPositionChanged);
+    connect(textEdit, &KKTextEdit::textChangedEvent, this, &KKEditor::onTextChange);
 
     // Set layout
     QHBoxLayout *layout = new QHBoxLayout;
@@ -94,7 +95,7 @@ TextEdit::TextEdit(QWidget *parent)
 
     {
         QMenu *helpMenu = menuBar()->addMenu(tr("Help"));
-        helpMenu->addAction(tr("About"), this, &TextEdit::onAbout);
+        helpMenu->addAction(tr("About"), this, &KKEditor::onAbout);
         helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
     }
 
@@ -127,7 +128,7 @@ TextEdit::TextEdit(QWidget *parent)
     actionCopy->setEnabled(false);
     connect(textEdit, &QTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
 
-    connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &TextEdit::onClipboardDataChanged);
+    connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &KKEditor::onClipboardDataChanged);
 #endif
 
     textEdit->setFocus();
@@ -142,7 +143,7 @@ TextEdit::TextEdit(QWidget *parent)
 #endif
 }
 
-bool TextEdit::load(const QString &f)
+bool KKEditor::load(const QString &f)
 {
     if (!QFile::exists(f))
         return false;
@@ -164,7 +165,7 @@ bool TextEdit::load(const QString &f)
     return true;
 }
 
-void TextEdit::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
+void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
 {
     QTextCursor editorCurs = textEdit->textCursor();
 
@@ -181,7 +182,7 @@ void TextEdit::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
     }
 }
 
-void TextEdit::applyRemoteAlignmentChange(QString alignment)
+void KKEditor::applyRemoteAlignmentChange(QString alignment)
 {
     if (alignment=="left") {
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
@@ -203,7 +204,7 @@ void TextEdit::applyRemoteAlignmentChange(QString alignment)
     updateLabels();
 }
 
-void TextEdit::applyRemoteFormatChange(int position, QString font, QString color){
+void KKEditor::applyRemoteFormatChange(int position, QString font, QString color){
     bool cursorBlocked=false;
     if(blockCursor)
         cursorBlocked=true;
@@ -232,7 +233,7 @@ void TextEdit::applyRemoteFormatChange(int position, QString font, QString color
         blockCursor=false;
 }
 
-void TextEdit::applyRemoteChanges(const QString& operation, const QString& siteId, const QString& text, int position, const QString& font, const QString& color) {
+void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteId, const QString& text, int position, const QString& font, const QString& color) {
     //Blocco il cursore dell'editor.
     bool cursorBlocked = false;
     if (blockCursor)
@@ -283,14 +284,12 @@ void TextEdit::applyRemoteChanges(const QString& operation, const QString& siteI
 
     updateCursors(siteId, position, operation == CRDT_INSERT ? text.size() : -text.size());
 
-    lastText = textEdit->toPlainText();
-
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
 }
 
-void TextEdit::applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list){
+void KKEditor::applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list){
     if(siteIdsPositions.contains(siteId))
         siteIdsPositions.remove(siteId);
 
@@ -302,14 +301,14 @@ void TextEdit::applySiteIdsPositions(const QString& siteId, const QSharedPointer
         clearColorText(siteId);
 }
 
-void TextEdit::applySiteIdClicked(const QString& siteId){
+void KKEditor::applySiteIdClicked(const QString& siteId){
     if(siteIdsClicked.contains(siteId))
         siteIdsClicked.removeOne(siteId);
     else
         siteIdsClicked.push_back(siteId);
 }
 
-void TextEdit::setCurrentFileName(const QString &fileName)
+void KKEditor::setCurrentFileName(const QString &fileName)
 {
     this->fileName = fileName;
     textEdit->document()->setModified(false);
@@ -324,7 +323,7 @@ void TextEdit::setCurrentFileName(const QString &fileName)
     setWindowModified(false);
 }
 
-void TextEdit::setParticipantAlias(QStringList participants)
+void KKEditor::setParticipantAlias(QStringList participants)
 {
     for(QString participant : participants) {
         QStringList params = participant.split(":");
@@ -334,7 +333,7 @@ void TextEdit::setParticipantAlias(QStringList participants)
     }
 }
 
-void TextEdit::addParticipant(const QString &username, const QString &nick)
+void KKEditor::addParticipant(const QString &username, const QString &nick)
 {
     if (username.isEmpty() || nick.isEmpty())
         return;
@@ -342,7 +341,7 @@ void TextEdit::addParticipant(const QString &username, const QString &nick)
     participantsAlias.insert(username, nick);
 }
 
-void TextEdit::removeParticipant(const QString &username)
+void KKEditor::removeParticipant(const QString &username)
 {
     if (username.isEmpty())
         return;
@@ -351,56 +350,56 @@ void TextEdit::removeParticipant(const QString &username)
 }
 
 
-void TextEdit::setChatDialog(ChatDialog *value)
+void KKEditor::setChatDialog(ChatDialog *value)
 {
     chatDialog = value;
     centralWidget()->layout()->addWidget(chatDialog);
 }
 
-void TextEdit::setMySiteId(QString mySiteId){
+void KKEditor::setMySiteId(QString mySiteId){
     siteId=std::move(mySiteId);
 }
 
-QString TextEdit::getMySiteId() {
+QString KKEditor::getMySiteId() {
     return this->siteId;
 }
 
-QTextEdit* TextEdit::getTextEdit(){
+KKTextEdit* KKEditor::getTextEdit(){
     return this->textEdit;
 }
 
-bool TextEdit::clickedOne(const QString& siteId) {
+bool KKEditor::clickedOne(const QString& siteId) {
     return siteIdsClicked.contains(siteId);
 }
 
-bool TextEdit::clickedAny() {
+bool KKEditor::clickedAny() {
     return !siteIdsClicked.isEmpty();
 }
 
 
-void TextEdit::fileNew()
+void KKEditor::fileNew()
 {
     emit openFileDialog();
 }
 
-void TextEdit::closeEvent(QCloseEvent *e)
+void KKEditor::closeEvent(QCloseEvent *e)
 {
     e->ignore();
     hide();
     emit editorClosed();
 }
 
-void TextEdit::resizeEvent(QResizeEvent *event){
+void KKEditor::resizeEvent(QResizeEvent *event){
     Q_UNUSED(event)
     updateLabels();
 }
 
-void TextEdit::fileOpen()
+void KKEditor::fileOpen()
 {
     emit openFileDialog();
 }
 
-bool TextEdit::fileSave()
+bool KKEditor::fileSave()
 {
     if (fileName.isEmpty())
         return fileSaveAs();
@@ -420,7 +419,7 @@ bool TextEdit::fileSave()
     return success;
 }
 
-bool TextEdit::fileSaveAs()
+bool KKEditor::fileSaveAs()
 {
     QFileDialog fileDialog(this, tr("Save as..."));
     fileDialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -435,7 +434,7 @@ bool TextEdit::fileSaveAs()
     return fileSave();
 }
 
-void TextEdit::filePrint()
+void KKEditor::filePrint()
 {
 #if QT_CONFIG(printdialog)
     QPrinter printer(QPrinter::HighResolution);
@@ -449,17 +448,17 @@ void TextEdit::filePrint()
 #endif
 }
 
-void TextEdit::filePrintPreview()
+void KKEditor::filePrintPreview()
 {
 #if QT_CONFIG(printpreviewdialog)
     QPrinter printer(QPrinter::HighResolution);
     QPrintPreviewDialog preview(&printer, this);
-    connect(&preview, &QPrintPreviewDialog::paintRequested, this, &TextEdit::onPrintPreview);
+    connect(&preview, &QPrintPreviewDialog::paintRequested, this, &KKEditor::onPrintPreview);
     preview.exec();
 #endif
 }
 
-void TextEdit::filePrintPdf()
+void KKEditor::filePrintPdf()
 {
 #ifndef QT_NO_PRINTER
     QFileDialog fileDialog(this, tr("Export PDF"));
@@ -478,35 +477,35 @@ void TextEdit::filePrintPdf()
 #endif
 }
 
-void TextEdit::textBold()
+void KKEditor::textBold()
 {
     QTextCharFormat fmt;
     fmt.setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
     mergeFormat(fmt);
 }
 
-void TextEdit::textUnderline()
+void KKEditor::textUnderline()
 {
     QTextCharFormat fmt;
     fmt.setFontUnderline(actionTextUnderline->isChecked());
     mergeFormat(fmt);
 }
 
-void TextEdit::textItalic()
+void KKEditor::textItalic()
 {
     QTextCharFormat fmt;
     fmt.setFontItalic(actionTextItalic->isChecked());
     mergeFormat(fmt);
 }
 
-void TextEdit::textFamily(const QString &f)
+void KKEditor::textFamily(const QString &f)
 {
     QTextCharFormat fmt;
     fmt.setFontFamily(f);
     mergeFormat(fmt);
 }
 
-void TextEdit::textSize(const QString &p)
+void KKEditor::textSize(const QString &p)
 {
     qreal pointSize = p.toDouble();
     if (p.toFloat() > 0) {
@@ -517,7 +516,7 @@ void TextEdit::textSize(const QString &p)
     }
 }
 
-void TextEdit::textStyle(int styleIndex)
+void KKEditor::textStyle(int styleIndex)
 {
     QTextCursor cursor = textEdit->textCursor();
     QTextListFormat::Style style = QTextListFormat::ListStyleUndefined;
@@ -584,7 +583,7 @@ void TextEdit::textStyle(int styleIndex)
     cursor.endEditBlock();
 }
 
-void TextEdit::textColor()
+void KKEditor::textColor()
 {
     QColor col = QColorDialog::getColor(textEdit->textColor(), this);
     if (!col.isValid())
@@ -596,7 +595,7 @@ void TextEdit::textColor()
 }
 
 
-void TextEdit::textAlign(QAction *a)
+void KKEditor::textAlign(QAction *a)
 {
     QString alignment;
     if (a == actionAlignLeft){
@@ -619,14 +618,14 @@ void TextEdit::textAlign(QAction *a)
     emit(alignChange(alignment));
 }
 
-void TextEdit::onAbout()
+void KKEditor::onAbout()
 {
     QMessageBox::about(this, tr("About"), tr("This example demonstrates Qt's "
                                              "rich text editing facilities in action, providing an example "
                                              "document for you to experiment with."));
 }
 
-void TextEdit::onPrintPreview(QPrinter *printer)
+void KKEditor::onPrintPreview(QPrinter *printer)
 {
 #ifdef QT_NO_PRINTER
     Q_UNUSED(printer);
@@ -636,7 +635,7 @@ void TextEdit::onPrintPreview(QPrinter *printer)
 }
 
 
-void TextEdit::onClipboardDataChanged()
+void KKEditor::onClipboardDataChanged()
 {
 #ifndef QT_NO_CLIPBOARD
     if (const QMimeData *md = QApplication::clipboard()->mimeData())
@@ -644,14 +643,14 @@ void TextEdit::onClipboardDataChanged()
 #endif
 }
 
-void TextEdit::onFormatChanged(const QTextCharFormat &format)
+void KKEditor::onFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
 //    updateLabels();
 }
 
-void TextEdit::onCursorPositionChanged()
+void KKEditor::onCursorPositionChanged()
 {
     // IMPORTANTE per le modifiche da remoto.
     if (blockCursor) return;
@@ -695,71 +694,30 @@ void TextEdit::onCursorPositionChanged()
 }
 
 
-void TextEdit::onTextChange() {
+void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
     // IMPORTANTE per le modifiche da remoto.
     if(blockCursor) return;
-    QString text = textEdit->toPlainText();
 
-    dtl::Diff<char, string> d(lastText.toStdString(), text.toStdString());
-    d.compose();
+    if (operation == DELETE)
+        emit removeTextFromCRDT(static_cast<unsigned long>(start), static_cast<unsigned long>(end));
 
-    int length = 0;
-    long long position = INT_MAX;
-    long long startDelIdx = -1, endDelIdx = -1;
-
-    auto seq = d.getSes().getSequence();
-    unsigned long start = 0;
-    unsigned long end = static_cast<unsigned long>(seq.size()) -1;
-    QTextCursor cursor = textEdit->textCursor();
-
-    while (start < seq.size()) {
-        auto elem = seq.at(start);
-        if (elem.second.type == dtl::SES_ADD) {
-            length++;
-            position = position > elem.second.afterIdx-1 ? elem.second.afterIdx-1 : position;
-            qDebug() << "[onTextChange] - (ADD) setPosition: " << elem.second.afterIdx-1;
-            cursor.setPosition(static_cast<int>(elem.second.afterIdx-1));
+    if (operation == INSERT) {
+        QTextCursor cursor = textEdit->textCursor();
+        for (int i = 0; i < diff.length(); i++) {
+            cursor.setPosition(start + 1);
             cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
-            emit insertTextToCRDT(elem.first, static_cast<unsigned long>(elem.second.afterIdx-1), cursor.charFormat().font().toString(), cursor.charFormat().foreground().color().name());
-        }
-        if (elem.second.type == dtl::SES_COMMON) {
-            qDebug() << "[onTextChange] - (COMMON) setPosition: " << elem.second.afterIdx-1;
-            cursor.setPosition(static_cast<int>(elem.second.afterIdx-1));
-            cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
-            emit charFormatChange(static_cast<unsigned long>(elem.second.afterIdx-1), cursor.charFormat().font().toString(), cursor.charFormat().foreground().color().name());
-        }
-        elem = seq.at(end);
-        if (elem.second.type == dtl::SES_DELETE) {
-            length--;
-            position = position > elem.second.beforeIdx-1 ? elem.second.beforeIdx-1 : position;
-            if (endDelIdx == -1)
-                endDelIdx = elem.second.beforeIdx;
-
-            if (endDelIdx != -1)
-                startDelIdx = elem.second.beforeIdx;
-        }
-        start++;
-        end--;
-        if ((elem.second.type != dtl::SES_DELETE || start >= seq.size()) && startDelIdx != -1 && endDelIdx != -1) {
-            cursor.setPosition(static_cast<int>(startDelIdx-1));
-            emit removeTextFromCRDT(static_cast<unsigned long>(startDelIdx-1), static_cast<unsigned long>(endDelIdx));
-            startDelIdx = -1;
-            endDelIdx = -1;
+            emit insertTextToCRDT(diff.at(i).toLatin1(), static_cast<unsigned long>(start+i), cursor.charFormat().font().toString(), cursor.charFormat().foreground().color().name());
         }
     }
-    qDebug() << "[onTextChange] - updateCursors" << " start: " << position << " length: " << length ;
-    cursor.setPosition(position + length > 0 ? static_cast<int>(position + length) : 0);
-    textEdit->setTextCursor(cursor);
-    updateCursors(siteId, static_cast<int>(position), length);
+
+    updateCursors(siteId, static_cast<int>(start), end-start);
     emit updateSiteIdsPositions(siteId);
-    lastText = text;
 }
 
 
-void TextEdit::resetState() {
+void KKEditor::resetState() {
     blockCursor = false;
     fontSize=0;
-    lastText = "";
     fileName = "";
     cursors.clear();
     siteIdsPositions.clear();
@@ -767,45 +725,45 @@ void TextEdit::resetState() {
 }
 
 
-void TextEdit::setupFileActions()
+void KKEditor::setupFileActions()
 {
     QToolBar *tb = addToolBar(tr("File Actions"));
     QMenu *menu = menuBar()->addMenu(tr("&File"));
 
     const QIcon newIcon = QIcon::fromTheme("document-new", QIcon(rsrcPath + "/file.png"));
-    QAction *a = menu->addAction(newIcon,  tr("&New"), this, &TextEdit::fileNew);
+    QAction *a = menu->addAction(newIcon,  tr("&New"), this, &KKEditor::fileNew);
     tb->addAction(a);
     a->setPriority(QAction::LowPriority);
     a->setShortcut(QKeySequence::New);
 
     const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(rsrcPath + "/folder.png"));
-    a = menu->addAction(openIcon, tr("&Open..."), this, &TextEdit::fileOpen);
+    a = menu->addAction(openIcon, tr("&Open..."), this, &KKEditor::fileOpen);
     a->setShortcut(QKeySequence::Open);
     tb->addAction(a);
 
     menu->addSeparator();
 
     const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(rsrcPath + "/save.png"));
-    actionSave = menu->addAction(saveIcon, tr("&Save"), this, &TextEdit::fileSave);
+    actionSave = menu->addAction(saveIcon, tr("&Save"), this, &KKEditor::fileSave);
     actionSave->setShortcut(QKeySequence::Save);
     actionSave->setEnabled(false);
     tb->addAction(actionSave);
-    a = menu->addAction(tr("Save &As..."), this, &TextEdit::fileSaveAs);
+    a = menu->addAction(tr("Save &As..."), this, &KKEditor::fileSaveAs);
     a->setPriority(QAction::LowPriority);
     menu->addSeparator();
 
 #ifndef QT_NO_PRINTER
     const QIcon printIcon = QIcon::fromTheme("document-print", QIcon(rsrcPath + "/print.png"));
-    a = menu->addAction(printIcon, tr("&Print..."), this, &TextEdit::filePrint);
+    a = menu->addAction(printIcon, tr("&Print..."), this, &KKEditor::filePrint);
     a->setPriority(QAction::LowPriority);
     a->setShortcut(QKeySequence::Print);
     tb->addAction(a);
 
     const QIcon filePrintIcon = QIcon::fromTheme("fileprint", QIcon(rsrcPath + "/print.png"));
-    menu->addAction(filePrintIcon, tr("Print Preview..."), this, &TextEdit::filePrintPreview);
+    menu->addAction(filePrintIcon, tr("Print Preview..."), this, &KKEditor::filePrintPreview);
 
     const QIcon exportPdfIcon = QIcon::fromTheme("exportpdf", QIcon(rsrcPath + "/export.png"));
-    a = menu->addAction(exportPdfIcon, tr("&Export PDF..."), this, &TextEdit::filePrintPdf);
+    a = menu->addAction(exportPdfIcon, tr("&Export PDF..."), this, &KKEditor::filePrintPdf);
     a->setPriority(QAction::LowPriority);
     a->setShortcut(Qt::CTRL + Qt::Key_D);
     tb->addAction(a);
@@ -817,7 +775,7 @@ void TextEdit::setupFileActions()
     a->setShortcut(Qt::CTRL + Qt::Key_Q);
 }
 
-void TextEdit::setupEditActions()
+void KKEditor::setupEditActions()
 {
     QToolBar *tb = addToolBar(tr("Edit Actions"));
     QMenu *menu = menuBar()->addMenu(tr("&Edit"));
@@ -857,13 +815,13 @@ void TextEdit::setupEditActions()
 #endif
 }
 
-void TextEdit::setupTextActions()
+void KKEditor::setupTextActions()
 {
     QToolBar *tb = addToolBar(tr("Format Actions"));
     QMenu *menu = menuBar()->addMenu(tr("F&ormat"));
 
     const QIcon boldIcon = QIcon::fromTheme("format-text-bold", QIcon(rsrcPath + "/bold.png"));
-    actionTextBold = menu->addAction(boldIcon, tr("&Bold"), this, &TextEdit::textBold);
+    actionTextBold = menu->addAction(boldIcon, tr("&Bold"), this, &KKEditor::textBold);
     actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
     actionTextBold->setPriority(QAction::LowPriority);
     QFont bold;
@@ -873,7 +831,7 @@ void TextEdit::setupTextActions()
     actionTextBold->setCheckable(true);
 
     const QIcon italicIcon = QIcon::fromTheme("format-text-italic", QIcon(rsrcPath + "/italic.png"));
-    actionTextItalic = menu->addAction(italicIcon, tr("&Italic"), this, &TextEdit::textItalic);
+    actionTextItalic = menu->addAction(italicIcon, tr("&Italic"), this, &KKEditor::textItalic);
     actionTextItalic->setPriority(QAction::LowPriority);
     actionTextItalic->setShortcut(Qt::CTRL + Qt::Key_I);
     QFont italic;
@@ -883,7 +841,7 @@ void TextEdit::setupTextActions()
     actionTextItalic->setCheckable(true);
 
     const QIcon underlineIcon = QIcon::fromTheme("format-text-underline", QIcon(rsrcPath + "/underline.png"));
-    actionTextUnderline = menu->addAction(underlineIcon, tr("&Underline"), this, &TextEdit::textUnderline);
+    actionTextUnderline = menu->addAction(underlineIcon, tr("&Underline"), this, &KKEditor::textUnderline);
     actionTextUnderline->setShortcut(Qt::CTRL + Qt::Key_U);
     actionTextUnderline->setPriority(QAction::LowPriority);
     QFont underline;
@@ -917,7 +875,7 @@ void TextEdit::setupTextActions()
 
     // Make sure the alignLeft  is always left of the alignRight
     auto *alignGroup = new QActionGroup(this);
-    connect(alignGroup, &QActionGroup::triggered, this, &TextEdit::textAlign);
+    connect(alignGroup, &QActionGroup::triggered, this, &KKEditor::textAlign);
 
     if (QApplication::isLeftToRight()) {
         alignGroup->addAction(actionAlignLeft);
@@ -937,7 +895,7 @@ void TextEdit::setupTextActions()
 
     QPixmap pix(16, 16);
     pix.fill(Qt::black);
-    actionTextColor = menu->addAction(pix, tr("&Color..."), this, &TextEdit::textColor);
+    actionTextColor = menu->addAction(pix, tr("&Color..."), this, &KKEditor::textColor);
     tb->addAction(actionTextColor);
 
     tb = addToolBar(tr("Format Actions"));
@@ -963,11 +921,11 @@ void TextEdit::setupTextActions()
     comboStyle->addItem("Heading 5");
     comboStyle->addItem("Heading 6");
 
-    connect(comboStyle, QOverload<int>::of(&QComboBox::activated), this, &TextEdit::textStyle);
+    connect(comboStyle, QOverload<int>::of(&QComboBox::activated), this, &KKEditor::textStyle);
 
     comboFont = new QFontComboBox(tb);
     tb->addWidget(comboFont);
-    connect(comboFont, QOverload<const QString &>::of(&QComboBox::activated), this, &TextEdit::textFamily);
+    connect(comboFont, QOverload<const QString &>::of(&QComboBox::activated), this, &KKEditor::textFamily);
 
     comboSize = new QComboBox(tb);
     comboSize->setObjectName("comboSize");
@@ -979,11 +937,11 @@ void TextEdit::setupTextActions()
         comboSize->addItem(QString::number(size));
     comboSize->setCurrentIndex(standardSizes.indexOf(QApplication::font().pointSize()));
 
-    connect(comboSize, QOverload<const QString &>::of(&QComboBox::activated), this, &TextEdit::textSize);
+    connect(comboSize, QOverload<const QString &>::of(&QComboBox::activated), this, &KKEditor::textSize);
 
 }
 
-void TextEdit::mergeFormat(const QTextCharFormat &format)
+void KKEditor::mergeFormat(const QTextCharFormat &format)
 {
     bool cursorBlocked = false;
     if(blockCursor)
@@ -1009,7 +967,7 @@ void TextEdit::mergeFormat(const QTextCharFormat &format)
         blockCursor=false;
 }
 
-void TextEdit::fontChanged(const QFont &f)
+void KKEditor::fontChanged(const QFont &f)
 {
     comboFont->setCurrentIndex(comboFont->findText(QFontInfo(f).family()));
     comboSize->setCurrentIndex(comboSize->findText(QString::number(f.pointSize())));
@@ -1019,14 +977,14 @@ void TextEdit::fontChanged(const QFont &f)
     fontSize=f.pointSize();
 }
 
-void TextEdit::colorChanged(const QColor &c)
+void KKEditor::colorChanged(const QColor &c)
 {
     QPixmap pix(16, 16);
     pix.fill(c);
     actionTextColor->setIcon(pix);
 }
 
-void TextEdit::alignmentChanged(Qt::Alignment a)
+void KKEditor::alignmentChanged(Qt::Alignment a)
 {
     QString alignment;
     if (a & Qt::AlignLeft){
@@ -1043,7 +1001,7 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
     }
 }
 
-void TextEdit::colorText(const QString& siteId){
+void KKEditor::colorText(const QString& siteId){
     if(!siteIdsPositions.contains(siteId))
         return;
 
@@ -1066,7 +1024,6 @@ void TextEdit::colorText(const QString& siteId){
 
     QTextCursor cursor = textEdit->textCursor();
     for(int pos : *siteIdsPositions.value(siteId)) {
-        qDebug() << "[colorText] - setPosition: " << pos;
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
         if (cursor.charFormat().background() != color){
@@ -1081,7 +1038,7 @@ void TextEdit::colorText(const QString& siteId){
         blockCursor=false;
 }
 
-void TextEdit::clearColorText(const QString& siteId){
+void KKEditor::clearColorText(const QString& siteId){
     if(!siteIdsPositions.contains(siteId))
         return;
     isColored = false;
@@ -1106,7 +1063,7 @@ void TextEdit::clearColorText(const QString& siteId){
         blockCursor=false;
 }
 
-void TextEdit::updateCursors(QString siteId, int position, int value){
+void KKEditor::updateCursors(QString siteId, int position, int value){
     bool cursorBlocked=false;
     if(blockCursor)
         cursorBlocked=true;
@@ -1118,7 +1075,6 @@ void TextEdit::updateCursors(QString siteId, int position, int value){
         if (c !=nullptr && c->getGlobalPositon() > position && c->getSiteId() != siteId) {
             int nuovaPos = c->getGlobalPositon() + value;
             nuovaPos = nuovaPos >= 0 ? nuovaPos : 0;
-            qDebug() << "[updateCursors] - setPosition: " << (nuovaPos);
             c->setGlobalPositon(c->getGlobalPositon() + value);
             editorCurs.setPosition(c->getGlobalPositon());
             c->setLabelsSize(editorCurs.charFormat().font().pointSize());
@@ -1131,7 +1087,7 @@ void TextEdit::updateCursors(QString siteId, int position, int value){
         blockCursor = false;
 }
 
-void TextEdit::updateLabels() {
+void KKEditor::updateLabels() {
     bool cursorBlocked=false;
     if(blockCursor)
         cursorBlocked=true;
@@ -1150,7 +1106,7 @@ void TextEdit::updateLabels() {
         blockCursor=false;
 }
 
-void TextEdit::createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion) {
+void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion) {
     //Creo il cursore
     remoteCurs = new KKCursor(name, postion);
 
@@ -1170,7 +1126,7 @@ void TextEdit::createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, 
     cursors.insert(name, remoteCurs);
 }
 
-QBrush TextEdit::selectRandomColor(){
+QBrush KKEditor::selectRandomColor(){
     QBrush color;
     do{
         int index=rand() % colors_.size();

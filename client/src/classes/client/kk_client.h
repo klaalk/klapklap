@@ -34,7 +34,7 @@
 #include "../access/accessdialog.h"
 #include "../chat/chatdialog.h"
 #include "../openfile/openfiledialog.h"
-#include "../textedit/textedit.h"
+#include "../textedit/kk_editor.h"
 #include "../modal/modaldialog.h"
 
 
@@ -111,7 +111,7 @@ private:
 
     KKUser* user_{};
     KKCrdt* crdt_{};
-    TextEdit* editor_{};
+    KKEditor* editor_{};
     ChatDialog* chat_{};
 };
 
