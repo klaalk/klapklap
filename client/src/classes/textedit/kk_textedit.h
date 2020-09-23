@@ -12,11 +12,13 @@ class KKTextEdit : public QTextEdit
     Q_OBJECT
 signals:
     void textChangedEvent(QString operation, QString diff, int start, int end);
+    void wheelEventTriggered();
 public:
     KKTextEdit(QWidget *parent = nullptr);
     void keyReleaseEvent(QKeyEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;
+    void wheelEvent(QWheelEvent *e) override;
 
 private:
     int lastPos = -1;

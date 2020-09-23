@@ -5,7 +5,6 @@
 
 KKTextEdit::KKTextEdit(QWidget *parent): QTextEdit(parent)
 {
-
 }
 
 void KKTextEdit::keyReleaseEvent(QKeyEvent *e)
@@ -101,4 +100,10 @@ void KKTextEdit::mousePressEvent(QMouseEvent *e)
         start = textCursor().position();
     lastText = toPlainText();
     QTextEdit::mousePressEvent(e);
+}
+
+void KKTextEdit::wheelEvent(QWheelEvent *e)
+{
+    emit wheelEventTriggered();
+    QTextEdit::wheelEvent(e);
 }
