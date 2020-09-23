@@ -671,7 +671,7 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
     for(unsigned long i=startAlignLine;i<=endAlignLine;i++){//aggiorno il crdt con gli allineamenti
          crdt_->setLineAlignment(static_cast<long>(i),static_cast<unsigned long>(alignment));
     }
-
+       crdt_->printLinesAlignment();
     sendRequest(ALIGNMENT_CHANGE,NONE,{QString::number(alignment),QString::number(static_cast<int>(startAlignLine)),QString::number(static_cast<int>(endAlignLine))});
 }
 
