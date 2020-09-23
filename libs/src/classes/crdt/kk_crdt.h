@@ -35,9 +35,9 @@ public:
     string siteid;
     unsigned long boundary;
     strategy _strategy;
-    vector<strategy> strategy_cache;
+    std::vector<strategy> strategy_cache;
     unsigned long base;
-    list<unsigned long> linesAlignment;
+    vector<unsigned long> linesAlignment;
     QString getSiteId(){return QString::fromStdString(siteid);}
     KKCrdt(string siteid, strategy strategy); //costruttore
     ~KKCrdt();//distruttore
