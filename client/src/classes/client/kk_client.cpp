@@ -72,7 +72,7 @@ void KKClient::initEditor()
     connect(editor_, &KKEditor::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
     connect(editor_, &KKEditor::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
     connect(editor_, &KKEditor::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
-    connect(editor_,&KKEditor::alignChange, this, &KKClient::onAlignmentChange);
+    connect(editor_, &KKEditor::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor_,&KKEditor::charFormatChange, this, &KKClient::onCharFormatChanged);
     connect(editor_, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
     connect(editor_, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialog);
@@ -385,11 +385,19 @@ void KKClient::handleAlignmentChange(KKPayload response){
 
     QStringList bodyList = response.getBodyList();
     QString alignment=bodyList[0];
-    editor_->applyRemoteAlignmentChange(alignment);
+    QString startAlignLine=bodyList[1];
+    QString endAlignLine=bodyList[2];
+    unsigned long  alignPos;
 
-    QString siteId = crdt_->getSiteId();
-    editor_->applySiteIdsPositions(siteId, findPositions(siteId));
-
+    for(unsigned long i=startAlignLine.toULong();i<=endAlignLine.toULong();i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
+        if(crdt_->checkLine(i)){ //controlla che la riga esista
+        crdt_->setLineAlignment(static_cast<long>(i),alignment.toULong());
+        alignPos = crdt_->generateGlobalPos(KKPosition(i,0));
+        editor_->alignmentRemoteChange(alignment.toInt(),alignPos);
+        }else{
+            break;
+        }
+    }
 }
 
 void KKClient::handleCharFormatChange(KKPayload response){
@@ -647,10 +655,18 @@ void KKClient::onUpdateSiteIdsPositions(const QString &siteId)
     editor_->applySiteIdsPositions(siteId, findPositions(siteId));
 }
 
-void KKClient::onAlignmentChange(QString alignment){
-    QStringList a = {alignment};
-    sendRequest(ALIGNMENT_CHANGE,NONE,a);
+void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
+    unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol; //le colonne non serviranno
+    crdt_->calculateLineCol(static_cast<unsigned long>(alignStart), &startAlignLine, &startAlignCol);
+    crdt_->calculateLineCol(static_cast<unsigned long>(alignEnd), &endAlignLine, &endAlignCol);
+
+    for(unsigned long i=startAlignLine;i<=endAlignLine;i++){//aggiorno il crdt con gli allineamenti
+         crdt_->setLineAlignment(static_cast<long>(i),static_cast<unsigned long>(alignment));
+    }
+
+    sendRequest(ALIGNMENT_CHANGE,NONE,{QString::number(alignment),QString::number(static_cast<int>(startAlignLine)),QString::number(static_cast<int>(endAlignLine))});
 }
+
 
 void KKClient::onCharFormatChanged(unsigned long pos, QString font_, QString color_){
      unsigned long line, col;

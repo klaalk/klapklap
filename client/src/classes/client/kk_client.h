@@ -72,8 +72,9 @@ private slots:
     void onOpenFileDialog();
     void onSiteIdClicked(const QString& siteId);
     void onUpdateSiteIdsPositions(const QString& siteId);
-    void onAlignmentChange(QString alignment);
+    //void onAlignmentChange(QString alignment);
     void onCharFormatChanged(unsigned long pos, QString font_, QString color_);
+    void onAlignmentChange(int alignment, int alignStart, int alignEnd);
     void logger(QString message);
 private:
     void initState();

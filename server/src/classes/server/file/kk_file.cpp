@@ -33,12 +33,17 @@ void KKFile::leave(KKParticipantPtr participant) {
 int KKFile::deliver(QString type, QString result, QStringList message, QString username) {
     KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
     int code=-1; //TODO: check if is better 0
+    bool toAll=false;
     if (type == CRDT) {
         code=applyRemoteInsertSafe(data->getBodyList());
     } else if (type == CHARFORMAT_CHANGE) {
         code=applyRemoteCharFormatChangeSafe(data->getBodyList());
     } else if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
         recentMessages->push_back(data);
+    }else if(type==ALIGNMENT_CHANGE){
+        toAll=true; //per inviare il messaggio a tutti (mittente compreso)
+        applyRemoteAlignmentChange(data->getBodyList());
+        code=200;
     }
 
     while (recentMessages->size() > MaxRecentMessages)
@@ -46,7 +51,7 @@ int KKFile::deliver(QString type, QString result, QStringList message, QString u
 
     if (!participants->isEmpty()) {
         std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
-            if(p->id != username) {
+            if(p->id != username || toAll) {
                 p->deliver(data);
             }
         });
@@ -149,6 +154,22 @@ void KKFile::applyRemoteCharFormatChange(QStringList bodyList){
     }
 
     crdt->remoteFormatChange(char_,fontStr,colorStr);
+}
+
+void KKFile::applyRemoteAlignmentChange(QStringList bodyList){
+    QString alignment=bodyList[0];
+    QString startAlignLine=bodyList[1];
+    QString endAlignLine=bodyList[2];
+
+
+    for(unsigned long i=startAlignLine.toULong();i<=endAlignLine.toULong();i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
+        if(crdt->checkLine(i)){ //controlla che la riga esista
+        crdt->setLineAlignment(static_cast<long>(i),alignment.toULong());
+        }else{
+            break;
+        }
+    }
+    crdt->printLinesAlignment();
 }
 
 void KKFile::flushCrdtText()

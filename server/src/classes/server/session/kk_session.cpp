@@ -100,7 +100,7 @@ void KKSession::handleRequest(QString message) {
             handleChatRequest(req);
         }
     }
-}
+ }
 
 void KKSession::handleBinaryRequests(QByteArray message) {
     if (socket) {

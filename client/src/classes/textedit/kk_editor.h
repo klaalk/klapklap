@@ -144,7 +144,7 @@ signals:
     void insertTextToCRDT(char value, unsigned long position, QString font_, QString color_);
     void removeTextFromCRDT(unsigned long start, unsigned long end);
     void saveCRDTtoFile();
-    void alignChange(QString alignment);
+    void alignChange(int alignment, int alignStart, int alignEnd);
     void charFormatChange(unsigned long pos, QString font_, QString color_);
     void updateSiteIdsPositions(QString siteId);
     void openFileDialog();
@@ -154,7 +154,8 @@ public:
     KKEditor(QWidget *parent = nullptr);
     bool load(const QString &f);
     void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
-    void applyRemoteAlignmentChange(QString alignment);
+    void alignmentRemoteChange(int alignment, unsigned long alignPos);
+    //void applyRemoteAlignmentChange(QString alignment);
     void applyRemoteFormatChange(int position, QString font, QString color);
     void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);

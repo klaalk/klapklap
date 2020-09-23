@@ -21,7 +21,7 @@ using std::shared_ptr;
 
 
 KKCrdt::KKCrdt(string siteid, strategy strategy) : siteid(std::move(siteid)), boundary(10), _strategy(strategy), base(32) {
-
+linesAlignment.push_back(1);
 };
 
 KKCrdt::~KKCrdt() {
@@ -34,6 +34,8 @@ KKCharPtr KKCrdt::localInsert(char val, KKPosition pos, QString _font, QString _
     newChar->setKKCharFont(_font);
     newChar->setKKCharColor(_color);
     this->insertChar(newChar, pos);
+    printLinesAlignment();
+
     return newChar;
 }
 
@@ -223,6 +225,8 @@ void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
             text[pos.getLine()].splice(std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh())), _list_char);
             list<KKCharPtr> new_last_line = {};
             text.insert(std::next(text.begin(),static_cast<long>(pos.getLine()+1)),new_last_line); //aggiungi una riga vuota
+            //ALG inserisco nella lista align un elemento in posizione getLine+1 e gli assegno il valore di allineamento che aveva l'elemento in getLine
+            linesAlignment.insert(std::next(linesAlignment.begin(),static_cast<long>(pos.getLine()+1)),*std::next(linesAlignment.begin(),static_cast<long>(pos.getLine())));
 
         } else { //il \n NON è l'ultimo carattere del testo
             text[pos.getLine()].push_back(_char); //inserisco il \n
@@ -230,6 +234,8 @@ void KKCrdt::insertChar(const KKCharPtr& _char, KKPosition pos) {
             text.erase(std::next(text.begin(),static_cast<long>(pos.getLine()))); //cancello la riga col \n
             text.insert(std::next(text.begin(),static_cast<long>(pos.getLine())),line_before); //aggiungo la riga che finisce col \n
             text.insert(std::next(text.begin(),static_cast<long>(pos.getLine()+1)),line_after); //aggiungo la riga di cio che sta dopo il \n
+            //ALG inserisco nella lista align un elemento in posizione getLine+1 e gli assegno il valore di allineamento che aveva l'elemento in getLine
+            linesAlignment.insert(std::next(linesAlignment.begin(),static_cast<long>(pos.getLine()+1)),*std::next(linesAlignment.begin()),pos.getLine());
         }
     } else { //se hai scritto un carattere
 //        if (text.at(pos.getLine()).empty() && flag==0) { //se la riga dove hai scritto il carattere è vuota, crea un altra riga
@@ -246,6 +252,7 @@ unsigned long KKCrdt::remoteInsert(const KKCharPtr& _char){
     KKPosition pos = findInsertPosition(_char);
     insertChar(_char, pos);
     global_pos = generateGlobalPos(pos);
+    printLinesAlignment();
     return global_pos;
 }
 
@@ -508,13 +515,16 @@ bool new_line_removed=false;
     removeEmptyLines();
 //xxx
     if(!text[start_pos.getLine()].empty()){
-    char ch=std::next(text[start_pos.getLine()].begin(),text[start_pos.getLine()].size()-1)->get()->getValue();
+    char ch=std::next(text[start_pos.getLine()].begin(),static_cast<long>(text[start_pos.getLine()].size()-1))->get()->getValue();
     if(new_line_removed && !text[start_pos.getLine()+1].empty() && ch!='\n' ){
     //if(new_line_removed){
         mergeLines(start_pos.getLine());
+   //ALG deve rimuovere l'elemento in posizione getLine+1 (gli altri restano uguali)
+       linesAlignment.erase(std::next(linesAlignment.begin(),static_cast<long>(start_pos.getLine() +1)));
     }
     }
     //text.emplace_back();
+    printLinesAlignment();
     return chars;
 }
 
@@ -530,6 +540,8 @@ list<KKCharPtr> KKCrdt::deleteMultipleLines(KKPosition start_pos, KKPosition end
     for(line=start_pos.getLine()+1;line<end_pos.getLine();line++){
         chars.splice(chars.end(),text[line]);
         text[line].erase(text[line].begin(),std::next(text[line].begin(),static_cast<long>(text[line].size())));
+        //ALG rimuove elemento in posizione line
+         linesAlignment.erase(std::next(linesAlignment.begin(),static_cast<long>(line)));
 
     }
 
@@ -560,7 +572,7 @@ void KKCrdt::removeEmptyLines(){
 
     for(auto it = text.end()-1; it>=text.begin();it--){ //controlla se l'ultimo carattere scritto è un \n
         if(!it->empty()){
-            if(std::next(it->begin(),it->size()-1)->get()->getValue()=='\n'){
+            if(std::next(it->begin(),static_cast<long>(it->size()-1))->get()->getValue()=='\n'){
                 flag=true;}
                 break;
 
@@ -578,7 +590,7 @@ void KKCrdt::removeEmptyLines(){
 //xxx
     if(flag){
         list<KKCharPtr> new_last_line = {};
-        text.insert(std::next(text.begin(),text.size()),new_last_line); //aggiungi una riga vuota
+        text.insert(std::next(text.begin(),static_cast<long>(text.size())),new_last_line); //aggiungi una riga vuota
 
     }
     if(text.empty()){
@@ -610,6 +622,7 @@ unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
     KKPosition pos(findPos(_Char, &flag));//trova la posizione nel crdt del carattere
 
     if(!flag){
+        printLinesAlignment();
         return generateGlobalPos(pos);
     }
 
@@ -617,15 +630,18 @@ unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
     text[pos.getLine()].erase(std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh())));//rimuove il carattere cancellato
 
 //xxx
-    if(_Char->getValue()=='\n' && !text[pos.getLine()+1].empty()){ //se il carattere era un \n ricollega le linee
-    //if(_Char->getValue()=='\n'){
-            mergeLines(pos.getLine());
-
-    }
+    if(_Char->getValue()=='\n'){
+          //ALG devi rimuovere elem in posizione getline+1
+          linesAlignment.erase(std::next(linesAlignment.begin(),static_cast<long>(pos.getLine() +1)));
+          if(!text[pos.getLine()+1].empty()){
+              mergeLines(pos.getLine());
+          }
+      }
 
     removeEmptyLines();
     //text.emplace_back();
     global_pos= generateGlobalPos(pos);
+    printLinesAlignment();
     return global_pos;
 }
 
@@ -641,6 +657,7 @@ KKPosition KKCrdt::findPos (const KKCharPtr& _Char, bool *flag){
     //se il testo è vuoto o la char ha una position inferiore alla prima in assoluto
     if (text.empty() || _Char.get()->compareTo(*text[0].front().get()) < 0) {
         *flag=false;
+
         return {0,0};
     }
 
@@ -871,6 +888,27 @@ KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font_, QStrin
     new_Char.get()->insertPosition(new_ids);
     return new_Char;
 }
+
+void KKCrdt::setLineAlignment(long idx,unsigned long align){
+    *std::next(linesAlignment.begin(),idx)=align;
+    return;
+}
+
+unsigned long KKCrdt::getLineAlignment( long idx){
+    return *std::next(linesAlignment.begin(),idx);
+}
+bool KKCrdt::checkLine(unsigned long lineIdx){
+    if(text.size()>lineIdx) return true;
+    return false;
+}
+
+void KKCrdt::printLinesAlignment(){
+    qDebug()<< "STAMPA ALLINEAMENTO LINEE:";
+    for(unsigned long alignment:linesAlignment){
+        qDebug()<<alignment;
+    }
+}
+
 
 
 
