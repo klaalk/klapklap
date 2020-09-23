@@ -635,7 +635,7 @@ void KKEditor::onFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
-//    updateLabels();
+    updateLabels();
 }
 
 void KKEditor::onCursorPositionChanged()
