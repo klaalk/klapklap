@@ -293,8 +293,12 @@ void KKClient::handleLogoutResponse(KKPayload res) {
 
     currentfileValid_ = false;
     openFile_.hide();
-    editor_->hide();
-    chat_->hide();
+
+    if (editor_ != nullptr)
+        editor_->hide();
+
+    if (chat_ != nullptr)
+        chat_->hide();
 
     access_.showLoader(false);
     access_.showLogin();
@@ -348,8 +352,12 @@ void KKClient::handleLoadFileResponse(KKPayload res) {
 
 void KKClient::handleQuitFileResponse()
 {
-    editor_->hide();
-    chat_->hide();
+    if (editor_ != nullptr)
+        editor_->hide();
+
+    if (chat_ != nullptr)
+        chat_->hide();
+
     sendGetFilesRequest();
 }
 
@@ -418,7 +426,7 @@ void KKClient::handleCharFormatChange(KKPayload response){
     }
     unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
     editor_->applyRemoteFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
-    editor_->applySiteIdsPositions(siteId, findPositions(siteId));
+    //editor_->applySiteIdsPositions(siteId, findPositions(siteId));
 }
 
 /// SENDING

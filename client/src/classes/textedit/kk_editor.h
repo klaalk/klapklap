@@ -105,37 +105,6 @@ public:
     }
 };
 
-class KKCharAndForm{
-private:
-    char value;
-    QString font;
-    QString color;
-public:
-    KKCharAndForm(char value, QString font, QString color): value(value), font(font), color(color){}
-    char getValue(){
-        return value;
-    }
-    QString getFont(){
-        return font;
-    }
-    QString getColor(){
-        return color;
-    }
-    void setValue(char value){
-        this->value=value;
-        return;
-    }
-
-    void setFont(QString font){
-        this->font=font;
-        return;
-    }
-    void setColor(QString color){
-        this->color=color;
-        return;
-    }
-};
-
 class KKEditor : public QMainWindow
 {
     Q_OBJECT
@@ -241,6 +210,7 @@ private:
     QAction *actionPaste{};
 #endif
     bool isColored = false;
+    bool blockCursor=false;
     int fontSize=0;
     int maxFontSize=0;
     QString siteId;
