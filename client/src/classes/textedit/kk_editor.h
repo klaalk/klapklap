@@ -240,10 +240,8 @@ private:
     QAction *actionPaste{};
 #endif
     bool isColored = false;
-    bool blockCursor = false;
     int fontSize=0;
     int maxFontSize=0;
-    QString lastText;
     QString siteId;
     QString fileName;
     QMap <QString,KKCursor*> cursors;
