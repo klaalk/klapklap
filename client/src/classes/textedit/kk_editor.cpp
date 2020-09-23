@@ -227,6 +227,9 @@ void KKEditor::applyRemoteFormatChange(int position, QString font, QString color
 }
 
 void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteId, const QString& text, int position, const QString& font, const QString& color) {
+
+    blockCursor=true;
+
     qDebug() << "[applyRemoteChanges]" << " value: " << text << " site id: " << siteId <<  " position: " << position << " font: " << font << " color: " << color;
 
     //Prelevo il cursore dell'editor.
@@ -268,6 +271,8 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
 
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     updateCursors(siteId, position, operation == CRDT_INSERT ? text.size() : -text.size());
+
+    blockCursor=false;
 }
 
 void KKEditor::applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list){
@@ -675,6 +680,8 @@ void KKEditor::onCursorPositionChanged()
 
 
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
+    if(blockCursor) return;
+
     updateCursors(siteId, static_cast<int>(start), operation == INSERT ? diff.size() : -diff.size());
 
     if (operation == DELETE)
@@ -683,7 +690,7 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
     if (operation == INSERT) {
         QTextCursor cursor = textEdit->textCursor();
         for (int i = 0; i < diff.length(); i++) {
-            cursor.setPosition(start + 1);
+            cursor.setPosition(start + i);
             cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
             emit insertTextToCRDT(diff.at(i).toLatin1(), static_cast<unsigned long>(start+i), cursor.charFormat().font().toString(), cursor.charFormat().foreground().color().name());
         }
@@ -1004,7 +1011,7 @@ void KKEditor::clearColorText(const QString& siteId){
 
     QTextCursor cursor = textEdit->textCursor();
     for(int pos : *siteIdsPositions.value(siteId)){
-        qDebug() << "[clearColorText] - setPosition: " << pos;
+        //qDebug() << "[clearColorText] - setPosition: " << pos;
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
         if (cursor.charFormat().background()!=Qt::white){
