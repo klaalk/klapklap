@@ -32,6 +32,7 @@
 #include <QFont>
 #include <QListWidgetItem>
 #include <QTextCharFormat>
+#include <QScrollBar>
 
 
 #if defined(QT_PRINTSUPPORT_LIB)
@@ -75,6 +76,7 @@ KKEditor::KKEditor(QWidget *parent)
     connect(textEdit, &QTextEdit::cursorPositionChanged, this, &KKEditor::onCursorPositionChanged);
     connect(textEdit, &KKTextEdit::textChangedEvent, this, &KKEditor::onTextChange);
     connect(textEdit, &KKTextEdit::wheelEventTriggered, this, &KKEditor::updateLabels);
+    connect(textEdit->verticalScrollBar(), &QScrollBar::valueChanged, textEdit, &KKTextEdit::wheelEventTriggered);
     connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::alignmentNotifyEvent);
 
 
