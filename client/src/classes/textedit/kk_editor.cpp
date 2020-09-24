@@ -620,7 +620,7 @@ void KKEditor::textColor()
 
 void KKEditor::textAlign(QAction *a)
 {
-    int alignment;
+    int alignment=0;
     int alignStart;
     int alignEnd;
 
@@ -629,15 +629,16 @@ void KKEditor::textAlign(QAction *a)
         alignment=1;
     }
     else if (a == actionAlignCenter){
-        alignment=2;
         textEdit->setAlignment(Qt::AlignHCenter);
+        alignment=2;
     }
     else if (a == actionAlignRight){
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
         alignment=3;
-    }else if (a == actionAlignJustify){
-        alignment=4;
+    }
+    else if (a == actionAlignJustify){
         textEdit->setAlignment(Qt::AlignJustify);
+        alignment=4;
     }
 
     qDebug()<<"CURLINNUM:"<<textEdit->textCursor().block().blockNumber();
@@ -739,20 +740,45 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
     if(blockCursor) return;
 
     updateCursors(siteId, static_cast<int>(start), operation == INSERT ? diff.size() : -diff.size());
+    QTextCursor cursor = textEdit->textCursor();
 
     if (operation == DELETE)
         emit removeTextFromCRDT(static_cast<unsigned long>(start), static_cast<unsigned long>(end));
 
     if (operation == INSERT) {
-        QTextCursor cursor = textEdit->textCursor();
         for (int i = 0; i < diff.length(); i++) {
             cursor.setPosition(start + i);
             cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
             emit insertTextToCRDT(diff.at(i).toLatin1(), static_cast<unsigned long>(start+i), cursor.charFormat().font().toString(), cursor.charFormat().foreground().color().name());
+
         }
+
+//    for (int i = 0; i < diff.length(); i++) {
+//        cursor.setPosition(start + i);
+//        cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
+//        //qDebug()<<"alignment:"<<getCurrentAlignment(cursor.blockFormat().alignment())<<cursor.blockFormat().alignment();
+//        emit (alignChange(getCurrentAlignment(cursor.blockFormat().alignment()),start+i,diff.length()));
+//     }
     }
 
     emit updateSiteIdsPositions(siteId);
+}
+
+int KKEditor::getCurrentAlignment(Qt::Alignment a){
+    int alignment=0;
+    if (a == (Qt::AlignLeft|Qt::AlignLeading) || a == (Qt::AlignLeading|Qt::AlignAbsolute)){
+        alignment=1;
+    }
+    else if (a == Qt::AlignHCenter){
+        alignment=2;
+    }
+    else if (a==(Qt::AlignTrailing|Qt::AlignAbsolute)){
+        alignment=3;
+    }
+    else if (a == Qt::AlignJustify){
+        alignment=4;
+    }
+    return alignment;
 }
 
 
