@@ -118,6 +118,8 @@ signals:
     void updateSiteIdsPositions(QString siteId);
     void openFileDialog();
     void editorClosed();
+    void alignmentNotifyEvent(int startAling,int endAlign);
+
 
 public:
     KKEditor(QWidget *parent = nullptr);
@@ -129,6 +131,7 @@ public:
     void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);
     void applySiteIdClicked(const QString& name);
+     int getCurrentAlignment(int pos);
 
     void setCurrentFileName(const QString &fileName);
     void setParticipantAlias(QStringList participants);
@@ -191,7 +194,7 @@ private:
     void updateCursors(QString siteId, int position, int value);
     void updateLabels();
     void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
-    int getCurrentAlignment(int pos);
+
     QBrush selectRandomColor();
 
     QAction *actionSave{};
