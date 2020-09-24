@@ -654,11 +654,15 @@ void KKCrdt::mergeLines(unsigned long line){
 unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
     bool flag = true;
     unsigned long global_pos;
-    unsigned long alignFirstRow= linesAlignment[0];
+    unsigned long alignFirstRow = linesAlignment[0];
 
     KKPosition pos(findPos(_Char, &flag));//trova la posizione nel crdt del carattere
 
     if(!flag){
+
+        if(text.empty()){
+            linesAlignment.push_back(alignFirstRow);
+        }
         printLinesAlignment();
         return generateGlobalPos(pos);
     }
@@ -679,10 +683,11 @@ unsigned long KKCrdt::remoteDelete(const KKCharPtr& _Char){
     removeEmptyLines();
     //text.emplace_back();
     global_pos= generateGlobalPos(pos);
-    printLinesAlignment();
+
     if(text.empty()){
         linesAlignment.push_back(alignFirstRow);
     }
+    printLinesAlignment();
     return global_pos;
 }
 
