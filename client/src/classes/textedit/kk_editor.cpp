@@ -764,7 +764,11 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
     emit updateSiteIdsPositions(siteId);
 }
 
-int KKEditor::getCurrentAlignment(Qt::Alignment a){
+int KKEditor::getCurrentAlignment(int pos){
+    QTextCursor cursor=textEdit->textCursor();
+    cursor.setPosition(pos);
+    Qt::Alignment a=cursor.blockFormat().alignment();
+
     int alignment=0;
     if (a == (Qt::AlignLeft|Qt::AlignLeading) || a == (Qt::AlignLeading|Qt::AlignAbsolute)){
         alignment=1;
