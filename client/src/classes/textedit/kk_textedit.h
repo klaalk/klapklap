@@ -20,12 +20,22 @@ public:
     void mousePressEvent(QMouseEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
 
+public slots:
+    void textUndo();
+    void textRedo();
+    void textCopy();
+    void textPaste();
+    void textCut();
 private:
+    void sendDiffText();
+
     int lastPos = -1;
     int start = -1;
     int end = -1;
     int selectionStart = -1;
     int selectionEnd = -1;
+
+    /// Variabile che conta quanti tasti ho premuto
     int keyCounter = 0;
     bool wasSelected = false;
     QString lastText;

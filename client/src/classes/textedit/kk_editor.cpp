@@ -181,6 +181,8 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
                                );
         }
     }
+
+    textEdit->document()->clearUndoRedoStacks();
 }
 void KKEditor::alignmentRemoteChange(int alignment, unsigned long alignPos)
 {
@@ -269,14 +271,13 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
 
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
-
+    int myEditorCursPos = editorCurs.position();
     // Muovo il cursore dell'editor.
     editorCurs.setPosition(position);
 
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
        editorCurs.insertText(text);
-
        //Aggiorno formato
        applyRemoteFormatChange(position, font, color);
 
@@ -284,7 +285,6 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
 
        editorCurs.deleteChar();
     }
-
 
     if(siteId != this->siteId) {
         //Prelevo il cursore remoto.
@@ -306,6 +306,9 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
 
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     updateCursors(siteId, position, operation == CRDT_INSERT ? text.size() : -text.size());
+
+    if (myEditorCursPos > position)
+        editorCurs.setPosition(operation == CRDT_INSERT ? text.size() : -text.size());
 
     blockCursor=false;
 }
@@ -851,12 +854,12 @@ void KKEditor::setupEditActions()
     QMenu *menu = menuBar()->addMenu(tr("&Edit"));
 
     const QIcon undoIcon = QIcon::fromTheme("edit-undo", QIcon(rsrcPath + "/undo.png"));
-    actionUndo = menu->addAction(undoIcon, tr("&Undo"), textEdit, &QTextEdit::undo);
+    actionUndo = menu->addAction(undoIcon, tr("&Undo"), textEdit, &KKTextEdit::textUndo);
     actionUndo->setShortcut(QKeySequence::Undo);
     tb->addAction(actionUndo);
 
     const QIcon redoIcon = QIcon::fromTheme("edit-redo", QIcon(rsrcPath + "/redo.png"));
-    actionRedo = menu->addAction(redoIcon, tr("&Redo"), textEdit, &QTextEdit::redo);
+    actionRedo = menu->addAction(redoIcon, tr("&Redo"), textEdit, &KKTextEdit::textRedo);
     actionRedo->setPriority(QAction::LowPriority);
     actionRedo->setShortcut(QKeySequence::Redo);
     tb->addAction(actionRedo);
@@ -864,19 +867,19 @@ void KKEditor::setupEditActions()
 
 #ifndef QT_NO_CLIPBOARD
     const QIcon cutIcon = QIcon::fromTheme("edit-cut", QIcon(rsrcPath + "/scissors.png"));
-    actionCut = menu->addAction(cutIcon, tr("Cu&t"), textEdit, &QTextEdit::cut);
+    actionCut = menu->addAction(cutIcon, tr("Cu&t"), textEdit, &KKTextEdit::textCut);
     actionCut->setPriority(QAction::LowPriority);
     actionCut->setShortcut(QKeySequence::Cut);
     tb->addAction(actionCut);
 
     const QIcon copyIcon = QIcon::fromTheme("edit-copy", QIcon(rsrcPath + "/copy.png"));
-    actionCopy = menu->addAction(copyIcon, tr("&Copy"), textEdit, &QTextEdit::copy);
+    actionCopy = menu->addAction(copyIcon, tr("&Copy"), textEdit, &KKTextEdit::textCopy);
     actionCopy->setPriority(QAction::LowPriority);
     actionCopy->setShortcut(QKeySequence::Copy);
     tb->addAction(actionCopy);
 
     const QIcon pasteIcon = QIcon::fromTheme("edit-paste", QIcon(rsrcPath + "/paste.png"));
-    actionPaste = menu->addAction(pasteIcon, tr("&Paste"), textEdit, &QTextEdit::paste);
+    actionPaste = menu->addAction(pasteIcon, tr("&Paste"), textEdit, &KKTextEdit::textPaste);
     actionPaste->setPriority(QAction::LowPriority);
     actionPaste->setShortcut(QKeySequence::Paste);
     tb->addAction(actionPaste);
