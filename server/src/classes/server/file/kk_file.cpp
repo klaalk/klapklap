@@ -32,7 +32,7 @@ void KKFile::leave(KKParticipantPtr participant) {
 
 int KKFile::deliver(QString type, QString result, QStringList message, QString username) {
     KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
-    int code=-1; //TODO: check if is better 0
+    int code=0; //TODO: check if is better 0
     bool toAll=false;
     if (type == CRDT) {
         code=applyRemoteInsertSafe(data->getBodyList());
@@ -42,10 +42,8 @@ int KKFile::deliver(QString type, QString result, QStringList message, QString u
         recentMessages->push_back(data);
     }else if(type==ALIGNMENT_CHANGE){
         toAll=true; //per inviare il messaggio a tutti (mittente compreso)
-        applyRemoteAlignmentChange(data->getBodyList());
-        code=200;
+        code=applyRemoteAlignmentChangeSafe(data->getBodyList());
     }
-
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
 
@@ -95,6 +93,18 @@ QStringList KKFile::getUsers()
 {
     return users;
 }
+
+int KKFile::applyRemoteAlignmentChangeSafe(QStringList bodyList){
+    try {
+        applyRemoteAlignmentChange(bodyList);
+        return 200;
+    } catch (QException e) {
+        KKLogger::log(e.what(),"applyRemoteInsertSafe");
+        return -200;
+    }
+}
+
+
 
 int KKFile::applyRemoteInsertSafe(QStringList bodyList){
     try {
