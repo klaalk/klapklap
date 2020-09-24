@@ -132,7 +132,7 @@ public:
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);
     void applySiteIdClicked(const QString& name);
      int getCurrentAlignment(int pos);
-
+    void setLink(QString link);
     void setCurrentFileName(const QString &fileName);
     void setParticipantAlias(QStringList participants);
     void addParticipant(const QString &username, const QString &nick);
@@ -219,6 +219,7 @@ private:
     int maxFontSize=0;
     QString siteId;
     QString fileName;
+    QString link;
     QMap <QString,KKCursor*> cursors;
     QComboBox *comboStyle{};
     QFontComboBox *comboFont{};

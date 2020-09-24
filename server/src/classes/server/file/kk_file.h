@@ -51,6 +51,7 @@ public:
     void applyRemoteAlignmentChange(QStringList bodylist);
     void initCrdtText();
     void flushCrdtText();
+    bool partecipantExist(QString username);
 
     QStringList getCrdtText();
     QStringList getParticipants();

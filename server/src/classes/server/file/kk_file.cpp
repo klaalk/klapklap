@@ -221,6 +221,10 @@ QStringList KKFile::getParticipants()
     return participants_;
 }
 
+bool KKFile::partecipantExist(QString username){
+    return participants->contains(username);
+}
+
 KKVectorPayloadPtr KKFile::getRecentMessages()
 {
     return recentMessages;
