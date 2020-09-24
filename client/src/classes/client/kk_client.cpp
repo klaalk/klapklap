@@ -399,7 +399,7 @@ void KKClient::handleAlignmentChange(KKPayload response){
     unsigned long  alignPos;
 
     for(unsigned long i=startAlignLine.toULong();i<=endAlignLine.toULong();i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-        if(crdt_->checkLine(i)){ //controlla che la riga esista
+        if(crdt_->checkLine(i) || (crdt_->text.empty()&&i==0)){ //controlla che la riga esista){ //controlla che la riga esista
         crdt_->setLineAlignment(static_cast<long>(i),alignment.toULong());
         alignPos = crdt_->generateGlobalPos(KKPosition(i,0));
         editor_->alignmentRemoteChange(alignment.toInt(),alignPos);
@@ -697,9 +697,9 @@ void KKClient::notifyAlignment(int alignStart, int alignEnd){ //prende l'allinea
     for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
         pos = crdt_->generateGlobalPos(KKPosition(i,0));
          alignment = editor_->getCurrentAlignment(static_cast<int>(pos));
-         if(crdt_->checkLine(i)){ //controlla che la riga esista
-         crdt_->setLineAlignment(static_cast<long>(i),static_cast<unsigned long>(alignment));
-         sendRequest(ALIGNMENT_CHANGE,NONE,{QString::number(alignment),QString::number(static_cast<int>(i)),QString::number(static_cast<int>(i))});
+         if(crdt_->checkLine(i) || (crdt_->text.empty()&&i==0)){ //controlla che la riga esista
+            crdt_->setLineAlignment(static_cast<long>(i),static_cast<unsigned long>(alignment));
+            sendRequest(ALIGNMENT_CHANGE,NONE,{QString::number(alignment),QString::number(static_cast<int>(i)),QString::number(static_cast<int>(i))});
          }
     }
 }
