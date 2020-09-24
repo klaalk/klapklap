@@ -13,6 +13,7 @@ class KKTextEdit : public QTextEdit
 signals:
     void textChangedEvent(QString operation, QString diff, int start, int end);
     void wheelEventTriggered();
+    void alignmentNotifyEvent(int startAling,int endAlign);
 public:
     KKTextEdit(QWidget *parent = nullptr);
     void keyReleaseEvent(QKeyEvent *e) override;

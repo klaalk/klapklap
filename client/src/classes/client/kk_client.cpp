@@ -73,6 +73,7 @@ void KKClient::initEditor()
     connect(editor_, &KKEditor::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
     connect(editor_, &KKEditor::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
     connect(editor_, &KKEditor::alignChange, this, &KKClient::onAlignmentChange);
+    connect(editor_, &KKEditor::alignmentNotifyEvent, this, &KKClient::notifyAlignment);
     connect(editor_,&KKEditor::charFormatChange, this, &KKClient::onCharFormatChanged);
     connect(editor_, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
     connect(editor_, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialog);
@@ -398,7 +399,7 @@ void KKClient::handleAlignmentChange(KKPayload response){
     unsigned long  alignPos;
 
     for(unsigned long i=startAlignLine.toULong();i<=endAlignLine.toULong();i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-        if(crdt_->checkLine(i)){ //controlla che la riga esista
+        if(crdt_->checkLine(i) || (crdt_->text.empty()&&i==0)){ //controlla che la riga esista){ //controlla che la riga esista
         crdt_->setLineAlignment(static_cast<long>(i),alignment.toULong());
         alignPos = crdt_->generateGlobalPos(KKPosition(i,0));
         editor_->alignmentRemoteChange(alignment.toInt(),alignPos);
@@ -686,4 +687,19 @@ void KKClient::onCharFormatChanged(unsigned long pos, QString font_, QString col
      }
  }
 
+void KKClient::notifyAlignment(int alignStart, int alignEnd){ //prende l'allineamento delle righe da start a end dal textedit e manda un messaggio di cambio allineamento per quelle righr
+    unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol; //le colonne non serviranno
+    unsigned long pos;
+    int alignment;
+    crdt_->calculateLineCol(static_cast<unsigned long>(alignStart), &startAlignLine, &startAlignCol);
+    crdt_->calculateLineCol(static_cast<unsigned long>(alignEnd), &endAlignLine, &endAlignCol);
 
+    for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
+        pos = crdt_->generateGlobalPos(KKPosition(i,0));
+         alignment = editor_->getCurrentAlignment(static_cast<int>(pos));
+         if(crdt_->checkLine(i) || (crdt_->text.empty()&&i==0)){ //controlla che la riga esista
+            crdt_->setLineAlignment(static_cast<long>(i),static_cast<unsigned long>(alignment));
+            sendRequest(ALIGNMENT_CHANGE,NONE,{QString::number(alignment),QString::number(static_cast<int>(i)),QString::number(static_cast<int>(i))});
+         }
+    }
+}

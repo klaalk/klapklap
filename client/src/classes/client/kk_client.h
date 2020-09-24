@@ -75,6 +75,7 @@ private slots:
     //void onAlignmentChange(QString alignment);
     void onCharFormatChanged(unsigned long pos, QString font_, QString color_);
     void onAlignmentChange(int alignment, int alignStart, int alignEnd);
+    void notifyAlignment(int alignStart, int alignEnd);
     void logger(QString message);
 private:
     void initState();

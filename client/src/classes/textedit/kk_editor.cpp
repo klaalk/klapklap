@@ -75,6 +75,9 @@ KKEditor::KKEditor(QWidget *parent)
     connect(textEdit, &QTextEdit::cursorPositionChanged, this, &KKEditor::onCursorPositionChanged);
     connect(textEdit, &KKTextEdit::textChangedEvent, this, &KKEditor::onTextChange);
     connect(textEdit, &KKTextEdit::wheelEventTriggered, this, &KKEditor::updateLabels);
+    connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::alignmentNotifyEvent);
+
+
 
     // Set layout
     QHBoxLayout *layout = new QHBoxLayout;
