@@ -31,14 +31,6 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/classes/crdt/pos/kk_pos.h \
                 ../../libs/src/classes/crdt/identifier/kk_identifier.h \
                 ../../libs/src/classes/crypt/kk_crypt.h \
-                ../../libs/src/classes/dtl/Diff.hpp \
-                ../../libs/src/classes/dtl/Diff3.hpp \
-                ../../libs/src/classes/dtl/Lcs.hpp \
-                ../../libs/src/classes/dtl/Sequence.hpp \
-                ../../libs/src/classes/dtl/Ses.hpp \
-                ../../libs/src/classes/dtl/dtl.hpp \
-                ../../libs/src/classes/dtl/functors.hpp \
-                ../../libs/src/classes/dtl/variables.hpp \
                 ../../libs/src/classes/logger/kk_logger.h \
                 ../../libs/src/classes/payload/kk_payload.h \
                 ../../libs/src/constants/kk_constants.h \
