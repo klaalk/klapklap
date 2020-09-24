@@ -191,7 +191,7 @@ private:
     void updateCursors(QString siteId, int position, int value);
     void updateLabels();
     void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
-    int getCurrentAlignment(Qt::Alignment a);
+    int getCurrentAlignment(int pos);
     QBrush selectRandomColor();
 
     QAction *actionSave{};
