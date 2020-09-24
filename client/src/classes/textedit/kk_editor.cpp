@@ -147,6 +147,10 @@ KKEditor::KKEditor(QWidget *parent)
 #endif
 }
 
+void KKEditor::setLink(QString link){
+    this->link=link;
+}
+
 bool KKEditor::load(const QString &f)
 {
     if (!QFile::exists(f))
@@ -408,7 +412,9 @@ bool KKEditor::clickedAny() {
 
 void KKEditor::fileNew()
 {
-    emit openFileDialog();
+    QString link_ = (link != nullptr && !link.isEmpty()) ? link : "";
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(link_);
 }
 
 void KKEditor::closeEvent(QCloseEvent *e)
@@ -806,8 +812,8 @@ void KKEditor::setupFileActions()
     QToolBar *tb = addToolBar(tr("File Actions"));
     QMenu *menu = menuBar()->addMenu(tr("&File"));
 
-    const QIcon newIcon = QIcon::fromTheme("document-new", QIcon(rsrcPath + "/file.png"));
-    QAction *a = menu->addAction(newIcon,  tr("&New"), this, &KKEditor::fileNew);
+    const QIcon newIcon = QIcon::fromTheme("document-new", QIcon(rsrcPath + "/link.png"));
+    QAction *a = menu->addAction(newIcon,  tr("&Share"), this, &KKEditor::fileNew);
     tb->addAction(a);
     a->setPriority(QAction::LowPriority);
     a->setShortcut(QKeySequence::New);

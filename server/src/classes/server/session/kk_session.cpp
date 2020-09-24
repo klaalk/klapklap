@@ -277,6 +277,10 @@ void KKSession::connectToFile(QString filename)
     if (search != files->end()) {
         // Controllo se il file risulta tra quelli già aperti.
         file = files->value(filename);
+        if(file->partecipantExist(user->getUsername())){
+            sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: stai già partecipando al file"});
+            return;
+        }
 
     } else {
         // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
@@ -289,11 +293,14 @@ void KKSession::connectToFile(QString filename)
                     if (db->addFile(filename, file->getHash(), user->getUsername()) != DB_INSERT_FILE_SUCCESS) {
                         file = FILE_SYSTEM_CREATE_ERROR;
                         sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemnto del nuovo file nel database"});
+                        return;
                     }
                 }
 
-            } else
+            } else{
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: nome file già esistente"});
+                return;
+            }
 
         } else
             file = fileSystem->openFile(filename);
@@ -315,7 +322,7 @@ void KKSession::connectToFile(QString filename)
                 file->addUser(QString("%1:%2:%3").arg(user->getUsername(), user->getAlias(), user->getImage()));
 
                 sendFileInfo = true;
-                sendResponse(OPEN_FILE, SUCCESS, {"File aperto con successo, sei stato aggiunto come partecipante"});
+                sendResponse(OPEN_FILE, SUCCESS, {"File aperto con successo, sei stato aggiunto come partecipante",file->getHash()});
 
             } else
                 sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore in fase di inserimento partecipante per il file richiesto"});
@@ -323,7 +330,7 @@ void KKSession::connectToFile(QString filename)
         } else {
             file->join(sharedFromThis());
             sendFileInfo = true;
-            sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata"});
+            sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", file->getHash()});
         }
 
     } else

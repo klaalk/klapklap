@@ -47,9 +47,11 @@ public:
     void applyRemoteCharFormatChange(QStringList bodyList);
     int applyRemoteInsertSafe(QStringList bodyList);
     int applyRemoteCharFormatChangeSafe(QStringList bodyList);
+    int applyRemoteAlignmentChangeSafe (QStringList bodyList);
     void applyRemoteAlignmentChange(QStringList bodylist);
     void initCrdtText();
     void flushCrdtText();
+    bool partecipantExist(QString username);
 
     QStringList getCrdtText();
     QStringList getParticipants();

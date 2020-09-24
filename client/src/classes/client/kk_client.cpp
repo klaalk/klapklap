@@ -333,10 +333,11 @@ void KKClient::handleGetFilesResponse(KKPayload res)
 }
 
 void KKClient::handleOpenFileResponse(KKPayload res) {
-    Q_UNUSED(res)
+
     state_= CONNECTED_AND_OPENED;
     currentfileValid_ = true;
     initEditor();
+    editor_->setLink(res.getBodyList()[1]);
     openFile_.hide();
     editor_->show();
     chat_->show();
