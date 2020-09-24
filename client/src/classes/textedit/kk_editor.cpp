@@ -79,8 +79,6 @@ KKEditor::KKEditor(QWidget *parent)
     connect(textEdit->verticalScrollBar(), &QScrollBar::valueChanged, textEdit, &KKTextEdit::wheelEventTriggered);
     connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::alignmentNotifyEvent);
 
-
-
     // Set layout
     QHBoxLayout *layout = new QHBoxLayout;
     textEdit->setProperty("class", "TextEdit");
@@ -197,8 +195,6 @@ void KKEditor::alignmentRemoteChange(int alignment, unsigned long alignPos)
 {
     int curStartPos;
 
-
-
     curStartPos = textEdit->textCursor().position();
     QTextCursor tmpCursor = textEdit->textCursor();
     tmpCursor.setPosition(static_cast<int>(alignPos));
@@ -223,11 +219,10 @@ void KKEditor::alignmentRemoteChange(int alignment, unsigned long alignPos)
         actionAlignJustify->setChecked(true);
     }
 
-    tmpCursor.setPosition(curStartPos);
-    textEdit->setTextCursor(tmpCursor);
-
     updateLabels();
 
+    tmpCursor.setPosition(curStartPos);
+    textEdit->setTextCursor(tmpCursor);
 }
 //void KKEditor::applyRemoteAlignmentChange(QString alignment)
 //{
@@ -274,19 +269,22 @@ void KKEditor::applyRemoteFormatChange(int position, QString font, QString color
 
 void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteId, const QString& text, int position, const QString& font, const QString& color) {
 
-    blockCursor=true;
+    blockCursor = true;
 
     qDebug() << "[applyRemoteChanges]" << " value: " << text << " site id: " << siteId <<  " position: " << position << " font: " << font << " color: " << color;
 
     //Prelevo il cursore dell'editor.
     QTextCursor editorCurs = textEdit->textCursor();
     int myEditorCursPos = editorCurs.position();
+
     // Muovo il cursore dell'editor.
     editorCurs.setPosition(position);
 
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
+
        editorCurs.insertText(text);
+
        //Aggiorno formato
        applyRemoteFormatChange(position, font, color);
 
@@ -318,6 +316,8 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
 
     if (myEditorCursPos > position)
         editorCurs.setPosition(operation == CRDT_INSERT ? text.size() : -text.size());
+
+    textEdit->setTextCursor(editorCurs);
 
     blockCursor=false;
 }
@@ -438,22 +438,8 @@ void KKEditor::fileOpen()
 
 bool KKEditor::fileSave()
 {
-    if (fileName.isEmpty())
-        return fileSaveAs();
-    if (fileName.startsWith(QStringLiteral(":/")))
-        return fileSaveAs();
-
-    QTextDocumentWriter writer(fileName);
-    bool success = writer.write(textEdit->document());
-    if (success) {
-        textEdit->document()->setModified(false);
-        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
-    } else {
-        statusBar()->showMessage(tr("Could not write to file \"%1\"")
-                                 .arg(QDir::toNativeSeparators(fileName)));
-    }
     emit saveCRDTtoFile();
-    return success;
+    return true;
 }
 
 bool KKEditor::fileSaveAs()
@@ -766,13 +752,6 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
             emit insertTextToCRDT(diff.at(i).toLatin1(), static_cast<unsigned long>(start+i), cursor.charFormat().font().toString(), cursor.charFormat().foreground().color().name());
 
         }
-
-//    for (int i = 0; i < diff.length(); i++) {
-//        cursor.setPosition(start + i);
-//        cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
-//        //qDebug()<<"alignment:"<<getCurrentAlignment(cursor.blockFormat().alignment())<<cursor.blockFormat().alignment();
-//        emit (alignChange(getCurrentAlignment(cursor.blockFormat().alignment()),start+i,diff.length()));
-//     }
     }
 
     emit updateSiteIdsPositions(siteId);
