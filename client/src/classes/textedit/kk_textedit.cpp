@@ -77,7 +77,9 @@ void KKTextEdit::textUndo() {
     start = lastPos;
     lastText = toPlainText();
     undo();
-    sendDiffText();
+
+    if (keyCounter == 0)
+        sendDiffText();
 }
 
 void KKTextEdit::textRedo()
@@ -87,7 +89,9 @@ void KKTextEdit::textRedo()
     start = lastPos;
     lastText = toPlainText();
     redo();
-    sendDiffText();
+
+    if (keyCounter == 0)
+        sendDiffText();
 }
 
 void KKTextEdit::textCopy()
@@ -100,7 +104,9 @@ void KKTextEdit::textPaste()
     start = textCursor().position();
     lastText = toPlainText();
     paste();
-    sendDiffText();
+
+    if (keyCounter == 0)
+        sendDiffText();
 }
 
 void KKTextEdit::textCut()
@@ -108,7 +114,8 @@ void KKTextEdit::textCut()
     start = textCursor().position();
     lastText = toPlainText();
     cut();
-    sendDiffText();
+    if (keyCounter == 0)
+        sendDiffText();
 }
 
 void KKTextEdit::sendDiffText()
