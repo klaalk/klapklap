@@ -123,9 +123,8 @@ signals:
 public:
     KKEditor(QWidget *parent = nullptr);
     bool load(const QString &f);
-    void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
-    void alignmentRemoteChange(int alignment, unsigned long alignPos);
-    //void applyRemoteAlignmentChange(QString alignment);
+    void loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments);
+    void applyRemoteAlignmentChange(int alignment, int alignPos);
     void applyRemoteFormatChange(int position, QString font, QString color);
     void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);

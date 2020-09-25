@@ -173,31 +173,35 @@ bool KKEditor::load(const QString &f)
     return true;
 }
 
-void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt)
+void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments)
 {
-    QTextCursor editorCurs = textEdit->textCursor();
-
+    int startPos = 0;
+    unsigned long lineIdx = 0;
     for(const auto& line : crdt) {
+        if (lineIdx < alignments.size())
+            applyRemoteAlignmentChange(alignments.at(lineIdx++), startPos);
+
         for(const auto& charPtr : line) {
             applyRemoteChanges(CRDT_INSERT,
                                QString::fromStdString(charPtr->getSiteId()),
                                QChar::fromLatin1(charPtr->getValue()),
-                               editorCurs.position(),
+                               startPos,
                                charPtr->getKKCharFont(),
-                               charPtr->getKKCharColor()
-                               );
+                               charPtr->getKKCharColor());
+            startPos++;
         }
     }
 
     textEdit->document()->clearUndoRedoStacks();
 }
-void KKEditor::alignmentRemoteChange(int alignment, unsigned long alignPos)
+void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
-    int curStartPos;
+    qDebug() << "[applyRemoteAlignmentChange]" << " ALIGN: " << alignment << " POS: " << alignPos;
 
-    curStartPos = textEdit->textCursor().position();
     QTextCursor tmpCursor = textEdit->textCursor();
-    tmpCursor.setPosition(static_cast<int>(alignPos));
+    int curStartPos = tmpCursor.position();
+
+    tmpCursor.setPosition(alignPos);
     textEdit->setTextCursor(tmpCursor);
 
     QTextBlockFormat f;
@@ -223,28 +227,9 @@ void KKEditor::alignmentRemoteChange(int alignment, unsigned long alignPos)
 
     tmpCursor.setPosition(curStartPos);
     textEdit->setTextCursor(tmpCursor);
-}
-//void KKEditor::applyRemoteAlignmentChange(QString alignment)
-//{
-//    if (alignment=="left") {
-//        textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
-//        actionAlignLeft->setChecked(true);
-//    }
-//    else if (alignment=="center") {
-//        textEdit->setAlignment(Qt::AlignHCenter);
-//        actionAlignCenter->setChecked(true);
-//    }
-//    else if (alignment=="right") {
-//        textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
-//        actionAlignRight->setChecked(true);
-//    }
-//    else if (alignment=="justify") {
-//        textEdit->setAlignment(Qt::AlignJustify);
-//        actionAlignJustify->setChecked(true);
-//    }
 
-//    updateLabels();
-//}
+    qDebug() << "FINE ALIGNMENT";
+}
 
 void KKEditor::applyRemoteFormatChange(int position, QString font, QString color){
     qDebug() << "[applyRemoteFormatChange]" << " position: " << position << " font: " << font << " color: " << color;
@@ -282,14 +267,11 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
 
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
-
        editorCurs.insertText(text);
-
        //Aggiorno formato
        applyRemoteFormatChange(position, font, color);
 
     } else if(operation == CRDT_DELETE) {
-
        editorCurs.deleteChar();
     }
 

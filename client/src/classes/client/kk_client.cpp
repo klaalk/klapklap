@@ -349,7 +349,7 @@ void KKClient::handleLoadFileResponse(KKPayload res) {
         return;
 
     crdt_->loadCrdt(bodyList);
-    editor_->loadCrdt(crdt_->text);
+    editor_->loadCrdt(crdt_->text, crdt_->getLinesAlignment());
 }
 
 void KKClient::handleQuitFileResponse()
@@ -397,14 +397,14 @@ void KKClient::handleAlignmentChange(KKPayload response){
     QString alignment=bodyList[0];
     QString startAlignLine=bodyList[1];
     QString endAlignLine=bodyList[2];
-    unsigned long  alignPos;
+    int alignPos;
 
-    for(unsigned long i=startAlignLine.toULong();i<=endAlignLine.toULong();i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-        if(crdt_->checkLine(i) || (crdt_->text.empty()&&i==0)){ //controlla che la riga esista){ //controlla che la riga esista
-        crdt_->setLineAlignment(static_cast<long>(i),alignment.toULong());
-        alignPos = crdt_->generateGlobalPos(KKPosition(i,0));
-        editor_->alignmentRemoteChange(alignment.toInt(),alignPos);
-        }else{
+    for(unsigned long i = startAlignLine.toULong(); i <= endAlignLine.toULong(); i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
+        if(crdt_->checkLine(i) || (crdt_->text.empty() && i==0)){ //controlla che la riga esista){ //controlla che la riga esista
+            crdt_->setLineAlignment(i, alignment.toInt());
+            alignPos = static_cast<int>(crdt_->generateGlobalPos(KKPosition(i,0)));
+            editor_->applyRemoteAlignmentChange(alignment.toInt(), alignPos);
+        } else {
             break;
         }
     }

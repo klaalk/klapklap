@@ -20,8 +20,13 @@ using std::string;
 using std::shared_ptr;
 
 
+vector<int> KKCrdt::getLinesAlignment() const
+{
+    return linesAlignment;
+}
+
 KKCrdt::KKCrdt(string siteid, strategy strategy) : siteid(std::move(siteid)), boundary(10), _strategy(strategy), base(32) {
-linesAlignment.push_back(1);
+    linesAlignment.push_back(1);
 };
 
 KKCrdt::~KKCrdt() {
@@ -403,46 +408,74 @@ QStringList KKCrdt::saveCrdt(){
             crdt.push_back(crdtChar);
         }
     }
+    crdt.push_back("END");
+
+    // Scrivo alignment
+    for (int alignment : linesAlignment) {
+        qDebug() << "Align: " << alignment;
+        crdt.push_back(QVariant(alignment).toString());
+    }
+
     return crdt;
 }
 
 void KKCrdt::loadCrdt(QStringList crdt){
-    text.insert(text.end(), list<KKCharPtr>());
+    bool isCrdtText = true;
 
+    // Svuoto il testo
+    text.clear();
+
+    // Svuoto gli alignments
+    linesAlignment.clear();
+
+    text.insert(text.end(), list<KKCharPtr>());
     for(QString crdtChar : crdt) {
         if (crdtChar.isEmpty())
             continue;
 
-        QStringList fields;
-        int start = 0;
-        int nextFieldLength = 0;
-        do {
-            nextFieldLength = crdtChar.midRef(start, CRDT_FORMAT_LENGTH).toInt();
-            start += CRDT_FORMAT_LENGTH;
-            fields.append(crdtChar.mid(start, nextFieldLength));
-            start += nextFieldLength;
-        } while (start < crdtChar.size());
-
-        if (fields.isEmpty())
+        if (crdtChar == "END") {
+            isCrdtText = false;
             continue;
-
-        KKCharPtr charPtr = KKCharPtr(new KKChar(fields[0].at(0).toLatin1(), fields[1].toStdString()));
-
-        QStringList ids = fields[2].split(";");
-        for(QString id : ids) {
-            unsigned long val = stoul(id.toStdString(), nullptr, 0);
-            charPtr->pushIdentifier(shared_ptr<KKIdentifier>(new KKIdentifier(val, fields[1].toStdString())));
         }
 
-        charPtr->setKKCharFont(fields[3]);
-        charPtr->setKKCharColor(fields[4]);
-        text[text.size()-1].push_back(charPtr);
+        if (isCrdtText) {
+            QStringList fields;
+            int start = 0;
+            int nextFieldLength = 0;
+            do {
+                nextFieldLength = crdtChar.midRef(start, CRDT_FORMAT_LENGTH).toInt();
+                start += CRDT_FORMAT_LENGTH;
+                fields.append(crdtChar.mid(start, nextFieldLength));
+                start += nextFieldLength;
+            } while (start < crdtChar.size());
 
-        // Se il carattere e' un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
-        if (charPtr->getValue() == '\n') {
-            text.insert(text.end(), list<KKCharPtr>());
+            if (fields.isEmpty())
+                continue;
+
+            KKCharPtr charPtr = KKCharPtr(new KKChar(fields[0].at(0).toLatin1(), fields[1].toStdString()));
+
+            QStringList ids = fields[2].split(";");
+            for(QString id : ids) {
+                unsigned long val = stoul(id.toStdString(), nullptr, 0);
+                charPtr->pushIdentifier(shared_ptr<KKIdentifier>(new KKIdentifier(val, fields[1].toStdString())));
+            }
+
+            charPtr->setKKCharFont(fields[3]);
+            charPtr->setKKCharColor(fields[4]);
+            text[text.size()-1].push_back(charPtr);
+
+            // Se il carattere e' un 'a capo' si inserisce una nuova riga nel vettore di liste (text)
+            if (charPtr->getValue() == '\n') {
+                text.insert(text.end(), list<KKCharPtr>());
+            }
+
+        } else {
+            linesAlignment.push_back(crdtChar.toInt());
         }
     }
+
+    for (int align : linesAlignment)
+        qDebug() << "ALIGN BEFORE: " << align;
 }
 
 void KKCrdt::print() {
@@ -915,7 +948,6 @@ unsigned long KKCrdt::remoteFormatChange(const KKCharPtr& _char,QString font_, Q
 
 }
 
-
 KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font_, QString color_){
     list<KKCharPtr>::iterator ch;
     ch = std::next(text[pos.getLine()].begin(),static_cast<long>(pos.getCh()));
@@ -935,18 +967,17 @@ KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font_, QStrin
     return new_Char;
 }
 
-void KKCrdt::setLineAlignment(long idx,unsigned long align){
-    //*std::next(linesAlignment.begin(),idx)=align;
-    linesAlignment[static_cast<unsigned long>(idx)]=align;
+void KKCrdt::setLineAlignment(unsigned long idx, int align){
+    linesAlignment[idx] = align;
     return;
 }
 
-unsigned long KKCrdt::getLineAlignment( long idx){
-    //return *std::next(linesAlignment.begin(),idx);
-    return linesAlignment[static_cast<unsigned long>(idx)];
+int KKCrdt::getLineAlignment(unsigned long idx){
+    return linesAlignment[idx];
 }
+
 bool KKCrdt::checkLine(unsigned long lineIdx){
-    if(text.size()>lineIdx) return true;
+    if(text.size() > lineIdx) return true;
     return false;
 }
 
