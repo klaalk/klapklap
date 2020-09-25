@@ -312,8 +312,8 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     updateCursors(siteId, position, operation == CRDT_INSERT ? text.size() : -text.size());
 
-//    if (myEditorCursPos > position)
-//        editorCurs.setPosition(operation == CRDT_INSERT ? text.size() : -text.size());
+    if (myEditorCursPos > position)
+        editorCurs.setPosition(operation == CRDT_INSERT ? text.size() : -text.size());
     editorCurs.setPosition(myEditorCursPos);
 
     textEdit->setTextCursor(editorCurs);
