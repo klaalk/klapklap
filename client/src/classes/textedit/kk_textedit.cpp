@@ -9,14 +9,10 @@ KKTextEdit::KKTextEdit(QWidget *parent): QTextEdit(parent)
 void KKTextEdit::keyReleaseEvent(QKeyEvent *e)
 {
     /// Inizio a guardare le modifiche al testo se ho premuto almeno un tasto utile (NO CMD o CTRL)
-    qDebug() << "TEST: " << (e->text().size());
-
     if (keyCounter == 1) {
 
-        if (textChanged) {
-            qDebug() << "TEXT: " << e->text();
+        if (textChanged)
             sendDiffText();
-        }
 
         // Decremento i tasti premuti
         keyCounter--;
@@ -78,7 +74,7 @@ void KKTextEdit::textUndo() {
     lastText = toPlainText();
     undo();
 
-    if (keyCounter == 0)
+    if (keyCounter == 0 && textChanged)
         sendDiffText();
 }
 
@@ -90,7 +86,7 @@ void KKTextEdit::textRedo()
     lastText = toPlainText();
     redo();
 
-    if (keyCounter == 0)
+    if (keyCounter == 0 && textChanged)
         sendDiffText();
 }
 
@@ -105,7 +101,7 @@ void KKTextEdit::textPaste()
     lastText = toPlainText();
     paste();
 
-    if (keyCounter == 0)
+    if (keyCounter == 0 && textChanged)
         sendDiffText();
 }
 
@@ -114,7 +110,7 @@ void KKTextEdit::textCut()
     start = textCursor().position();
     lastText = toPlainText();
     cut();
-    if (keyCounter == 0)
+    if (keyCounter == 0 && textChanged)
         sendDiffText();
 }
 

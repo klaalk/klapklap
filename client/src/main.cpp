@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     KKClient client(QUrl(QStringLiteral("wss://localhost:3002")));
 
     // Public Server
-    //KKClient client(QUrl(QStringLiteral("wss://93.56.104.204:3002")));
+//    KKClient client(QUrl(QStringLiteral("wss://93.56.104.204:3002")));
 
     QApplication::setWindowIcon(QIcon(":/klapklap.icns"));
     Q_UNUSED(client)

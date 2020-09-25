@@ -174,13 +174,12 @@ void KKFile::applyRemoteAlignmentChange(QStringList bodyList){
     QString endAlignLine=bodyList[2];
 
     for(unsigned long i=startAlignLine.toULong();i<=endAlignLine.toULong();i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-        if (crdt->checkLine(i) || (crdt->text.empty() && i==0)) { //controlla che la riga esista
+        if (crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)) { //controlla che la riga esista
             crdt->setLineAlignment(static_cast<long>(i),alignment.toULong());
         } else {
             break;
         }
     }
-    crdt->printLinesAlignment();
 }
 
 void KKFile::flushCrdtText()
@@ -189,7 +188,7 @@ void KKFile::flushCrdtText()
     if(result){
         QTextStream stream(file.get());
         // Scrivo il crdt
-        QStringList crdtText = crdt->saveCrdt();
+        QStringList crdtText = crdt->encodeCrdt();
         for(QString crdtChar : crdtText) {
             stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
         }
@@ -204,9 +203,8 @@ void KKFile::flushCrdtText()
 
 QStringList KKFile::getCrdtText()
 {
-    return crdt->saveCrdt();
+    return crdt->encodeCrdt();
 }
-
 
 QStringList KKFile::getParticipants()
 {
@@ -237,11 +235,9 @@ int KKFile::getParticipantCounter() const
 }
 
 void KKFile::handleTimeout() {
-
     if (participants->size() > 0) {
         flushCrdtText();
     }
-
 }
 
 void KKFile::initCrdtText()
@@ -263,9 +259,8 @@ void KKFile::initCrdtText()
 
 
         if(!text.isEmpty()) {
-            crdt->loadCrdt(text);
+            crdt->decodeCrdt(text);
         }
-        //crdt->print();
         file.get()->close();
     }
 }

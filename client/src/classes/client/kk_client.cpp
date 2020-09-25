@@ -58,38 +58,38 @@ void KKClient::initState() {
 void KKClient::initEditor()
 {
     logger("Inizializzazione editor...");
-    if (crdt_ != nullptr) delete crdt_;
-    crdt_ = new KKCrdt(user_->getUsername().toStdString(), casuale);
+    if (crdt != nullptr) delete crdt;
+    crdt = new KKCrdt(user->getUsername().toStdString(), casuale);
 
-    if (chat_ != nullptr) delete chat_;
-    chat_ = new ChatDialog();
+    if (chat != nullptr) delete chat;
+    chat = new ChatDialog();
 
-    if (editor_ != nullptr) delete editor_;
-    editor_ = new KKEditor();
+    if (editor != nullptr) delete editor;
+    editor = new KKEditor();
 
 
     // Gestisco le richieste dell'editor
-    connect(editor_, &KKEditor::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
-    connect(editor_, &KKEditor::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
-    connect(editor_, &KKEditor::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
-    connect(editor_, &KKEditor::alignChange, this, &KKClient::onAlignmentChange);
-    connect(editor_, &KKEditor::alignmentNotifyEvent, this, &KKClient::notifyAlignment);
-    connect(editor_,&KKEditor::charFormatChange, this, &KKClient::onCharFormatChanged);
-    connect(editor_, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
-    connect(editor_, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialog);
-    connect(editor_, &KKEditor::editorClosed, this, &KKClient::onEditorClosed);
+    connect(editor, &KKEditor::insertTextToCRDT, this, &KKClient::onInsertTextCrdt);
+    connect(editor, &KKEditor::removeTextFromCRDT, this, &KKClient::onRemoveTextCrdt);
+    connect(editor, &KKEditor::saveCRDTtoFile, this, &KKClient::onSaveCrdtToFile);
+    connect(editor, &KKEditor::alignChange, this, &KKClient::onAlignmentChange);
+    connect(editor, &KKEditor::alignmentNotifyEvent, this, &KKClient::notifyAlignment);
+    connect(editor,&KKEditor::charFormatChange, this, &KKClient::onCharFormatChanged);
+    connect(editor, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
+    connect(editor, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialog);
+    connect(editor, &KKEditor::editorClosed, this, &KKClient::onEditorClosed);
 
-    editor_->setChatDialog(chat_);
-    editor_->setMySiteId(user_->getUsername());
-    editor_->setCurrentFileName(currentfile_);
-    editor_->hide();
+    editor->setChatDialog(chat);
+    editor->setMySiteId(user->getUsername());
+    editor->setCurrentFileName(currentfile_);
+    editor->hide();
 
     // Gestisco le richieste della chat
-    connect(chat_, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
-    connect(chat_, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
+    connect(chat, &ChatDialog::sendMessageEvent, this, &KKClient::sendMessageRequest);
+    connect(chat, &ChatDialog::siteIdClicked, this, &KKClient::onSiteIdClicked);
 
-    chat_->setNickName(user_->getAlias());
-    chat_->hide();
+    chat->setNickName(user->getAlias());
+    chat->hide();
 
     logger("Inizializzazione editor completata");
 }
@@ -166,22 +166,22 @@ void KKClient::handleSuccessResponse(KKPayload response) {
 
     } else if(response.getRequestType() == CHAT) {
         QStringList bodyList = response.getBodyList();
-        chat_->appendMessage(bodyList[0], bodyList[1]);
+        chat->appendMessage(bodyList[0], bodyList[1]);
 
     } else if(response.getRequestType() == SET_PARTECIPANTS) {
         QStringList participants = response.getBodyList();
-        chat_->setParticipants(participants);
-        editor_->setParticipantAlias(participants);
+        chat->setParticipants(participants);
+        editor->setParticipantAlias(participants);
 
     } else if(response.getRequestType() == ADDED_PARTECIPANT) {
         QStringList params = response.getBodyList();
-        chat_->addParticipant(params.at(0), params.at(1), params.at(2));
-        editor_->addParticipant(params.at(0), params.at(1));
+        chat->addParticipant(params.at(0), params.at(1), params.at(2));
+        editor->addParticipant(params.at(0), params.at(1));
 
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
         QStringList params = response.getBodyList();
-        chat_->removeParticipant(params.at(0), params.at(1));
-        editor_->removeParticipant(params.at(0));
+        chat->removeParticipant(params.at(0), params.at(1));
+        editor->removeParticipant(params.at(0));
 
     } else if(response.getRequestType() == ALIGNMENT_CHANGE){
         handleAlignmentChange(response);
@@ -268,24 +268,24 @@ void KKClient::handleLoginResponse(KKPayload res) {
     // La risposta dovrebbe contenere le info dell'utente e poi i suoi file
     QStringList params = res.getBodyList();
 
-    if (user_ != nullptr) delete user_;
-    user_ = new KKUser();
+    if (user != nullptr) delete user;
+    user = new KKUser();
 
-    user_->setName(params.at(0));
-    user_->setSurname(params.at(1));
-    user_->setEmail(params.at(2));
-    user_->setUsername(params.at(4));
-    user_->setAlias(params.at(5));
-    user_->setRegistrationDate(params.at(6));
-    user_->setImage(params.at(7));
+    user->setName(params.at(0));
+    user->setSurname(params.at(1));
+    user->setEmail(params.at(2));
+    user->setUsername(params.at(4));
+    user->setAlias(params.at(5));
+    user->setRegistrationDate(params.at(6));
+    user->setImage(params.at(7));
 
     openFile_.clear();
-    openFile_.setUser(user_);
+    openFile_.setUser(user);
     openFile_.setUserFiles(params.mid(8, params.size()));
 
     access_.hide();
     openFile_.show();
-    logger("[handleLoginResponse] - Site id: " + user_->getUsername());
+    logger("[handleLoginResponse] - Site id: " + user->getUsername());
 }
 
 void KKClient::handleLogoutResponse(KKPayload res) {
@@ -295,11 +295,11 @@ void KKClient::handleLogoutResponse(KKPayload res) {
     currentfileValid_ = false;
     openFile_.hide();
 
-    if (editor_ != nullptr)
-        editor_->hide();
+    if (editor != nullptr)
+        editor->hide();
 
-    if (chat_ != nullptr)
-        chat_->hide();
+    if (chat != nullptr)
+        chat->hide();
 
     access_.showLoader(false);
     access_.showLogin();
@@ -308,11 +308,11 @@ void KKClient::handleLogoutResponse(KKPayload res) {
 
 void KKClient::handleUpdateUserResponse()
 {
-    if (user_ != nullptr) {
-        user_->setAlias(openFile_.getAlias());
-        user_->setName(openFile_.getName());
-        user_->setSurname(openFile_.getSurname());
-        user_->setImage(openFile_.getAvatar());
+    if (user != nullptr) {
+        user->setAlias(openFile_.getAlias());
+        user->setName(openFile_.getName());
+        user->setSurname(openFile_.getSurname());
+        user->setImage(openFile_.getAvatar());
     }
     modal_.setModal("Le tue informazioni sono state aggiornate con susccesso", "Chiudi", GENERIC_SUCCESS);
     modal_.show();
@@ -337,10 +337,10 @@ void KKClient::handleOpenFileResponse(KKPayload res) {
     state_= CONNECTED_AND_OPENED;
     currentfileValid_ = true;
     initEditor();
-    editor_->setLink(res.getBodyList()[1]);
+    editor->setLink(res.getBodyList()[1]);
     openFile_.hide();
-    editor_->show();
-    chat_->show();
+    editor->show();
+    chat->show();
 }
 
 void KKClient::handleLoadFileResponse(KKPayload res) {
@@ -348,17 +348,17 @@ void KKClient::handleLoadFileResponse(KKPayload res) {
     if (bodyList.isEmpty())
         return;
 
-    crdt_->loadCrdt(bodyList);
-    editor_->loadCrdt(crdt_->text, crdt_->getLinesAlignment());
+    crdt->decodeCrdt(bodyList);
+    editor->loadCrdt(crdt->getText(), crdt->getLinesAlignment());
 }
 
 void KKClient::handleQuitFileResponse()
 {
-    if (editor_ != nullptr)
-        editor_->hide();
+    if (editor != nullptr)
+        editor->hide();
 
-    if (chat_ != nullptr)
-        chat_->hide();
+    if (chat != nullptr)
+        chat->hide();
 
     sendGetFilesRequest();
 }
@@ -385,10 +385,10 @@ void KKClient::handleCrdtResponse(KKPayload response) {
         char_->pushIdentifier(KKIdentifierPtr(new KKIdentifier(ids[i].toULong(), siteId.toStdString())));
     }
 
-    unsigned long remotePos = isInsert ? crdt_->remoteInsert(char_) : crdt_->remoteDelete(char_);
+    unsigned long remotePos = isInsert ? crdt->remoteInsert(char_) : crdt->remoteDelete(char_);
     siteId = isInsert ? siteId : bodyList_[1];
-    editor_->applyRemoteChanges(bodyList_[0], siteId, text, static_cast<int>(remotePos), char_->getKKCharFont(), char_->getKKCharColor());
-    editor_->applySiteIdsPositions(siteId, findPositions(siteId));
+    editor->applyRemoteChanges(bodyList_[0], siteId, text, static_cast<int>(remotePos), char_->getKKCharFont(), char_->getKKCharColor());
+    editor->applySiteIdsPositions(siteId, findPositions(siteId));
 }
 
 void KKClient::handleAlignmentChange(KKPayload response){
@@ -400,10 +400,10 @@ void KKClient::handleAlignmentChange(KKPayload response){
     int alignPos;
 
     for(unsigned long i = startAlignLine.toULong(); i <= endAlignLine.toULong(); i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-        if(crdt_->checkLine(i) || (crdt_->text.empty() && i==0)){ //controlla che la riga esista){ //controlla che la riga esista
-            crdt_->setLineAlignment(i, alignment.toInt());
-            alignPos = static_cast<int>(crdt_->generateGlobalPos(KKPosition(i,0)));
-            editor_->applyRemoteAlignmentChange(alignment.toInt(), alignPos);
+        if(crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)){ //controlla che la riga esista){ //controlla che la riga esista
+            crdt->setLineAlignment(i, alignment.toInt());
+            alignPos = static_cast<int>(crdt->calculateGlobalPosition(KKPosition(i,0)));
+            editor->applyRemoteAlignmentChange(alignment.toInt(), alignPos);
         } else {
             break;
         }
@@ -426,8 +426,8 @@ void KKClient::handleCharFormatChange(KKPayload response){
         KKIdentifierPtr ptr = KKIdentifierPtr(new KKIdentifier(digit, siteId.toStdString()));
         char_->pushIdentifier(ptr);
     }
-    unsigned long remotePos = crdt_->remoteFormatChange(char_,fontStr,colorStr);
-    editor_->applyRemoteFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
+    unsigned long remotePos = crdt->remoteFormatChange(char_,fontStr,colorStr);
+    editor->applyRemoteFormatChange(static_cast <int>(remotePos),fontStr,colorStr);
     //editor_->applySiteIdsPositions(siteId, findPositions(siteId));
 }
 
@@ -501,8 +501,8 @@ void KKClient::sendOpenFileRequest(const QString& link, const QString& fileName)
     currentfileValid_ = false;
 
     if (state_ == CONNECTED_AND_OPENED) {
-        chat_->close();
-        editor_->close();
+        chat->close();
+        editor->close();
     }
 
     bool sended = sendRequest(OPEN_FILE, NONE, {link});
@@ -522,7 +522,7 @@ void KKClient::sendMessageRequest(QString username, QString message) {
 
 void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar)
 {
-    bool result = sendRequest(UPDATE_USER, NONE, {user_->getUsername(), name, surname, alias, avatar});
+    bool result = sendRequest(UPDATE_USER, NONE, {user->getUsername(), name, surname, alias, avatar});
     if (!result || !socket_.isValid()) {
         modal_.setModal("Non è stato possibile aggiornare l'account", "Chiudi", GENERIC_ERROR);
         modal_.show();
@@ -555,7 +555,7 @@ bool KKClient::sendRequest(QString type, QString result, QStringList values) {
 
 void KKClient::logger(QString message)
 {
-    QString identifier = (user_!=nullptr) ? user_->getUsername() : "unknown";
+    QString identifier = (user!=nullptr) ? user->getUsername() : "unknown";
     KKLogger::log(message, QString("CLIENT - %1").arg(identifier));
 }
 
@@ -578,11 +578,11 @@ void KKClient::handleModalButtonClick(const QString& btnText, const QString& mod
         access_.showLoader(false);
 
     } else if (modalType == UPDATE_USER_ERROR) {
-        openFile_.setUser(user_);
+        openFile_.setUser(user);
 
     } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR || modalType == INPUT_ERROR) {
         modal_.hide();
-        editor_->close();
+        editor->close();
 
     } else if (modalType == OPENFILE_ERROR) {
         modal_.hide();
@@ -608,31 +608,31 @@ void KKClient::handleModalClosed(const QString& modalType) {
 
 void KKClient::onInsertTextCrdt(char value, unsigned long position, QString font_, QString color_) {
     unsigned long line, col;
-    crdt_->calculateLineCol(position, &line, &col);
-    KKCharPtr char_ = crdt_->localInsert(value, KKPosition(line, col), font_, color_);
+    crdt->calculateLineCol(position, &line, &col);
+    KKCharPtr char_ = crdt->localInsert(value, KKPosition(line, col), font_, color_);
     QString ids = QString::fromStdString(char_->getIdentifiersString());
     sendCrdtRequest({CRDT_INSERT, QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids , font_, color_});
 }
 
 void KKClient::onRemoveTextCrdt(unsigned long start, unsigned long end) {
     unsigned long startLine, endLine, startCol, endCol;
-    crdt_->calculateLineCol(start, &startLine, &startCol);
-    crdt_->calculateLineCol(end, &endLine, &endCol);
-    list<KKCharPtr> deletedChars = crdt_->localDelete(KKPosition(startLine, startCol), KKPosition(endLine, endCol));
+    crdt->calculateLineCol(start, &startLine, &startCol);
+    crdt->calculateLineCol(end, &endLine, &endCol);
+    list<KKCharPtr> deletedChars = crdt->localDelete(KKPosition(startLine, startCol), KKPosition(endLine, endCol));
 
-    QTextCharFormat format = editor_->getTextEdit()->textCursor().charFormat();
+    QTextCharFormat format = editor->getTextEdit()->textCursor().charFormat();
     QString font_= format.font().toString();
     QString color_= format.foreground().color().name();
 
     std::for_each(deletedChars.begin(), deletedChars.end(),[&](const KKCharPtr& char_){
         QString ids = QString::fromStdString(char_->getIdentifiersString());
-        sendCrdtRequest({CRDT_DELETE, user_->getUsername(), QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids, font_, color_});
+        sendCrdtRequest({CRDT_DELETE, user->getUsername(), QString::fromStdString(char_->getSiteId()), QString(char_->getValue()), ids, font_, color_});
     });
 }
 
 void KKClient::onSaveCrdtToFile() {
     if(currentfileValid_) {
-        sendRequest(SAVE_FILE, NONE, {crdt_->getSiteId(), currentfile_});
+        sendRequest(SAVE_FILE, NONE, {crdt->getSiteId(), currentfile_});
     }
 }
 
@@ -643,7 +643,7 @@ void KKClient::onOpenFileDialog() {
 QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
     QSharedPointer<QList<int>> myList = QSharedPointer<QList<int>>(new QList<int>());
     int global = 0;
-    for(const list<KKCharPtr>& linea: crdt_->text){
+    for(const list<KKCharPtr>& linea: crdt->getText()){
         for(const KKCharPtr& carattere: linea){
             if(carattere->getSiteId() == siteId.toStdString()){
                 myList->push_front(global);
@@ -657,50 +657,52 @@ QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
 void KKClient::onSiteIdClicked(const QString& siteId)
 {
     onUpdateSiteIdsPositions(siteId);
-    editor_->applySiteIdClicked(siteId);
+    editor->applySiteIdClicked(siteId);
 }
 
 void KKClient::onUpdateSiteIdsPositions(const QString &siteId)
 {
-    editor_->applySiteIdsPositions(siteId, findPositions(siteId));
+    editor->applySiteIdsPositions(siteId, findPositions(siteId));
 }
 
 void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
     unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol; //le colonne non serviranno
-    crdt_->calculateLineCol(static_cast<unsigned long>(alignStart), &startAlignLine, &startAlignCol);
-    crdt_->calculateLineCol(static_cast<unsigned long>(alignEnd), &endAlignLine, &endAlignCol);
+    crdt->calculateLineCol(static_cast<unsigned long>(alignStart), &startAlignLine, &startAlignCol);
+    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), &endAlignLine, &endAlignCol);
 
-    for(unsigned long i=startAlignLine;i<=endAlignLine;i++){//aggiorno il crdt con gli allineamenti
-         crdt_->setLineAlignment(static_cast<long>(i),static_cast<unsigned long>(alignment));
+    for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
+        // Aggiorno il crdt con gli allineamenti
+        crdt->setLineAlignment(static_cast<unsigned long>(i), alignment);
     }
-       crdt_->printLinesAlignment();
     sendRequest(ALIGNMENT_CHANGE,NONE,{QString::number(alignment),QString::number(static_cast<int>(startAlignLine)),QString::number(static_cast<int>(endAlignLine))});
 }
 
 
 void KKClient::onCharFormatChanged(unsigned long pos, QString font_, QString color_){
-     unsigned long line, col;
-     crdt_->calculateLineCol(pos, &line, &col);
-     KKCharPtr _char = crdt_->changeSingleKKCharFormat(KKPosition(line, col), font_, color_);
-     if (_char != nullptr) {
-         QString ids = QString::fromStdString(_char->getIdentifiersString());
-         sendRequest(CHARFORMAT_CHANGE, NONE, {user_->getUsername(), QString::fromStdString(_char->getSiteId()), QString(_char->getValue()), ids, font_, color_});
-     }
- }
+    unsigned long line, col;
+    crdt->calculateLineCol(pos, &line, &col);
+    KKCharPtr _char = crdt->changeSingleKKCharFormat(KKPosition(line, col), font_, color_);
+    if (_char != nullptr) {
+        QString ids = QString::fromStdString(_char->getIdentifiersString());
+        sendRequest(CHARFORMAT_CHANGE, NONE, {user->getUsername(), QString::fromStdString(_char->getSiteId()), QString(_char->getValue()), ids, font_, color_});
+    }
+}
 
 void KKClient::notifyAlignment(int alignStart, int alignEnd){ //prende l'allineamento delle righe da start a end dal textedit e manda un messaggio di cambio allineamento per quelle righr
     unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol; //le colonne non serviranno
     unsigned long pos;
     int alignment;
-    crdt_->calculateLineCol(static_cast<unsigned long>(alignStart), &startAlignLine, &startAlignCol);
-    crdt_->calculateLineCol(static_cast<unsigned long>(alignEnd), &endAlignLine, &endAlignCol);
+    crdt->calculateLineCol(static_cast<unsigned long>(alignStart), &startAlignLine, &startAlignCol);
+    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), &endAlignLine, &endAlignCol);
 
     for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
-        pos = crdt_->generateGlobalPos(KKPosition(i,0));
-         alignment = editor_->getCurrentAlignment(static_cast<int>(pos));
-         if(crdt_->checkLine(i) || (crdt_->text.empty()&&i==0)){ //controlla che la riga esista
-            crdt_->setLineAlignment(static_cast<long>(i),static_cast<unsigned long>(alignment));
-            sendRequest(ALIGNMENT_CHANGE,NONE,{QString::number(alignment),QString::number(static_cast<int>(i)),QString::number(static_cast<int>(i))});
-         }
+        pos = crdt->calculateGlobalPosition(KKPosition(i,0));
+        alignment = editor->getCurrentAlignment(static_cast<int>(pos));
+
+        // Controlla che la riga esista
+        if(crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)){
+            crdt->setLineAlignment(static_cast<unsigned long>(i), alignment);
+            sendRequest(ALIGNMENT_CHANGE,NONE,{QString::number(alignment), QString::number(static_cast<int>(i)), QString::number(static_cast<int>(i))});
+        }
     }
 }

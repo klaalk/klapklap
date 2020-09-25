@@ -72,11 +72,11 @@ private slots:
     void onOpenFileDialog();
     void onSiteIdClicked(const QString& siteId);
     void onUpdateSiteIdsPositions(const QString& siteId);
-    //void onAlignmentChange(QString alignment);
     void onCharFormatChanged(unsigned long pos, QString font_, QString color_);
     void onAlignmentChange(int alignment, int alignStart, int alignEnd);
     void notifyAlignment(int alignStart, int alignEnd);
     void logger(QString message);
+
 private:
     void initState();
     void initEditor();
@@ -111,10 +111,10 @@ private:
     OpenFileDialog openFile_;
     ModalDialog modal_;
 
-    KKUser* user_{};
-    KKCrdt* crdt_{};
-    KKEditor* editor_{};
-    ChatDialog* chat_{};
+    KKUser* user{};
+    KKCrdt* crdt{};
+    KKEditor* editor{};
+    ChatDialog* chat{};
 };
 
 typedef std::shared_ptr<KKClient> KKClientPtr;
