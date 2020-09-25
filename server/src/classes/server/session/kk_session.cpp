@@ -251,7 +251,7 @@ void KKSession::handleCrdtRequest(KKPayload request) {
 }
 
 void KKSession::handleAlignChangeRequest(KKPayload request){
-    if(file->deliver(ALIGNMENT_CHANGE, SUCCESS, request.getBodyList(), user->getUsername())<0){
+    if(file->deliver(ALIGNMENT_CHANGE, SUCCESS, request.getBodyList(), "All")<0){
         disconnectFromFile();
         sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
     }

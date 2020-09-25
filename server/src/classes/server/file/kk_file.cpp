@@ -4,6 +4,8 @@
 
 #include "kk_file.h"
 
+#include <QVariant>
+
 KKFile::KKFile(QObject *parent): QObject(parent) {
     recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
@@ -33,23 +35,23 @@ void KKFile::leave(KKParticipantPtr participant) {
 int KKFile::deliver(QString type, QString result, QStringList message, QString username) {
     KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
     int code=0; //TODO: check if is better 0
-    bool toAll=false;
+
     if (type == CRDT) {
-        code=applyRemoteInsertSafe(data->getBodyList());
+        code = applyRemoteInsertSafe(data->getBodyList());
     } else if (type == CHARFORMAT_CHANGE) {
-        code=applyRemoteCharFormatChangeSafe(data->getBodyList());
+        code = applyRemoteCharFormatChangeSafe(data->getBodyList());
+    } else if(type==ALIGNMENT_CHANGE){
+        code = applyRemoteAlignmentChangeSafe(data->getBodyList());
     } else if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
         recentMessages->push_back(data);
-    }else if(type==ALIGNMENT_CHANGE){
-        toAll=true; //per inviare il messaggio a tutti (mittente compreso)
-        code=applyRemoteAlignmentChangeSafe(data->getBodyList());
     }
+
     while (recentMessages->size() > MaxRecentMessages)
         recentMessages->pop_front();
 
     if (!participants->isEmpty()) {
         std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
-            if(p->id != username || toAll) {
+            if(p->id != username) {
                 p->deliver(data);
             }
         });
@@ -171,11 +173,10 @@ void KKFile::applyRemoteAlignmentChange(QStringList bodyList){
     QString startAlignLine=bodyList[1];
     QString endAlignLine=bodyList[2];
 
-
     for(unsigned long i=startAlignLine.toULong();i<=endAlignLine.toULong();i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-        if(crdt->checkLine(i)){ //controlla che la riga esista
-        crdt->setLineAlignment(static_cast<long>(i),alignment.toULong());
-        }else{
+        if (crdt->checkLine(i) || (crdt->text.empty() && i==0)) { //controlla che la riga esista
+            crdt->setLineAlignment(static_cast<long>(i),alignment.toULong());
+        } else {
             break;
         }
     }
@@ -184,11 +185,11 @@ void KKFile::applyRemoteAlignmentChange(QStringList bodyList){
 
 void KKFile::flushCrdtText()
 {
-    QStringList crdtText = crdt->saveCrdt();
-
     bool result = file.get()->open(QIODevice::WriteOnly | QIODevice::Text);
     if(result){
         QTextStream stream(file.get());
+        // Scrivo il crdt
+        QStringList crdtText = crdt->saveCrdt();
         for(QString crdtChar : crdtText) {
             stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
         }

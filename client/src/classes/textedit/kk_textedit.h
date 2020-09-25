@@ -2,6 +2,8 @@
 #define KKTEXTEDIT_H
 
 #include <QTextEdit>
+#include <QKeyEvent>
+#include <QtDebug>
 
 #define DELETE "DELETE"
 #define INSERT "INSERT"
@@ -22,6 +24,7 @@ public:
     void wheelEvent(QWheelEvent *e) override;
 
 public slots:
+    void handleTextChange();
     void textUndo();
     void textRedo();
     void textCopy();
@@ -29,7 +32,6 @@ public slots:
     void textCut();
 private:
     void sendDiffText();
-
     int lastPos = -1;
     int start = -1;
     int end = -1;
@@ -39,6 +41,7 @@ private:
     /// Variabile che conta quanti tasti ho premuto
     int keyCounter = 0;
     bool wasSelected = false;
+    bool textChanged = false;
     QString lastText;
 };
 

@@ -15,7 +15,6 @@
 #include <QLabel>
 #include <QListWidgetItem>
 
-#include "../../../../libs/src/classes/dtl/dtl.hpp"
 #include "../../../../libs/src/classes/crdt/char/kk_char.h"
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crdt/identifier/kk_identifier.h"
@@ -124,9 +123,8 @@ signals:
 public:
     KKEditor(QWidget *parent = nullptr);
     bool load(const QString &f);
-    void loadCrdt(std::vector<std::list<KKCharPtr>> crdt);
-    void alignmentRemoteChange(int alignment, unsigned long alignPos);
-    //void applyRemoteAlignmentChange(QString alignment);
+    void loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments);
+    void applyRemoteAlignmentChange(int alignment, int alignPos);
     void applyRemoteFormatChange(int position, QString font, QString color);
     void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);
@@ -230,25 +228,33 @@ private:
     QMap<QString, QBrush> siteIdsColors;
     QList<QString> siteIdsClicked;
     QMap<QString, QString> participantsAlias;
-    QList<QBrush> colors_={QColor(244,67,54,127),
-                           QColor(240,98,146,71),
+
+    QList<QBrush> primaryColors_={QColor(255,179,216,255),
+                                    QColor(240,98,146,71),
+                                    QColor(140,158,255,127),
+                                    QColor(143,207,255,255),
+                                    QColor(29,233,182,96),
+                                    QColor(255,235,59,153),
+                                    QColor(245,124,0,140),
+                                    QColor(255,106,116,214),
+                                    QColor(172,255,154,255),
+                                    QColor(0,214,127,201)
+    };
+    QList<QBrush> secondaryColors_={QColor(244,67,54,127),
                            QColor(156,39,176,71),
                            QColor(94,53,177,96),
-                           QColor(140,158,255,127),
                            QColor(21,101,192,89),
-                           QColor(3,169,244,76),
                            QColor(0,188,212,102),
-                           QColor(29,233,182,96),
                            QColor(0,150,136,107),
                            QColor(76,175,80,104),
                            QColor(156,204,101,99),
                            QColor(205,220,57,153),
-                           QColor(255,235,59,153),
-                           QColor(245,124,0,140),
                            QColor(255,193,7,165),
                            QColor(255,87,34,102),
                            QColor(121,85,72,114),
                            QColor(158,158,158,102),
+                           QColor(3,169,244,76),
+                           QColor(255,193,140,216),
                            QColor(96,125,139,102)
                           };
 
