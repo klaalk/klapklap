@@ -313,8 +313,8 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
     updateCursors(siteId, position, operation == CRDT_INSERT ? text.size() : -text.size());
 
     if (myEditorCursPos > position)
-        editorCurs.setPosition(operation == CRDT_INSERT ? text.size() : -text.size());
-    editorCurs.setPosition(myEditorCursPos);
+        editorCurs.setPosition(operation == CRDT_INSERT ? myEditorCursPos+text.size() : myEditorCursPos-text.size());
+    else editorCurs.setPosition(myEditorCursPos);
 
     textEdit->setTextCursor(editorCurs);
 
