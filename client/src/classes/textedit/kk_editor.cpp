@@ -1131,10 +1131,11 @@ void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, 
 
 QBrush KKEditor::selectRandomColor(){
     QBrush color;
-    do{
-        int index=rand() % colors_.size();
-        color= colors_.at(index);
+    int index;
+    if(primaryColors_.size()!=0){
+        index=rand() % primaryColors_.size();
+        return primaryColors_.takeAt(index);
     }
-    while (siteIdsColors.values().contains(color));
-    return color;
+    index=rand() % secondaryColors_.size();
+    return secondaryColors_.takeAt(index);
 }

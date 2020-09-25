@@ -4,7 +4,7 @@
 
 #define  HOST "localhost"
 #define  PORT 3306
-#define  USR  "michele"
+#define  USR  "root"
 #define  DBN  "klapklap"
 #define  PSW  ""
 
