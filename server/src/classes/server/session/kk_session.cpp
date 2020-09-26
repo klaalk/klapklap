@@ -235,7 +235,7 @@ void KKSession::handleLoadFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
 
     KKTask *mytask = new KKTask([=]() {
-        this->sendResponse(LOAD_FILE, SUCCESS, file->getCrdtText());
+        sendResponse(LOAD_FILE, SUCCESS, file->getCrdtText());
     });
     mytask->setAutoDelete(true);
     QThreadPool::globalInstance()->start(mytask);

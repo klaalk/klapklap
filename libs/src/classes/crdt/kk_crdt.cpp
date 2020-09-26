@@ -14,6 +14,10 @@ KKCrdt::KKCrdt(string siteid, KKStrategy strategy) : siteId(std::move(siteid)), 
 }
 
 KKCrdt::~KKCrdt() {
+    clear();
+}
+
+void KKCrdt::clear() {
     text.clear();
     strategyCache.clear();
     linesAlignment.clear();
@@ -53,13 +57,7 @@ QString KKCrdt::encodeCrdtChar(KKCharPtr charPtr)
 
 void KKCrdt::decodeCrdt(QStringList encodedCrdt){
     bool isCrdtText = true;
-
-    // Svuoto il testo
-    text.clear();
-
-    // Svuoto gli alignments
-    linesAlignment.clear();
-
+    clear();
     text.insert(text.end(), list<KKCharPtr>());
     for(QString crdtChar : encodedCrdt) {
         if (crdtChar.isEmpty())
@@ -105,6 +103,19 @@ KKCharPtr KKCrdt::decodeCrdtChar(QString encodedChar)
     return charPtr;
 }
 
+bool KKCrdt::canInsert(unsigned long start, unsigned long end)
+{
+    long line = static_cast<long>(start);
+    long col = static_cast<long>(end);
+    long lines = static_cast<long>(text.size());
+    long cols = static_cast<long>(text[start].size());
+    if (line < 0 || col < 0) return false;
+    if (line > lines) return false;
+    if (line <= lines && col > cols) return false;
+
+    return true;
+}
+
 KKCharPtr KKCrdt::localInsert(char val, KKPosition pos, QString font, QString color) {
     KKCharPtr newChar = generateChar(val, pos);
     newChar->setKKCharFont(font);
@@ -114,37 +125,42 @@ KKCharPtr KKCrdt::localInsert(char val, KKPosition pos, QString font, QString co
 }
 
 list<KKCharPtr> KKCrdt::localDelete(KKPosition startPos, KKPosition endPos){
-    bool newLineRemoved=false;
-    int alignFirstRow= linesAlignment[0];
+    int alignFirstRow = linesAlignment[0];
+    bool newLineRemoved = false;
     list<KKCharPtr> chars;
 
-    // controlla se hai cancellato su piu di una riga
+    if (startPos.getLine() > endPos.getLine())
+        return chars;
+
+    // Controlla se hai cancellato su piu di una riga
     if(startPos.getLine() != endPos.getLine()){
         newLineRemoved = true;
-        chars = deleteMultipleLines(startPos,endPos);
+        chars = deleteMultipleLines(startPos, endPos);        
     } else {
         chars = deleteSingleLine(startPos, endPos);
-        list<KKCharPtr>::iterator it;
-        it=chars.begin();
+        if (chars.size() > 0) {
+            list<KKCharPtr>::iterator it;
+            it=chars.begin();
 
-        // controlla se hai cancellato un \n
-        for (it = chars.begin(); it!= chars.end(); it++) {
-            if(it->get()->getValue() == '\n'){
-                newLineRemoved = true;
+            // Controlla se hai cancellato un \n
+            for (it = chars.begin(); it!= chars.end(); it++) {
+                if(it->get()->getValue() == '\n'){
+                    newLineRemoved = true;
+                }
             }
         }
     }
     deleteEmptyLines();
 
-    if(!text[startPos.getLine()].empty()){
-        char ch=std::next(text[startPos.getLine()].begin(),static_cast<long>(text[startPos.getLine()].size()-1))->get()->getValue();
+    if (newLineRemoved && !text[startPos.getLine()].empty()) {
+        char ch = std::next(text[startPos.getLine()].begin(), static_cast<long>(text[startPos.getLine()].size()-1))->get()->getValue();
 
-        if(newLineRemoved && !text[startPos.getLine()+1].empty() && ch!='\n' ){
+        if (!text[startPos.getLine()+1].empty() && ch != '\n') {
             mergeLines(startPos.getLine());
         }
     }
 
-    if(text.empty()){
+    if (text.empty()) {
         linesAlignment.push_back(alignFirstRow);
     }
     return chars;
@@ -273,42 +289,30 @@ KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font, QString
 }
 
 void KKCrdt::calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col){
-    unsigned long tot=0, succ=0;
+    unsigned long tot=0; unsigned long succ=0;
 
-    if(position <= 0){
-        *line = startLine;
-        *col = 0;
-        qDebug() << "calculated line and col >" << *line << "< >" << *col << "<";
+    if(position==0){
+        *line=0;
+        *col=0;
         return;
     }
 
-    for(unsigned long i = startLine; i < text.size(); i++){
-        succ += text[i].size();
-        if (position<=succ) {
-            if (position == succ && std::next(text[i].begin(), static_cast<long>(text[i].size()-1))->get()->getValue()=='\n'){
-                // Per calcolare il carattere \n
-                *line=i+1;
-                *col=0;
-            } else {
+    for(unsigned long i=0;i<text.size();i++){
+
+        succ+=text[i].size();
+        if(position<=succ){
+
+            if(position==succ && std::next(text[i].begin(), static_cast<long>(text[i].size()-1))->get()->getValue()=='\n'){
+                *line=i+1; *col=0;//per calcolare il carattere \n
+            }else {
                 *col=position-tot;
                 *line=i;
             }
-            qDebug() << "calculated line and col >" << *line << "< >" << *col << "<";
-            return;
-        } else if (i == static_cast<unsigned long>(text[i].size()-1)) {
-            if (std::next(text[i].begin(), static_cast<long>(text[i].size()-1))->get()->getValue()=='\n'){
-                // Per calcolare il carattere \n
-                *line=i+1;
-                *col=0;
-            } else {
-                *line = i;
-                *col = static_cast<unsigned long>(text[i].size());
-            }
-            qDebug() << "calculated line and col >" << *line << "< >" << *col << "<";
             return;
         }
         tot+=text[i].size();
     }
+    qDebug() << "[calculateLineCol] line: " << *line << " - col: " << *col;
 }
 
 unsigned long KKCrdt::calculateGlobalPosition(KKPosition position){
@@ -832,9 +836,9 @@ void KKCrdt::mergeLines(unsigned long line){
     linesAlignment.erase(linesAlignment.begin()+static_cast<int>(line)+1);
 }
 
-list<KKCharPtr> KKCrdt::deleteMultipleLines(KKPosition startPos, KKPosition endPos){
-    list<KKCharPtr> chars(std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh())),text[startPos.getLine()].end());
-    text[startPos.getLine()].erase(std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh())),text[startPos.getLine()].end());
+list<KKCharPtr> KKCrdt::deleteMultipleLines(KKPosition startPos, KKPosition endPos) {
+    list<KKCharPtr> chars(std::next(text[startPos.getLine()].begin(), static_cast<long>(startPos.getCh())), text[startPos.getLine()].end());
+    text[startPos.getLine()].erase(std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh())), text[startPos.getLine()].end());
 
     unsigned long line;
 
@@ -855,10 +859,13 @@ list<KKCharPtr> KKCrdt::deleteMultipleLines(KKPosition startPos, KKPosition endP
 }
 
 list<KKCharPtr> KKCrdt::deleteSingleLine(KKPosition startPos, KKPosition endPos){
-    unsigned long char_num = endPos.getCh() - startPos.getCh();
-    list<KKCharPtr> chars(std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh())),std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh() + char_num)));
-    text[startPos.getLine()].erase(std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh())),std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh() + char_num)));
-    return chars;
+    long char_num = static_cast<long>(endPos.getCh() - startPos.getCh());
+    if (char_num >= 0) {
+        list<KKCharPtr> chars(std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh())),std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh() + char_num)));
+        text[startPos.getLine()].erase(std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh())),std::next(text[startPos.getLine()].begin(),static_cast<long>(startPos.getCh() + char_num)));
+        return chars;
+    }
+    return {};
 }
 
 void KKCrdt::deleteEmptyLines(){

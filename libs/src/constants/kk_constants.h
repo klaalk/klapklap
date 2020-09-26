@@ -119,6 +119,7 @@
 #define UPDATE_USER_ERROR "UpdateUserError"
 #define OPENFILE_ERROR "OpenfileError"
 #define CRDT_ERROR "CrdtError"
+#define CRDT_ILLEGAL "CrdtIllegal"
 #define CHAT_ERROR "ChatError"
 #define GENERIC_ERROR "GenericError"
 #define SERVER_ERROR "ServerError"

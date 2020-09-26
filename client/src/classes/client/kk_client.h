@@ -55,6 +55,7 @@ private slots:
     void handleSslErrors(const QList<QSslError> &errors);
     void handleModalButtonClick(const QString& btnText, const QString& modalType);
     void handleModalClosed(const QString& modalType);
+    void handleModalActions(const QString& modalType);
 
     void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, const QString& password);
@@ -67,7 +68,7 @@ private slots:
 
     void onEditorClosed();
     void onInsertTextToCrdt(unsigned long position, QList<QChar>, QStringList fonts, QStringList colors);
-    void onRemoveTextFromCrdt(unsigned long start, unsigned long end);
+    void onRemoveTextFromCrdt(unsigned long start, unsigned long end, QString value);
     void onSaveCrdtToFile();
     void onOpenFileDialog();
     void onSiteIdClicked(const QString& siteId);
@@ -101,6 +102,7 @@ private:
 
     QString state;
     QString filename;
+    QString link;
     bool fileValid;
 
     QUrl url;

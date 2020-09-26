@@ -40,12 +40,13 @@ class KKCrdt {
 public:
     KKCrdt(string siteid, KKStrategy strategy);
     ~KKCrdt();
-
+    void clear();
     QStringList encodeCrdt();
     QString encodeCrdtChar(KKCharPtr charPtr);
     void decodeCrdt(QStringList encodedCrdt);
     KKCharPtr decodeCrdtChar(QString encodedChar);
 
+    bool canInsert(unsigned long start, unsigned long end);
     KKCharPtr localInsert(char val, KKPosition pos, QString font, QString color);
     list<KKCharPtr> localDelete(KKPosition startPos, KKPosition endPos);
 

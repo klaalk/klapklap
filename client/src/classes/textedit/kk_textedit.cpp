@@ -136,8 +136,8 @@ void KKTextEdit::sendDiffText()
         if (diff.isEmpty()) {
             // Se ora non c'è niente vuol dire che ho selezionato e cancellato
             qDebug() << "DELETE: "<< lastDiff << " - START " << selectionStart << " END " << selectionEnd;
+            emit alignmentNotifyEvent(selectionStart, selectionEnd);
             emit textChangedEvent(DEL, lastDiff, selectionStart, selectionEnd);
-            emit alignmentNotifyEvent(selectionStart, selectionStart);
 
         } else {
             // Altrimenti ho cancellato e inserito oppure solo inserito
@@ -171,10 +171,12 @@ void KKTextEdit::sendDiffText()
                 // Se prima il cursore (start) era più avanti di ora (end) allora ho cancellato (in INDIETRO) da end a start
                 QString lastDiff = lastText.mid(end, start - end);
                 qDebug() << "DELETE: " << lastDiff << " - START " << end << " END " << start;
-                emit textChangedEvent(DEL, lastDiff, end, start);
 
                 if(lastDiff.length()>1)
-                    emit alignmentNotifyEvent(end,start);
+                    emit alignmentNotifyEvent(end, start);
+
+                emit textChangedEvent(DEL, lastDiff, end, start);
+
 
             } else {
                 // Altrimenti ho inserito oppure cancellato in AVANTI
@@ -183,17 +185,19 @@ void KKTextEdit::sendDiffText()
                     // Se il testo attuale è vuoto da start a end allora ho cancellato in AVANTI
                     QString lastDiff = lastText.mid(start, end - start);
                     qDebug() << "DELETE: " << lastDiff << " - START " << end << " END " << start;
-                    emit textChangedEvent(DEL, lastDiff, end, start);
 
                     if(lastDiff.length()>1)
-                        emit alignmentNotifyEvent(end,start);
+                        emit alignmentNotifyEvent(end, start);
+
+                    emit textChangedEvent(DEL, lastDiff, end, start);
+
                 } else {
                     // Altrimenti ho inserito in AVANTI
                     qDebug() << "INSERT: "<< diff << " - START " << start << " END " << end;
                     emit textChangedEvent(INS, diff, start, end);
 
                     if(diff.length()>1)
-                        emit alignmentNotifyEvent(start,end);
+                        emit alignmentNotifyEvent(start, end);
                 }
             }
 
@@ -207,10 +211,10 @@ void KKTextEdit::sendDiffText()
                 length = -length;
                 QString lastDiff = lastText.mid(start, length);
                 qDebug() << "DELETE: " << lastDiff << " - START " << start << " END " << start + length;
+                if(lastDiff.length()>1)
+                    emit alignmentNotifyEvent(start, start+length);
                 emit textChangedEvent(DEL, lastDiff, start, start + length);
 
-                if(lastDiff.length()>1)
-                    emit alignmentNotifyEvent(start,start+length);
 
                 // Mi salvo l'ultima posizione del cursore in cui è cambiato il testo (serve per il CTRL + Z)
                 lastPos = textCursor().position();

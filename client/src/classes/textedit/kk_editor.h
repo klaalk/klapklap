@@ -110,7 +110,7 @@ class KKEditor : public QMainWindow
 
 signals:
     void insertTextToCrdt(unsigned long position, QList<QChar> values, QStringList fonts, QStringList colors);
-    void removeTextFromCrdt(unsigned long start, unsigned long end);
+    void removeTextFromCrdt(unsigned long start, unsigned long end, QString value);
     void saveCrdtTtoFile();
     void alignChange(int alignment, int alignStart, int alignEnd);
     void charFormatChange(unsigned long pos, QStringList fonts, QStringList colors);
@@ -122,6 +122,7 @@ signals:
 
 public:
     KKEditor(QWidget *parent = nullptr);
+    void clear();
     bool load(const QString &f);
     void loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments);
     void applyRemoteAlignmentChange(int alignment, int alignPos);
@@ -129,7 +130,13 @@ public:
     void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);
     void applySiteIdClicked(const QString& name);
-     int getCurrentAlignment(int pos);
+
+
+    void updateCursors(QString siteId, int position, int value);
+    void updateRemoteCursor(QString siteId, int position);
+    void updateLabels();
+
+    int getCurrentAlignment(int pos);
     void setLink(QString link);
     void setCurrentFileName(const QString &fileName);
     void setParticipantAlias(QStringList participants);
@@ -189,8 +196,6 @@ private:
     void colorText(const QString& siteId);
     void clearColorText(const QString& name);
 
-    void updateCursors(QString siteId, int position, int value);
-    void updateLabels();
     void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
 
     QBrush selectRandomColor();
@@ -218,7 +223,7 @@ private:
     QString siteId;
     QString fileName;
     QString link;
-    QMap <QString,KKCursor*> cursors;
+    QMap <QString, KKCursor*> cursors;
     QComboBox *comboStyle{};
     QFontComboBox *comboFont{};
     QComboBox *comboSize{};
