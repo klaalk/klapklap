@@ -1,12 +1,8 @@
 //
 // Created by Alberto Bruno on 2019-05-15.
 //
-#include "../identifier/kk_identifier.h"
-#include <QTextCharFormat>
-#include <utility>
-#include "kk_char.h"
 
-using std::string;
+#include "kk_char.h"
 
 KKChar::KKChar(char value, string siteId) : siteId(std::move(siteId)), value(value) {
 
@@ -24,33 +20,24 @@ void KKChar::pushIdentifier(const KKIdentifierPtr& id) {
     position.push_back(id);
 }
 
-/*void kk_char::insert_identifier(std::vector<identifier>::iterator it,identifier x) {
-    this->position.insert(it,x);
-    return;
-}*/
-
 int KKChar::compareTo(const KKChar &other) {
     //    int comp;
     unsigned long min;
 
     if (this->position.size() <= other.position.size()) {
-        min = this->position.size();
+        min = static_cast<unsigned long>(position.size());
     } else {
-        min = other.position.size();
+        min = static_cast<unsigned long>(other.position.size());
     }
 
     for (unsigned long i = 0; i < min; i++) {
-
-        KKIdentifier id1(*this->position[i].get());
+        KKIdentifier id1(*position[i].get());
         KKIdentifier id2(*other.position[i].get());
 
-
-        if(id1.getDigit()>id2.getDigit()) return 1;
+        if (id1.getDigit()>id2.getDigit()) return 1;
         if (id1.getDigit()<id2.getDigit()) return -1;
 
     }
-
-
 
     if (this->position.size() < other.position.size()) {
         return -1;
@@ -83,14 +70,24 @@ vector<KKIdentifierPtr> KKChar::getPosition() {
     return this->position;
 }
 
-std::string KKChar::getIdentifiersString() {
-    std::string identifiers_;
-    std::for_each(position.begin(), position.end(),[&](const KKIdentifierPtr& i){
-        char str[sizeof(unsigned long)+1];
-        sprintf(str, "%lu", i->getDigit());
-        identifiers_= identifiers_ + str + " ";
-    });
-    return identifiers_;
+string KKChar::encodeIdentifiers() {
+    string identifiers;
+    stringstream strstream;
+    for (const auto& pos : position) {
+        strstream << pos->getDigit() << ";";
+    }
+    strstream >> identifiers;
+    identifiers.pop_back();
+    return identifiers;
+}
+
+void KKChar::decodeIdentifiers(QString encodedIds)
+{
+    QStringList ids = encodedIds.split(";");
+    for(QString id : ids) {
+        unsigned long val = stoul(id.toStdString(), nullptr, 0);
+        pushIdentifier(std::shared_ptr<KKIdentifier>(new KKIdentifier(val, siteId)));
+    }
 }
 QString KKChar::getKKCharFont(){
     return KKCharFont;

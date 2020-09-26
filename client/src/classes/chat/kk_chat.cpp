@@ -1,58 +1,6 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** BSD License Usage
-** Alternatively, you may use this file under the terms of the BSD license
-** as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+#include "kk_chat.h"
 
-#include <QtWidgets>
-#include <utility> 
-#include "chatdialog.h"
-
-ChatDialog::ChatDialog(QWidget *parent)
+KKChat::KKChat(QWidget *parent)
     : QDialog(parent)
 {
     setupUi(this);
@@ -61,25 +9,25 @@ ChatDialog::ChatDialog(QWidget *parent)
     textEdit->setFocusPolicy(Qt::NoFocus);
     textEdit->setReadOnly(true);
     listWidget->setFocusPolicy(Qt::NoFocus);
-    connect(listWidget, &QListWidget::itemClicked, this, &ChatDialog::onItemClicked);
-    connect(lineEdit, &QLineEdit::returnPressed, this, &ChatDialog::returnPressed);
+    connect(listWidget, &QListWidget::itemClicked, this, &KKChat::onItemClicked);
+    connect(lineEdit, &QLineEdit::returnPressed, this, &KKChat::returnPressed);
     colorOnline = new QColor(25, 118, 210);
     colorOffline = new QColor(33, 33, 33);
 }
 
-void ChatDialog::resetState(){
+void KKChat::resetState(){
     lineEdit->clear();
     textEdit->clear();
     listWidget->clear();
     myNickName = "";
 }
 
-void ChatDialog::setNickName(QString nick) {
+void KKChat::setNickName(QString nick) {
     myNickName = std::move(nick);
     tableFormat.setBorder(0);
 }
 
-void ChatDialog::appendMessage(const QString &from, const QString &message)
+void KKChat::appendMessage(const QString &from, const QString &message)
 {
     if (from.isEmpty() || message.isEmpty())
         return;
@@ -93,7 +41,7 @@ void ChatDialog::appendMessage(const QString &from, const QString &message)
     bar->setValue(bar->maximum());
 }
 
-void ChatDialog::returnPressed()
+void KKChat::returnPressed()
 {
     QString text = lineEdit->text();
     if (text.isEmpty())
@@ -111,7 +59,7 @@ void ChatDialog::returnPressed()
     lineEdit->clear();
 }
 
-void ChatDialog::addParticipant(const QString &username, const QString &nick, const QString &avatar)
+void KKChat::addParticipant(const QString &username, const QString &nick, const QString &avatar)
 {
     if (nick.isEmpty())
         return;
@@ -124,7 +72,7 @@ void ChatDialog::addParticipant(const QString &username, const QString &nick, co
     textEdit->setTextColor(color);
 }
 
-void ChatDialog::removeParticipant(const QString &username, const QString &nick)
+void KKChat::removeParticipant(const QString &username, const QString &nick)
 {
 
     setParticipantState(username, nick, QString(), PARTICIPANT_OFFLINE);
@@ -135,7 +83,7 @@ void ChatDialog::removeParticipant(const QString &username, const QString &nick)
     textEdit->setTextColor(color);
 }
 
-void ChatDialog::setParticipants(const QStringList participants)
+void KKChat::setParticipants(const QStringList participants)
 {
     for(QString participant : participants) {
 
@@ -159,7 +107,7 @@ void ChatDialog::setParticipants(const QStringList participants)
     }
 }
 
-void ChatDialog::showInformation()
+void KKChat::showInformation()
 {
     if (listWidget->count() == 1) {
         QMessageBox::information(this, tr("Chat"),
@@ -169,7 +117,7 @@ void ChatDialog::showInformation()
     }
 }
 
-void ChatDialog::onItemClicked(QListWidgetItem *item) {
+void KKChat::onItemClicked(QListWidgetItem *item) {
     if(!item) {
         return;
     }
@@ -177,7 +125,7 @@ void ChatDialog::onItemClicked(QListWidgetItem *item) {
     emit siteIdClicked(siteId);
 }
 
-void ChatDialog::setParticipantState(const QString &username, const QString &nick, const QString &avatar, const QString &state)
+void KKChat::setParticipantState(const QString &username, const QString &nick, const QString &avatar, const QString &state)
 {
     if (!nick.isEmpty()) {
         QListWidgetItem* item = findParticipantItem(nick);
@@ -204,7 +152,7 @@ void ChatDialog::setParticipantState(const QString &username, const QString &nic
     participants_label->setText(QString("Participants (%1)").arg(participants.values().length()));
 }
 
-QListWidgetItem *ChatDialog::findParticipantItem(const QString &nick)
+QListWidgetItem *KKChat::findParticipantItem(const QString &nick)
 {
     QList<QListWidgetItem *> items = listWidget->findItems(nick, Qt::MatchExactly);
     if (items.isEmpty())

@@ -19,7 +19,7 @@
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crdt/identifier/kk_identifier.h"
 #include "../../../../libs/src/constants/kk_constants.h"
-#include "../chat/chatdialog.h"
+#include "../chat/kk_chat.h"
 #include "./kk_textedit.h"
 
 class QAction;
@@ -109,15 +109,15 @@ class KKEditor : public QMainWindow
     Q_OBJECT
 
 signals:
-    void insertTextToCRDT(char value, unsigned long position, QString font_, QString color_);
-    void removeTextFromCRDT(unsigned long start, unsigned long end);
-    void saveCRDTtoFile();
+    void insertTextToCrdt(unsigned long position, QList<QChar> values, QStringList fonts, QStringList colors);
+    void removeTextFromCrdt(unsigned long start, unsigned long end);
+    void saveCrdtTtoFile();
     void alignChange(int alignment, int alignStart, int alignEnd);
-    void charFormatChange(unsigned long pos, QString font_, QString color_);
+    void charFormatChange(unsigned long pos, QStringList fonts, QStringList colors);
     void updateSiteIdsPositions(QString siteId);
     void openFileDialog();
     void editorClosed();
-    void alignmentNotifyEvent(int startAling,int endAlign);
+    void notifyAlignment(int startAling,int endAlign);
 
 
 public:
@@ -135,7 +135,7 @@ public:
     void setParticipantAlias(QStringList participants);
     void addParticipant(const QString &username, const QString &nick);
     void removeParticipant(const QString &username);
-    void setChatDialog(ChatDialog *value);
+    void setChatDialog(KKChat *value);
     void setMySiteId(QString mySiteId);
 
     QString getMySiteId();
@@ -223,7 +223,7 @@ private:
     QFontComboBox *comboFont{};
     QComboBox *comboSize{};
     QToolBar *tb{};
-    ChatDialog* chatDialog;
+    KKChat* chatDialog;
     QMap<QString, QSharedPointer<QList<int>>> siteIdsPositions;
     QMap<QString, QBrush> siteIdsColors;
     QList<QString> siteIdsClicked;

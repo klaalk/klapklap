@@ -4,19 +4,24 @@
 #ifndef KK_CHAR_H
 #define KK_CHAR_H
 
-#include "../identifier/kk_identifier.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
 #include <math.h>
 #include <iostream>
 #include <algorithm>
-#include <string.h>
+#include <string>
 #include <memory>
+#include <sstream>
+#include <utility>
+
 #include <QTextCharFormat>
+
+#include "../identifier/kk_identifier.h"
 
 using std::vector;
 using std::string;
+using std::stringstream;
 
 class KKChar {
     vector<KKIdentifierPtr> position; // array di identifier, serve per dare come posizioni univoche numeri anche con la virgola (es 0,5 -> [identifier1.digit=0][identifier2.digit=5])
@@ -38,7 +43,8 @@ public:
     void insertIdentifier(vector<KKIdentifierPtr>::iterator it, KKIdentifierPtr id);
     void insertPosition(vector<KKIdentifierPtr> position);
     vector<KKIdentifierPtr> getPosition();
-    std::string getIdentifiersString();
+    std::string encodeIdentifiers();
+    void decodeIdentifiers(QString encodedIds);
     QString getKKCharFont();
     void setKKCharFont(QString font);
     QString getKKCharColor();

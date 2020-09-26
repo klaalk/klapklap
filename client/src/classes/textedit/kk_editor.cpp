@@ -77,7 +77,7 @@ KKEditor::KKEditor(QWidget *parent)
     connect(textEdit, &KKTextEdit::textChangedEvent, this, &KKEditor::onTextChange);
     connect(textEdit, &KKTextEdit::wheelEventTriggered, this, &KKEditor::updateLabels);
     connect(textEdit->verticalScrollBar(), &QScrollBar::valueChanged, textEdit, &KKTextEdit::wheelEventTriggered);
-    connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::alignmentNotifyEvent);
+    connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::notifyAlignment);
 
     // Set layout
     QHBoxLayout *layout = new QHBoxLayout;
@@ -227,8 +227,6 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 
     tmpCursor.setPosition(curStartPos);
     textEdit->setTextCursor(tmpCursor);
-
-    qDebug() << "FINE ALIGNMENT";
 }
 
 void KKEditor::applyRemoteFormatChange(int position, QString font, QString color){
@@ -386,7 +384,7 @@ void KKEditor::removeParticipant(const QString &username)
 }
 
 
-void KKEditor::setChatDialog(ChatDialog *value)
+void KKEditor::setChatDialog(KKChat *value)
 {
     chatDialog = value;
     centralWidget()->layout()->addWidget(chatDialog);
@@ -439,7 +437,7 @@ void KKEditor::fileOpen()
 
 bool KKEditor::fileSave()
 {
-    emit saveCRDTtoFile();
+    emit saveCrdtTtoFile();
     return true;
 }
 
@@ -742,21 +740,25 @@ void KKEditor::onCursorPositionChanged()
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
     if(blockCursor) return;
 
-    updateCursors(siteId, static_cast<int>(start), operation == INSERT ? diff.size() : -diff.size());
+    updateCursors(siteId, static_cast<int>(start), operation == INS ? diff.size() : -diff.size());
     QTextCursor cursor = textEdit->textCursor();
 
-    if (operation == DELETE)
-        emit removeTextFromCRDT(static_cast<unsigned long>(start), static_cast<unsigned long>(end));
+    if (operation == DEL)
+        emit removeTextFromCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end));
 
-    if (operation == INSERT) {
-        for (int i = 0; i < diff.length(); i++) {
-            cursor.setPosition(start + i);
+    if (operation == INS) {
+        QList<QChar> values;
+        QStringList fonts, colors;
+        int i = start;
+        for (QChar value : diff) {
+            cursor.setPosition(i++);
             cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
-            emit insertTextToCRDT(diff.at(i).toLatin1(), static_cast<unsigned long>(start+i), cursor.charFormat().font().toString(), cursor.charFormat().foreground().color().name());
-
+            values.push_back(value);
+            fonts.push_back(cursor.charFormat().font().toString());
+            colors.push_back(cursor.charFormat().foreground().color().name());
         }
+        emit insertTextToCrdt(static_cast<unsigned long>(start), values, fonts, colors);
     }
-
     emit updateSiteIdsPositions(siteId);
 }
 
@@ -1020,13 +1022,15 @@ void KKEditor::mergeFormat(const QTextCharFormat &format)
     if(cursor.hasSelection()) {
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd();
+        QStringList fonts, colors;
         for(int i = start; i < end; i++) {
-            qDebug() << "[mergeFormat] - setPosition: " << i;
             cursor.setPosition(i);
             cursor.movePosition(cursor.Right,QTextCursor::KeepAnchor);
             cursor.mergeCharFormat(format);
-            emit charFormatChange(static_cast<unsigned long>(i), cursor.charFormat().font().toString(), cursor.charFormat().foreground().color().name());
+            fonts.push_back(format.font().toString());
+            colors.push_back(format.foreground().color().name());
         }
+        emit charFormatChange(static_cast<unsigned long>(start), fonts, colors);
     }
     textEdit->mergeCurrentCharFormat(format);
     cursor.setPosition(lastPos);

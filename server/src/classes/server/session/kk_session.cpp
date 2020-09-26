@@ -51,7 +51,10 @@ void KKSession::setSocket(QSharedPointer<QWebSocket> descriptor) {
 
 void KKSession::sendResponse(QString type, QString result, QStringList values) {
     KKPayload res(type, result, values);
-    logger("Server send: " + res.encode());
+    res.encode();
+    QString body;
+    for (QString elem : values) body.append(" ").append(elem);
+    logger("Server send: " + res.getRequestType() + " " + res.getResultType() + body);
     socket->sendTextMessage(res.encode());
 }
 

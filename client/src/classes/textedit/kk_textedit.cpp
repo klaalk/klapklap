@@ -136,7 +136,7 @@ void KKTextEdit::sendDiffText()
         if (diff.isEmpty()) {
             // Se ora non c'è niente vuol dire che ho selezionato e cancellato
             qDebug() << "DELETE: "<< lastDiff << " - START " << selectionStart << " END " << selectionEnd;
-            emit textChangedEvent(DELETE, lastDiff, selectionStart, selectionEnd);
+            emit textChangedEvent(DEL, lastDiff, selectionStart, selectionEnd);
             emit alignmentNotifyEvent(selectionStart, selectionStart);
 
         } else {
@@ -144,17 +144,17 @@ void KKTextEdit::sendDiffText()
             if (lastDiff.isEmpty()) {
                 // Quindi se la selezione del testo precedente è vuoto vuol dire che ho solo inserito (DIFFICILE CADERE IN QUESTA SITUAZIONE)
                 qDebug() << "INSERT: " << diff << " START " << selectionStart << " END " << selectionStart + diff.length();
-                emit textChangedEvent(INSERT, diff, selectionStart, selectionStart + diff.length());
+                emit textChangedEvent(INS, diff, selectionStart, selectionStart + diff.length());
                 emit alignmentNotifyEvent(selectionStart, selectionStart + diff.length());
 
             } else {
                 // Mentre se la selezione del testo precedente non è vuoto allora ho cancellato
                 qDebug() << "DELETE: "<< lastDiff << " - START " << selectionStart << " END " << selectionEnd;
-                emit textChangedEvent(DELETE, lastDiff, selectionStart, selectionEnd);
+                emit textChangedEvent(DEL, lastDiff, selectionStart, selectionEnd);
 
                 // E inserito
                 qDebug() << "INSERT: " << diff << " - START " << selectionStart << " END " << selectionStart + diff.length();
-                emit textChangedEvent(INSERT, diff, selectionStart, selectionStart + diff.length());
+                emit textChangedEvent(INS, diff, selectionStart, selectionStart + diff.length());
                 emit alignmentNotifyEvent(selectionStart, selectionStart + diff.length());
             }
         }
@@ -171,7 +171,7 @@ void KKTextEdit::sendDiffText()
                 // Se prima il cursore (start) era più avanti di ora (end) allora ho cancellato (in INDIETRO) da end a start
                 QString lastDiff = lastText.mid(end, start - end);
                 qDebug() << "DELETE: " << lastDiff << " - START " << end << " END " << start;
-                emit textChangedEvent(DELETE, lastDiff, end, start);
+                emit textChangedEvent(DEL, lastDiff, end, start);
 
                 if(lastDiff.length()>1)
                     emit alignmentNotifyEvent(end,start);
@@ -183,14 +183,14 @@ void KKTextEdit::sendDiffText()
                     // Se il testo attuale è vuoto da start a end allora ho cancellato in AVANTI
                     QString lastDiff = lastText.mid(start, end - start);
                     qDebug() << "DELETE: " << lastDiff << " - START " << end << " END " << start;
-                    emit textChangedEvent(DELETE, lastDiff, end, start);
+                    emit textChangedEvent(DEL, lastDiff, end, start);
 
                     if(lastDiff.length()>1)
                         emit alignmentNotifyEvent(end,start);
                 } else {
                     // Altrimenti ho inserito in AVANTI
                     qDebug() << "INSERT: "<< diff << " - START " << start << " END " << end;
-                    emit textChangedEvent(INSERT, diff, start, end);
+                    emit textChangedEvent(INS, diff, start, end);
 
                     if(diff.length()>1)
                         emit alignmentNotifyEvent(start,end);
@@ -207,7 +207,7 @@ void KKTextEdit::sendDiffText()
                 length = -length;
                 QString lastDiff = lastText.mid(start, length);
                 qDebug() << "DELETE: " << lastDiff << " - START " << start << " END " << start + length;
-                emit textChangedEvent(DELETE, lastDiff, start, start + length);
+                emit textChangedEvent(DEL, lastDiff, start, start + length);
 
                 if(lastDiff.length()>1)
                     emit alignmentNotifyEvent(start,start+length);

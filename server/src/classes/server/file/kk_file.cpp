@@ -34,10 +34,10 @@ void KKFile::leave(KKParticipantPtr participant) {
 
 int KKFile::deliver(QString type, QString result, QStringList message, QString username) {
     KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
-    int code=0; //TODO: check if is better 0
+    int code=0;
 
     if (type == CRDT) {
-        code = applyRemoteInsertSafe(data->getBodyList());
+        code = applyRemoteTextChangeSafe(data->getBodyList());
     } else if (type == CHARFORMAT_CHANGE) {
         code = applyRemoteCharFormatChangeSafe(data->getBodyList());
     } else if(type==ALIGNMENT_CHANGE){
@@ -108,9 +108,9 @@ int KKFile::applyRemoteAlignmentChangeSafe(QStringList bodyList){
 
 
 
-int KKFile::applyRemoteInsertSafe(QStringList bodyList){
+int KKFile::applyRemoteTextChangeSafe(QStringList bodyList){
     try {
-        applyRemoteInsert(bodyList);
+        applyRemoteTextChange(bodyList);
         return 200;
     } catch (QException e) {
         KKLogger::log(e.what(),"applyRemoteInsertSafe");
@@ -129,43 +129,27 @@ int KKFile::applyRemoteCharFormatChangeSafe(QStringList bodyList){
 
 }
 
-void KKFile::applyRemoteInsert(QStringList bodyList)
+void KKFile::applyRemoteTextChange(QStringList body)
 {
     // Ottengo i campi della risposta
-    int increment = bodyList[0] == CRDT_INSERT ? 0 : 1;
-    QString siteId = bodyList[1 + increment];
-    QString text = bodyList[2 + increment];
-    QStringList ids = bodyList[3 + increment].split(" ");
-    QString fontStr = bodyList[4 + increment];
-    QString colorStr = bodyList[5 + increment];
+    QString operation = body.takeFirst();
+    QString siteId = body.takeFirst();
 
-
-    KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
-    char_->setKKCharFont(fontStr);
-    char_->setKKCharColor(colorStr);
-
-    // size() - 1 per non considerare l'elemento vuoto della string list ids
-    for(int i = 0; i < ids.size() - 1; i++) {
-        char_->pushIdentifier(KKIdentifierPtr(new KKIdentifier(ids[i].toULong(), siteId.toStdString())));
+    for (QString crdtChar : body) {
+        KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
+        if (operation == CRDT_INSERT) {
+            crdt->remoteInsert(charPtr);
+        } else if (operation == CRDT_DELETE) {
+            crdt->remoteDelete(charPtr);
+        }
     }
-
-    (bodyList[0] == CRDT_INSERT) ? crdt->remoteInsert(char_) : crdt->remoteDelete(char_);
 }
 
-void KKFile::applyRemoteCharFormatChange(QStringList bodyList){
-    QString siteId = bodyList[1];
-    QString text = bodyList[2];
-    QStringList ids = bodyList[3].split(" ");
-    QString fontStr = bodyList[4];
-    QString colorStr = bodyList[5];
-
-    KKCharPtr char_ = KKCharPtr(new KKChar(*text.toLatin1().data(), siteId.toStdString()));
-    for(int i = 0; i < ids.size() - 1; i++) {
-         // size() - 1 per non considerare l'elemento vuoto della string list ids
-        char_->pushIdentifier(KKIdentifierPtr(new KKIdentifier(ids[i].toULong(), siteId.toStdString())));
+void KKFile::applyRemoteCharFormatChange(QStringList body){
+    for (QString crdtChar : body) {
+        KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
+        crdt->remoteFormatChange(charPtr);
     }
-
-    crdt->remoteFormatChange(char_,fontStr,colorStr);
 }
 
 void KKFile::applyRemoteAlignmentChange(QStringList bodyList){

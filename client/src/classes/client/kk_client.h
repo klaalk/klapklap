@@ -32,7 +32,7 @@
 #include "../../../../libs/src/classes/user/kk_user.h"
 
 #include "../access/accessdialog.h"
-#include "../chat/chatdialog.h"
+#include "../chat/kk_chat.h"
 #include "../openfile/openfiledialog.h"
 #include "../textedit/kk_editor.h"
 #include "../modal/modaldialog.h"
@@ -66,15 +66,15 @@ private slots:
     void sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar);
 
     void onEditorClosed();
-    void onInsertTextCrdt(char value, unsigned long position, QString font_, QString color_);
-    void onRemoveTextCrdt(unsigned long start, unsigned long end);
+    void onInsertTextToCrdt(unsigned long position, QList<QChar>, QStringList fonts, QStringList colors);
+    void onRemoveTextFromCrdt(unsigned long start, unsigned long end);
     void onSaveCrdtToFile();
     void onOpenFileDialog();
     void onSiteIdClicked(const QString& siteId);
     void onUpdateSiteIdsPositions(const QString& siteId);
-    void onCharFormatChanged(unsigned long pos, QString font_, QString color_);
+    void onCharFormatChanged(unsigned long pos, QStringList fonts, QStringList colors);
     void onAlignmentChange(int alignment, int alignStart, int alignEnd);
-    void notifyAlignment(int alignStart, int alignEnd);
+    void onNotifyAlignment(int alignStart, int alignEnd);
     void logger(QString message);
 
 private:
@@ -97,24 +97,23 @@ private:
     void handleServerErrorResponse(KKPayload res);
     bool sendRequest(QString type, QString result, QStringList values);
 
-    QString myNickName_;
     QStringList avatars;
 
-    QString state_;
-    QString currentfile_;
-    bool currentfileValid_{};
+    QString state;
+    QString filename;
+    bool fileValid;
 
-    QUrl url_;
-    QWebSocket socket_;
-    QTimer timer_;
-    AccessDialog access_;
-    OpenFileDialog openFile_;
-    ModalDialog modal_;
+    QUrl url;
+    QWebSocket socket;
+    QTimer timer;
+    AccessDialog access;
+    OpenFileDialog openFile;
+    ModalDialog modal;
 
     KKUser* user{};
-    KKCrdt* crdt{};
     KKEditor* editor{};
-    ChatDialog* chat{};
+    KKCrdt* crdt{};
+    KKChat* chat{};
 };
 
 typedef std::shared_ptr<KKClient> KKClientPtr;

@@ -5,9 +5,8 @@
 #include <QKeyEvent>
 #include <QtDebug>
 
-#define DELETE "DELETE"
-#define INSERT "INSERT"
-
+#define DEL "DEL"
+#define INS "INS"
 
 class KKTextEdit : public QTextEdit
 {

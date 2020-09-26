@@ -42,19 +42,21 @@ public:
     ~KKCrdt();
 
     QStringList encodeCrdt();
-    void decodeCrdt(QStringList crdt);
+    QString encodeCrdtChar(KKCharPtr charPtr);
+    void decodeCrdt(QStringList encodedCrdt);
+    KKCharPtr decodeCrdtChar(QString encodedChar);
 
     KKCharPtr localInsert(char val, KKPosition pos, QString font, QString color);
     list<KKCharPtr> localDelete(KKPosition startPos, KKPosition endPos);
 
     unsigned long remoteInsert(const KKCharPtr& charPtr);
     unsigned long remoteDelete(const KKCharPtr& charPtr);
-    unsigned long remoteFormatChange(const KKCharPtr& _char,QString font_, QString color_);
+    unsigned long remoteFormatChange(const KKCharPtr& charPtr);
 
     list<KKCharPtr> changeMultipleKKCharFormat(KKPosition start, KKPosition end,QString font_, QString color_);//cambia il formato di tutte le KKChar comprese tra le due posizioni e restituisce la lista delle KKChar cambiate
-    KKCharPtr changeSingleKKCharFormat(KKPosition pos, QString font_, QString color_);
+    KKCharPtr changeSingleKKCharFormat(KKPosition pos, QString font, QString color, QChar* value);
 
-    void calculateLineCol(unsigned long global_pos, unsigned long *line, unsigned long *col);
+    void calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col);
     unsigned long calculateGlobalPosition(KKPosition pos);
 
     void setLineAlignment(unsigned long idx, int align);

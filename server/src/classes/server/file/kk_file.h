@@ -43,9 +43,9 @@ public:
     void setUsers(QStringList users);
     QStringList getUsers();
 
-    void applyRemoteInsert(QStringList bodyList);
+    void applyRemoteTextChange(QStringList bodyList);
     void applyRemoteCharFormatChange(QStringList bodyList);
-    int applyRemoteInsertSafe(QStringList bodyList);
+    int applyRemoteTextChangeSafe(QStringList bodyList);
     int applyRemoteCharFormatChangeSafe(QStringList bodyList);
     int applyRemoteAlignmentChangeSafe (QStringList bodyList);
     void applyRemoteAlignmentChange(QStringList bodylist);
