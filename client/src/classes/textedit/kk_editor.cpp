@@ -738,6 +738,7 @@ void KKEditor::onCursorPositionChanged()
 
 
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
+
     if(blockCursor) return;
 
     updateCursors(siteId, static_cast<int>(start), operation == INS ? diff.size() : -diff.size());
@@ -1033,6 +1034,7 @@ void KKEditor::mergeFormat(const QTextCharFormat &format)
 
         emit charFormatChange(static_cast<unsigned long>(start), fonts, colors);
     }
+    updateLabels();
     textEdit->mergeCurrentCharFormat(format);
     cursor.setPosition(lastPos);
 
@@ -1220,7 +1222,7 @@ void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& siteId
 
     // Creo le label
     QLabel* qLbl = new QLabel(participantsAlias.value(siteId), textEdit);
-    QLabel* qLbl2 = new QLabel("|", textEdit);
+    QLabel* qLbl2 = new QLabel("│", textEdit);
 
     //Seleziono randomicamente un colore dalla lista dei colori, controllo se era già stato usato.
     QBrush color = selectRandomColor();
