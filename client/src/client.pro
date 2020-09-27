@@ -35,6 +35,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/classes/payload/kk_payload.h \
                 ../../libs/src/constants/kk_constants.h \
                 ../../libs/src/classes/user/kk_user.h \
+                ../../libs/src/classes/task/kk_task.h \
                 classes/access/accessdialog.h \
                 classes/chat/kk_chat.h \
                 classes/client/kk_client.h \
@@ -52,6 +53,7 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/logger/kk_logger.cpp \
                 ../../libs/src/classes/payload/kk_payload.cpp \
                 ../../libs/src/classes/user/kk_user.cpp \
+                ../../libs/src/classes/task/kk_task.cpp \
                 classes/access/accessdialog.cpp \
                 classes/chat/kk_chat.cpp \
                 classes/client/kk_client.cpp \

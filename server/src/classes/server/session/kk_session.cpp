@@ -205,12 +205,9 @@ void KKSession::handleGetFilesRequest() {
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
     QStringList params = request.getBodyList();
-
-
     if (params.size() > 0) {
         disconnectFromFile();
         connectToFile(params.at(0));
-
     } else {
         sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: non è stato inserito nessun nome file"});
     }
@@ -220,7 +217,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
 void KKSession::handleSaveFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
 
-    KKTask *mytask = new KKTask([=]() {
+    KKTask *mytask = new KKTask([&]() {
         file->flushCrdtText();
     });
 
@@ -231,7 +228,7 @@ void KKSession::handleSaveFileRequest(KKPayload request) {
 void KKSession::handleLoadFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
 
-    KKTask *mytask = new KKTask([=]() {
+    KKTask *mytask = new KKTask([&]() {
         sendResponse(LOAD_FILE, SUCCESS, file->getCrdtText());
     });
     mytask->setAutoDelete(true);
@@ -244,17 +241,29 @@ void KKSession::handleQuitFileRequest()
     sendResponse(QUIT_FILE, SUCCESS, {});
 }
 void KKSession::handleCrdtRequest(KKPayload request) {
-    if(file->deliver(CRDT, SUCCESS, request.getBodyList(), user->getUsername())<0){
-        disconnectFromFile();
-        sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
-    }
+    QStringList body = request.getBodyList();
+    KKTask *mytask = new KKTask([&, body]() {
+        if (file->deliver(CRDT, SUCCESS, body, user->getUsername()) < 0) {
+            disconnectFromFile();
+            sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
+        }
+    });
+    mytask->setAutoDelete(true);
+    QThreadPool::globalInstance()->start(mytask);
+
 }
 
-void KKSession::handleAlignChangeRequest(KKPayload request){
-    if(file->deliver(ALIGNMENT_CHANGE, SUCCESS, request.getBodyList(), "All")<0){
-        disconnectFromFile();
-        sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
-    }
+void KKSession::handleAlignChangeRequest(KKPayload request) {
+    QStringList body = request.getBodyList();
+
+    KKTask *mytask = new KKTask([&, body]() {
+        if (file->deliver(ALIGNMENT_CHANGE, SUCCESS, body, "All") < 0) {
+            disconnectFromFile();
+            sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
+        }
+    });
+    mytask->setAutoDelete(true);
+    QThreadPool::globalInstance()->start(mytask);
 }
 
 void KKSession::handleChatRequest(KKPayload request) {

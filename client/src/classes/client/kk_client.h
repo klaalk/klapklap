@@ -30,6 +30,7 @@
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../../../../libs/src/classes/user/kk_user.h"
+#include "../../../../libs/src/classes/task/kk_task.h"
 
 #include "../access/accessdialog.h"
 #include "../chat/kk_chat.h"

@@ -645,9 +645,13 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
             i++;
         }
     }
-    if (!changes.isEmpty() && correctInsert)
-        sendCrdtRequest(changes);
-    else {
+    if (!changes.isEmpty() && correctInsert) {
+        KKTask *mytask = new KKTask([=]() {
+            sendCrdtRequest(changes);
+        });
+        mytask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(mytask);
+    } else {
         logger("Inserimento illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
         modal.show();
@@ -675,9 +679,13 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
         }
     }
 
-    if (!changes.isEmpty() && value == deletedValue)
-        sendCrdtRequest((changes));
-    else {
+    if (!changes.isEmpty() && value == deletedValue) {
+        KKTask *mytask = new KKTask([=]() {
+            sendCrdtRequest(changes);
+        });
+        mytask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(mytask);
+    } else {
         logger("Cancellazione illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
         modal.show();
@@ -711,9 +719,13 @@ void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStri
         }
     }
 
-    if (!changes.isEmpty())
-        sendCrdtRequest(changes);
-    else {
+    if (!changes.isEmpty()) {
+        KKTask *mytask = new KKTask([=]() {
+            sendCrdtRequest(changes);
+        });
+        mytask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(mytask);
+    } else {
         logger("Cambio formato illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
         modal.show();
