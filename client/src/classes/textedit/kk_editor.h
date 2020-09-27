@@ -48,11 +48,12 @@ private:
         QString styleName;
         QString styleEarpiece;
         styleEarpiece = "font: 75 "+size+"pt \"Calibri\";\n";
-        if(fontSize>=10)
-            size=QString::number(10);
-        else size=QString::number(fontSize);
+//        if(fontSize>=10)
+//            size=QString::number(10);
+//        else size=QString::number(fontSize);
         styleName = "background-color: " + fontColor + ";\n"
-                                                       "font: 10 "+size+"pt \"Calibri\";\n"
+//                                                       "font: 10 "+size+"pt \"Calibri\";\n"
+                                                         "font: 10pt \"Calibri\";\n"
                                                                         "font: bold;";
 
 
@@ -89,16 +90,18 @@ public:
 
     void moveLabels(QRect qRect) {
         earpiece->move(qRect.x()-static_cast<int>(0.5*fontSize), qRect.y()-static_cast<int>(0.35*fontSize));
-        if(fontSize<10)
-            name->move(qRect.x(),qRect.y()-static_cast<int>(1.7*fontSize));
-        else name->move(qRect.x()-static_cast<int>(0.1*fontSize),qRect.y()-17);
+//        if(fontSize<10)
+//        name->move(qRect.x(),qRect.y()-static_cast<int>(1.7*fontSize));
+//        else
+        name->move(qRect.x()-static_cast<int>(0.1*fontSize), qRect.y()-17);
 #ifdef Q_OS_MACOS
          earpiece->move(qRect.x(), qRect.y()-static_cast<int>(0.2*fontSize));
-        if(fontSize<10){
-            name->move(qRect.x()+static_cast<int>(0.55*fontSize),qRect.y()-static_cast<int>(1.15*fontSize));
-            earpiece->move(qRect.x(), qRect.y());
-        }
-        else name->move(qRect.x()+static_cast<int>(0.55*fontSize),qRect.y()-11.5);
+//        if(fontSize<10){
+//            name->move(qRect.x()+static_cast<int>(0.55*fontSize),qRect.y()-static_cast<int>(1.15*fontSize));
+//            earpiece->move(qRect.x(), qRect.y());
+//        }
+//        else
+         name->move(qRect.x()+static_cast<int>(0.55*fontSize),qRect.y()-11.5);
 #endif
     }
     int getGlobalPositon() {

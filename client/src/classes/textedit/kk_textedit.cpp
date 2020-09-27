@@ -71,7 +71,9 @@ QTextCursor KKTextEdit::cursorIn(int position)
 void KKTextEdit::setCursorPosition(int position)
 {
     localCursorPosition = position;
-    textCursor().setPosition(position);
+    QTextCursor tmp = textCursor();
+    tmp.setPosition(localCursorPosition);
+    setTextCursor(tmp);
 }
 
 void KKTextEdit::restoreCursorPosition()

@@ -10,6 +10,7 @@
 
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url(std::move(url)) {
+    QThreadPool::globalInstance()->setMaxThreadCount(5);
 
     // Gestisco l' apertura della connessione al socket
     connect(&socket, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);

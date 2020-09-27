@@ -192,6 +192,7 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int>
     clear();
     int startPos = 0;
     unsigned long lineIdx = 0;
+    int editorCursorPos = 0;
     for(const auto& line : crdt) {
         if (lineIdx < alignments.size())
             applyRemoteAlignmentChange(alignments.at(lineIdx++), startPos);
@@ -206,18 +207,19 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int>
 
             if (siteId != remoteSiteId)
                 applyRemoteCursorChange(remoteSiteId, startPos);
-
+            if (siteId == remoteSiteId)
+                editorCursorPos = startPos;
             startPos++;
         }
     }
+    textEdit->setCursorPosition(editorCursorPos);
 
     updateCursors(siteId, -1, 1);
     textEdit->document()->clearUndoRedoStacks();
 }
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
-    //    qDebug() << "[applyRemoteAlignmentChange]" << " ALIGN: " << alignment << " POS: " << alignPos;
-
+    qDebug() << QString("[applyRemoteAlignmentChange] Alignment %1 in position %2").arg(QVariant(alignment).toString(), QVariant(alignPos).toString());
     QTextCursor tmpCursor = textEdit->cursorIn(alignPos);
 
     QTextBlockFormat f;
@@ -1034,9 +1036,12 @@ void KKEditor::mergeFormat(const QTextCharFormat &format)
 
         emit charFormatChange(static_cast<unsigned long>(start), fonts, colors);
     }
-    updateLabels();
     textEdit->mergeCurrentCharFormat(format);
+
     cursor.setPosition(lastPos);
+    textEdit->setTextCursor(cursor);
+
+    updateLabels();
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -1209,7 +1214,6 @@ void KKEditor::updateLabels() {
     }
 
     editorCurs.setPosition(lastPos);
-    textEdit->setTextCursor(editorCurs);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -1227,13 +1231,14 @@ void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& siteId
     //Seleziono randomicamente un colore dalla lista dei colori, controllo se era già stato usato.
     QBrush color = selectRandomColor();
 
-    // Impost le labels.
-    remoteCurs->setLabels(qLbl, qLbl2);
-    remoteCurs->setLabelsStyle(color, fontSize);
-
     // Inserisco nella mappa dei colori.
     siteIdsColors.insert(siteId, color);
     cursors.insert(siteId, remoteCurs);
+
+    // Impost le labels.
+    remoteCurs->setLabels(qLbl, qLbl2);
+    remoteCurs->setLabelsStyle(color.color().toRgb(), fontSize);
+
 }
 
 QBrush KKEditor::selectRandomColor(){
