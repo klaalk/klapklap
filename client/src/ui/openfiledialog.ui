@@ -246,7 +246,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Alias:</string>
+         <string>Nickname:</string>
         </property>
        </widget>
       </item>

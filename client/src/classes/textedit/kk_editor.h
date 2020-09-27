@@ -93,9 +93,12 @@ public:
             name->move(qRect.x(),qRect.y()-static_cast<int>(1.7*fontSize));
         else name->move(qRect.x()-static_cast<int>(0.1*fontSize),qRect.y()-17);
 #ifdef Q_OS_MACOS
-        if(fontSize<10)
-            name->move(qRect.x(),qRect.y()-static_cast<int>(1.15*fontSize));
-        else name->move(qRect.x()-static_cast<int>(0.1*fontSize),qRect.y()-11.5);
+         earpiece->move(qRect.x(), qRect.y()-static_cast<int>(0.2*fontSize));
+        if(fontSize<10){
+            name->move(qRect.x()+static_cast<int>(0.55*fontSize),qRect.y()-static_cast<int>(1.15*fontSize));
+            earpiece->move(qRect.x(), qRect.y());
+        }
+        else name->move(qRect.x()+static_cast<int>(0.55*fontSize),qRect.y()-11.5);
 #endif
     }
     int getGlobalPositon() {

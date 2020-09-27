@@ -17,9 +17,10 @@ AccessDialog::AccessDialog(QWidget *parent) :
     styleFile.open( QFile::ReadOnly );
     setStyleSheet(QString( styleFile.readAll()));
     setFixedSize(this->size());
-
+    QSize *size = new QSize(300,300);
+    gif_->setScaledSize(*size);
     ui_->gif_viewer->setMovie(gif_);
-    ui_->logo_view->setPixmap((*logo_).scaled(200,190,Qt::KeepAspectRatio));
+    ui_->logo_view->setPixmap((*logo_).scaled(217,217,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     ui_->signup_widget->hide();
 
 #ifdef test

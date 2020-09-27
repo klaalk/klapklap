@@ -169,6 +169,7 @@ void KKTextEdit::sendDiffText()
         if (diff.isEmpty()) {
             // Se ora non c'è niente vuol dire che ho selezionato e cancellato
             qDebug() << "DELETE: "<< lastDiff << " - START " << selectionStart << " END " << selectionEnd;
+
             emit alignmentNotifyEvent(selectionStart, selectionStart);
             emit textChangedEvent(DEL, lastDiff, selectionStart, selectionEnd);
 
@@ -188,6 +189,7 @@ void KKTextEdit::sendDiffText()
                 // E inserito
                 qDebug() << "INSERT: " << diff << " - START " << selectionStart << " END " << selectionStart + diff.length();
                 emit textChangedEvent(INS, diff, selectionStart, selectionStart + diff.length());
+
                 emit alignmentNotifyEvent(selectionStart, selectionStart + diff.length());
             }
         }
