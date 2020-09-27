@@ -22,6 +22,11 @@ public:
     void mousePressEvent(QMouseEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
 
+    QTextCursor cursorIn(int position);
+    void setCursorPosition(int position);
+    void restoreCursorPosition();
+    int cursorPosition();
+
 public slots:
     void handleTextChange();
     void textUndo();
@@ -36,6 +41,7 @@ private:
     int end = -1;
     int selectionStart = -1;
     int selectionEnd = -1;
+    int localCursorPosition = -1;
 
     /// Variabile che conta quanti tasti ho premuto
     int keyCounter = 0;

@@ -3,6 +3,7 @@
 //
 
 #include "kk_client.h"
+
 #include <utility>
 
 //#define test
@@ -162,7 +163,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         handleQuitFileResponse();
 
     } else if(response.getRequestType() == CRDT) {
-        handleCrdtResponse(response);
+        handleTextChangeResponse(response);
 
     } else if(response.getRequestType() == CHAT) {
         QStringList bodyList = response.getBodyList();
@@ -184,10 +185,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         editor->removeParticipant(params.at(0));
 
     } else if(response.getRequestType() == ALIGNMENT_CHANGE){
-        handleAlignmentChange(response);
-
-    } else if(response.getRequestType() == CHARFORMAT_CHANGE){
-        handleCharFormatChange(response);
+        handleAlignmentChangeResponse(response);
 
     } else {
         modal.setModal("L'operazione è andata a buon fine", "Chiudi", GENERIC_SUCCESS);
@@ -363,58 +361,71 @@ void KKClient::handleQuitFileResponse()
     sendGetFilesRequest();
 }
 
-void KKClient::handleCrdtResponse(KKPayload response) {
+void KKClient::handleTextChangeResponse(KKPayload response) {
     // Ottengo i campi della risposta
     QStringList body = response.getBodyList();
     QString operation = body.takeFirst();
-    QString siteId = body.takeFirst();
-    unsigned long position = 0;
+    QString remoteSiteId = body.takeFirst();
+    int remoteCursorPos = QVariant(body.takeFirst()).toInt();
+
+    KKPosition crdtPosition(0, 0);
+    int currentPosition = -1, startPosition = -1;
+
     for (QString crdtChar : body) {
         KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
-        if (operation == CRDT_INSERT) {
-            position = crdt->remoteInsert(charPtr);
-        } else if (operation == CRDT_DELETE) {
-            position = crdt->remoteDelete(charPtr);
-        }
 
-        editor->applyRemoteChanges(operation, siteId, QChar::fromLatin1(charPtr->getValue()), static_cast<int>(position), charPtr->getKKCharFont(), charPtr->getKKCharColor());
+        if (operation == CRDT_FORMAT)
+            crdtPosition = crdt->remoteFormatChange(charPtr);
+        else if (operation == CRDT_INSERT)
+            crdtPosition = crdt->remoteInsert(charPtr);
+        else if (operation == CRDT_DELETE)
+            crdtPosition = crdt->remoteDelete(charPtr);
+
+        if (currentPosition == -1)
+            currentPosition = crdt->calculateGlobalPosition(crdtPosition);
+
+        if (operation == CRDT_FORMAT)
+            editor->applyRemoteFormatChange(currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
+        else
+            editor->applyRemoteTextChange(operation, QChar::fromLatin1(charPtr->getValue()), currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
+
+
+        if (startPosition == -1)
+            startPosition = currentPosition;
+
+        currentPosition++;
     }
-    // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
-    editor->updateRemoteCursor(siteId, static_cast<int>(position));
-    int start = operation == CRDT_INSERT ? static_cast<int>(position) - body.size() : static_cast<int>(position);
-    editor->updateCursors(siteId, start, operation == CRDT_INSERT ? body.size() : -body.size());
-    editor->applySiteIdsPositions(siteId, findPositions(siteId));
+
+    if (user->getUsername() != remoteSiteId) {
+        editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
+    }
+
+    int delta = 0;
+    if (operation != CRDT_FORMAT)
+        delta = currentPosition - startPosition;
+
+    editor->updateCursors(remoteSiteId, startPosition, delta);
+    editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
+
 }
 
-void KKClient::handleAlignmentChange(KKPayload response){
-
+void KKClient::handleAlignmentChangeResponse(KKPayload response){
     QStringList bodyList = response.getBodyList();
     QString alignment = bodyList[0];
     QString startAlignLine = bodyList[1];
     QString endAlignLine = bodyList[2];
-    int alignPos;
 
+    int alignPos;
+    // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
     for(unsigned long i = startAlignLine.toULong(); i <= endAlignLine.toULong(); i++){
-        // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
+        // Controlla che la riga esista
         if(crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)){
-            //controlla che la riga esista){ //controlla che la riga esista
             crdt->setLineAlignment(i, alignment.toInt());
-            alignPos = static_cast<int>(crdt->calculateGlobalPosition(KKPosition(i,0)));
+            alignPos = crdt->calculateGlobalPosition(KKPosition(i, 0));
             editor->applyRemoteAlignmentChange(alignment.toInt(), alignPos);
         } else {
             break;
         }
-    }
-}
-
-void KKClient::handleCharFormatChange(KKPayload response){
-    QStringList body = response.getBodyList();
-
-    for (QString crdtChar : body) {
-        KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
-        unsigned long remotePos = crdt->remoteFormatChange(charPtr);
-        editor->applyRemoteFormatChange(static_cast <int>(remotePos), charPtr->getKKCharFont(), charPtr->getKKCharColor());
-
     }
 }
 
@@ -603,14 +614,16 @@ void KKClient::handleModalActions(const QString &modalType)
 /// CRDT ACTIONS
 
 void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStringList fonts, QStringList colors) {
+    QStringList changes;
+
     unsigned long line, col;
     crdt->calculateLineCol(start, 0, &line, &col);
-    QVector<KKCharPtr> charsPtr;
-    QStringList changes;
+
     bool correctInsert = true;
-    if (crdt->canInsert(line, col)) {
+    if (crdt->checkPosition(line, col)) {
         changes.push_back(CRDT_INSERT);
         changes.push_back(user->getUsername());
+        changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
         int i = 0;
         for(QChar value : values) {
             KKCharPtr charPtr = crdt->localInsert(value.toLatin1(), KKPosition(line, col), fonts.at(i), colors.at(i));
@@ -631,26 +644,25 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
     if (!changes.isEmpty() && correctInsert)
         sendCrdtRequest(changes);
     else {
-           logger("Inserimento illegale per il CRDT");
-           modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
-           modal.show();
-           sendRequest(LOAD_FILE, NONE, {link});
-       }
+        logger("Inserimento illegale per il CRDT");
+        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.show();
+        sendRequest(LOAD_FILE, NONE, {link});
+    }
 }
 
 void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QString value) {
     unsigned long startLine, endLine, startCol, endCol;
-
     crdt->calculateLineCol(start, 0, &startLine, &startCol);
     crdt->calculateLineCol(end, 0, &endLine, &endCol);
     list<KKCharPtr> deletedChars = crdt->localDelete(KKPosition(startLine, startCol), KKPosition(endLine, endCol));
 
     QStringList changes;
     QString deletedValue;
-
     if (deletedChars.size() > 0) {
         changes.push_back(CRDT_DELETE);
         changes.push_back(user->getUsername());
+        changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
 
         for (KKCharPtr charPtr : deletedChars) {
             deletedValue.append(charPtr->getValue());
@@ -661,12 +673,80 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
     if (!changes.isEmpty() && value == deletedValue)
         sendCrdtRequest(changes);
     else {
-           logger("Cancellazione illegale per il CRDT");
-           modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
-           modal.show();
-           sendRequest(LOAD_FILE, NONE, {link});
-       }
+        logger("Cancellazione illegale per il CRDT");
+        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.show();
+        sendRequest(LOAD_FILE, NONE, {link});
+    }
 }
+
+
+void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStringList colors){
+    QStringList changes;
+
+    unsigned long line, col;
+    crdt->calculateLineCol(start, 0, &line, &col);
+
+    if (crdt->checkPosition(line, col)) {
+        changes.push_back(CRDT_FORMAT);
+        changes.push_back(user->getUsername());
+        changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
+
+        for (int i = 0; i < fonts.size(); i++) {
+            QChar value;
+            KKCharPtr charPtr = crdt->changeSingleKKCharFormat(KKPosition(line, col), fonts.at(i), colors.at(i), &value);
+            if (charPtr != nullptr)
+                changes.push_back(crdt->encodeCrdtChar(charPtr));
+            if (value != '\n') {
+                col++;
+            } else {
+                line++;
+                col = 0;
+            }
+        }
+    }
+
+    if (!changes.isEmpty())
+        sendCrdtRequest(changes);
+    else {
+        logger("Cambio formato illegale per il CRDT");
+        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.show();
+        sendRequest(LOAD_FILE, NONE, {link});
+    }
+}
+
+void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
+    unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol;
+    // Le colonne non serviranno
+    crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol);
+    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
+    for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
+        // Aggiorno il crdt con gli allineamenti
+        crdt->setLineAlignment(static_cast<unsigned long>(i), alignment);
+    }
+    sendRequest(ALIGNMENT_CHANGE, NONE, {QString::number(alignment), QString::number(static_cast<int>(startAlignLine)), QString::number(static_cast<int>(endAlignLine))});
+}
+
+void KKClient::onNotifyAlignment(int alignStart, int alignEnd){ //prende l'allineamento delle righe da start a end dal textedit e manda un messaggio di cambio allineamento per quelle righr
+    unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol; //le colonne non serviranno
+    int pos;
+    int alignment;
+    crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol);
+    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 02, &endAlignLine, &endAlignCol);
+
+    for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
+        pos = crdt->calculateGlobalPosition(KKPosition(i, 0));
+        alignment = editor->getCurrentAlignment(static_cast<int>(pos));
+
+        // Controlla che la riga esista
+        if(crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)){
+            crdt->setLineAlignment(static_cast<unsigned long>(i), alignment);
+            sendRequest(ALIGNMENT_CHANGE, NONE,{QString::number(alignment), QString::number(static_cast<int>(i)), QString::number(static_cast<int>(i))});
+        }
+    }
+}
+
 
 void KKClient::onSaveCrdtToFile() {
     if(fileValid) {
@@ -701,61 +781,4 @@ void KKClient::onSiteIdClicked(const QString& siteId)
 void KKClient::onUpdateSiteIdsPositions(const QString &siteId)
 {
     editor->applySiteIdsPositions(siteId, findPositions(siteId));
-}
-
-void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
-    unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol;
-    // Le colonne non serviranno
-    crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol);
-    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
-    for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
-        // Aggiorno il crdt con gli allineamenti
-        crdt->setLineAlignment(static_cast<unsigned long>(i), alignment);
-    }
-    sendRequest(ALIGNMENT_CHANGE, NONE, {QString::number(alignment), QString::number(static_cast<int>(startAlignLine)), QString::number(static_cast<int>(endAlignLine))});
-}
-
-
-void KKClient::onCharFormatChanged(unsigned long pos, QStringList fonts, QStringList colors){
-    unsigned long line, col;
-    crdt->calculateLineCol(pos, 0, &line, &col);
-    QStringList changes;
-    for (int i = 0; i < fonts.size(); i++) {
-        QChar value;
-        qDebug() << "CHCF " << line << " " << col;
-        KKCharPtr charPtr = crdt->changeSingleKKCharFormat(KKPosition(line, col), fonts.at(i), colors.at(i), &value);
-
-        if (charPtr != nullptr)
-            changes.push_back(crdt->encodeCrdtChar(charPtr));
-
-
-        if (value != '\n') {
-            col++;
-        } else {
-            line++;
-            col = 0;
-        }
-    }
-
-    if (!changes.isEmpty())
-        sendRequest(CHARFORMAT_CHANGE, NONE, changes);
-}
-
-void KKClient::onNotifyAlignment(int alignStart, int alignEnd){ //prende l'allineamento delle righe da start a end dal textedit e manda un messaggio di cambio allineamento per quelle righr
-    unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol; //le colonne non serviranno
-    unsigned long pos;
-    int alignment;
-    crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol);
-    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 02, &endAlignLine, &endAlignCol);
-
-    for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
-        pos = crdt->calculateGlobalPosition(KKPosition(i, 0));
-        alignment = editor->getCurrentAlignment(static_cast<int>(pos));
-
-        // Controlla che la riga esista
-        if(crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)){
-            crdt->setLineAlignment(static_cast<unsigned long>(i), alignment);
-            sendRequest(ALIGNMENT_CHANGE, NONE,{QString::number(alignment), QString::number(static_cast<int>(i)), QString::number(static_cast<int>(i))});
-        }
-    }
 }

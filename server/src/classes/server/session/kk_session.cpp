@@ -96,9 +96,6 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType()== ALIGNMENT_CHANGE){
             handleAlignChangeRequest(req);
         }
-        else if(req.getRequestType() == CHARFORMAT_CHANGE){
-            handleFormatChangeRequest(req);
-        }
         else if(req.getRequestType() == CHAT) {
             handleChatRequest(req);
         }
@@ -255,13 +252,6 @@ void KKSession::handleCrdtRequest(KKPayload request) {
 
 void KKSession::handleAlignChangeRequest(KKPayload request){
     if(file->deliver(ALIGNMENT_CHANGE, SUCCESS, request.getBodyList(), "All")<0){
-        disconnectFromFile();
-        sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
-    }
-}
-
-void KKSession::handleFormatChangeRequest(KKPayload request){
-    if(file->deliver(CHARFORMAT_CHANGE,SUCCESS,request.getBodyList(), user->getUsername())<0){
         disconnectFromFile();
         sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
     }

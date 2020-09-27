@@ -38,12 +38,11 @@
 #define SET_PARTECIPANTS "STPR"
 #define ADDED_PARTECIPANT "ADPR"
 #define REMOVED_PARTECIPANT "RMPR"
-#define CHARFORMAT_CHANGE "CHCF"
 
 /// Payload CRDT Action
 #define CRDT_INSERT "INSERT"
 #define CRDT_DELETE "DELETE"
-
+#define CRDT_FORMAT "FORMAT"
 /// Payload results
 #define NONE "000"
 #define SUCCESS "200"

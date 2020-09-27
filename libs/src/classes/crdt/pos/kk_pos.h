@@ -5,7 +5,6 @@
 #ifndef KK_POS_H
 #define KK_POS_H
 
-#include "../../../kklibexport.h"
 #include <memory>
 
 class KKPosition {
@@ -18,5 +17,5 @@ public:
     unsigned long getCh();
 };
 
-typedef std::shared_ptr<KKPosition> KKPosPtr;
+typedef std::shared_ptr<KKPosition> KKPositionPtr;
 #endif //KK_POS_H

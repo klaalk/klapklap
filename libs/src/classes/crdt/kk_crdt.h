@@ -46,23 +46,23 @@ public:
     void decodeCrdt(QStringList encodedCrdt);
     KKCharPtr decodeCrdtChar(QString encodedChar);
 
-    bool canInsert(unsigned long start, unsigned long end);
     KKCharPtr localInsert(char val, KKPosition pos, QString font, QString color);
     list<KKCharPtr> localDelete(KKPosition startPos, KKPosition endPos);
 
-    unsigned long remoteInsert(const KKCharPtr& charPtr);
-    unsigned long remoteDelete(const KKCharPtr& charPtr);
-    unsigned long remoteFormatChange(const KKCharPtr& charPtr);
+    KKPosition remoteInsert(const KKCharPtr& charPtr);
+    KKPosition remoteDelete(const KKCharPtr& charPtr);
+    KKPosition remoteFormatChange(const KKCharPtr& charPtr);
 
     list<KKCharPtr> changeMultipleKKCharFormat(KKPosition start, KKPosition end,QString font_, QString color_);//cambia il formato di tutte le KKChar comprese tra le due posizioni e restituisce la lista delle KKChar cambiate
     KKCharPtr changeSingleKKCharFormat(KKPosition pos, QString font, QString color, QChar* value);
 
     void calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col);
-    unsigned long calculateGlobalPosition(KKPosition pos);
+    int calculateGlobalPosition(KKPosition pos);
 
     void setLineAlignment(unsigned long idx, int align);
     int getLineAlignment(unsigned long idx);
     bool checkLine(unsigned long lineIdx);
+    bool checkPosition(unsigned long start, unsigned long end);
 
     vector<int> getLinesAlignment() const;
     vector<list<KKCharPtr>> getText() const;

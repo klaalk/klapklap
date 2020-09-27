@@ -58,6 +58,32 @@ void KKTextEdit::wheelEvent(QWheelEvent *e)
     QTextEdit::wheelEvent(e);
 }
 
+QTextCursor KKTextEdit::cursorIn(int position)
+{
+    localCursorPosition = textCursor().position();
+
+    QTextCursor tmp = textCursor();
+    tmp.setPosition(position);
+
+    return tmp;
+}
+
+void KKTextEdit::setCursorPosition(int position)
+{
+    localCursorPosition = position;
+    textCursor().setPosition(position);
+}
+
+void KKTextEdit::restoreCursorPosition()
+{
+    textCursor().setPosition(localCursorPosition);
+}
+
+int KKTextEdit::cursorPosition()
+{
+    return textCursor().position();
+}
+
 void KKTextEdit::handleTextChange()
 {
     textChanged = true;
@@ -177,7 +203,6 @@ void KKTextEdit::sendDiffText()
 
                 emit textChangedEvent(DEL, lastDiff, end, start);
 
-
             } else {
                 // Altrimenti ho inserito oppure cancellato in AVANTI
                 QString diff = toPlainText().mid(start, end-start);
@@ -196,8 +221,8 @@ void KKTextEdit::sendDiffText()
                     qDebug() << "INSERT: "<< diff << " - START " << start << " END " << end;
                     emit textChangedEvent(INS, diff, start, end);
 
-                    if(diff.length()>1)
-                        emit alignmentNotifyEvent(start, end);
+//                    if(diff.length()>1)
+//                        emit alignmentNotifyEvent(start, end);
                 }
             }
 
@@ -211,6 +236,7 @@ void KKTextEdit::sendDiffText()
                 length = -length;
                 QString lastDiff = lastText.mid(start, length);
                 qDebug() << "DELETE: " << lastDiff << " - START " << start << " END " << start + length;
+
                 if(lastDiff.length()>1)
                     emit alignmentNotifyEvent(start, start+length);
                 emit textChangedEvent(DEL, lastDiff, start, start + length);

@@ -127,13 +127,13 @@ public:
     void loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments);
     void applyRemoteAlignmentChange(int alignment, int alignPos);
     void applyRemoteFormatChange(int position, QString font, QString color);
-    void applyRemoteChanges(const QString& operation, const QString& name, const QString& text, int globalPos,const QString& font, const QString& colorRecived);
+    void applyRemoteTextChange(const QString& operation, const QString& text, int globalPos, const QString& font, const QString& colorRecived);
+    void applyRemoteCursorChange(const QString& siteId, int position);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);
     void applySiteIdClicked(const QString& name);
 
 
     void updateCursors(QString siteId, int position, int value);
-    void updateRemoteCursor(QString siteId, int position);
     void updateLabels();
 
     int getCurrentAlignment(int pos);
@@ -151,7 +151,6 @@ public:
     bool clickedOne(const QString& siteId);
     bool clickedAny();
 
-    KKTextEdit *textEdit;
 public slots:
     void fileNew();
 
@@ -228,11 +227,13 @@ private:
     QFontComboBox *comboFont{};
     QComboBox *comboSize{};
     QToolBar *tb{};
-    KKChat* chatDialog;
     QMap<QString, QSharedPointer<QList<int>>> siteIdsPositions;
     QMap<QString, QBrush> siteIdsColors;
     QList<QString> siteIdsClicked;
     QMap<QString, QString> participantsAlias;
+
+    KKChat* chatDialog;
+    KKTextEdit *textEdit;
 
     QList<QBrush> primaryColors_={QColor(255,179,216,255),
                                     QColor(240,98,146,71),

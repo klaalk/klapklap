@@ -59,7 +59,6 @@ private:
 
     void handleCrdtRequest(KKPayload request);
     void handleAlignChangeRequest(KKPayload request);
-    void handleFormatChangeRequest(KKPayload request);
 
     void handleChatRequest(KKPayload request);
 

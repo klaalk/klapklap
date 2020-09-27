@@ -66,7 +66,7 @@ KKEditor::KKEditor(QWidget *parent)
 #ifdef Q_OS_OSX
     setUnifiedTitleAndToolBarOnMac(true);
 #endif
-//    setWindowState(Qt::WindowMaximized);
+    //    setWindowState(Qt::WindowMaximized);
     setWindowTitle(QCoreApplication::applicationName());
 
     this->setMouseTracking(true);
@@ -161,8 +161,8 @@ void KKEditor::clear()
         blockCursor=false;
 }
 
-void KKEditor::setLink(QString link){
-    this->link=link;
+void KKEditor::setLink(QString link_) {
+    link = link_;
 }
 
 bool KKEditor::load(const QString &f)
@@ -190,7 +190,6 @@ bool KKEditor::load(const QString &f)
 void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments)
 {
     clear();
-
     int startPos = 0;
     unsigned long lineIdx = 0;
     for(const auto& line : crdt) {
@@ -199,19 +198,15 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int>
 
         for(const auto& charPtr : line) {
             QString remoteSiteId = QString::fromStdString(charPtr->getSiteId());
-            applyRemoteChanges(CRDT_INSERT,
-                               remoteSiteId,
+            applyRemoteTextChange(CRDT_INSERT,
                                QChar::fromLatin1(charPtr->getValue()),
                                startPos,
                                charPtr->getKKCharFont(),
                                charPtr->getKKCharColor());
-            if (siteId != remoteSiteId) {
-                KKCursor* remote = cursors.value(remoteSiteId);
-                if (remote == nullptr)
-                    createCursorAndLabel(remote, remoteSiteId, startPos);
-                remote->setGlobalPositon(startPos);
-                remote->showLabels();
-            }
+
+            if (siteId != remoteSiteId)
+                applyRemoteCursorChange(remoteSiteId, startPos);
+
             startPos++;
         }
     }
@@ -221,13 +216,9 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int>
 }
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
-//    qDebug() << "[applyRemoteAlignmentChange]" << " ALIGN: " << alignment << " POS: " << alignPos;
+    //    qDebug() << "[applyRemoteAlignmentChange]" << " ALIGN: " << alignment << " POS: " << alignPos;
 
-    QTextCursor tmpCursor = textEdit->textCursor();
-    int curStartPos = tmpCursor.position();
-
-    tmpCursor.setPosition(alignPos);
-    textEdit->setTextCursor(tmpCursor);
+    QTextCursor tmpCursor = textEdit->cursorIn(alignPos);
 
     QTextBlockFormat f;
 
@@ -250,8 +241,7 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 
     updateLabels();
 
-    tmpCursor.setPosition(curStartPos);
-    textEdit->setTextCursor(tmpCursor);
+    textEdit->restoreCursorPosition();
 }
 
 void KKEditor::applyRemoteFormatChange(int position, QString font, QString color){
@@ -261,12 +251,7 @@ void KKEditor::applyRemoteFormatChange(int position, QString font, QString color
         cursorBlocked=true;
     else blockCursor=true;
 
-//    qDebug() << "[applyRemoteFormatChange]" << " position: " << position << " font: " << font << " color: " << color;
-
-    QTextCursor editorCurs = textEdit->textCursor();
-    int lastPos=editorCurs.position();
-
-    editorCurs.setPosition(position);
+    QTextCursor editorCurs = textEdit->cursorIn(position);
     editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
 
     QFont fontNuovo;
@@ -274,21 +259,25 @@ void KKEditor::applyRemoteFormatChange(int position, QString font, QString color
     QColor coloreNuovo(color);
 
     QTextCharFormat format = editorCurs.charFormat();
-    if(format.font()!=fontNuovo)
+
+    if(format.font() != fontNuovo)
         format.setFont(fontNuovo);
 
-    if(format.foreground()!=coloreNuovo)
+    if(format.foreground() != coloreNuovo)
         format.setForeground(coloreNuovo);
 
     editorCurs.setCharFormat(format);
 
-    editorCurs.setPosition(lastPos);
+    textEdit->restoreCursorPosition();
+
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
 }
 
-void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteId, const QString& text, int position, const QString& font, const QString& color) {
+void KKEditor::applyRemoteTextChange(const QString& operation, const QString& text, int position, const QString& font, const QString& color) {
+
+    qDebug() << QString("APPLY REMOTE [%1]: %2 in %3 with font %4 and color %5").arg(operation, text, QVariant(position).toString(), font, color);
 
     bool cursorBlocked=false;
     if(blockCursor)
@@ -296,31 +285,39 @@ void KKEditor::applyRemoteChanges(const QString& operation, const QString& siteI
     else blockCursor=true;
 
     //Prelevo il cursore dell'editor.
-    QTextCursor editorCurs = textEdit->textCursor();
-    int myEditorCursPos = editorCurs.position();
-
-    // Muovo il cursore dell'editor.
-    editorCurs.setPosition(position);
+    QTextCursor editorCurs = textEdit->cursorIn(position);
 
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
-       editorCurs.insertText(text);
-       //Aggiorno formato
-       applyRemoteFormatChange(position, font, color);
+        // Inserisco il testo
+        editorCurs.insertText(text);
+
+        // Aggiorno formato
+        applyRemoteFormatChange(position, font, color);
 
     } else if(operation == CRDT_DELETE) {
-       editorCurs.deleteChar();
+        editorCurs.deleteChar();
     }
 
-    if (myEditorCursPos > position)
-        editorCurs.setPosition(operation == CRDT_INSERT ? myEditorCursPos+text.size() : myEditorCursPos-text.size());
-    else editorCurs.setPosition(myEditorCursPos);
+    textEdit->restoreCursorPosition();
 
-    textEdit->setTextCursor(editorCurs);
+    int localCursorPosition = textEdit->cursorPosition();
+    if (localCursorPosition > position)
+        textEdit->setCursorPosition(operation == CRDT_INSERT ?
+                                        localCursorPosition+text.size() : localCursorPosition-text.size());
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
+}
+
+void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
+{
+    KKCursor* remote = cursors.value(siteId);
+    if (remote == nullptr)
+        createCursorAndLabel(remote, siteId, position);
+    remote->setGlobalPositon(position);
+    remote->showLabels();
 }
 
 void KKEditor::applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list){
@@ -761,8 +758,7 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
 }
 
 int KKEditor::getCurrentAlignment(int pos){
-    QTextCursor cursor=textEdit->textCursor();
-    cursor.setPosition(pos);
+    QTextCursor cursor = textEdit->cursorIn(pos);
     Qt::Alignment a=cursor.blockFormat().alignment();
 
     int alignment=0;
@@ -1015,19 +1011,21 @@ void KKEditor::mergeFormat(const QTextCharFormat &format)
     else blockCursor=true;
 
     QTextCursor cursor = textEdit->textCursor();
-    int lastPos=cursor.position();
+    int lastPos = cursor.position();
 
     if(cursor.hasSelection()) {
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd();
+
         QStringList fonts, colors;
         for(int i = start; i < end; i++) {
             cursor.setPosition(i);
-            cursor.movePosition(cursor.Right,QTextCursor::KeepAnchor);
+            cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
             cursor.mergeCharFormat(format);
             fonts.push_back(format.font().toString());
             colors.push_back(format.foreground().color().name());
         }
+
         emit charFormatChange(static_cast<unsigned long>(start), fonts, colors);
     }
     textEdit->mergeCurrentCharFormat(format);
@@ -1094,7 +1092,7 @@ void KKEditor::colorText(const QString& siteId){
     }
 
     QTextCursor cursor = textEdit->textCursor();
-    int lastPos=cursor.position();
+    int lastPos = cursor.position();
 
     for(int pos : *siteIdsPositions.value(siteId)) {
         cursor.setPosition(pos);
@@ -1127,7 +1125,7 @@ void KKEditor::clearColorText(const QString& siteId){
     isColored = false;
 
     QTextCursor cursor = textEdit->textCursor();
-    int lastPos=cursor.position();
+    int lastPos = cursor.position();
 
     for(int pos : *siteIdsPositions.value(siteId)){
         //qDebug() << "[clearColorText] - setPosition: " << pos;
@@ -1156,51 +1154,32 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
 
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
-    int lastPos=editorCurs.position();
+    int lastPos = editorCurs.position();
 
     for (KKCursor* c : cursors.values()) {
-        if (c !=nullptr && (c->getGlobalPositon() > position || c->getSiteId() == siteId) ) {
-            int nuovaPos = c->getGlobalPositon() + value;
+        if (c !=nullptr) {
+            int nuovaPos = c->getGlobalPositon();
+
+            if (c->getGlobalPositon() > position)
+                nuovaPos += value;
+
             nuovaPos = nuovaPos >= 0 ? nuovaPos : 0;
-            qDebug() << "[updateCursors] - " << c->getLabelName() << " PREV " << c->getGlobalPositon() << " POS " << nuovaPos;
-            c->setGlobalPositon(nuovaPos);
-            editorCurs.setPosition(nuovaPos);
-            c->setLabelsSize(editorCurs.charFormat().font().pointSize());
-            c->moveLabels(textEdit->cursorRect(editorCurs));
+
+            if (c->getGlobalPositon() > position || siteId == c->getSiteId()) {
+                qDebug() << "[updateCursors] - " << c->getLabelName() << " PREV " << c->getGlobalPositon() << " POS " << nuovaPos;
+                c->setGlobalPositon(nuovaPos);
+                editorCurs.setPosition(nuovaPos);
+                c->setLabelsSize(editorCurs.charFormat().font().pointSize());
+                c->moveLabels(textEdit->cursorRect(editorCurs));
+            }
         }
     }
+
     editorCurs.setPosition(lastPos);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
-}
-
-void KKEditor::updateRemoteCursor(QString siteId, int position)
-{
-    if(siteId != this->siteId) {
-        // Prelevo il cursore dell'editor
-        QTextCursor editorCurs = textEdit->textCursor();
-
-        // Lo sposto
-        editorCurs.setPosition(position);
-
-        //Prelevo il cursore remoto.
-        KKCursor* remoteCurs = cursors.value(siteId);
-
-        //Se non esiste quel cursore lo creo e lo memorizzo insieme alla label associata.
-        if (remoteCurs == nullptr)
-           createCursorAndLabel(remoteCurs, siteId, position);
-
-        // Aggiorno il cursore remoto
-        remoteCurs->setGlobalPositon(position);
-
-        // Muovo il cursore dopo l'aggiornamento
-        remoteCurs->moveLabels(textEdit->cursorRect(editorCurs));
-
-        // Mostro le labels
-        remoteCurs->showLabels();
-    }
 }
 
 void KKEditor::updateLabels() {
@@ -1211,7 +1190,7 @@ void KKEditor::updateLabels() {
     else blockCursor=true;
 
     QTextCursor editorCurs = textEdit->textCursor();
-    int lastPos=editorCurs.position();
+    int lastPos = editorCurs.position();
 
     for(KKCursor* c : cursors.values()) {
         qDebug() << "[updateLabels] - setPosition: " << c->getGlobalPositon();
@@ -1250,10 +1229,13 @@ void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& siteId
 QBrush KKEditor::selectRandomColor(){
     QBrush color;
     int index;
-    if(primaryColors_.size()!=0){
+
+    if (primaryColors_.size()!=0) {
         index=rand() % primaryColors_.size();
         return primaryColors_.takeAt(index);
     }
+
     index=rand() % secondaryColors_.size();
+
     return secondaryColors_.takeAt(index);
 }

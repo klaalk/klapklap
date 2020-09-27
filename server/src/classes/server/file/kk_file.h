@@ -43,12 +43,9 @@ public:
     void setUsers(QStringList users);
     QStringList getUsers();
 
-    void applyRemoteTextChange(QStringList bodyList);
-    void applyRemoteCharFormatChange(QStringList bodyList);
     int applyRemoteTextChangeSafe(QStringList bodyList);
-    int applyRemoteCharFormatChangeSafe(QStringList bodyList);
     int applyRemoteAlignmentChangeSafe (QStringList bodyList);
-    void applyRemoteAlignmentChange(QStringList bodylist);
+
     void initCrdtText();
     void flushCrdtText();
     bool partecipantExist(QString username);

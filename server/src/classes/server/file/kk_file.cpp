@@ -38,8 +38,6 @@ int KKFile::deliver(QString type, QString result, QStringList message, QString u
 
     if (type == CRDT) {
         code = applyRemoteTextChangeSafe(data->getBodyList());
-    } else if (type == CHARFORMAT_CHANGE) {
-        code = applyRemoteCharFormatChangeSafe(data->getBodyList());
     } else if(type==ALIGNMENT_CHANGE){
         code = applyRemoteAlignmentChangeSafe(data->getBodyList());
     } else if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
@@ -98,71 +96,47 @@ QStringList KKFile::getUsers()
 
 int KKFile::applyRemoteAlignmentChangeSafe(QStringList bodyList){
     try {
-        applyRemoteAlignmentChange(bodyList);
+        QString alignment = bodyList[0];
+        QString startAlignLine = bodyList[1];
+        QString endAlignLine = bodyList[2];
+
+        // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
+        for(unsigned long i=startAlignLine.toULong(); i<=endAlignLine.toULong(); i++) {
+            // Controlla che la riga esista
+            if (crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)) {
+                crdt->setLineAlignment(static_cast<long>(i),alignment.toULong());
+            } else {
+                break;
+            }
+        }
         return 200;
     } catch (QException e) {
-        KKLogger::log(e.what(),"applyRemoteInsertSafe");
+        KKLogger::log(e.what(), "applyRemoteAlignmentChangeSafe");
         return -200;
     }
 }
 
-
-
-int KKFile::applyRemoteTextChangeSafe(QStringList bodyList){
+int KKFile::applyRemoteTextChangeSafe(QStringList body){
     try {
-        applyRemoteTextChange(bodyList);
+        // Ottengo i campi della risposta
+        QString operation = body.takeFirst();
+        QString siteId = body.takeFirst();
+
+        body.pop_front();
+        for (QString crdtChar : body) {
+            KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
+            if (operation == CRDT_INSERT) {
+                crdt->remoteInsert(charPtr);
+            } else if (operation == CRDT_DELETE) {
+                crdt->remoteDelete(charPtr);
+            } else if (operation == CRDT_FORMAT) {
+                crdt->remoteFormatChange(charPtr);
+            }
+        }
         return 200;
     } catch (QException e) {
-        KKLogger::log(e.what(),"applyRemoteInsertSafe");
+        KKLogger::log(e.what(), "applyRemoteChangeSafe");
         return -200;
-    }
-}
-
-int KKFile::applyRemoteCharFormatChangeSafe(QStringList bodyList){
-    try {
-        applyRemoteCharFormatChange(bodyList);
-        return 200;
-    } catch (QException e) {
-       KKLogger::log(e.what(),"applyRemoteCharFormatChangeSafe");
-       return -200;
-    }
-
-}
-
-void KKFile::applyRemoteTextChange(QStringList body)
-{
-    // Ottengo i campi della risposta
-    QString operation = body.takeFirst();
-    QString siteId = body.takeFirst();
-
-    for (QString crdtChar : body) {
-        KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
-        if (operation == CRDT_INSERT) {
-            crdt->remoteInsert(charPtr);
-        } else if (operation == CRDT_DELETE) {
-            crdt->remoteDelete(charPtr);
-        }
-    }
-}
-
-void KKFile::applyRemoteCharFormatChange(QStringList body){
-    for (QString crdtChar : body) {
-        KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
-        crdt->remoteFormatChange(charPtr);
-    }
-}
-
-void KKFile::applyRemoteAlignmentChange(QStringList bodyList){
-    QString alignment=bodyList[0];
-    QString startAlignLine=bodyList[1];
-    QString endAlignLine=bodyList[2];
-
-    for(unsigned long i=startAlignLine.toULong();i<=endAlignLine.toULong();i++){ //per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-        if (crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)) { //controlla che la riga esista
-            crdt->setLineAlignment(static_cast<long>(i),alignment.toULong());
-        } else {
-            break;
-        }
     }
 }
 

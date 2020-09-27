@@ -69,13 +69,13 @@ private slots:
     void onEditorClosed();
     void onInsertTextToCrdt(unsigned long position, QList<QChar>, QStringList fonts, QStringList colors);
     void onRemoveTextFromCrdt(unsigned long start, unsigned long end, QString value);
+    void onCharFormatChanged(unsigned long pos, QStringList fonts, QStringList colors);
+    void onAlignmentChange(int alignment, int alignStart, int alignEnd);
+    void onNotifyAlignment(int alignStart, int alignEnd);
     void onSaveCrdtToFile();
     void onOpenFileDialog();
     void onSiteIdClicked(const QString& siteId);
     void onUpdateSiteIdsPositions(const QString& siteId);
-    void onCharFormatChanged(unsigned long pos, QStringList fonts, QStringList colors);
-    void onAlignmentChange(int alignment, int alignStart, int alignEnd);
-    void onNotifyAlignment(int alignStart, int alignEnd);
     void logger(QString message);
 
 private:
@@ -90,9 +90,8 @@ private:
     void handleOpenFileResponse(KKPayload res);
     void handleLoadFileResponse(KKPayload res);
     void handleQuitFileResponse();
-    void handleCrdtResponse(KKPayload res);
-    void handleAlignmentChange(KKPayload res);
-    void handleCharFormatChange(KKPayload res);
+    void handleTextChangeResponse(KKPayload res);
+    void handleAlignmentChangeResponse(KKPayload res);
     void handleErrorResponse(KKPayload res);
     void handleClientErrorResponse(KKPayload res);
     void handleServerErrorResponse(KKPayload res);
