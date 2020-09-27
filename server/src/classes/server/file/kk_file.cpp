@@ -182,6 +182,10 @@ bool KKFile::partecipantExist(QString username){
     return participants->contains(username);
 }
 
+int KKFile::getPartecipantsNumber(){
+    return participants->size();
+}
+
 KKVectorPayloadPtr KKFile::getRecentMessages()
 {
     return recentMessages;

@@ -49,6 +49,8 @@ public:
     void initCrdtText();
     void flushCrdtText();
     bool partecipantExist(QString username);
+    int getPartecipantsNumber();
+
 
     QStringList getCrdtText();
     QStringList getParticipants();

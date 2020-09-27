@@ -274,6 +274,10 @@ void KKSession::connectToFile(QString filename)
             sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: stai già partecipando al file"});
             return;
         }
+        if(file->getPartecipantsNumber()==25){
+            sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: numero massimo di partecipanti attivi raggiunto"});
+            return;
+        }
 
     } else {
         // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
