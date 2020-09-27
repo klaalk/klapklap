@@ -219,18 +219,16 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int>
 }
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
-<<<<<<< Updated upstream
+
     qDebug() << QString("[applyRemoteAlignmentChange] Alignment %1 in position %2").arg(QVariant(alignment).toString(), QVariant(alignPos).toString());
-    QTextCursor tmpCursor = textEdit->cursorIn(alignPos);
-=======
+   // QTextCursor tmpCursor = textEdit->cursorIn(alignPos);
+
     //    qDebug() << "[applyRemoteAlignmentChange]" << " ALIGN: " << alignment << " POS: " << alignPos;
 
     QTextCursor tmpCursor = textEdit->textCursor();
     int startPos = tmpCursor.position();
     tmpCursor.setPosition(alignPos);
     textEdit->setTextCursor(tmpCursor);
-
->>>>>>> Stashed changes
 
     QTextBlockFormat f;
 
