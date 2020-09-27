@@ -26,6 +26,7 @@ public:
     void setCursorPosition(int position);
     void restoreCursorPosition();
     int cursorPosition();
+    int localCursorPos();
 
 public slots:
     void handleTextChange();

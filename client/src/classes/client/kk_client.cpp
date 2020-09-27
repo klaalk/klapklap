@@ -370,8 +370,8 @@ void KKClient::handleTextChangeResponse(KKPayload response) {
 
     KKPosition crdtPosition(0, 0);
     int currentPosition = -1, startPosition = -1;
-
-    for (QString crdtChar : body) {
+    while (!body.isEmpty()) {
+        QString crdtChar = operation == CRDT_DELETE ? body.takeLast() : body.takeFirst();
         KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
 
         if (operation == CRDT_FORMAT)
@@ -389,11 +389,13 @@ void KKClient::handleTextChangeResponse(KKPayload response) {
         else
             editor->applyRemoteTextChange(operation, QChar::fromLatin1(charPtr->getValue()), currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
 
-
-        if (startPosition == -1)
+        if (startPosition == -1 || currentPosition < startPosition)
             startPosition = currentPosition;
 
-        currentPosition++;
+        if (operation == CRDT_DELETE)
+            currentPosition--;
+        else
+            currentPosition++;
     }
 
     if (user->getUsername() != remoteSiteId) {
@@ -404,9 +406,9 @@ void KKClient::handleTextChangeResponse(KKPayload response) {
     if (operation != CRDT_FORMAT)
         delta = currentPosition - startPosition;
 
+    qDebug() << "DELTA " << delta;
     editor->updateCursors(remoteSiteId, startPosition, delta);
     editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
-
 }
 
 void KKClient::handleAlignmentChangeResponse(KKPayload response){
@@ -639,6 +641,7 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
                 correctInsert = false;
                 break;
             }
+            i++;
         }
     }
     if (!changes.isEmpty() && correctInsert)
@@ -659,6 +662,7 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
 
     QStringList changes;
     QString deletedValue;
+
     if (deletedChars.size() > 0) {
         changes.push_back(CRDT_DELETE);
         changes.push_back(user->getUsername());
@@ -671,7 +675,7 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
     }
 
     if (!changes.isEmpty() && value == deletedValue)
-        sendCrdtRequest(changes);
+        sendCrdtRequest((changes));
     else {
         logger("Cancellazione illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
@@ -733,7 +737,7 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){ //prende l'allin
     int pos;
     int alignment;
     crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol);
-    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 02, &endAlignLine, &endAlignCol);
+    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
 
     for(unsigned long i=startAlignLine;i<=endAlignLine;i++){
         pos = crdt->calculateGlobalPosition(KKPosition(i, 0));

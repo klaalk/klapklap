@@ -285,8 +285,9 @@ void KKCrdt::calculateLineCol(unsigned long position, unsigned long startLine, u
         if(position<=succ){
 
             if(position==succ && std::next(text[i].begin(), static_cast<long>(text[i].size()-1))->get()->getValue()=='\n'){
-                *line=i+1; *col=0;//per calcolare il carattere \n
-            }else {
+                *line=i+1;
+                *col=0;//per calcolare il carattere \n
+            } else {
                 *col=position-tot;
                 *line=i;
             }

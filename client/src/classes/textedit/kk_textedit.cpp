@@ -61,7 +61,7 @@ void KKTextEdit::wheelEvent(QWheelEvent *e)
 QTextCursor KKTextEdit::cursorIn(int position)
 {
     localCursorPosition = textCursor().position();
-
+//    qDebug() << "Cursor In " << position;
     QTextCursor tmp = textCursor();
     tmp.setPosition(position);
 
@@ -76,12 +76,19 @@ void KKTextEdit::setCursorPosition(int position)
 
 void KKTextEdit::restoreCursorPosition()
 {
-    textCursor().setPosition(localCursorPosition);
+    QTextCursor tmp = textCursor();
+    tmp.setPosition(localCursorPosition);
+    setTextCursor(tmp);
 }
 
 int KKTextEdit::cursorPosition()
 {
     return textCursor().position();
+}
+
+int KKTextEdit::localCursorPos()
+{
+    return localCursorPosition;
 }
 
 void KKTextEdit::handleTextChange()
@@ -162,7 +169,7 @@ void KKTextEdit::sendDiffText()
         if (diff.isEmpty()) {
             // Se ora non c'è niente vuol dire che ho selezionato e cancellato
             qDebug() << "DELETE: "<< lastDiff << " - START " << selectionStart << " END " << selectionEnd;
-            emit alignmentNotifyEvent(selectionStart, selectionEnd);
+            emit alignmentNotifyEvent(selectionStart, selectionStart);
             emit textChangedEvent(DEL, lastDiff, selectionStart, selectionEnd);
 
         } else {
