@@ -9,7 +9,7 @@
 using std::string;
 using std::shared_ptr;
 
-KKCrdt::KKCrdt(string siteid, KKStrategy strategy) : siteId(std::move(siteid)), strategy(strategy), boundary(10), base(32) {
+KKCrdt::KKCrdt(QString siteid, KKStrategy strategy) : siteId(siteid), strategy(strategy), boundary(10), base(32) {
     linesAlignment.push_back(1);
 }
 
@@ -43,13 +43,13 @@ QStringList KKCrdt::encodeCrdt(){
 
 QString KKCrdt::encodeCrdtChar(KKCharPtr charPtr)
 {
-    string charValue; charValue.push_back(charPtr->getValue());
-    string identifiers = charPtr->encodeIdentifiers();
+    QString charValue; charValue.push_back(charPtr->getValue());
+    QString identifiers = charPtr->encodeIdentifiers();
 
     QString encodedChar;
-    encodedChar.append(QString(CRDT_FORMAT).arg(charValue.length(), CRDT_FORMAT_LENGTH, 10, QChar('0')) + QString::fromStdString(charValue));
-    encodedChar.append(QString(CRDT_FORMAT).arg(charPtr->getSiteId().length(), CRDT_FORMAT_LENGTH, 10, QChar('0')) + QString::fromStdString(charPtr->getSiteId()));
-    encodedChar.append(QString(CRDT_FORMAT).arg(identifiers.length(), CRDT_FORMAT_LENGTH, 10, QChar('0')) + QString::fromStdString(identifiers));
+    encodedChar.append(QString(CRDT_FORMAT).arg(charValue.length(), CRDT_FORMAT_LENGTH, 10, QChar('0')) + charValue);
+    encodedChar.append(QString(CRDT_FORMAT).arg(charPtr->getSiteId().length(), CRDT_FORMAT_LENGTH, 10, QChar('0')) + charPtr->getSiteId());
+    encodedChar.append(QString(CRDT_FORMAT).arg(identifiers.length(), CRDT_FORMAT_LENGTH, 10, QChar('0')) + identifiers);
     encodedChar.append(QString(CRDT_FORMAT).arg(charPtr->getKKCharFont().length(), CRDT_FORMAT_LENGTH, 10, QChar('0')) + charPtr->getKKCharFont());
     encodedChar.append(QString(CRDT_FORMAT).arg(charPtr->getKKCharColor().length(), CRDT_FORMAT_LENGTH, 10, QChar('0')) + charPtr->getKKCharColor());
     return encodedChar;
@@ -94,7 +94,7 @@ KKCharPtr KKCrdt::decodeCrdtChar(QString encodedChar)
     } while (start < encodedChar.size());
 
     if (!fields.isEmpty()) {
-        charPtr = KKCharPtr(new KKChar(fields[0].at(0).toLatin1(), fields[1].toStdString()));
+        charPtr = KKCharPtr(new KKChar(fields[0].at(0), fields[1]));
         charPtr->decodeIdentifiers(fields[2]);
         charPtr->setKKCharFont(fields[3]);
         charPtr->setKKCharColor(fields[4]);
@@ -103,7 +103,7 @@ KKCharPtr KKCrdt::decodeCrdtChar(QString encodedChar)
     return charPtr;
 }
 
-KKCharPtr KKCrdt::localInsert(char val, KKPosition pos, QString font, QString color) {
+KKCharPtr KKCrdt::localInsert(QChar val, KKPosition pos, QString font, QString color) {
     KKCharPtr newChar = generateChar(val, pos);
     newChar->setKKCharFont(font);
     newChar->setKKCharColor(color);
@@ -140,7 +140,7 @@ list<KKCharPtr> KKCrdt::localDelete(KKPosition startPos, KKPosition endPos){
     deleteEmptyLines();
 
     if (newLineRemoved && !text[startPos.getLine()].empty()) {
-        char ch = std::next(text[startPos.getLine()].begin(), static_cast<long>(text[startPos.getLine()].size()-1))->get()->getValue();
+        QChar ch = std::next(text[startPos.getLine()].begin(), static_cast<long>(text[startPos.getLine()].size()-1))->get()->getValue();
 
         if (!text[startPos.getLine()+1].empty() && ch != '\n') {
             mergeLines(startPos.getLine());
@@ -354,7 +354,7 @@ vector<list<KKCharPtr>> KKCrdt::getText() const
 
 QString KKCrdt::getSiteId() const
 {
-    return QString::fromStdString(siteId);
+    return siteId;
 }
 
 
@@ -471,7 +471,7 @@ void KKCrdt::insertChar(const KKCharPtr& charPtr, KKPosition pos) {
     }
 }
 
-KKCharPtr KKCrdt::generateChar(char val, KKPosition pos) {
+KKCharPtr KKCrdt::generateChar(QChar val, KKPosition pos) {
     vector<KKIdentifierPtr> posBefore,  posAfter, posNew;
     KKCharPtr charPtr = KKCharPtr(new KKChar(val, siteId));
     posBefore = findPositionBefore(pos);

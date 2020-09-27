@@ -61,7 +61,7 @@ void KKClient::initEditor()
 {
     logger("Inizializzazione editor...");
     if (crdt != nullptr) delete crdt;
-    crdt = new KKCrdt(user->getUsername().toStdString(), casuale);
+    crdt = new KKCrdt(user->getUsername(), casuale);
 
     if (chat != nullptr) delete chat;
     chat = new KKChat();
@@ -388,7 +388,7 @@ void KKClient::handleTextChangeResponse(KKPayload response) {
         if (operation == CRDT_FORMAT)
             editor->applyRemoteFormatChange(currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
         else
-            editor->applyRemoteTextChange(operation, QChar::fromLatin1(charPtr->getValue()), currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
+            editor->applyRemoteTextChange(operation, charPtr->getValue(), currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
 
         if (startPosition == -1 || currentPosition < startPosition)
             startPosition = currentPosition;
@@ -553,8 +553,8 @@ bool KKClient::sendRequest(QString type, QString result, QStringList values) {
     QString body;
     for (QString elem : values) body.append(" ").append(elem);
     logger("[sendRequest] - Send: " + req.getRequestType() + body);
-    int size = static_cast<int>(socket.sendTextMessage(req.getData()));
-    return size == req.getTotalLength();
+    qint64 size = socket.sendTextMessage(req.getData());
+    return size >= req.getTotalLength();
 }
 
 void KKClient::logger(QString message)
@@ -629,8 +629,8 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
         changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
         int i = 0;
         for(QChar value : values) {
-            KKCharPtr charPtr = crdt->localInsert(value.toLatin1(), KKPosition(line, col), fonts.at(i), colors.at(i));
-            if (charPtr->getValue() == value.toLatin1()) {
+            KKCharPtr charPtr = crdt->localInsert(value, KKPosition(line, col), fonts.at(i), colors.at(i));
+            if (charPtr->getValue() == value) {
                 changes.push_back(crdt->encodeCrdtChar(charPtr));
                 if (value != '\n') {
                     col++;
@@ -768,7 +768,7 @@ QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
     int global = 0;
     for(const list<KKCharPtr>& linea: crdt->getText()){
         for(const KKCharPtr& carattere: linea){
-            if(carattere->getSiteId() == siteId.toStdString()){
+            if(carattere->getSiteId() == siteId){
                 myList->push_front(global);
             }
             global++;

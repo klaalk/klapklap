@@ -198,9 +198,9 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int>
             applyRemoteAlignmentChange(alignments.at(lineIdx++), startPos);
 
         for(const auto& charPtr : line) {
-            QString remoteSiteId = QString::fromStdString(charPtr->getSiteId());
+            QString remoteSiteId = charPtr->getSiteId();
             applyRemoteTextChange(CRDT_INSERT,
-                               QChar::fromLatin1(charPtr->getValue()),
+                               charPtr->getValue(),
                                startPos,
                                charPtr->getKKCharFont(),
                                charPtr->getKKCharColor());
