@@ -20,30 +20,30 @@
 #include "../identifier/kk_identifier.h"
 
 using std::vector;
-using std::string;
+
 using std::stringstream;
 
 class KKChar {
     vector<KKIdentifierPtr> position; // array di identifier, serve per dare come posizioni univoche numeri anche con la virgola (es 0,5 -> [identifier1.digit=0][identifier2.digit=5])
-    string siteId; //univoco per il client
-    char value; //valore (es 'a')
+    QString siteId; //univoco per il client
+    QChar value; //valore (es 'a')
     //QTextCharFormat KKCharFormat;
     QString KKCharFont;
     QString KKCharColor;
 
 public:
-    KKChar(char value, string siteId);//costruttore
-    KKChar(char value,string siteId,QString KKCharFont, QString KKCharColor);
+    KKChar(QChar value, QString siteId);
+    KKChar(QChar value, QString siteId, QString KKCharFont, QString KKCharColor);
     ~KKChar();
-    char getValue();
-    string getSiteId();
-    void insertSiteId(string siteId);
+    QChar getValue();
+    QString getSiteId();
+    void insertSiteId(QString siteId);
     int compareTo(const KKChar &other); //torna: 1 - questa > l'altra, -1 l'altra > questa, 0 se no
     void pushIdentifier(const KKIdentifierPtr& x); //mette l'identifier nuovo come ultimo elemento del vettore posizione(aggiunge una cifra)
     void insertIdentifier(vector<KKIdentifierPtr>::iterator it, KKIdentifierPtr id);
     void insertPosition(vector<KKIdentifierPtr> position);
     vector<KKIdentifierPtr> getPosition();
-    std::string encodeIdentifiers();
+    QString encodeIdentifiers();
     void decodeIdentifiers(QString encodedIds);
     QString getKKCharFont();
     void setKKCharFont(QString font);

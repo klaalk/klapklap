@@ -23,6 +23,7 @@
 #include <QCharRef>
 #include <QDebug>
 #include <QString>
+#include <QChar>
 
 #include "char/kk_char.h"
 #include "pos/kk_pos.h"
@@ -30,7 +31,6 @@
 
 using std::list;
 using std::vector;
-using std::string;
 
 enum KKStrategy {
     casuale, minus, plus
@@ -38,7 +38,7 @@ enum KKStrategy {
 
 class KKCrdt {
 public:
-    KKCrdt(string siteid, KKStrategy strategy);
+    KKCrdt(QString siteid, KKStrategy strategy);
     ~KKCrdt();
     void clear();
     QStringList encodeCrdt();
@@ -46,7 +46,7 @@ public:
     void decodeCrdt(QStringList encodedCrdt);
     KKCharPtr decodeCrdtChar(QString encodedChar);
 
-    KKCharPtr localInsert(char val, KKPosition pos, QString font, QString color);
+    KKCharPtr localInsert(QChar val, KKPosition pos, QString font, QString color);
     list<KKCharPtr> localDelete(KKPosition startPos, KKPosition endPos);
 
     KKPosition remoteInsert(const KKCharPtr& charPtr);
@@ -78,7 +78,7 @@ private:
     /// Inserimento Char nel crdt
     void insertChar(const KKCharPtr& charPtr, KKPosition pos);
     /// Genera la Char partendo dal valore e dalla posizione nel local text
-    KKCharPtr generateChar(char val, KKPosition pos);
+    KKCharPtr generateChar(QChar val, KKPosition pos);
     /// Partendo dalle position di due Char(adiacenti) genera la posizione della Char
     vector<KKIdentifierPtr> generatePositionBetween(vector<KKIdentifierPtr> position1, vector<KKIdentifierPtr> position2, vector<KKIdentifierPtr> *new_position, unsigned long level);
     /// Dati due identifier ne genera uno nuovo da mettere nella position della nuova Char usando la strategia opportuna
@@ -116,7 +116,7 @@ private:
     /// Creo un nuovo Char da quello passato per parametro
     KKCharPtr copyChar(KKChar* source);
 
-    string siteId;
+    QString siteId;
     KKStrategy strategy;
     vector<KKStrategy> strategyCache;
     vector<list<KKCharPtr>> text;

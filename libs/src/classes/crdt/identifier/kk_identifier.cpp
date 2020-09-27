@@ -3,9 +3,8 @@
 //
 #include "kk_identifier.h"
 #include <utility>
-using std::string;
 
-KKIdentifier::KKIdentifier(unsigned long digit, string siteid) : digit(digit), siteid(std::move(siteid)) {};
+KKIdentifier::KKIdentifier(unsigned long digit, QString siteid) : digit(digit), siteid(std::move(siteid)) {};
 
 int KKIdentifier::compareTo(const KKIdentifier &other) {
     if (this->digit < other.digit) {
@@ -28,6 +27,6 @@ void KKIdentifier::setDigit(unsigned long digit) {
     this->digit = digit;
 }
 
-string KKIdentifier::getSiteId() {
+QString KKIdentifier::getSiteId() {
     return this->siteid;
 }

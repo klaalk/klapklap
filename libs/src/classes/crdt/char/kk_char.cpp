@@ -4,12 +4,14 @@
 
 #include "kk_char.h"
 
-KKChar::KKChar(char value, string siteId) : siteId(std::move(siteId)), value(value) {
+#include <QVariant>
+
+KKChar::KKChar(QChar value, QString siteId) : siteId(std::move(siteId)), value(value) {
 
 };
 
 
-KKChar::KKChar(char value, string siteId, QString KKCharFont, QString KKCharColor) : siteId(std::move(siteId)), value(value),  KKCharFont(KKCharFont),KKCharColor(KKCharColor){
+KKChar::KKChar(QChar value, QString siteId, QString KKCharFont, QString KKCharColor) : siteId(std::move(siteId)), value(value),  KKCharFont(KKCharFont),KKCharColor(KKCharColor){
 
 };
 
@@ -50,16 +52,16 @@ int KKChar::compareTo(const KKChar &other) {
     }
 }
 
-char KKChar::getValue() {
+QChar KKChar::getValue() {
     return value;
 }
 
-string KKChar::getSiteId() {
+QString KKChar::getSiteId() {
     return siteId;
 }
 
-void KKChar::insertSiteId(string siteId) {
-    this->siteId = std::move(siteId);
+void KKChar::insertSiteId(QString siteId) {
+    this->siteId = siteId;
 }
 
 void KKChar::insertPosition(vector<KKIdentifierPtr> position) {
@@ -70,14 +72,14 @@ vector<KKIdentifierPtr> KKChar::getPosition() {
     return this->position;
 }
 
-string KKChar::encodeIdentifiers() {
-    string identifiers;
+QString KKChar::encodeIdentifiers() {
+    QString identifiers;
     stringstream strstream;
+
     for (const auto& pos : position) {
-        strstream << pos->getDigit() << ";";
+        identifiers.append(QVariant(static_cast<qulonglong>(pos->getDigit())).toString()).append(";");
     }
-    strstream >> identifiers;
-    identifiers.pop_back();
+    identifiers.remove(identifiers.size()-1, 1);
     return identifiers;
 }
 
@@ -85,7 +87,7 @@ void KKChar::decodeIdentifiers(QString encodedIds)
 {
     QStringList ids = encodedIds.split(";");
     for(QString id : ids) {
-        unsigned long val = stoul(id.toStdString(), nullptr, 0);
+        unsigned long val = id.toULong();
         pushIdentifier(std::shared_ptr<KKIdentifier>(new KKIdentifier(val, siteId)));
     }
 }

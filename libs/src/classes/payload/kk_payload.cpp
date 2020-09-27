@@ -49,7 +49,7 @@ QString KKPayload::getHeader() {
 }
 
 int KKPayload::getTotalLength() {
-    return data.toLatin1().length();
+    return data.length();
 }
 
 QString KKPayload::getRequestType() {
