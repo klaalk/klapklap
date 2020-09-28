@@ -264,6 +264,10 @@ KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font, QString
         charPtr = copyChar(ch->get());
     }
 
+    if(ch->get()->getValue()=='\n'){
+        charPtr = copyChar(ch->get());
+    }
+
     if (ch->get() != nullptr)
         *value = ch->get()->getValue();
 
