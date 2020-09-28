@@ -33,13 +33,8 @@ void KKFile::leave(KKParticipantPtr participant) {
 
 int KKFile::deliver(QString type, QString result, QStringList message, QString username) {
     KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
-    int code=0;
 
-    if (type == CRDT) {
-        code = applyRemoteTextChangeSafe(data->getBodyList());
-    } else if(type==ALIGNMENT_CHANGE){
-        code = applyRemoteAlignmentChangeSafe(data->getBodyList());
-    } else if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
+    if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
         recentMessages->push_back(data);
     }
 
@@ -53,7 +48,7 @@ int KKFile::deliver(QString type, QString result, QStringList message, QString u
             }
         });
     }
-    return code;
+    return 0;
 }
 
 void KKFile::setFile(QSharedPointer<QFile> file)

@@ -242,28 +242,33 @@ void KKSession::handleQuitFileRequest()
 }
 void KKSession::handleCrdtRequest(KKPayload request) {
     QStringList body = request.getBodyList();
-    KKTask *mytask = new KKTask([&, body]() {
-        if (file->deliver(CRDT, SUCCESS, body, user->getUsername()) < 0) {
-            disconnectFromFile();
-            sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
-        }
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+    int code = file->applyRemoteTextChangeSafe(body);
+    if (code == 0) {
+        KKTask *mytask = new KKTask([&, body]() {
+            file->deliver(CRDT, SUCCESS, body, user->getUsername());
+        });
+        mytask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(mytask);
+    } else {
+        disconnectFromFile();
+        sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
+    }
 
 }
 
 void KKSession::handleAlignChangeRequest(KKPayload request) {
     QStringList body = request.getBodyList();
-
-    KKTask *mytask = new KKTask([&, body]() {
-        if (file->deliver(ALIGNMENT_CHANGE, SUCCESS, body, "All") < 0) {
-            disconnectFromFile();
-            sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
-        }
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+    int code = file->applyRemoteAlignmentChangeSafe(body);
+    if (code == 0) {
+        KKTask *mytask = new KKTask([&, body]() {
+            file->deliver(ALIGNMENT_CHANGE, SUCCESS, body, "All");
+        });
+        mytask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(mytask);
+    } else {
+        disconnectFromFile();
+        sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
+    }
 }
 
 void KKSession::handleChatRequest(KKPayload request) {
@@ -290,7 +295,8 @@ void KKSession::connectToFile(QString filename)
 
     } else {
         // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
-        if (db->getFileUsers(filename, &users) == DB_FILE_NOT_EXIST) {
+        if (db->getShareFileUsers(filename, &users) == DB_FILE_NOT_EXIST) {
+
             // File non esistente, controllo se l'utente ha già creato il file con lo stesso nome
             if (db->existFileByUsername(filename, user->getUsername()) == DB_FILE_NOT_EXIST) {
                 file = fileSystem->createFile(filename, user->getUsername());
@@ -298,9 +304,12 @@ void KKSession::connectToFile(QString filename)
                 if (file != FILE_SYSTEM_CREATE_ERROR) {
                     if (db->addFile(filename, file->getHash(), user->getUsername()) != DB_INSERT_FILE_SUCCESS) {
                         file = FILE_SYSTEM_CREATE_ERROR;
-                        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemnto del nuovo file nel database"});
+                        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemento del nuovo file nel database"});
                         return;
                     }
+                } else {
+                    sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile creare il file"});
+                    return;
                 }
 
             } else{

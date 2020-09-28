@@ -346,9 +346,10 @@ void KKClient::handleLoadFileResponse(KKPayload res) {
     QStringList bodyList = res.getBodyList();
     if (bodyList.isEmpty())
         return;
-
+    editor->loading(true);
     crdt->decodeCrdt(bodyList);
-    editor->loadCrdt(crdt->getText(), crdt->getLinesAlignment());
+    editor->load(crdt->getText(), crdt->getLinesAlignment());
+    editor->loading(false);
 }
 
 void KKClient::handleQuitFileResponse()
@@ -371,6 +372,7 @@ void KKClient::handleTextChangeResponse(KKPayload response) {
 
     KKPosition crdtPosition(0, 0);
     int currentPosition = -1, startPosition = -1;
+    editor->loading(true);
     while (!body.isEmpty()) {
         QString crdtChar = operation == CRDT_DELETE ? body.takeLast() : body.takeFirst();
         KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
@@ -410,6 +412,7 @@ void KKClient::handleTextChangeResponse(KKPayload response) {
     qDebug() << "DELTA " << delta;
     editor->updateCursors(remoteSiteId, startPosition, delta);
     editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
+    editor->loading(false);
 }
 
 void KKClient::handleAlignmentChangeResponse(KKPayload response){
@@ -646,11 +649,11 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
         }
     }
     if (!changes.isEmpty() && correctInsert) {
-        KKTask *mytask = new KKTask([=]() {
+        KKTask *sendTask = new KKTask([=]() {
             sendCrdtRequest(changes);
         });
-        mytask->setAutoDelete(true);
-        QThreadPool::globalInstance()->start(mytask);
+        sendTask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Inserimento illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
@@ -680,11 +683,11 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
     }
 
     if (!changes.isEmpty() && value == deletedValue) {
-        KKTask *mytask = new KKTask([=]() {
+        KKTask *sendTask = new KKTask([=]() {
             sendCrdtRequest(changes);
         });
-        mytask->setAutoDelete(true);
-        QThreadPool::globalInstance()->start(mytask);
+        sendTask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cancellazione illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
@@ -720,11 +723,11 @@ void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStri
     }
 
     if (!changes.isEmpty()) {
-        KKTask *mytask = new KKTask([=]() {
+        KKTask *sendTask = new KKTask([=]() {
             sendCrdtRequest(changes);
         });
-        mytask->setAutoDelete(true);
-        QThreadPool::globalInstance()->start(mytask);
+        sendTask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cambio formato illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);

@@ -197,6 +197,12 @@
           <height>23</height>
          </size>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="placeholderText">
+         <string>Inserisci il tuo nome</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -229,6 +235,12 @@
           <height>23</height>
          </size>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="placeholderText">
+         <string>Inserisici il tuo cognome</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -257,6 +269,12 @@
           <width>0</width>
           <height>23</height>
          </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="placeholderText">
+         <string>Inserisici il tuo nickname</string>
         </property>
        </widget>
       </item>

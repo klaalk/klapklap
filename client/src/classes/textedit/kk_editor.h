@@ -140,8 +140,8 @@ signals:
 public:
     KKEditor(QWidget *parent = nullptr);
     void clear();
-    bool load(const QString &f);
-    void loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments);
+    void loading(bool enable);
+    void load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments);
     void applyRemoteAlignmentChange(int alignment, int alignPos);
     void applyRemoteFormatChange(int position, QString font, QString color);
     void applyRemoteTextChange(const QString& operation, const QString& text, int globalPos, const QString& font, const QString& colorRecived);
@@ -248,10 +248,11 @@ private:
     QMap<QString, QBrush> siteIdsColors;
     QList<QString> siteIdsClicked;
     QMap<QString, QString> participantsAlias;
+    QMovie* loaderGif;
+    QLabel* loader;
 
     KKChat* chatDialog;
     KKTextEdit *textEdit;
-
     QList<QBrush> primaryColors_={QColor(255,179,216,255),
                                     QColor(240,98,146,71),
                                     QColor(140,158,255,127),

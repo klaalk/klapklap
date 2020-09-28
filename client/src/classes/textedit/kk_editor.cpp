@@ -68,9 +68,15 @@ KKEditor::KKEditor(QWidget *parent)
 #endif
     //    setWindowState(Qt::WindowMaximized);
     setWindowTitle(QCoreApplication::applicationName());
+    setMouseTracking(true);
 
-    this->setMouseTracking(true);
     textEdit = new KKTextEdit(this);
+
+    loaderGif = new QMovie(":/gif/animation.gif");
+    loaderGif->setScaledSize(QSize(100, 100));
+    loader = new QLabel();
+    loader->setMovie(loaderGif);
+
     //Collega funzioni nostre a funzioni di QTextEdit
     connect(textEdit, &QTextEdit::currentCharFormatChanged, this, &KKEditor::onFormatChanged);
     connect(textEdit, &QTextEdit::cursorPositionChanged, this, &KKEditor::onCursorPositionChanged);
@@ -80,18 +86,20 @@ KKEditor::KKEditor(QWidget *parent)
     connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::notifyAlignment);
 
     // Set layout
-    QHBoxLayout *layout = new QHBoxLayout;
+    QHBoxLayout *editorLayout = new QHBoxLayout;
     textEdit->setProperty("class", "TextEdit");
-    layout->addWidget(textEdit);
-    //    layout->addWidget(myWidget2);
+    editorLayout->addWidget(textEdit);
+    editorLayout->addWidget(loader);
 
     // Set layout in QWidget
-    QWidget *window = new QWidget();
-    window->setLayout(layout);
-
+    QWidget* editorView = new QWidget();
+    editorView->setLayout(editorLayout);
     // Set QWidget as the central layout of the main window
     setProperty("class", "EditorCentral");
-    setCentralWidget(window);
+    setCentralWidget(editorView);
+    textEdit->hide();
+    loaderGif->start();
+    loader->show();
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setupFileActions();
     setupEditActions();
@@ -149,43 +157,34 @@ KKEditor::KKEditor(QWidget *parent)
 
 void KKEditor::clear()
 {
-    textEdit->lockCursor();
     textEdit->clear();
-    textEdit->unlockCursor();
 }
 
 void KKEditor::setLink(QString link_) {
     link = link_;
 }
 
-bool KKEditor::load(const QString &f)
+void KKEditor::loading(bool loading)
 {
-    if (!QFile::exists(f))
-        return false;
-    QFile file(f);
-    if (!file.open(QFile::ReadOnly))
-        return false;
-
-    QByteArray data = file.readAll();
-    QTextCodec *codec = Qt::codecForHtml(data);
-    QString str = codec->toUnicode(data);
-    if (Qt::mightBeRichText(str)) {
-        textEdit->setHtml(str);
-    } else {
-        str = QString::fromLocal8Bit(data);
-        textEdit->setPlainText(str);
+    if (loading) {
+        textEdit->hide();
+        loaderGif->start();
+        loader->show();
     }
-
-    setCurrentFileName(f);
-    return true;
+    else {
+        loader->hide();
+        loaderGif->stop();
+        textEdit->show();
+    }
 }
 
-void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments)
+void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments)
 {
     clear();
     int startPos = 0;
     unsigned long lineIdx = 0;
     int editorCursorPos = 0;
+
     for(const auto& line : crdt) {
         if (lineIdx < alignments.size())
             applyRemoteAlignmentChange(alignments.at(lineIdx++), startPos);
@@ -206,9 +205,8 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int>
         }
     }
     textEdit->setCursorPosition(editorCursorPos);
-
-    updateCursors(siteId, -1, 1);
     textEdit->document()->clearUndoRedoStacks();
+    updateCursors(siteId, -1, 1);
 }
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
