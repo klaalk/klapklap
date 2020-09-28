@@ -242,28 +242,33 @@ void KKSession::handleQuitFileRequest()
 }
 void KKSession::handleCrdtRequest(KKPayload request) {
     QStringList body = request.getBodyList();
-    KKTask *mytask = new KKTask([&, body]() {
-        if (file->deliver(CRDT, SUCCESS, body, user->getUsername()) < 0) {
-            disconnectFromFile();
-            sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
-        }
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+    int code = file->applyRemoteTextChangeSafe(body);
+    if (code == 0) {
+        KKTask *mytask = new KKTask([&, body]() {
+            file->deliver(CRDT, SUCCESS, body, user->getUsername());
+        });
+        mytask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(mytask);
+    } else {
+        disconnectFromFile();
+        sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
+    }
 
 }
 
 void KKSession::handleAlignChangeRequest(KKPayload request) {
     QStringList body = request.getBodyList();
-
-    KKTask *mytask = new KKTask([&, body]() {
-        if (file->deliver(ALIGNMENT_CHANGE, SUCCESS, body, "All") < 0) {
-            disconnectFromFile();
-            sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
-        }
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+    int code = file->applyRemoteAlignmentChangeSafe(body);
+    if (code == 0) {
+        KKTask *mytask = new KKTask([&, body]() {
+            file->deliver(ALIGNMENT_CHANGE, SUCCESS, body, "All");
+        });
+        mytask->setAutoDelete(true);
+        QThreadPool::globalInstance()->start(mytask);
+    } else {
+        disconnectFromFile();
+        sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
+    }
 }
 
 void KKSession::handleChatRequest(KKPayload request) {
