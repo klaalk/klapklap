@@ -6,22 +6,6 @@ KKTextEdit::KKTextEdit(QWidget *parent): QTextEdit(parent)
     connect(this, &QTextEdit::textChanged, this, &KKTextEdit::handleTextChange);
 }
 
-void KKTextEdit::keyReleaseEvent(QKeyEvent *e)
-{
-    /// Inizio a guardare le modifiche al testo se ho premuto almeno un tasto utile (NO CMD o CTRL)
-    if (keyCounter == 1) {
-
-        if (textChanged)
-            sendDiffText();
-
-        // Decremento i tasti premuti
-        keyCounter--;
-        textChanged = false;
-    }
-    deltaText = 0;
-    QTextEdit::keyReleaseEvent(e);
-}
-
 /// Evento che inizia quando premo un tasto
 void KKTextEdit::keyPressEvent(QKeyEvent *e)
 {
@@ -42,7 +26,18 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
         textChanged = false;
     }
     QTextEdit::keyPressEvent(e);
-    deltaText = lastText.length() - toPlainText().length();
+
+    /// Inizio a guardare le modifiche al testo se ho premuto almeno un tasto utile (NO CMD o CTRL)
+    if (keyCounter == 1) {
+
+        if (textChanged)
+            sendDiffText();
+
+        // Decremento i tasti premuti
+        keyCounter--;
+        textChanged = false;
+    }
+
 }
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
@@ -269,7 +264,3 @@ void KKTextEdit::sendDiffText()
     }
 }
 
-int KKTextEdit::getDeltaText() const
-{
-    return deltaText;
-}

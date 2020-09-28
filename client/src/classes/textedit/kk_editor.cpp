@@ -266,7 +266,6 @@ void KKEditor::applyRemoteTextChange(const QString& operation, const QString& te
     qDebug() << QString("APPLY REMOTE [%1]: %2 in %3 with font %4 and color %5").arg(operation, text, QVariant(position).toString(), font, color);
 
     textEdit->lockCursor();
-    position = position + textEdit->getDeltaText();
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
         //Prelevo il cursore dell'editor e inserisco il testo
