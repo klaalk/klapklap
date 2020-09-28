@@ -754,7 +754,7 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
     if(blockCursor) return;
 
     updateCursors(siteId, static_cast<int>(start), operation == INS ? diff.size() : -diff.size());
-    QTextCursor cursor = textEdit->textCursor();
+    QTextCursor cursor = textEdit->cursorIn(start);
 
     if (operation == DEL)
         emit removeTextFromCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end), diff);
@@ -772,19 +772,21 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
         }
         emit insertTextToCrdt(static_cast<unsigned long>(start), values, fonts, colors);
     }
+
+    textEdit->restoreCursorPosition();
+
     emit updateSiteIdsPositions(siteId);
 }
 
 int KKEditor::getCurrentAlignment(int pos){
    // QTextCursor cursor = textEdit->cursorIn(pos);
    //Qt::Alignment a=cursor.blockFormat().alignment();
-  int startPos = textEdit->textCursor().position();
+//  int startPos = textEdit->textCursor().position();
 //    QTextCursor tmp = textEdit->textCursor();
 //    tmp.setPosition(pos);
 //    Qt::Alignment a=tmp.blockFormat().alignment();
 
-    QTextCursor cursor=textEdit->textCursor();
-    cursor.setPosition(pos);
+    QTextCursor cursor = textEdit->cursorIn(pos);
     Qt::Alignment a=cursor.blockFormat().alignment();
 
 
@@ -802,7 +804,7 @@ int KKEditor::getCurrentAlignment(int pos){
         alignment=4;
     }
 
-    textEdit->textCursor().setPosition(startPos);
+    textEdit->restoreCursorPosition();
     return alignment;
 }
 
@@ -1040,7 +1042,6 @@ void KKEditor::mergeFormat(const QTextCharFormat &format)
     else blockCursor=true;
 
     QTextCursor cursor = textEdit->textCursor();
-    int lastPos = cursor.position();
 
     if(cursor.hasSelection()) {
         int start = cursor.selectionStart();
@@ -1058,9 +1059,6 @@ void KKEditor::mergeFormat(const QTextCharFormat &format)
         emit charFormatChange(static_cast<unsigned long>(start), fonts, colors);
     }
     textEdit->mergeCurrentCharFormat(format);
-
-    cursor.setPosition(lastPos);
-//    textEdit->setTextCursor(cursor);
 
     updateLabels();
 
@@ -1125,8 +1123,6 @@ void KKEditor::colorText(const QString& siteId){
     }
 
     QTextCursor cursor = textEdit->textCursor();
-    int lastPos = cursor.position();
-
     for(int pos : *siteIdsPositions.value(siteId)) {
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
@@ -1138,8 +1134,6 @@ void KKEditor::colorText(const QString& siteId){
     }
     if(!siteIdsClicked.contains(siteId))
         siteIdsClicked.push_back(siteId);
-
-    cursor.setPosition(lastPos);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -1158,8 +1152,6 @@ void KKEditor::clearColorText(const QString& siteId){
     isColored = false;
 
     QTextCursor cursor = textEdit->textCursor();
-    int lastPos = cursor.position();
-
     for(int pos : *siteIdsPositions.value(siteId)){
         //qDebug() << "[clearColorText] - setPosition: " << pos;
         cursor.setPosition(pos);
@@ -1170,8 +1162,6 @@ void KKEditor::clearColorText(const QString& siteId){
             cursor.mergeCharFormat(fmt);
         }
     }
-
-    cursor.setPosition(lastPos);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -1187,7 +1177,6 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
 
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
-    int lastPos = editorCurs.position();
 
     for (KKCursor* c : cursors.values()) {
         if (c !=nullptr) {
@@ -1207,7 +1196,6 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
             }
         }
     }
-    editorCurs.setPosition(lastPos);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -1222,16 +1210,12 @@ void KKEditor::updateLabels() {
     else blockCursor=true;
 
     QTextCursor editorCurs = textEdit->textCursor();
-    int lastPos = editorCurs.position();
-
     for(KKCursor* c : cursors.values()) {
         qDebug() << "[updateLabels] - setPosition: " << c->getGlobalPositon();
         editorCurs.setPosition(c->getGlobalPositon());
         c->setLabelsSize(editorCurs.charFormat().font().pointSize());
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
-
-    editorCurs.setPosition(lastPos);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
