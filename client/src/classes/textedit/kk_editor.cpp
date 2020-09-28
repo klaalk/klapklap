@@ -673,12 +673,12 @@ void KKEditor::onFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
-    updateLabels();
+    //updateLabels();
 }
 
 void KKEditor::onCursorPositionChanged()
 {
-    if(blockCursor) return;
+//    if(blockCursor) return;
 
     QTextList *list = textEdit->textCursor().currentList();
 
@@ -742,7 +742,6 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
         textEdit->unlockCursor();
         emit insertTextToCrdt(static_cast<unsigned long>(start), values, fonts, colors);
     }
-
 
     emit updateSiteIdsPositions(siteId);
 }
@@ -1121,7 +1120,7 @@ void KKEditor::clearColorText(const QString& siteId){
 }
 
 void KKEditor::updateCursors(QString siteId, int position, int value){
-    textEdit->lockCursor();
+    //textEdit->lockCursor();
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
     for (KKCursor* c : cursors.values()) {
@@ -1142,11 +1141,11 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
             }
         }
     }
-    textEdit->unlockCursor();
+    //textEdit->unlockCursor();
 }
 
 void KKEditor::updateLabels() {
-    textEdit->lockCursor();
+    //textEdit->lockCursor();
     QTextCursor editorCurs = textEdit->textCursor();
     for(KKCursor* c : cursors.values()) {
         qDebug() << "[updateLabels] - setPosition: " << c->getGlobalPositon();
@@ -1154,7 +1153,7 @@ void KKEditor::updateLabels() {
         c->setLabelsSize(editorCurs.charFormat().font().pointSize());
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
-    textEdit->unlockCursor();
+    //textEdit->unlockCursor();
 }
 
 void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& siteId, int position) {
