@@ -15,6 +15,7 @@ signals:
     void textChangedEvent(QString operation, QString diff, int start, int end);
     void wheelEventTriggered();
     void alignmentNotifyEvent(int startAling,int endAlign);
+
 public:
     KKTextEdit(QWidget *parent = nullptr);
     void keyReleaseEvent(QKeyEvent *e) override;
@@ -30,6 +31,8 @@ public:
     void restoreCursorPosition();
     int cursorPosition();
     int localCursorPos();
+
+    int getDeltaText() const;
 
 public slots:
     void handleTextChange();
@@ -50,6 +53,7 @@ private:
     /// Variabile che conta quanti tasti ho premuto
     int keyCounter = 0;
     int cursorCounter = 0;
+    int deltaText = 0;
     bool wasSelected = false;
     bool textChanged = false;
     QString lastText;

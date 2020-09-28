@@ -18,6 +18,7 @@ void KKTextEdit::keyReleaseEvent(QKeyEvent *e)
         keyCounter--;
         textChanged = false;
     }
+    deltaText = 0;
     QTextEdit::keyReleaseEvent(e);
 }
 
@@ -40,8 +41,8 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
         lastText = toPlainText();
         textChanged = false;
     }
-
     QTextEdit::keyPressEvent(e);
+    deltaText = lastText.length() - toPlainText().length();
 }
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
