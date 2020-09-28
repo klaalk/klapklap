@@ -1060,7 +1060,7 @@ void KKEditor::mergeFormat(const QTextCharFormat &format)
     textEdit->mergeCurrentCharFormat(format);
 
     cursor.setPosition(lastPos);
-    textEdit->setTextCursor(cursor);
+//    textEdit->setTextCursor(cursor);
 
     updateLabels();
 
@@ -1140,7 +1140,6 @@ void KKEditor::colorText(const QString& siteId){
         siteIdsClicked.push_back(siteId);
 
     cursor.setPosition(lastPos);
-    textEdit->setTextCursor(cursor);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
@@ -1173,7 +1172,7 @@ void KKEditor::clearColorText(const QString& siteId){
     }
 
     cursor.setPosition(lastPos);
-    textEdit->setTextCursor(cursor);
+
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
         blockCursor=false;
@@ -1208,9 +1207,7 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
             }
         }
     }
-
     editorCurs.setPosition(lastPos);
-    textEdit->setTextCursor(editorCurs);
 
     // Sblocco il cursore dell'editor.
     if(!cursorBlocked)
