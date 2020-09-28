@@ -211,7 +211,6 @@ KKPosition KKCrdt::remoteFormatChange(const KKCharPtr& charPtr){
 }
 
 list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition end, QString font, QString color){
-
     list<KKCharPtr> charsChanged;
     list<KKCharPtr>::iterator currentIter, startIter, endIter;
 
@@ -258,13 +257,10 @@ KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font, QString
     list<KKCharPtr>::iterator ch = std::next(text[pos.getLine()].begin(), pos.getCh());
 
     KKCharPtr charPtr;
-    if (ch->get() != nullptr && (ch->get()->getKKCharFont() != font || ch->get()->getKKCharColor() != color)) {
+    if (ch->get() != nullptr &&
+            (ch->get()->getKKCharFont() != font || ch->get()->getKKCharColor() != color || ch->get()->getValue()=='\n')) {
         ch->get()->setKKCharFont(font);
         ch->get()->setKKCharColor(color);
-        charPtr = copyChar(ch->get());
-    }
-
-    if(ch->get()->getValue()=='\n'){
         charPtr = copyChar(ch->get());
     }
 

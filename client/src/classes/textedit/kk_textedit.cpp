@@ -18,7 +18,6 @@ void KKTextEdit::keyReleaseEvent(QKeyEvent *e)
         keyCounter--;
         textChanged = false;
     }
-
     QTextEdit::keyReleaseEvent(e);
 }
 
@@ -29,24 +28,19 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
         restoreCursorPosition();
 
     if (keyCounter == 0) {
-
+        keyCounter++;
         if (textCursor().hasSelection()) {
             selectionStart = textCursor().selectionStart();
             selectionEnd = textCursor().selectionEnd();
             wasSelected = true;
-
         } else {
             wasSelected = false;
-
         }
-
         start = textCursor().position();
-
-        keyCounter++;
+        lastText = toPlainText();
         textChanged = false;
     }
 
-    lastText = toPlainText();
     QTextEdit::keyPressEvent(e);
 }
 
@@ -149,6 +143,9 @@ void KKTextEdit::textCopy()
 
 void KKTextEdit::textPaste()
 {
+    if (cursorCounter > 0)
+            restoreCursorPosition();
+
     start = textCursor().position();
     lastText = toPlainText();
     paste();
@@ -159,6 +156,9 @@ void KKTextEdit::textPaste()
 
 void KKTextEdit::textCut()
 {
+    if (cursorCounter > 0)
+            restoreCursorPosition();
+
     start = textCursor().position();
     lastText = toPlainText();
     cut();
@@ -170,7 +170,7 @@ void KKTextEdit::sendDiffText()
 {
     // Prelevo la posizione corrente del cursore
     end = textCursor().position();
-
+    localCursorPosition = end;
     // Se il testo era selezionato e ora non lo è più
     if (wasSelected && !textCursor().hasSelection()) {
         // Allora guardo inizio e fine della slezione facendo in modo che inizio sia sempre "minore" di fine

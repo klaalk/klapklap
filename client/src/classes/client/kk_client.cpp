@@ -598,6 +598,7 @@ void KKClient::handleModalActions(const QString &modalType)
 
     } else if (modalType == CRDT_ILLEGAL) {
         modal.hide();
+        sendRequest(LOAD_FILE, NONE, {link});
 
     } else if (modalType == OPENFILE_ERROR) {
         modal.hide();
@@ -649,9 +650,8 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
         sendCrdtRequest(changes);
     else {
         logger("Inserimento illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
         modal.show();
-        sendRequest(LOAD_FILE, NONE, {link});
     }
 }
 
@@ -679,9 +679,8 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
         sendCrdtRequest((changes));
     else {
         logger("Cancellazione illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
         modal.show();
-        sendRequest(LOAD_FILE, NONE, {link});
     }
 }
 
@@ -715,9 +714,8 @@ void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStri
         sendCrdtRequest(changes);
     else {
         logger("Cambio formato illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
         modal.show();
-        sendRequest(LOAD_FILE, NONE, {link});
     }
 }
 
