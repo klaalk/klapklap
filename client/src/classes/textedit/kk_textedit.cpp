@@ -25,15 +25,21 @@ void KKTextEdit::keyReleaseEvent(QKeyEvent *e)
 /// Evento che inizia quando premo un tasto
 void KKTextEdit::keyPressEvent(QKeyEvent *e)
 {
+    if (cursorCounter > 0)
+        restoreCursorPosition();
+
     if (keyCounter == 0) {
 
         if (textCursor().hasSelection()) {
             selectionStart = textCursor().selectionStart();
             selectionEnd = textCursor().selectionEnd();
             wasSelected = true;
+
         } else {
             wasSelected = false;
+
         }
+
         start = textCursor().position();
 
         keyCounter++;
@@ -58,21 +64,32 @@ void KKTextEdit::wheelEvent(QWheelEvent *e)
     QTextEdit::wheelEvent(e);
 }
 
+void KKTextEdit::lockCursor()
+{
+    if (cursorCounter == 0) {
+        localCursorPosition = textCursor().position();
+    }
+    cursorCounter++;
+}
+
+void KKTextEdit::unlockCursor()
+{
+    cursorCounter--;
+    if (cursorCounter == 0)
+        restoreCursorPosition();
+}
+
 QTextCursor KKTextEdit::cursorIn(int position)
 {
-    localCursorPosition = textCursor().position();
-//    qDebug() << "Cursor In " << position;
     QTextCursor tmp = textCursor();
     tmp.setPosition(position);
-
     return tmp;
 }
 
 void KKTextEdit::setCursorPosition(int position)
 {
-    localCursorPosition = position;
     QTextCursor tmp = textCursor();
-    tmp.setPosition(localCursorPosition);
+    tmp.setPosition(position);
     setTextCursor(tmp);
 }
 
@@ -222,14 +239,10 @@ void KKTextEdit::sendDiffText()
                     // Se il testo attuale è vuoto da start a end allora ho cancellato in AVANTI
                     QString lastDiff = lastText.mid(start, end - start);
                     qDebug() << "DELETE: " << lastDiff << " - START " << end << " END " << start;
-
-
-
                     emit textChangedEvent(DEL, lastDiff, end, start);
 
                     if(lastDiff.length()>1)
                         emit alignmentNotifyEvent(end, start);
-
 
                 } else {
                     // Altrimenti ho inserito in AVANTI
