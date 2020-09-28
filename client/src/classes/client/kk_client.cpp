@@ -384,8 +384,8 @@ void KKClient::handleTextChangeResponse(KKPayload response) {
         else if (operation == CRDT_DELETE)
             crdtPosition = crdt->remoteDelete(charPtr);
 
-        if (currentPosition == -1)
-            currentPosition = crdt->calculateGlobalPosition(crdtPosition);
+//        if (currentPosition == -1)
+        currentPosition = crdt->calculateGlobalPosition(crdtPosition);
 
         if (operation == CRDT_FORMAT)
             editor->applyRemoteFormatChange(currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
@@ -395,10 +395,10 @@ void KKClient::handleTextChangeResponse(KKPayload response) {
         if (startPosition == -1 || currentPosition < startPosition)
             startPosition = currentPosition;
 
-        if (operation == CRDT_DELETE)
-            currentPosition--;
-        else
-            currentPosition++;
+//        if (operation == CRDT_DELETE)
+//            currentPosition--;
+//        else
+//            currentPosition++;
     }
 
     if (user->getUsername() != remoteSiteId) {
@@ -601,6 +601,7 @@ void KKClient::handleModalActions(const QString &modalType)
 
     } else if (modalType == CRDT_ILLEGAL) {
         modal.hide();
+        sendRequest(LOAD_FILE, NONE, {link});
 
     } else if (modalType == OPENFILE_ERROR) {
         modal.hide();
@@ -656,9 +657,8 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
         QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Inserimento illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
         modal.show();
-        sendRequest(LOAD_FILE, NONE, {link});
     }
 }
 
@@ -689,10 +689,6 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
         sendTask->setAutoDelete(true);
         QThreadPool::globalInstance()->start(sendTask);
     } else {
-        logger("Cancellazione illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
-        modal.show();
-        sendRequest(LOAD_FILE, NONE, {link});
     }
 }
 
@@ -730,9 +726,8 @@ void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStri
         QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cambio formato illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file è stato ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
         modal.show();
-        sendRequest(LOAD_FILE, NONE, {link});
     }
 }
 

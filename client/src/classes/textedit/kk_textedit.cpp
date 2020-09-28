@@ -6,8 +6,27 @@ KKTextEdit::KKTextEdit(QWidget *parent): QTextEdit(parent)
     connect(this, &QTextEdit::textChanged, this, &KKTextEdit::handleTextChange);
 }
 
-void KKTextEdit::keyReleaseEvent(QKeyEvent *e)
+// Evento che inizia quando premo un tasto
+void KKTextEdit::keyPressEvent(QKeyEvent *e)
 {
+    if (cursorCounter > 0)
+        restoreCursorPosition();
+
+    if (keyCounter == 0) {
+        keyCounter++;
+        if (textCursor().hasSelection()) {
+            selectionStart = textCursor().selectionStart();
+            selectionEnd = textCursor().selectionEnd();
+            wasSelected = true;
+        } else {
+            wasSelected = false;
+        }
+        start = textCursor().position();
+        lastText = toPlainText();
+        textChanged = false;
+    }
+    QTextEdit::keyPressEvent(e);
+
     /// Inizio a guardare le modifiche al testo se ho premuto almeno un tasto utile (NO CMD o CTRL)
     if (keyCounter == 1) {
 
@@ -19,35 +38,6 @@ void KKTextEdit::keyReleaseEvent(QKeyEvent *e)
         textChanged = false;
     }
 
-    QTextEdit::keyReleaseEvent(e);
-}
-
-/// Evento che inizia quando premo un tasto
-void KKTextEdit::keyPressEvent(QKeyEvent *e)
-{
-    if (cursorCounter > 0)
-        restoreCursorPosition();
-
-    if (keyCounter == 0) {
-
-        if (textCursor().hasSelection()) {
-            selectionStart = textCursor().selectionStart();
-            selectionEnd = textCursor().selectionEnd();
-            wasSelected = true;
-
-        } else {
-            wasSelected = false;
-
-        }
-
-        start = textCursor().position();
-
-        keyCounter++;
-        textChanged = false;
-    }
-
-    lastText = toPlainText();
-    QTextEdit::keyPressEvent(e);
 }
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
@@ -149,6 +139,9 @@ void KKTextEdit::textCopy()
 
 void KKTextEdit::textPaste()
 {
+    if (cursorCounter > 0)
+            restoreCursorPosition();
+
     start = textCursor().position();
     lastText = toPlainText();
     paste();
@@ -159,6 +152,9 @@ void KKTextEdit::textPaste()
 
 void KKTextEdit::textCut()
 {
+    if (cursorCounter > 0)
+            restoreCursorPosition();
+
     start = textCursor().position();
     lastText = toPlainText();
     cut();
@@ -170,7 +166,7 @@ void KKTextEdit::sendDiffText()
 {
     // Prelevo la posizione corrente del cursore
     end = textCursor().position();
-
+    localCursorPosition = end;
     // Se il testo era selezionato e ora non lo è più
     if (wasSelected && !textCursor().hasSelection()) {
         // Allora guardo inizio e fine della slezione facendo in modo che inizio sia sempre "minore" di fine
@@ -224,13 +220,7 @@ void KKTextEdit::sendDiffText()
                 // Se prima il cursore (start) era più avanti di ora (end) allora ho cancellato (in INDIETRO) da end a start
                 QString lastDiff = lastText.mid(end, start - end);
                 qDebug() << "DELETE: " << lastDiff << " - START " << end << " END " << start;
-
-
-
                 emit textChangedEvent(DEL, lastDiff, end, start);
-
-                if(lastDiff.length()>1)
-                    emit alignmentNotifyEvent(end, start);
 
             } else {
                 // Altrimenti ho inserito oppure cancellato in AVANTI
@@ -242,7 +232,7 @@ void KKTextEdit::sendDiffText()
                     emit textChangedEvent(DEL, lastDiff, end, start);
 
                     if(lastDiff.length()>1)
-                        emit alignmentNotifyEvent(end, start);
+                        emit alignmentNotifyEvent(end, end);
 
                 } else {
                     // Altrimenti ho inserito in AVANTI
@@ -265,13 +255,7 @@ void KKTextEdit::sendDiffText()
                 length = -length;
                 QString lastDiff = lastText.mid(start, length);
                 qDebug() << "DELETE: " << lastDiff << " - START " << start << " END " << start + length;
-
-
                 emit textChangedEvent(DEL, lastDiff, start, start + length);
-
-                if(lastDiff.length()>1)
-                    emit alignmentNotifyEvent(start, start+length);
-
 
                 // Mi salvo l'ultima posizione del cursore in cui è cambiato il testo (serve per il CTRL + Z)
                 lastPos = textCursor().position();
@@ -279,3 +263,4 @@ void KKTextEdit::sendDiffText()
         }
     }
 }
+
