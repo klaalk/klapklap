@@ -255,12 +255,17 @@ list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition 
 }
 
 KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font, QString color, QChar* value){
-    list<KKCharPtr>::iterator ch = std::next(text[pos.getLine()].begin(), pos.getCh());
+    list<KKCharPtr>::iterator ch;
+    ch = std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh()));
 
     KKCharPtr charPtr;
     if (ch->get() != nullptr && (ch->get()->getKKCharFont() != font || ch->get()->getKKCharColor() != color)) {
         ch->get()->setKKCharFont(font);
         ch->get()->setKKCharColor(color);
+        charPtr = copyChar(ch->get());
+    }
+
+    if(ch->get()->getValue()=='\n'){
         charPtr = copyChar(ch->get());
     }
 
