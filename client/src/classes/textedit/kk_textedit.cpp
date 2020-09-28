@@ -224,13 +224,7 @@ void KKTextEdit::sendDiffText()
                 // Se prima il cursore (start) era più avanti di ora (end) allora ho cancellato (in INDIETRO) da end a start
                 QString lastDiff = lastText.mid(end, start - end);
                 qDebug() << "DELETE: " << lastDiff << " - START " << end << " END " << start;
-
-
-
                 emit textChangedEvent(DEL, lastDiff, end, start);
-
-                if(lastDiff.length()>1)
-                    emit alignmentNotifyEvent(end, start);
 
             } else {
                 // Altrimenti ho inserito oppure cancellato in AVANTI
@@ -242,7 +236,7 @@ void KKTextEdit::sendDiffText()
                     emit textChangedEvent(DEL, lastDiff, end, start);
 
                     if(lastDiff.length()>1)
-                        emit alignmentNotifyEvent(end, start);
+                        emit alignmentNotifyEvent(end, end);
 
                 } else {
                     // Altrimenti ho inserito in AVANTI
@@ -265,13 +259,7 @@ void KKTextEdit::sendDiffText()
                 length = -length;
                 QString lastDiff = lastText.mid(start, length);
                 qDebug() << "DELETE: " << lastDiff << " - START " << start << " END " << start + length;
-
-
                 emit textChangedEvent(DEL, lastDiff, start, start + length);
-
-                if(lastDiff.length()>1)
-                    emit alignmentNotifyEvent(start, start+length);
-
 
                 // Mi salvo l'ultima posizione del cursore in cui è cambiato il testo (serve per il CTRL + Z)
                 lastPos = textCursor().position();
