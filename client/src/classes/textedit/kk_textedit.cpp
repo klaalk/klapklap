@@ -268,3 +268,8 @@ void KKTextEdit::sendDiffText()
         }
     }
 }
+
+int KKTextEdit::getDeltaText() const
+{
+    return deltaText;
+}
