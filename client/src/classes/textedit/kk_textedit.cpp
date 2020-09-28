@@ -6,7 +6,7 @@ KKTextEdit::KKTextEdit(QWidget *parent): QTextEdit(parent)
     connect(this, &QTextEdit::textChanged, this, &KKTextEdit::handleTextChange);
 }
 
-/// Evento che inizia quando premo un tasto
+// Evento che inizia quando premo un tasto
 void KKTextEdit::keyPressEvent(QKeyEvent *e)
 {
     if (cursorCounter > 0)

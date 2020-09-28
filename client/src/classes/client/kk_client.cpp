@@ -678,9 +678,9 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
     if (!changes.isEmpty() && value == deletedValue)
         sendCrdtRequest((changes));
     else {
-        logger("Cancellazione illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
-        modal.show();
+        //logger("Cancellazione illegale per il CRDT");
+        //modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        //modal.show();
     }
 }
 
