@@ -28,19 +28,21 @@ KKFilePtr KKFileSystem::createFile(QString filename, QString username){
     jump = crypter->random_psw(jump);
 
     // Genero il nome file (containLetter('/', _filename) serve ad evitare che il carattere "/" dia problemi nei path)
-    QString _filename;
+    QString hash;
     do {
-        _filename = crypter->encryptToString(jump + FILENAME_SEPARATOR + username + FILENAME_SEPARATOR + filename);
-    } while(crypter->containLetter('/', _filename));
-
-    return openFile(_filename);
+        hash = crypter->encryptToString(jump + FILENAME_SEPARATOR + username + FILENAME_SEPARATOR + filename);
+    } while(crypter->containLetter('/', hash));
+    KKLogger::log(QString("File >%1< con hash >%2< creato").arg(filename, hash), "FILE SYSTEM");
+    return openFile(hash);
 }
 
-KKFilePtr KKFileSystem::openFile(QString filename, QString rootPath){
+KKFilePtr KKFileSystem::openFile(QString hash, QString rootPath){
     KKFilePtr file = QSharedPointer<KKFile>(new KKFile(this));
-    QSharedPointer<QFile> qfile = QSharedPointer<QFile>(new QFile (rootPath + filename));
+    QSharedPointer<QFile> qfile = QSharedPointer<QFile>(new QFile (rootPath + hash));
     file->setFile(qfile);
-    file->setHash(filename);
+    file->setHash(hash);
+    KKLogger::log(QString("File con hash >%1< aperto").arg(hash), "FILE SYSTEM");
+
     return  file;
 }
 

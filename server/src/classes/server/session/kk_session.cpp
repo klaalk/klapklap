@@ -290,7 +290,8 @@ void KKSession::connectToFile(QString filename)
 
     } else {
         // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
-        if (db->getFileUsers(filename, &users) == DB_FILE_NOT_EXIST) {
+        if (db->getShareFileUsers(filename, &users) == DB_FILE_NOT_EXIST) {
+
             // File non esistente, controllo se l'utente ha già creato il file con lo stesso nome
             if (db->existFileByUsername(filename, user->getUsername()) == DB_FILE_NOT_EXIST) {
                 file = fileSystem->createFile(filename, user->getUsername());
@@ -298,9 +299,12 @@ void KKSession::connectToFile(QString filename)
                 if (file != FILE_SYSTEM_CREATE_ERROR) {
                     if (db->addFile(filename, file->getHash(), user->getUsername()) != DB_INSERT_FILE_SUCCESS) {
                         file = FILE_SYSTEM_CREATE_ERROR;
-                        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemnto del nuovo file nel database"});
+                        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemento del nuovo file nel database"});
                         return;
                     }
+                } else {
+                    sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile creare il file"});
+                    return;
                 }
 
             } else{

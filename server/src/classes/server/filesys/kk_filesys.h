@@ -18,6 +18,7 @@
 
 #include "../../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../../../../../libs/src/constants/kk_constants.h"
+#include "../../../../../libs/src/classes/logger/kk_logger.h"
 
 #include <classes/server/file/kk_file.h>
 

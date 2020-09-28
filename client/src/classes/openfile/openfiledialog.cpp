@@ -28,9 +28,11 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
     connect(&chooseAvatarDialog, &ChooseAvatarDialog::updateAvatarRequest, this, &OpenFileDialog::setAvatar);
 
     ui->saveChangesButton->setEnabled(false);
+
     // Start showing layouts
     ui->accountLayout->show();
     ui->documentsLayout->show();
+    ui->createFileNameLineEdit->setFocus();
 }
 
 OpenFileDialog::~OpenFileDialog()
@@ -72,6 +74,9 @@ void OpenFileDialog::setUser(KKUser* user) {
     setName(user->getName());
     setSurname(user->getSurname());
     setAlias(user->getAlias());
+
+    ui->saveChangesButton->setEnabled(chackEditChanges());
+
 }
 
 void OpenFileDialog::setUserFiles(const QStringList &files)
