@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <QtDebug>
 
+
 #define DEL "DEL"
 #define INS "INS"
 
