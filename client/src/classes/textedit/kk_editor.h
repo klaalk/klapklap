@@ -136,7 +136,6 @@ signals:
     void editorClosed();
     void notifyAlignment(int startAling,int endAlign);
 
-
 public:
     KKEditor(QWidget *parent = nullptr);
     void clear();

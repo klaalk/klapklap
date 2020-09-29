@@ -210,6 +210,19 @@ KKPosition KKCrdt::remoteFormatChange(const KKCharPtr& charPtr){
     return position;
 }
 
+void KKCrdt::remoteAlignmentChange(int alignment, unsigned long startIdx, unsigned long endIdx)
+{
+    for(unsigned long i = startIdx; i <= endIdx; i++) {
+        // Controlla che la riga esista
+        if (checkLine(i) || (isTextEmpty() && i==0))
+            setLineAlignment(i, alignment);
+        else {
+            qDebug() << "[CRDT - remoteAlignmentChange] Alignment non modificabile";
+            break;
+        }
+    }
+}
+
 list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition end, QString font, QString color){
     list<KKCharPtr> charsChanged;
     list<KKCharPtr>::iterator currentIter, startIter, endIter;

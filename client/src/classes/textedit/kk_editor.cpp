@@ -726,7 +726,9 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
         QTextCursor cursor = textEdit->textCursor();
         QList<QChar> values;
         QStringList fonts, colors;
+
         int i = start;
+
         for (QChar value : diff) {
             cursor.setPosition(i++);
             cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
@@ -734,6 +736,7 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
             fonts.push_back(cursor.charFormat().font().toString());
             colors.push_back(cursor.charFormat().foreground().color().name());
         }
+
         emit insertTextToCrdt(static_cast<unsigned long>(start), values, fonts, colors);
     }
 
@@ -741,13 +744,6 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
 }
 
 int KKEditor::getCurrentAlignment(int pos){
-   // QTextCursor cursor = textEdit->cursorIn(pos);
-   //Qt::Alignment a=cursor.blockFormat().alignment();
-//  int startPos = textEdit->textCursor().position();
-//    QTextCursor tmp = textEdit->textCursor();
-//    tmp.setPosition(pos);
-//    Qt::Alignment a=tmp.blockFormat().alignment();
-
     QTextCursor cursor = textEdit->cursorIn(pos);
     Qt::Alignment a = cursor.blockFormat().alignment();
     int alignment = 0;
@@ -763,8 +759,6 @@ int KKEditor::getCurrentAlignment(int pos){
     else if (a == Qt::AlignJustify){
         alignment=4;
     }
-
-    textEdit->restoreCursorPosition();
     return alignment;
 }
 

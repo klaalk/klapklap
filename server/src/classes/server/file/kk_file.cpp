@@ -37,8 +37,6 @@ int KKFile::deliver(QString type, QString result, QStringList message, QString u
 
     if (type == CRDT) {
         code = applyRemoteTextChangeSafe(data->getBodyList());
-    } else if(type==ALIGNMENT_CHANGE){
-        code = applyRemoteAlignmentChangeSafe(data->getBodyList());
     } else if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
         recentMessages->push_back(data);
     }
@@ -93,43 +91,31 @@ QStringList KKFile::getUsers()
     return users;
 }
 
-int KKFile::applyRemoteAlignmentChangeSafe(QStringList bodyList){
-    try {
-        QString alignment = bodyList[0];
-        QString startAlignLine = bodyList[1];
-        QString endAlignLine = bodyList[2];
-
-        // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-        for(unsigned long i=startAlignLine.toULong(); i<=endAlignLine.toULong(); i++) {
-            // Controlla che la riga esista
-            if (crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)) {
-                crdt->setLineAlignment(static_cast<long>(i),alignment.toULong());
-            } else {
-                break;
-            }
-        }
-        return 200;
-    } catch (QException e) {
-        KKLogger::log(e.what(), "applyRemoteAlignmentChangeSafe");
-        return -200;
-    }
-}
-
 int KKFile::applyRemoteTextChangeSafe(QStringList body){
     try {
         // Ottengo i campi della risposta
         QString operation = body.takeFirst();
         QString siteId = body.takeFirst();
-
         body.pop_front();
-        for (QString crdtChar : body) {
-            KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
-            if (operation == CRDT_INSERT) {
-                crdt->remoteInsert(charPtr);
-            } else if (operation == CRDT_DELETE) {
-                crdt->remoteDelete(charPtr);
-            } else if (operation == CRDT_FORMAT) {
-                crdt->remoteFormatChange(charPtr);
+
+        if (operation == CRDT_ALIGNM) {
+            while (!body.isEmpty()) {
+                // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
+                QString alignment = body.takeFirst();
+                QString startLine = body.takeFirst();
+                QString endLine = body.takeFirst();
+                crdt->remoteAlignmentChange(alignment.toInt(), startLine.toULong(), endLine.toULong());
+            }
+        } else {
+            for (QString crdtChar : body) {
+                KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
+                if (operation == CRDT_INSERT) {
+                    crdt->remoteInsert(charPtr);
+                } else if (operation == CRDT_DELETE) {
+                    crdt->remoteDelete(charPtr);
+                } else if (operation == CRDT_FORMAT) {
+                    crdt->remoteFormatChange(charPtr);
+                }
             }
         }
         return 200;

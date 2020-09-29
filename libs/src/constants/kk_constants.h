@@ -43,6 +43,7 @@
 #define CRDT_INSERT "INSERT"
 #define CRDT_DELETE "DELETE"
 #define CRDT_FORMAT "FORMAT"
+#define CRDT_ALIGNM "ALIGNM"
 /// Payload results
 #define NONE "000"
 #define SUCCESS "200"
