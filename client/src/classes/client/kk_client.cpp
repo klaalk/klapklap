@@ -778,7 +778,7 @@ QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
 void KKClient::onSiteIdClicked(const QString& siteId)
 {
     onUpdateSiteIdsPositions(siteId);
-    editor->applySiteIdClicked(siteId);
+    chat->setParticipantChatBackgroundColor(editor->applySiteIdClicked(siteId),siteId);
 }
 
 void KKClient::onUpdateSiteIdsPositions(const QString &siteId)

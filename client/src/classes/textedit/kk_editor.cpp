@@ -191,10 +191,10 @@ void KKEditor::loadCrdt(std::vector<std::list<KKCharPtr>> crdt, std::vector<int>
         for(const auto& charPtr : line) {
             QString remoteSiteId = charPtr->getSiteId();
             applyRemoteTextChange(CRDT_INSERT,
-                               charPtr->getValue(),
-                               startPos,
-                               charPtr->getKKCharFont(),
-                               charPtr->getKKCharColor());
+                                  charPtr->getValue(),
+                                  startPos,
+                                  charPtr->getKKCharFont(),
+                                  charPtr->getKKCharColor());
 
             if (siteId != remoteSiteId)
                 applyRemoteCursorChange(remoteSiteId, startPos);
@@ -314,13 +314,17 @@ void KKEditor::applySiteIdsPositions(const QString& siteId, const QSharedPointer
         clearColorText(siteId);
 }
 
-void KKEditor::applySiteIdClicked(const QString& siteId){
+QBrush KKEditor::applySiteIdClicked(const QString& siteId){
     if(siteIdsClicked.contains(siteId)){
         clearColorText(siteId);
         siteIdsClicked.removeOne(siteId);
+        return Qt::white;
     }
-    else
+    else{
         colorText(siteId);
+        return siteIdsColors.value(siteId);
+    }
+
 }
 
 void KKEditor::setCurrentFileName(const QString &fileName)
@@ -674,7 +678,7 @@ void KKEditor::onFormatChanged(const QTextCharFormat &format)
 
 void KKEditor::onCursorPositionChanged()
 {
-//    if(blockCursor) return;
+    //    if(blockCursor) return;
 
     QTextList *list = textEdit->textCursor().currentList();
 
@@ -741,12 +745,12 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
 }
 
 int KKEditor::getCurrentAlignment(int pos){
-   // QTextCursor cursor = textEdit->cursorIn(pos);
-   //Qt::Alignment a=cursor.blockFormat().alignment();
-//  int startPos = textEdit->textCursor().position();
-//    QTextCursor tmp = textEdit->textCursor();
-//    tmp.setPosition(pos);
-//    Qt::Alignment a=tmp.blockFormat().alignment();
+    // QTextCursor cursor = textEdit->cursorIn(pos);
+    //Qt::Alignment a=cursor.blockFormat().alignment();
+    //  int startPos = textEdit->textCursor().position();
+    //    QTextCursor tmp = textEdit->textCursor();
+    //    tmp.setPosition(pos);
+    //    Qt::Alignment a=tmp.blockFormat().alignment();
 
     QTextCursor cursor = textEdit->cursorIn(pos);
     Qt::Alignment a = cursor.blockFormat().alignment();

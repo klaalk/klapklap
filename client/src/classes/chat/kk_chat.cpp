@@ -96,13 +96,40 @@ void KKChat::setParticipants(const QStringList participants)
 
         QListWidgetItem* item = new QListWidgetItem();
         item->setWhatsThis(username);
+        siteIdNickName.insert(username,nick);
         item->setText(nick);
-        item->setIcon(QIcon(":/images/avatars/"+avatar));
+
+        const QPixmap orig = QPixmap(":/images/avatars/"+avatar);
+
+        int size = qMax(orig.width(), orig.height());
+
+        QPixmap rounded = QPixmap(size, size);
+        rounded.fill(Qt::transparent);
+
+        QPainterPath path;
+        path.addEllipse(rounded.rect());
+
+        QPainter painter(&rounded);
+        painter.setClipPath(path);
+
+        painter.fillRect(rounded.rect(), Qt::black);
+
+        int x = qAbs(orig.width() - size) / 2;
+        int y = qAbs(orig.height() - size) / 2;
+        painter.drawPixmap(x, y, orig.width(), orig.height(), orig);
+
+
+        item->setIcon(QIcon(rounded));
         if (state == PARTICIPANT_ONLINE)
            item->setTextColor(*colorOnline);
         else
            item->setTextColor(*colorOffline);
 
+        QFont tmp ;
+        tmp.setPointSizeF(12);
+        item->setFont(tmp);
+
+        listWidget->setIconSize(QSize(25,25));
         listWidget->addItem(item);
     }
 }
@@ -125,16 +152,45 @@ void KKChat::onItemClicked(QListWidgetItem *item) {
     emit siteIdClicked(siteId);
 }
 
+void KKChat::setParticipantChatBackgroundColor(QBrush color, QString siteId){
+    QListWidgetItem* item = findParticipantItem(siteIdNickName.value(siteId),siteId);
+    QColor tmp = color.color();
+    tmp.setAlpha(color.color().alpha()-40);
+    item->setBackgroundColor(tmp);
+    item->setSelected(false);
+}
+
+
 void KKChat::setParticipantState(const QString &username, const QString &nick, const QString &avatar, const QString &state)
 {
     if (!nick.isEmpty()) {
-        QListWidgetItem* item = findParticipantItem(nick);
+        QListWidgetItem* item = findParticipantItem(nick,username);
+
+        const QPixmap orig = QPixmap(":/images/avatars/"+avatar);
+
+        int size = qMax(orig.width(), orig.height());
+
+        QPixmap rounded = QPixmap(size, size);
+        rounded.fill(Qt::transparent);
+
+        QPainterPath path;
+        path.addEllipse(rounded.rect());
+
+        QPainter painter(&rounded);
+        painter.setClipPath(path);
+
+        painter.fillRect(rounded.rect(), Qt::black);
+
+        int x = qAbs(orig.width() - size) / 2;
+        int y = qAbs(orig.height() - size) / 2;
+        painter.drawPixmap(x, y, orig.width(), orig.height(), orig);
 
         if (item == nullptr) {
             item = new QListWidgetItem();
             item->setWhatsThis(username);
             item->setText(nick);
-            item->setIcon(QIcon(":/images/avatars/"+avatar));
+            siteIdNickName.insert(username,nick);
+            item->setIcon(QIcon(rounded));
             listWidget->addItem(item);
         }
 
@@ -147,17 +203,20 @@ void KKChat::setParticipantState(const QString &username, const QString &nick, c
             item->setText(nick);
 
         if (!avatar.isEmpty())
-            item->setIcon(QIcon(":/images/avatars/"+avatar));
+            item->setIcon(QIcon(rounded));
     }
     participants_label->setText(QString("Participants (%1)").arg(participants.values().length()));
 }
 
-QListWidgetItem *KKChat::findParticipantItem(const QString &nick)
-{
+QListWidgetItem *KKChat::findParticipantItem(const QString &nick, const QString &siteId){
     QList<QListWidgetItem *> items = listWidget->findItems(nick, Qt::MatchExactly);
-    if (items.isEmpty())
+    if (items.isEmpty()){
         return nullptr;
-
-    return items.at(0);
+    }
+    for(QListWidgetItem * item : items){
+        if(item->whatsThis() == siteId)
+            return item;
+    }
+    return nullptr;
 }
 
