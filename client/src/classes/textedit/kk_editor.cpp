@@ -192,10 +192,10 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
         for(const auto& charPtr : line) {
             QString remoteSiteId = charPtr->getSiteId();
             applyRemoteTextChange(CRDT_INSERT,
-                               charPtr->getValue(),
-                               startPos,
-                               charPtr->getKKCharFont(),
-                               charPtr->getKKCharColor());
+                                  charPtr->getValue(),
+                                  startPos,
+                                  charPtr->getKKCharFont(),
+                                  charPtr->getKKCharColor());
 
             if (siteId != remoteSiteId)
                 applyRemoteCursorChange(remoteSiteId, startPos);
@@ -210,7 +210,7 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
 }
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
-    qDebug() << QString("[applyRemoteAlignmentChange] Alignment %1 in position %2").arg(QVariant(alignment).toString(), QVariant(alignPos).toString());
+    qDebug() << QString("APPLY REMOTE [ALIGNM]: Tipo %1 in position %2").arg(QVariant(alignment).toString(), QVariant(alignPos).toString());
 
     textEdit->lockCursor();
 
@@ -238,6 +238,7 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 }
 
 void KKEditor::applyRemoteFormatChange(int position, QString font, QString color){
+    qDebug() << QString("APPLY REMOTE [FORMAT]: In position %1 con font %2 e color %3").arg(QVariant(position).toString(), font, color);
 
     textEdit->lockCursor();
 
@@ -314,13 +315,17 @@ void KKEditor::applySiteIdsPositions(const QString& siteId, const QSharedPointer
         clearColorText(siteId);
 }
 
-void KKEditor::applySiteIdClicked(const QString& siteId){
+QBrush KKEditor::applySiteIdClicked(const QString& siteId){
     if(siteIdsClicked.contains(siteId)){
         clearColorText(siteId);
         siteIdsClicked.removeOne(siteId);
+        return Qt::white;
     }
-    else
+    else{
         colorText(siteId);
+        return siteIdsColors.value(siteId);
+    }
+
 }
 
 void KKEditor::setCurrentFileName(const QString &fileName)
@@ -674,7 +679,7 @@ void KKEditor::onFormatChanged(const QTextCharFormat &format)
 
 void KKEditor::onCursorPositionChanged()
 {
-//    if(blockCursor) return;
+    //    if(blockCursor) return;
 
     QTextList *list = textEdit->textCursor().currentList();
 
@@ -726,7 +731,9 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
         QTextCursor cursor = textEdit->textCursor();
         QList<QChar> values;
         QStringList fonts, colors;
+
         int i = start;
+
         for (QChar value : diff) {
             cursor.setPosition(i++);
             cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
@@ -734,6 +741,7 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
             fonts.push_back(cursor.charFormat().font().toString());
             colors.push_back(cursor.charFormat().foreground().color().name());
         }
+
         emit insertTextToCrdt(static_cast<unsigned long>(start), values, fonts, colors);
     }
 
@@ -741,13 +749,6 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
 }
 
 int KKEditor::getCurrentAlignment(int pos){
-   // QTextCursor cursor = textEdit->cursorIn(pos);
-   //Qt::Alignment a=cursor.blockFormat().alignment();
-//  int startPos = textEdit->textCursor().position();
-//    QTextCursor tmp = textEdit->textCursor();
-//    tmp.setPosition(pos);
-//    Qt::Alignment a=tmp.blockFormat().alignment();
-
     QTextCursor cursor = textEdit->cursorIn(pos);
     Qt::Alignment a = cursor.blockFormat().alignment();
     int alignment = 0;
@@ -763,8 +764,6 @@ int KKEditor::getCurrentAlignment(int pos){
     else if (a == Qt::AlignJustify){
         alignment=4;
     }
-
-    textEdit->restoreCursorPosition();
     return alignment;
 }
 

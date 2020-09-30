@@ -44,7 +44,6 @@ public:
     QStringList getUsers();
 
     int applyRemoteTextChangeSafe(QStringList bodyList);
-    int applyRemoteAlignmentChangeSafe (QStringList bodyList);
 
     void initCrdtText();
     void flushCrdtText();

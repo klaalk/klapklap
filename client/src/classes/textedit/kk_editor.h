@@ -21,6 +21,7 @@
 #include "../../../../libs/src/constants/kk_constants.h"
 #include "../chat/kk_chat.h"
 #include "./kk_textedit.h"
+#include "./kk_cursor.h"
 
 class QAction;
 class QComboBox;
@@ -30,96 +31,6 @@ class QTextCharFormat;
 class QMenu;
 class QPrinter;
 class QLabel;
-
-class KKCursor {
-private:
-    int globalPositon=0;
-    int fontSize=0;
-
-
-    QString backgorundColor;
-    QString siteId;
-
-    QLabel* name;
-    QLabel* earpiece;
-
-    void setLabelsStyleSheet(QString fontColor, int fontSize) {
-        QString size=QString::number(1.15*fontSize);
-        QString styleName;
-        QString styleEarpiece;
-        styleEarpiece = "font: 75 "+size+"pt \"Calibri\";\n";
-//        if(fontSize>=10)
-//            size=QString::number(10);
-//        else size=QString::number(fontSize);
-        styleName = "background-color: " + fontColor + ";\n"
-//                                                       "font: 10 "+size+"pt \"Calibri\";\n"
-                                                         "font: 10pt \"Calibri\";\n"
-                                                                        "font: bold;";
-
-
-        //Aggiorno le label
-        name->setStyleSheet(styleName);
-        earpiece->setStyleSheet(styleEarpiece);
-    }
-
-public:
-    KKCursor(QString siteId, int position): globalPositon(position), siteId(siteId){}
-
-    void setLabels(QLabel *name_, QLabel *earpiece_) {
-        name = name_;
-        earpiece = earpiece_;
-    }
-
-    void setLabelsStyle(QBrush fontColor, int fontSize) {
-        this->fontSize = fontSize;
-        this->backgorundColor = fontColor.color().name(QColor::HexArgb);
-        setLabelsStyleSheet(this->backgorundColor, this->fontSize);
-    }
-
-    void setLabelsSize(int fontSize) {
-        this->fontSize = fontSize;
-        setLabelsStyleSheet(this->backgorundColor, this->fontSize);
-        name->adjustSize();
-        earpiece->adjustSize();
-    }
-
-    void showLabels() {
-        name->show();
-        earpiece->show();
-    }
-
-    void moveLabels(QRect qRect) {
-        earpiece->move(qRect.x()-static_cast<int>(0.5*fontSize), qRect.y()-static_cast<int>(0.35*fontSize));
-//        if(fontSize<10)
-//        name->move(qRect.x(),qRect.y()-static_cast<int>(1.7*fontSize));
-//        else
-        name->move(qRect.x()-static_cast<int>(0.1*fontSize), qRect.y()-17);
-#ifdef Q_OS_MACOS
-         earpiece->move(qRect.x()-static_cast<int>(0.5*fontSize), qRect.y()-static_cast<int>(0.2*fontSize));
-//        if(fontSize<10){
-//            name->move(qRect.x()+static_cast<int>(0.55*fontSize),qRect.y()-static_cast<int>(1.15*fontSize));
-//            earpiece->move(qRect.x(), qRect.y());
-//        }
-//        else
-         name->move(qRect.x(),qRect.y()-11.5);
-#endif
-    }
-    int getGlobalPositon() {
-        return this->globalPositon;
-    }
-
-    void setGlobalPositon(int position) {
-        this->globalPositon = position;
-    }
-
-    QString getLabelName(){
-        return this->name->text();
-    }
-
-    QString getSiteId() {
-        return siteId;
-    }
-};
 
 class KKEditor : public QMainWindow
 {
@@ -136,7 +47,6 @@ signals:
     void editorClosed();
     void notifyAlignment(int startAling,int endAlign);
 
-
 public:
     KKEditor(QWidget *parent = nullptr);
     void clear();
@@ -147,7 +57,7 @@ public:
     void applyRemoteTextChange(const QString& operation, const QString& text, int globalPos, const QString& font, const QString& colorRecived);
     void applyRemoteCursorChange(const QString& siteId, int position);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);
-    void applySiteIdClicked(const QString& name);
+    QBrush applySiteIdClicked(const QString& name);
 
 
     void updateCursors(QString siteId, int position, int value);

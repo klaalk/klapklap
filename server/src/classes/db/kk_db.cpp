@@ -3,10 +3,10 @@
 #include <QDebug>
 
 #define  HOST "localhost"
-#define  PORT 8889
-#define  USR  "albo"
+#define  PORT 3307
+#define  USR  "michele"
 #define  DBN  "klapklap"
-#define  PSW  "password"
+#define  PSW  "michele"
 
 #define INSERT_USER_QRY "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`ALIAS`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIME())"
 #define UPDATE_USER_QRY "UPDATE `USERS` SET `ALIAS`=?,`NAME`=?,`SURNAME`=?,`IMAGE`=? WHERE `USERNAME` = ?"

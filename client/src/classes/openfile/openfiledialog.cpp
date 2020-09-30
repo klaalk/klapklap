@@ -6,6 +6,7 @@
 #include <QImageWriter>
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QPainter>
 
 #define MAX_TABLE_SIZE 16777215
 
@@ -96,12 +97,27 @@ void OpenFileDialog::setAvatar(const QString &avatar)
     QString path = ":images/avatars/"+avatar;
     bool exist = QFile::exists(path);
     if (exist) {
-        QPixmap image = QPixmap(":images/avatars/"+avatar);
-        QIcon ButtonIcon(image);
-        ui->changeImageButton->setIcon(ButtonIcon);
-        ui->changeImageButton->setIconSize(image.rect().size());
-        ui->changeImageButton->setWhatsThis(avatar);
+        const QPixmap orig = QPixmap(":/images/avatars/"+avatar);
 
+        int size = qMax(orig.width(), orig.height());
+
+        QPixmap rounded = QPixmap(size, size);
+        rounded.fill(Qt::transparent);
+
+        QPainterPath path;
+        path.addEllipse(rounded.rect());
+
+        QPainter painter(&rounded);
+        painter.setClipPath(path);
+
+        painter.fillRect(rounded.rect(), Qt::black);
+
+        int x = qAbs(orig.width() - size) / 2;
+        int y = qAbs(orig.height() - size) / 2;
+        painter.drawPixmap(x, y, orig.width(), orig.height(), orig);
+
+        ui->changeImageButton->setIcon(QIcon(rounded));
+        ui->changeImageButton->setWhatsThis(avatar);
         ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
 
     } else

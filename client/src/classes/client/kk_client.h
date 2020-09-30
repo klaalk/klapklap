@@ -91,8 +91,7 @@ private:
     void handleOpenFileResponse(KKPayload res);
     void handleLoadFileResponse(KKPayload res);
     void handleQuitFileResponse();
-    void handleTextChangeResponse(KKPayload res);
-    void handleAlignmentChangeResponse(KKPayload res);
+    void handleCrdtResponse(KKPayload res);
     void handleErrorResponse(KKPayload res);
     void handleClientErrorResponse(KKPayload res);
     void handleServerErrorResponse(KKPayload res);

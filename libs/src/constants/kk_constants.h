@@ -17,13 +17,12 @@
 #define PAYLOAD_EMPTY_BODY {}
 #define FILENAME_SEPARATOR "/"
 #define FILENAME_MAX_LENGTH 30
-#define DATE_TIME_FORMAT "dd.MM.yyyy hh:mm"
+#define DATE_TIME_FORMAT "dd.MM.yyyy"
 
 /// Payload requests
 #define LOGIN "LOGN"
 #define LOGOUT "LOUT"
 #define SIGNUP "SGNP"
-#define SIGNOUT "SOUT"
 #define UPDATE_USER "UPDU"
 #define GET_FILES "GETF"
 #define OPEN_FILE "OPNF"
@@ -31,10 +30,8 @@
 #define SAVE_FILE "SAVF"
 #define LOAD_FILE "LODF"
 #define QUIT_FILE "QUIF"
-
 #define CRDT "CRDT"
 #define CHAT "CHAT"
-#define ALIGNMENT_CHANGE "AGNC"
 #define SET_PARTECIPANTS "STPR"
 #define ADDED_PARTECIPANT "ADPR"
 #define REMOVED_PARTECIPANT "RMPR"
@@ -43,6 +40,7 @@
 #define CRDT_INSERT "INSERT"
 #define CRDT_DELETE "DELETE"
 #define CRDT_FORMAT "FORMAT"
+#define CRDT_ALIGNM "ALIGNM"
 /// Payload results
 #define NONE "000"
 #define SUCCESS "200"

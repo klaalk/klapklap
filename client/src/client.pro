@@ -42,6 +42,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/openfile/openfiledialog.h \
                 classes/modal/modaldialog.h \
                 classes/openfile/chooseavatardialog.h \
+                classes/textedit/kk_cursor.h \
                 classes/textedit/kk_editor.h \
                 classes/textedit/kk_textedit.h
 

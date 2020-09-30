@@ -56,10 +56,7 @@ private:
     void handleSaveFileRequest(KKPayload request);
     void handleLoadFileRequest(KKPayload request);
     void handleQuitFileRequest();
-
     void handleCrdtRequest(KKPayload request);
-    void handleAlignChangeRequest(KKPayload request);
-
     void handleChatRequest(KKPayload request);
 
     void connectToFile(QString filename);

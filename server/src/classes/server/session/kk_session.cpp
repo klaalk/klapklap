@@ -93,9 +93,6 @@ void KKSession::handleRequest(QString message) {
         else if(req.getRequestType() == CRDT) {
             handleCrdtRequest(req);
         }
-        else if(req.getRequestType()== ALIGNMENT_CHANGE){
-            handleAlignChangeRequest(req);
-        }
         else if(req.getRequestType() == CHAT) {
             handleChatRequest(req);
         }
@@ -256,20 +253,7 @@ void KKSession::handleCrdtRequest(KKPayload request) {
 
 }
 
-void KKSession::handleAlignChangeRequest(KKPayload request) {
-    QStringList body = request.getBodyList();
-    int code = file->applyRemoteAlignmentChangeSafe(body);
-    if (code == 0) {
-        KKTask *mytask = new KKTask([&, body]() {
-            file->deliver(ALIGNMENT_CHANGE, SUCCESS, body, "All");
-        });
-        mytask->setAutoDelete(true);
-        QThreadPool::globalInstance()->start(mytask);
-    } else {
-        disconnectFromFile();
-        sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
-    }
-}
+
 
 void KKSession::handleChatRequest(KKPayload request) {
     file->deliver(CHAT, SUCCESS, request.getBodyList(), "All");

@@ -23,6 +23,7 @@ public:
     void addParticipant(const QString &username, const QString &nick, const QString &avatar);
     void removeParticipant(const QString &username, const QString &nick);
     void setParticipants(const QStringList participants);
+    void setParticipantChatBackgroundColor(QBrush color, QString siteId);
 
 signals:
     void sendMessageEvent(QString username, QString message);
@@ -33,13 +34,15 @@ private slots:
     void showInformation();
     void onItemClicked(QListWidgetItem *item);
     void setParticipantState(const QString &username, const QString &nick, const QString &avatar, const QString &state);
-    QListWidgetItem* findParticipantItem(const QString &nick);
+    QListWidgetItem* findParticipantItem(const QString &nick, const QString &siteId);
+
 private:
     QString myNickName;
     QTextTableFormat tableFormat;
     QMap<QString, QString> participants;
     QColor* colorOnline;
     QColor* colorOffline;
+    QMap<QString,QString> siteIdNickName;
 };
 
 #endif
