@@ -724,6 +724,7 @@ void KKEditor::onCursorPositionChanged()
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
 
     updateCursors(siteId, static_cast<int>(start), operation == INS ? diff.size() : -diff.size());
+    updateLabels();
 
     if (operation == DEL)
         emit removeTextFromCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end), diff);
@@ -1135,10 +1136,21 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
 
 void KKEditor::updateLabels() {
     QTextCursor editorCurs = textEdit->textCursor();
+    int fontMax;
     for(KKCursor* c : cursors.values()) {
-        //qDebug() << "[updateLabels] - setPosition: " << c->getGlobalPositon();
         editorCurs.setPosition(c->getGlobalPositon());
-        c->setLabelsSize(editorCurs.charFormat().font().pointSize());
+        int fontSx=editorCurs.charFormat().font().pointSize();
+        fontMax=fontSx;
+        if(editorCurs.position()<textEdit->document()->toPlainText().length()){
+            if(textEdit->document()->toPlainText().at(editorCurs.position())!="\xa"){
+                editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
+                int fontDx=editorCurs.charFormat().font().pointSize();
+                if(fontDx>fontSx)
+                    fontMax=fontDx;
+            }
+            editorCurs.setPosition(c->getGlobalPositon());
+        }
+        c->setLabelsSize(fontMax);
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
 }
