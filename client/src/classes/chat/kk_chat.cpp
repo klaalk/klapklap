@@ -106,7 +106,6 @@ void KKChat::setParticipants(const QStringList participants)
 
         item->setIcon(createAvatarIcon(avatar,state));
 
-
         QFont tmp ;
         tmp.setPointSizeF(DIM_ICN_TXT);
         item->setFont(tmp);

@@ -142,8 +142,6 @@ private:
     QAction *actionCopy{};
     QAction *actionPaste{};
 #endif
-    bool isColored = false;
-    bool blockCursor=false;
     int fontSize=0;
     int maxFontSize=0;
     QString siteId;

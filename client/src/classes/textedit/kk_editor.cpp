@@ -311,7 +311,7 @@ void KKEditor::applySiteIdsPositions(const QString& siteId, const QSharedPointer
 
     if (siteIdsClicked.contains(siteId))
         colorText(siteId);
-    else if (isColored)
+    else
         clearColorText(siteId);
 }
 
@@ -322,6 +322,8 @@ QBrush KKEditor::applySiteIdClicked(const QString& siteId){
         return Qt::white;
     }
     else{
+        if(siteId!=getMySiteId())
+            textEdit->setCursorPosition(cursors.value(siteId)->getGlobalPositon());
         colorText(siteId);
         return siteIdsColors.contains(siteId) ? siteIdsColors.value(siteId) : Qt::white;
     }
@@ -679,7 +681,6 @@ void KKEditor::onFormatChanged(const QTextCharFormat &format)
 
 void KKEditor::onCursorPositionChanged()
 {
-    //    if(blockCursor) return;
 
     QTextList *list = textEdit->textCursor().currentList();
 
@@ -1068,8 +1069,7 @@ void KKEditor::colorText(const QString& siteId) {
 
     QTextCursor cursor = textEdit->textCursor();
     for(int pos : *siteIdsPositions.value(siteId)) {
-        qDebug() << "[colorText] - setPosition: " << pos;
-        isColored = true;
+        //qDebug() << "[colorText] - setPosition: " << pos;
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
         if (cursor.charFormat().background() != color) {
@@ -1092,11 +1092,9 @@ void KKEditor::clearColorText(const QString& siteId){
     if(!siteIdsPositions.contains(siteId))
         return;
 
-    isColored = false;
-
     QTextCursor cursor = textEdit->textCursor();
     for(int pos : *siteIdsPositions.value(siteId)){
-        qDebug() << "[clearColorText] - setPosition: " << pos;
+        //qDebug() << "[clearColorText] - setPosition: " << pos;
         cursor.setPosition(pos);
         cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
         if (cursor.charFormat().background()!=Qt::white){
@@ -1111,7 +1109,7 @@ void KKEditor::clearColorText(const QString& siteId){
 }
 
 void KKEditor::updateCursors(QString siteId, int position, int value){
-    //textEdit->lockCursor();
+
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
     for (KKCursor* c : cursors.values()) {
@@ -1124,7 +1122,7 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
             nuovaPos = nuovaPos >= 0 ? nuovaPos : 0;
 
             if (c->getGlobalPositon() > position || siteId == c->getSiteId()) {
-                qDebug() << "[updateCursors] - " << c->getLabelName() << " PREV " << c->getGlobalPositon() << " POS " << nuovaPos;
+                //qDebug() << "[updateCursors] - " << c->getLabelName() << " PREV " << c->getGlobalPositon() << " POS " << nuovaPos;
                 c->setGlobalPositon(nuovaPos);
                 editorCurs.setPosition(nuovaPos);
                 c->setLabelsSize(editorCurs.charFormat().font().pointSize());
@@ -1132,19 +1130,16 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
             }
         }
     }
-    //textEdit->unlockCursor();
 }
 
 void KKEditor::updateLabels() {
-    //textEdit->lockCursor();
     QTextCursor editorCurs = textEdit->textCursor();
     for(KKCursor* c : cursors.values()) {
-        qDebug() << "[updateLabels] - setPosition: " << c->getGlobalPositon();
+        //qDebug() << "[updateLabels] - setPosition: " << c->getGlobalPositon();
         editorCurs.setPosition(c->getGlobalPositon());
         c->setLabelsSize(editorCurs.charFormat().font().pointSize());
         c->moveLabels(textEdit->cursorRect(editorCurs));
     }
-    //textEdit->unlockCursor();
 }
 
 void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& siteId, int position) {
