@@ -122,5 +122,6 @@
         <file>images/avatars/Toro.jpg</file>
         <file>styles/styles.qss</file>
         <file>styles/access-dialog.qss</file>
+        <file>images/online.png</file>
     </qresource>
 </RCC>

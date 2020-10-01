@@ -182,7 +182,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
 
     } else if(response.getRequestType() == REMOVED_PARTECIPANT) {
         QStringList params = response.getBodyList();
-        chat->removeParticipant(params.at(0), params.at(1));
+        chat->removeParticipant(params.at(0), params.at(1), params.at(2));
         editor->removeParticipant(params.at(0));
 
     } else {
