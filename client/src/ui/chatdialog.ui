@@ -31,6 +31,9 @@
   <property name="windowTitle">
    <string>Chat</string>
   </property>
+  <property name="class" stdset="0">
+   <string>Chat</string>
+  </property>
   <layout class="QVBoxLayout">
    <property name="spacing">
     <number>6</number>
@@ -74,7 +77,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Participants (0)</string>
+          <string>Partecipanti  (0)</string>
          </property>
         </widget>
        </item>
@@ -164,7 +167,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Message:</string>
+        <string>Invia:</string>
        </property>
       </widget>
      </item>

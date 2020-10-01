@@ -167,7 +167,7 @@ void KKChat::setParticipantState(const QString &username, const QString &nick, c
             item->setText(nick);
 
     }
-    participants_label->setText(QString("Participants (%1)").arg(participants.values().length()));
+    participants_label->setText(QString("Partecipanti (%1)").arg(participants.values().length()));
 }
 
 QListWidgetItem *KKChat::findParticipantItem(const QString &nick, const QString &siteId){

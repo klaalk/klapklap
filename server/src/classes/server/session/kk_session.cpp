@@ -214,22 +214,22 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
 void KKSession::handleSaveFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
 
-    KKTask *mytask = new KKTask([&]() {
-        file->flushCrdtText();
-    });
+    file->flushCrdtText();
+//    KKTask *mytask = new KKTask([&]() {
+//    });
 
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+//    mytask->setAutoDelete(true);
+//    QThreadPool::globalInstance()->start(mytask);
 }
 
 void KKSession::handleLoadFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
 
-    KKTask *mytask = new KKTask([&]() {
-        sendResponse(LOAD_FILE, SUCCESS, file->getCrdtText());
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+    sendResponse(LOAD_FILE, SUCCESS, file->getCrdtText());
+//    KKTask *mytask = new KKTask([&]() {
+//    });
+//    mytask->setAutoDelete(true);
+//    QThreadPool::globalInstance()->start(mytask);
 }
 
 void KKSession::handleQuitFileRequest()
@@ -237,23 +237,24 @@ void KKSession::handleQuitFileRequest()
     disconnectFromFile();
     sendResponse(QUIT_FILE, SUCCESS, {});
 }
+
 void KKSession::handleCrdtRequest(KKPayload request) {
     QStringList body = request.getBodyList();
-    int code = file->applyRemoteTextChangeSafe(body);
-    if (code == 0) {
-        KKTask *mytask = new KKTask([&, body]() {
-            file->deliver(CRDT, SUCCESS, body, user->getUsername());
-        });
-        mytask->setAutoDelete(true);
-        QThreadPool::globalInstance()->start(mytask);
-    } else {
+    QString operation = body.at(0);
+
+    QString username = operation == CRDT_ALIGNM ? "All" : user->getUsername();
+    KKTask *mytask = new KKTask([&, body, username]() {
+        file->deliver(CRDT, SUCCESS, body, username);
+    });
+    mytask->setAutoDelete(true);
+    QThreadPool::globalInstance()->start(mytask);
+
+    if (file->applyRemoteTextChangeSafe(body) < 0) {
         disconnectFromFile();
         sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
     }
 
 }
-
-
 
 void KKSession::handleChatRequest(KKPayload request) {
     file->deliver(CHAT, SUCCESS, request.getBodyList(), "All");
@@ -338,7 +339,6 @@ void KKSession::connectToFile(QString filename)
 
     if (sendFileInfo) {
         sendResponse(SET_PARTECIPANTS, SUCCESS, {file->getParticipants()});
-        sendResponse(LOAD_FILE, SUCCESS, {file->getCrdtText()});
 
         // Aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();

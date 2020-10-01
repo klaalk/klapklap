@@ -329,20 +329,21 @@ void KKClient::handleGetFilesResponse(KKPayload res)
 }
 
 void KKClient::handleOpenFileResponse(KKPayload res) {
+    initEditor();
     state= CONNECTED_AND_OPENED;
     fileValid = true;
-    initEditor();
-    editor->setLink(res.getBodyList()[1]);
     openFile.hide();
+    editor->setLink(res.getBodyList()[1]);
+    editor->loading(true);
     editor->show();
     chat->show();
+    sendLoadFileRequest(res.getBodyList()[1]);
 }
 
 void KKClient::handleLoadFileResponse(KKPayload res) {
     QStringList bodyList = res.getBodyList();
     if (bodyList.isEmpty())
         return;
-    editor->loading(true);
     crdt->decodeCrdt(bodyList);
     editor->load(crdt->getText(), crdt->getLinesAlignment());
     editor->loading(false);
@@ -368,22 +369,22 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     int delta = 0, startPosition = -1;
 
     if (operation == CRDT_ALIGNM) {
+
         while(!body.isEmpty()) {
+
             int alignment = body.takeFirst().toInt();
             unsigned long startLine = body.takeFirst().toULong();
             unsigned long endLine = body.takeFirst().toULong();
 
-            int alignPos = crdt->calculateGlobalPosition(KKPosition(startLine, 0));
-
             // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
+            int alignPos = crdt->calculateGlobalPosition(KKPosition(startLine, 0));
             for(unsigned long i = startLine; i <= endLine; i++){
                 // Controlla che la riga esista
-                if(crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)){
-                    crdt->setLineAlignment(i, alignment);
+                if (crdt->remoteAlignmentChange(i, alignment))
                     editor->applyRemoteAlignmentChange(alignment, alignPos++);
-                } else {
+                else
                     break;
-                }
+
             }
 
             if (startPosition == -1)
@@ -393,15 +394,17 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     } else {
         KKPosition crdtPosition(0, 0);
         int currentPosition = -1;
-        editor->loading(true);
+
         while (!body.isEmpty()) {
             QString crdtChar = operation == CRDT_DELETE ? body.takeLast() : body.takeFirst();
             KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
 
             if (operation == CRDT_FORMAT)
                 crdtPosition = crdt->remoteFormatChange(charPtr);
+
             else if (operation == CRDT_INSERT)
                 crdtPosition = crdt->remoteInsert(charPtr);
+
             else if (operation == CRDT_DELETE)
                 crdtPosition = crdt->remoteDelete(charPtr);
 
@@ -432,7 +435,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 
     editor->updateCursors(remoteSiteId, startPosition, delta);
     editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
-    editor->loading(false);
 }
 
 /// SENDING
@@ -513,6 +515,15 @@ void KKClient::sendOpenFileRequest(const QString& link_, const QString& filename
     bool sended = sendRequest(OPEN_FILE, NONE, {link});
     if (sended) {
         state = CONNECTED_NOT_OPENFILE;
+    }
+}
+
+void KKClient::sendLoadFileRequest(const QString &link)
+{
+    bool result = sendRequest(LOAD_FILE, NONE, {link});
+    if (!result || !socket.isValid()) {
+        modal.setModal("Attenzione!\nSembra che tu non sia connesso alla rete", "Riprova", CHAT_ERROR);
+        modal.show();
     }
 }
 
@@ -601,8 +612,7 @@ void KKClient::handleModalActions(const QString &modalType)
 
     } else if (modalType == CRDT_ILLEGAL) {
         modal.hide();
-        sendRequest(LOAD_FILE, NONE, {link});
-
+        sendLoadFileRequest(link);
     } else if (modalType == OPENFILE_ERROR) {
         modal.hide();
 
@@ -706,7 +716,7 @@ void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStri
 
         for (int i = 0; i < fonts.size(); i++) {
             QChar value;
-            KKCharPtr charPtr = crdt->changeSingleKKCharFormat(KKPosition(line, col), fonts.at(i), colors.at(i), &value);
+            KKCharPtr charPtr = crdt->localFormatChange(KKPosition(line, col), fonts.at(i), colors.at(i), &value);
             if (charPtr != nullptr)
                 changes.push_back(crdt->encodeCrdtChar(charPtr));
             if (value != '\n') {
@@ -737,24 +747,17 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
     crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol);
     crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
 
-    bool sendSafe = false;
     QStringList changes;
-
-    if (crdt->checkPosition(startAlignLine, startAlignCol) && crdt->checkPosition(endAlignLine, endAlignCol)) {
-        for (unsigned long i = startAlignLine; i <= endAlignLine; i++) {
-            // Aggiorno il crdt con gli allineamenti
-            crdt->setLineAlignment(static_cast<unsigned long>(i), alignment);
-            if (!sendSafe) sendSafe = true;
-        }
-        if (sendSafe) {
-            changes.push_back(CRDT_ALIGNM);
-            changes.push_back(user->getUsername());
-            changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
-            changes.push_back(QVariant(alignment).toString());
-            changes.push_back(QVariant(static_cast<int>(startAlignLine)).toString());
-            changes.push_back(QVariant(static_cast<int>(endAlignLine)).toString());
-        }
+    if (crdt->checkPosition(startAlignLine, startAlignCol)
+            && crdt->checkPosition(endAlignLine, endAlignCol)) {
+        changes.push_back(CRDT_ALIGNM);
+        changes.push_back(user->getUsername());
+        changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
+        changes.push_back(QVariant(alignment).toString());
+        changes.push_back(QVariant(static_cast<int>(startAlignLine)).toString());
+        changes.push_back(QVariant(static_cast<int>(endAlignLine)).toString());
     }
+
     if (!changes.isEmpty()) {
         sendCrdtRequest(changes);
     } else {
@@ -773,13 +776,16 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
 
     QStringList changes;
     if (crdt->checkPosition(startAlignLine, startAlignCol) && crdt->checkPosition(endAlignLine, endAlignCol)) {
+
         int pos = crdt->calculateGlobalPosition(KKPosition(startAlignLine, 0));
+
         int prevAlignment = -1;
+
         for(unsigned long i = startAlignLine; i <= endAlignLine; i++) {
+
             if (crdt->checkLine(i) || (crdt->isTextEmpty() && i==0)) {
 
                 int alignment = editor->getCurrentAlignment(pos++);
-                crdt->setLineAlignment(static_cast<unsigned long>(i), alignment);
 
                 if (prevAlignment != alignment) {
                     // Controlla che la riga esista
@@ -790,6 +796,7 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
                     changes.pop_back();
                     changes.push_back(QVariant(static_cast<int>(i)).toString());
                 }
+
                 prevAlignment = alignment;
             }
         }

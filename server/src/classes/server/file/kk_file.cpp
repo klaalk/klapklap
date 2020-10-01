@@ -98,11 +98,16 @@ int KKFile::applyRemoteTextChangeSafe(QStringList body){
         if (operation == CRDT_ALIGNM) {
             while (!body.isEmpty()) {
                 // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-                QString alignment = body.takeFirst();
-                QString startLine = body.takeFirst();
-                QString endLine = body.takeFirst();
-                crdt->remoteAlignmentChange(alignment.toInt(), startLine.toULong(), endLine.toULong());
+                int alignment = body.takeFirst().toInt();
+                unsigned long startLine = body.takeFirst().toULong();
+                unsigned long endLine = body.takeFirst().toULong();
+
+                for(unsigned long i = startLine; i <= endLine; i++) {
+                    if(!crdt->remoteAlignmentChange(i, alignment))
+                        break;
+                }
             }
+
         } else {
             for (QString crdtChar : body) {
                 KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
@@ -118,6 +123,7 @@ int KKFile::applyRemoteTextChangeSafe(QStringList body){
         return 200;
     } catch (QException e) {
         KKLogger::log(e.what(), "applyRemoteChangeSafe");
+        qDebug() << "ERROR :" << e.what();
         return -200;
     }
 }
