@@ -412,9 +412,9 @@ void KKClient::handleCrdtResponse(KKPayload response) {
                 currentPosition = crdt->calculateGlobalPosition(crdtPosition);
 
             if (operation == CRDT_FORMAT)
-                editor->applyRemoteFormatChange(currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
+                editor->applyRemoteFormatChange(currentPosition, remoteSiteId, charPtr->getKKCharFont(), charPtr->getKKCharColor());
             else
-                editor->applyRemoteTextChange(operation, charPtr->getValue(), currentPosition, charPtr->getKKCharFont(), charPtr->getKKCharColor());
+                editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
 
             if (startPosition == -1 || currentPosition < startPosition)
                 startPosition = currentPosition;
@@ -660,11 +660,11 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
         }
     }
     if (!changes.isEmpty() && correctInsert) {
-        KKTask *sendTask = new KKTask([=]() {
-            sendCrdtRequest(changes);
-        });
-        sendTask->setAutoDelete(true);
-        QThreadPool::globalInstance()->start(sendTask);
+        sendCrdtRequest(changes);
+//        KKTask *sendTask = new KKTask([=]() {
+//        });
+//        sendTask->setAutoDelete(true);
+//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Inserimento illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
@@ -693,17 +693,18 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
     }
 
     if (!changes.isEmpty() && value == deletedValue) {
-        KKTask *sendTask = new KKTask([=]() {
-            sendCrdtRequest(changes);
-        });
-        sendTask->setAutoDelete(true);
-        QThreadPool::globalInstance()->start(sendTask);
+        sendCrdtRequest(changes);
+//        KKTask *sendTask = new KKTask([=]() {
+//        });
+//        sendTask->setAutoDelete(true);
+//        QThreadPool::globalInstance()->start(sendTask);
     } else {
+        logger("Cancellazione illegale per il CRDT");
     }
 }
 
 
-void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStringList colors){
+void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QString font, QString color){
     QStringList changes;
 
     unsigned long line, col;
@@ -714,9 +715,9 @@ void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStri
         changes.push_back(user->getUsername());
         changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
 
-        for (int i = 0; i < fonts.size(); i++) {
+        for (unsigned long i = start; i < end; i++) {
             QChar value;
-            KKCharPtr charPtr = crdt->localFormatChange(KKPosition(line, col), fonts.at(i), colors.at(i), &value);
+            KKCharPtr charPtr = crdt->localFormatChange(KKPosition(line, col), font, color, &value);
             if (charPtr != nullptr)
                 changes.push_back(crdt->encodeCrdtChar(charPtr));
             if (value != '\n') {
@@ -729,11 +730,11 @@ void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStri
     }
 
     if (!changes.isEmpty()) {
-        KKTask *sendTask = new KKTask([=]() {
-            sendCrdtRequest(changes);
-        });
-        sendTask->setAutoDelete(true);
-        QThreadPool::globalInstance()->start(sendTask);
+        sendCrdtRequest(changes);
+//        KKTask *sendTask = new KKTask([=]() {
+//        });
+//        sendTask->setAutoDelete(true);
+//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cambio formato illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
@@ -760,6 +761,10 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
 
     if (!changes.isEmpty()) {
         sendCrdtRequest(changes);
+//        KKTask *sendTask = new KKTask([=]() {
+//        });
+//        sendTask->setAutoDelete(true);
+//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cambio allineamento illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
@@ -808,6 +813,10 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
     }
     if (!changes.isEmpty()) {
         sendCrdtRequest(changes);
+//        KKTask *sendTask = new KKTask([=]() {
+//        });
+//        sendTask->setAutoDelete(true);
+//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Modifica allineamento illegale per il CRDT");
         modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);

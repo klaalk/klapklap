@@ -41,7 +41,7 @@ signals:
     void removeTextFromCrdt(unsigned long start, unsigned long end, QString value);
     void saveCrdtTtoFile();
     void alignChange(int alignment, int alignStart, int alignEnd);
-    void charFormatChange(unsigned long pos, QStringList fonts, QStringList colors);
+    void charFormatChange(unsigned long start, unsigned long end, QString font, QString color);
     void updateSiteIdsPositions(QString siteId);
     void openFileDialog();
     void editorClosed();
@@ -53,8 +53,8 @@ public:
     void loading(bool enable);
     void load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments);
     void applyRemoteAlignmentChange(int alignment, int alignPos);
-    void applyRemoteFormatChange(int position, QString font, QString color);
-    void applyRemoteTextChange(const QString& operation, const QString& text, int globalPos, const QString& font, const QString& colorRecived);
+    void applyRemoteFormatChange(int position, QString siteId, QString font, QString color);
+    void applyRemoteTextChange(const QString& operation, int position, const QString& siteId, const QChar& value, const QString& font, const QString& colorRecived);
     void applyRemoteCursorChange(const QString& siteId, int position);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);
     QBrush applySiteIdClicked(const QString& name);

@@ -5,10 +5,7 @@
 #include "kk_task.h"
 #include <QDebug>
 
-KKTask::KKTask(std::function<void()> f): function(f)
-{
-    qDebug() << "Task created";
-}
+KKTask::KKTask(std::function<void()> f): function(f){}
 
 // When the thread pool kicks up
 // it's going to hit this run, and it's going to do this time consuming task.
