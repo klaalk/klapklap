@@ -21,9 +21,10 @@ public:
     void setNickName(QString nick);
     void appendMessage(const QString &from, const QString &message);
     void addParticipant(const QString &username, const QString &nick, const QString &avatar);
-    void removeParticipant(const QString &username, const QString &nick);
+    void removeParticipant(const QString &username, const QString &nick, const QString &avatar);
     void setParticipants(const QStringList participants);
     void setParticipantChatBackgroundColor(QBrush color, QString siteId);
+    QPixmap createAvatarIcon(const QString &avatar, const QString &state);
 
 signals:
     void sendMessageEvent(QString username, QString message);

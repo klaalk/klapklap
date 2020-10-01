@@ -323,7 +323,7 @@ QBrush KKEditor::applySiteIdClicked(const QString& siteId){
     }
     else{
         colorText(siteId);
-        return siteIdsColors.value(siteId);
+        return siteIdsColors.contains(siteId) ? siteIdsColors.value(siteId) : Qt::white;
     }
 
 }

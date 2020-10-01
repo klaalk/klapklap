@@ -68,11 +68,12 @@ public:
     }
 
     void moveLabels(QRect qRect) {
+#ifndef Q_OS_MACOS
         earpiece->move(qRect.x()-static_cast<int>(0.5*fontSize), qRect.y()-static_cast<int>(0.35*fontSize));
         name->move(qRect.x()-static_cast<int>(0.1*fontSize), qRect.y()-17);
-#ifdef Q_OS_MACOS
+#else
          earpiece->move(qRect.x()-static_cast<int>(0.5*fontSize), qRect.y()-static_cast<int>(0.2*fontSize));
-         name->move(qRect.x(),qRect.y()-11);
+         name->move(qRect.x(),qRect.y()-10);
 #endif
     }
     int getGlobalPositon() {

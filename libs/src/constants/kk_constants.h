@@ -140,4 +140,14 @@
 #define NAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
 #define SURNAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
 
+#ifdef Q_OS_MACOS
+    #define DIM_ICN 25
+    #define DIM_ICN_TXT 12
+    #define DIM_ICN_GREEN 8
+#else
+    #define DIM_ICN 32
+    #define DIM_ICN_TXT 10
+    #define DIM_ICN_GREEN 10
+#endif
+
 #endif //SERVER_KK_CONSTANTS_H

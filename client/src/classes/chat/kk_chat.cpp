@@ -72,10 +72,10 @@ void KKChat::addParticipant(const QString &username, const QString &nick, const 
     textEdit->setTextColor(color);
 }
 
-void KKChat::removeParticipant(const QString &username, const QString &nick)
+void KKChat::removeParticipant(const QString &username, const QString &nick, const QString &avatar)
 {
 
-    setParticipantState(username, nick, QString(), PARTICIPANT_OFFLINE);
+    setParticipantState(username, nick, avatar, PARTICIPANT_OFFLINE);
 
     QColor color = textEdit->textColor();
     textEdit->setTextColor(Qt::gray);
@@ -99,37 +99,19 @@ void KKChat::setParticipants(const QStringList participants)
         siteIdNickName.insert(username,nick);
         item->setText(nick);
 
-        const QPixmap orig = QPixmap(":/images/avatars/"+avatar);
-
-        int size = qMax(orig.width(), orig.height());
-
-        QPixmap rounded = QPixmap(size, size);
-        rounded.fill(Qt::transparent);
-
-        QPainterPath path;
-        path.addEllipse(rounded.rect());
-
-        QPainter painter(&rounded);
-        painter.setClipPath(path);
-
-        painter.fillRect(rounded.rect(), Qt::black);
-
-        int x = qAbs(orig.width() - size) / 2;
-        int y = qAbs(orig.height() - size) / 2;
-        painter.drawPixmap(x, y, orig.width(), orig.height(), orig);
-
-
-        item->setIcon(QIcon(rounded));
         if (state == PARTICIPANT_ONLINE)
            item->setTextColor(*colorOnline);
-        else
-           item->setTextColor(*colorOffline);
+
+        else item->setTextColor(*colorOffline);
+
+        item->setIcon(createAvatarIcon(avatar,state));
+
 
         QFont tmp ;
-        tmp.setPointSizeF(12);
+        tmp.setPointSizeF(DIM_ICN_TXT);
         item->setFont(tmp);
 
-        listWidget->setIconSize(QSize(25,25));
+        listWidget->setIconSize(QSize(DIM_ICN,DIM_ICN));
         listWidget->addItem(item);
     }
 }
@@ -166,31 +148,12 @@ void KKChat::setParticipantState(const QString &username, const QString &nick, c
     if (!nick.isEmpty()) {
         QListWidgetItem* item = findParticipantItem(nick,username);
 
-        const QPixmap orig = QPixmap(":/images/avatars/"+avatar);
-
-        int size = qMax(orig.width(), orig.height());
-
-        QPixmap rounded = QPixmap(size, size);
-        rounded.fill(Qt::transparent);
-
-        QPainterPath path;
-        path.addEllipse(rounded.rect());
-
-        QPainter painter(&rounded);
-        painter.setClipPath(path);
-
-        painter.fillRect(rounded.rect(), Qt::black);
-
-        int x = qAbs(orig.width() - size) / 2;
-        int y = qAbs(orig.height() - size) / 2;
-        painter.drawPixmap(x, y, orig.width(), orig.height(), orig);
-
         if (item == nullptr) {
             item = new QListWidgetItem();
             item->setWhatsThis(username);
             item->setText(nick);
+//            item->setIcon(createAvatarIcon(avatar, PARTICIPANT_OFFLINE));
             siteIdNickName.insert(username,nick);
-            item->setIcon(QIcon(rounded));
             listWidget->addItem(item);
         }
 
@@ -199,11 +162,11 @@ void KKChat::setParticipantState(const QString &username, const QString &nick, c
         else
            item->setTextColor(*colorOffline);
 
+        item->setIcon(createAvatarIcon(avatar, state));
+
         if (!nick.isEmpty())
             item->setText(nick);
 
-        if (!avatar.isEmpty())
-            item->setIcon(QIcon(rounded));
     }
     participants_label->setText(QString("Participants (%1)").arg(participants.values().length()));
 }
@@ -219,4 +182,37 @@ QListWidgetItem *KKChat::findParticipantItem(const QString &nick, const QString 
     }
     return nullptr;
 }
+
+QPixmap KKChat::createAvatarIcon(const QString &avatar, const QString &state){
+    QIcon icon1(":/images/avatars/"+avatar);
+    QPixmap pixmap= icon1.pixmap(QSize(DIM_ICN,DIM_ICN));
+
+    QPixmap rounded = QPixmap(DIM_ICN,DIM_ICN);
+    rounded.fill(Qt::transparent);
+    QPainterPath path;
+    path.addEllipse(rounded.rect());
+    QPainter painter(&rounded);
+    painter.setClipPath(path);
+    painter.drawPixmap(0, 0, pixmap.width(), pixmap.height(), pixmap);
+    if(state==PARTICIPANT_OFFLINE)
+        return rounded;
+
+    QPixmap icon2(":/images/online.png");
+    QPixmap pixmapG= icon2.scaled(QSize(DIM_ICN_GREEN,DIM_ICN_GREEN), Qt::KeepAspectRatio);
+    QPixmap roundedG = QPixmap(DIM_ICN_GREEN, DIM_ICN_GREEN);
+    roundedG.fill(Qt::transparent);
+    QPainterPath pathG;
+    pathG.addEllipse(roundedG.rect());
+    QPainter painterG(&roundedG);
+    painterG.setClipPath(pathG);
+    painterG.drawPixmap(0, 0, pixmapG.width(), pixmapG.height(), pixmapG);
+
+    QPixmap result= QPixmap(QSize(DIM_ICN,DIM_ICN));
+    result.fill(Qt::transparent);
+    QPainter painterRes(&result);
+    painterRes.drawPixmap(0,0,rounded);
+    painterRes.drawPixmap(result.width()-roundedG.width(),result.height()-roundedG.width(),roundedG);
+    return result;
+}
+
 

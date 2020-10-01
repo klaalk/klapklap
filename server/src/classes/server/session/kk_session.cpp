@@ -346,7 +346,7 @@ void KKSession::connectToFile(QString filename)
 void KKSession::disconnectFromFile()
 {
     if(!file.isNull()) {
-        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias()}, "All");
+        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}, "All");
         file->leave(sharedFromThis());
 
         if (file->getParticipantCounter() < 1) {
