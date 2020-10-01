@@ -324,6 +324,7 @@ QBrush KKEditor::applySiteIdClicked(const QString& siteId){
     else{
         if(siteId!=getMySiteId())
             textEdit->setCursorPosition(cursors.value(siteId)->getGlobalPositon());
+        else textEdit->restoreCursorPosition();
         colorText(siteId);
         return siteIdsColors.contains(siteId) ? siteIdsColors.value(siteId) : Qt::white;
     }
