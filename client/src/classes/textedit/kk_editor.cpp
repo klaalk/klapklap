@@ -322,7 +322,7 @@ QBrush KKEditor::applySiteIdClicked(const QString& siteId){
     if (siteIdsClicked.contains(siteId)) {
         siteIdsClicked.removeOne(siteId);
     } else {
-        if(siteId != getMySiteId())
+        if(siteId != getMySiteId() && cursors.contains(siteId))
             textEdit->setCursorPosition(cursors.value(siteId)->getGlobalPositon());
         else
             textEdit->restoreCursorPosition();
@@ -1069,7 +1069,7 @@ void KKEditor::alignmentChanged(Qt::Alignment a)
 }
 
 void KKEditor::colorText(const QString& siteId, QBrush color) {
-    if(!siteIdsPositions.contains(siteId))
+    if(!siteIdsPositions.contains(siteId) || siteIdsPositions.value(siteId)->isEmpty())
         return;
 
     //    textEdit->lockCursor();
@@ -1091,6 +1091,8 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
 
         if (pos-prevPos > 1 || pos == last) {
             end = prevPos;
+            if(pos==last)
+                end=pos;
             cursor.setPosition(start, QTextCursor::MoveAnchor);
             cursor.setPosition(end+1, QTextCursor::KeepAnchor);
             qDebug() << "[color da " << start << " a " << end+1;
