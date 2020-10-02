@@ -38,6 +38,7 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 ../../libs/src/classes/logger/kk_logger.h \
                 ../../libs/src/constants/kk_constants.h \
                 ../../libs/src/classes/user/kk_user.h \
+                ../../libs/src/classes/task/kk_task.h \
                 classes/server/participant/kk_participant.h \
                 classes/smtp/mime/SmtpMime.h \
                 classes/smtp/mime/emailaddress.h\
@@ -54,7 +55,6 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/server/kk_server.h \
                 classes/server/file/kk_file.h \
                 classes/server/filesys/kk_filesys.h \
-                classes/server/task/kk_task.h \
                 classes/server/room/kk_room.h \
                 classes/server/session/kk_session.h
 
@@ -66,6 +66,7 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 ../../libs/src/classes/logger/kk_logger.cpp \
                 ../../libs/src/classes/payload/kk_payload.cpp \
                 ../../libs/src/classes/user/kk_user.cpp \
+                ../../libs/src/classes/task/kk_task.cpp \
                 classes/smtp/mime/emailaddress.cpp \
                 classes/smtp/mime/mimecontentformatter.cpp \
                 classes/smtp/mime/mimehtml.cpp \
@@ -81,7 +82,6 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 classes/server/kk_server.cpp \
                 classes/server/file/kk_file.cpp \
                 classes/server/filesys/kk_filesys.cpp \
-                classes/server/task/kk_task.cpp \
                 classes/server/room/kk_room.cpp \
                 classes/server/session/kk_session.cpp \
                 main.cpp

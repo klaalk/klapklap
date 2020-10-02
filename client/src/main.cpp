@@ -12,6 +12,7 @@
 int main(int argc, char* argv[])
 {
     Q_INIT_RESOURCE(client);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
 
     // Apply the loaded stylesheet
@@ -20,10 +21,10 @@ int main(int argc, char* argv[])
     app.setStyleSheet(QString( styleFile.readAll()));
 
     // Local Server
-    //KKClient client(QUrl(QStringLiteral("wss://localhost:3002")));
+    KKClient client(QUrl(QStringLiteral("wss://localhost:3002")));
 
     // Public Server
-  KKClient client(QUrl(QStringLiteral("wss://93.56.104.204:3002")));
+//    KKClient client(QUrl(QStringLiteral("wss://93.56.104.204:3002")));
 
     QApplication::setWindowIcon(QIcon(":/klapklap.icns"));
     Q_UNUSED(client)

@@ -3,10 +3,10 @@
 #include <QDebug>
 
 #define  HOST "localhost"
-#define  PORT 3307
-#define  USR  "michele"
+#define  PORT 3306
+#define  USR  "root"
 #define  DBN  "klapklap"
-#define  PSW  "michele"
+#define  PSW  ""
 
 #define INSERT_USER_QRY "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`ALIAS`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIME())"
 #define UPDATE_USER_QRY "UPDATE `USERS` SET `ALIAS`=?,`NAME`=?,`SURNAME`=?,`IMAGE`=? WHERE `USERNAME` = ?"
@@ -17,7 +17,7 @@
 #define INSERT_FILE_QRY "INSERT INTO `FILES` (`FILENAME`, `HASHNAME`, `USERNAME`, `CREATION_DATE`) VALUES (?, ?, ?, CURRENT_TIME())"
 #define INSERT_SHAREFILE_QRY "INSERT INTO `FILES_OWNERS` (`USERNAME`, `HASHNAME`, `JOIN_DATE`) VALUES (?, ?, CURRENT_TIME())"
 #define GET_USER_FILES_QRY "SELECT `FILES_OWNERS`.`HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` JOIN `FILES` ON `FILES_OWNERS`.`HASHNAME` = `FILES`.`HASHNAME` WHERE `FILES_OWNERS`.`USERNAME`= ? ORDER BY `JOIN_DATE` DESC, `FILES`.`FILENAME`"
-#define GET_FILE_USERS_QRY "SELECT `USERS`.`USERNAME`, `USERS`.`ALIAS`, `USERS`.`IMAGE` FROM `FILES_OWNERS` JOIN `USERS` ON `USERS`.`USERNAME` = `FILES_OWNERS`.`USERNAME` WHERE `HASHNAME`= ?"
+#define GET_SHAREFILE_USERS_QRY "SELECT `USERS`.`USERNAME`, `USERS`.`ALIAS`, `USERS`.`IMAGE` FROM `FILES_OWNERS` JOIN `USERS` ON `USERS`.`USERNAME` = `FILES_OWNERS`.`USERNAME` WHERE `HASHNAME`= ?"
 #define COUNT_SHAREFILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `HASHNAME`= ? AND `USERNAME` = ?"
 #define COUNT_FILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES` WHERE `FILENAME`= ? AND `USERNAME` = ?"
 
@@ -225,7 +225,7 @@ int  KKDataBase::getUserFiles(QString username, QStringList* files){
     return resCode;
 }
 
-int KKDataBase::getFileUsers(QString hash, QStringList* users)
+int KKDataBase::getShareFileUsers(QString hash, QStringList* users)
 {
     int resCode = DB_FILE_NOT_EXIST;
     if(!db.open()) {
@@ -234,7 +234,7 @@ int KKDataBase::getFileUsers(QString hash, QStringList* users)
         users = (users == nullptr) ? new QStringList() : users;
         try {
             QSqlQuery query(db);
-            query.prepare(GET_FILE_USERS_QRY);
+            query.prepare(GET_SHAREFILE_USERS_QRY);
             query.addBindValue(hash);
             query.exec();
             db.close();

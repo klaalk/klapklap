@@ -29,9 +29,11 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
     connect(&chooseAvatarDialog, &ChooseAvatarDialog::updateAvatarRequest, this, &OpenFileDialog::setAvatar);
 
     ui->saveChangesButton->setEnabled(false);
+
     // Start showing layouts
     ui->accountLayout->show();
     ui->documentsLayout->show();
+    ui->createFileNameLineEdit->setFocus();
 }
 
 OpenFileDialog::~OpenFileDialog()
@@ -61,18 +63,21 @@ void OpenFileDialog::initializeFilesTableView() {
 }
 
 void OpenFileDialog::setUser(KKUser* user) {
-    ui->emailLabel->setText(user->getEmail());
 
-    ui->usernameLabel->setText("Username: " + user->getUsername());
+    ui->usernameLabel->setText("Utente: " + user->getUsername());
+    ui->emailLabel->setText("Email: " + user->getEmail());
 
     QDateTime registrationDateTime = QDateTime::fromString(user->getRegistrationDate(), Qt::ISODate);
-    ui->registrationDateLabel->setText("Data di registrazione: " + registrationDateTime.toString(DATE_TIME_FORMAT));
+    ui->registrationDateLabel->setText("Registrato il " + registrationDateTime.toString(DATE_TIME_FORMAT));
 
     avatar = user->getImage();
     setAvatar(user->getImage());
     setName(user->getName());
     setSurname(user->getSurname());
     setAlias(user->getAlias());
+
+    ui->saveChangesButton->setEnabled(chackEditChanges());
+
 }
 
 void OpenFileDialog::setUserFiles(const QStringList &files)

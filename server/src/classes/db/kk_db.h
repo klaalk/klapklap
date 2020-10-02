@@ -34,7 +34,7 @@ public:
     int addFile(QString filename, QString hashname, QString username);
     int addShareFile(QString filename, QString username);
     int getUserFiles(QString username, QStringList* files);
-    int getFileUsers(QString hash, QStringList* users);
+    int getShareFileUsers(QString hash, QStringList* users);
 
     // checks
     int existUserByUsername(QString username);

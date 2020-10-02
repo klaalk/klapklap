@@ -30,6 +30,7 @@
 #include "../../../../libs/src/classes/crdt/pos/kk_pos.h"
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../../../../libs/src/classes/user/kk_user.h"
+#include "../../../../libs/src/classes/task/kk_task.h"
 
 #include "../access/accessdialog.h"
 #include "../chat/kk_chat.h"
@@ -62,6 +63,7 @@ private slots:
     void sendLogoutRequest();
     void sendGetFilesRequest();
     void sendOpenFileRequest(const QString& link, const QString& fileName);
+    void sendLoadFileRequest(const QString& link);
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
     void sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar);
@@ -69,7 +71,7 @@ private slots:
     void onEditorClosed();
     void onInsertTextToCrdt(unsigned long position, QList<QChar>, QStringList fonts, QStringList colors);
     void onRemoveTextFromCrdt(unsigned long start, unsigned long end, QString value);
-    void onCharFormatChanged(unsigned long pos, QStringList fonts, QStringList colors);
+    void onCharFormatChanged(unsigned long start, unsigned long end, QString font, QString color);
     void onAlignmentChange(int alignment, int alignStart, int alignEnd);
     void onNotifyAlignment(int alignStart, int alignEnd);
     void onSaveCrdtToFile();

@@ -1,8 +1,11 @@
 
 #include "kk_textedit.h"
 
+#include <QScrollBar>
+
 KKTextEdit::KKTextEdit(QWidget *parent): QTextEdit(parent)
 {
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &KKTextEdit::wheelEventTriggered);
     connect(this, &QTextEdit::textChanged, this, &KKTextEdit::handleTextChange);
 }
 
@@ -12,38 +15,26 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     if (cursorCounter > 0)
         restoreCursorPosition();
 
-    if (keyCounter == 0) {
-        keyCounter++;
-        if (textCursor().hasSelection()) {
-            selectionStart = textCursor().selectionStart();
-            selectionEnd = textCursor().selectionEnd();
-            wasSelected = true;
-        } else {
-            wasSelected = false;
-        }
-        start = textCursor().position();
-        lastText = toPlainText();
-        textChanged = false;
+    if (textCursor().hasSelection()) {
+        selectionStart = textCursor().selectionStart();
+        selectionEnd = textCursor().selectionEnd();
+        wasSelected = true;
+    } else {
+        wasSelected = false;
     }
+
+    start = textCursor().position();
+    lastText = toPlainText();
+    textChanged = false;
     QTextEdit::keyPressEvent(e);
-
-    /// Inizio a guardare le modifiche al testo se ho premuto almeno un tasto utile (NO CMD o CTRL)
-    if (keyCounter == 1) {
-
-        if (textChanged)
+    if (textChanged)
             sendDiffText();
-
-        // Decremento i tasti premuti
-        keyCounter--;
-        textChanged = false;
-    }
-
+    textChanged = false;
 }
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
 {
-    if (keyCounter == 0)
-        start = textCursor().position();
+    start = textCursor().position();
     lastText = toPlainText();
     QTextEdit::mousePressEvent(e);
 }
@@ -116,7 +107,7 @@ void KKTextEdit::textUndo() {
     lastText = toPlainText();
     undo();
 
-    if (keyCounter == 0 && textChanged)
+    if (textChanged)
         sendDiffText();
 }
 
@@ -128,37 +119,41 @@ void KKTextEdit::textRedo()
     lastText = toPlainText();
     redo();
 
-    if (keyCounter == 0 && textChanged)
+    if (textChanged)
         sendDiffText();
 }
 
 void KKTextEdit::textCopy()
 {
+    if (cursorCounter > 0)
+        restoreCursorPosition();
+
     copy();
 }
 
 void KKTextEdit::textPaste()
 {
     if (cursorCounter > 0)
-            restoreCursorPosition();
+        restoreCursorPosition();
 
     start = textCursor().position();
     lastText = toPlainText();
+
     paste();
 
-    if (keyCounter == 0 && textChanged)
+    if (textChanged)
         sendDiffText();
 }
 
 void KKTextEdit::textCut()
 {
     if (cursorCounter > 0)
-            restoreCursorPosition();
+        restoreCursorPosition();
 
     start = textCursor().position();
     lastText = toPlainText();
     cut();
-    if (keyCounter == 0 && textChanged)
+    if (textChanged)
         sendDiffText();
 }
 

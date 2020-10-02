@@ -50,6 +50,7 @@ QPushButton[class="IconBtn"] {
     border-radius: 5px;
 }
 
+
 QPushButton[class="PrimaryOutlineBtn"], QPushButton[class="SecondaryOutlineBtn"] {
     min-height: 23px;
     max-height: 23px;
@@ -117,14 +118,12 @@ QHeaderView::section {
 
 QTextEdit[class="TextEdit"] {
     border: 0px solid white;
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-right-color: rgba(33, 33, 33, 100);
     min-width: 500px;
 }
 
-ChatDialog {
-    border-left-style: solid;
-    border-left-width: 1px;
-    border-left-color: rgba(33, 33, 33, 100);
-}
 
 QTextEdit[class="ChatTextEdit"], QListWidget[class="ParticipantList"] {
     border: 0px solid white;

@@ -24,6 +24,8 @@
 #include <QDebug>
 #include <QString>
 #include <QChar>
+#include <QMutex>
+#include <QWaitCondition>
 
 #include "char/kk_char.h"
 #include "pos/kk_pos.h"
@@ -52,14 +54,13 @@ public:
     KKPosition remoteInsert(const KKCharPtr& charPtr);
     KKPosition remoteDelete(const KKCharPtr& charPtr);
     KKPosition remoteFormatChange(const KKCharPtr& charPtr);
-    void remoteAlignmentChange(int alignment, unsigned long startIdx, unsigned long endIdx);
+    bool remoteAlignmentChange(unsigned long idx, int align);
 
     list<KKCharPtr> changeMultipleKKCharFormat(KKPosition start, KKPosition end,QString font_, QString color_);//cambia il formato di tutte le KKChar comprese tra le due posizioni e restituisce la lista delle KKChar cambiate
-    KKCharPtr changeSingleKKCharFormat(KKPosition pos, QString font, QString color, QChar* value);
+    KKCharPtr localFormatChange(KKPosition pos, QString font, QString color, QChar* value);
 
     void calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col);
     int calculateGlobalPosition(KKPosition pos);
-    void setLineAlignment(unsigned long idx, int align);
     int getLineAlignment(unsigned long idx);
     bool checkLine(unsigned long lineIdx);
     bool checkPosition(unsigned long start, unsigned long end);
@@ -123,6 +124,11 @@ private:
     vector<int> linesAlignment;
     unsigned long boundary;
     unsigned long base;
+    int remoteOperation = 0;
+    int localOperation = 0;
+    QMutex mutex;
+    QWaitCondition remoteOperationEmpty;
+    QWaitCondition localOperationEmpty;
 };
 
 typedef QSharedPointer<KKCrdt> KKCrdtPtr;

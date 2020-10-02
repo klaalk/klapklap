@@ -49,7 +49,6 @@ private:
     int localCursorPosition = -1;
 
     /// Variabile che conta quanti tasti ho premuto
-    int keyCounter = 0;
     int cursorCounter = 0;
     bool wasSelected = false;
     bool textChanged = false;

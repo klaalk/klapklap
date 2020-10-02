@@ -202,12 +202,9 @@ void KKSession::handleGetFilesRequest() {
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
     QStringList params = request.getBodyList();
-
-
     if (params.size() > 0) {
         disconnectFromFile();
         connectToFile(params.at(0));
-
     } else {
         sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: non è stato inserito nessun nome file"});
     }
@@ -217,22 +214,22 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
 void KKSession::handleSaveFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
 
-    KKTask *mytask = new KKTask([=]() {
-        file->flushCrdtText();
-    });
+    file->flushCrdtText();
+//    KKTask *mytask = new KKTask([&]() {
+//    });
 
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+//    mytask->setAutoDelete(true);
+//    QThreadPool::globalInstance()->start(mytask);
 }
 
 void KKSession::handleLoadFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
 
-    KKTask *mytask = new KKTask([=]() {
-        sendResponse(LOAD_FILE, SUCCESS, file->getCrdtText());
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+    sendResponse(LOAD_FILE, SUCCESS, file->getCrdtText());
+//    KKTask *mytask = new KKTask([&]() {
+//    });
+//    mytask->setAutoDelete(true);
+//    QThreadPool::globalInstance()->start(mytask);
 }
 
 void KKSession::handleQuitFileRequest()
@@ -240,13 +237,24 @@ void KKSession::handleQuitFileRequest()
     disconnectFromFile();
     sendResponse(QUIT_FILE, SUCCESS, {});
 }
+
 void KKSession::handleCrdtRequest(KKPayload request) {
-    if(file->deliver(CRDT, SUCCESS, request.getBodyList(), user->getUsername())<0){
+    QStringList body = request.getBodyList();
+    QString operation = body.at(0);
+
+    QString username = operation == CRDT_ALIGNM ? "All" : user->getUsername();
+    KKTask *mytask = new KKTask([&, body, username]() {
+        file->deliver(CRDT, SUCCESS, body, username);
+    });
+    mytask->setAutoDelete(true);
+    QThreadPool::globalInstance()->start(mytask);
+
+    if (file->applyRemoteTextChangeSafe(body) < 0) {
         disconnectFromFile();
         sendResponse(QUIT_FILE, INTERNAL_SERVER_ERROR, {});
     }
-}
 
+}
 
 void KKSession::handleChatRequest(KKPayload request) {
     file->deliver(CHAT, SUCCESS, request.getBodyList(), "All");
@@ -272,7 +280,8 @@ void KKSession::connectToFile(QString filename)
 
     } else {
         // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
-        if (db->getFileUsers(filename, &users) == DB_FILE_NOT_EXIST) {
+        if (db->getShareFileUsers(filename, &users) == DB_FILE_NOT_EXIST) {
+
             // File non esistente, controllo se l'utente ha già creato il file con lo stesso nome
             if (db->existFileByUsername(filename, user->getUsername()) == DB_FILE_NOT_EXIST) {
                 file = fileSystem->createFile(filename, user->getUsername());
@@ -280,9 +289,12 @@ void KKSession::connectToFile(QString filename)
                 if (file != FILE_SYSTEM_CREATE_ERROR) {
                     if (db->addFile(filename, file->getHash(), user->getUsername()) != DB_INSERT_FILE_SUCCESS) {
                         file = FILE_SYSTEM_CREATE_ERROR;
-                        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemnto del nuovo file nel database"});
+                        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemento del nuovo file nel database"});
                         return;
                     }
+                } else {
+                    sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile creare il file"});
+                    return;
                 }
 
             } else{
@@ -327,7 +339,6 @@ void KKSession::connectToFile(QString filename)
 
     if (sendFileInfo) {
         sendResponse(SET_PARTECIPANTS, SUCCESS, {file->getParticipants()});
-        sendResponse(LOAD_FILE, SUCCESS, {file->getCrdtText()});
 
         // Aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();

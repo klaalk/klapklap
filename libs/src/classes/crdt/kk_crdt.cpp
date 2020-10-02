@@ -43,7 +43,8 @@ QStringList KKCrdt::encodeCrdt(){
 
 QString KKCrdt::encodeCrdtChar(KKCharPtr charPtr)
 {
-    QString charValue; charValue.push_back(charPtr->getValue());
+    QString charValue;
+    charValue.push_back(charPtr->getValue());
     QString identifiers = charPtr->encodeIdentifiers();
 
     QString encodedChar;
@@ -108,7 +109,7 @@ KKCharPtr KKCrdt::localInsert(QChar val, KKPosition pos, QString font, QString c
     newChar->setKKCharFont(font);
     newChar->setKKCharColor(color);
     insertChar(newChar, pos);
-    return newChar;
+    return copyChar(newChar.get());
 }
 
 list<KKCharPtr> KKCrdt::localDelete(KKPosition startPos, KKPosition endPos){
@@ -151,6 +152,24 @@ list<KKCharPtr> KKCrdt::localDelete(KKPosition startPos, KKPosition endPos){
         linesAlignment.push_back(alignFirstRow);
     }
     return chars;
+}
+
+KKCharPtr KKCrdt::localFormatChange(KKPosition pos, QString font, QString color, QChar* value){
+    list<KKCharPtr>::iterator ch;
+    ch = std::next(text[pos.getLine()].begin(), static_cast<long>(pos.getCh()));
+
+    KKCharPtr charPtr;
+    if (ch->get() != nullptr &&
+            (ch->get()->getKKCharFont() != font || ch->get()->getKKCharColor() != color || ch->get()->getValue()=='\n')) {
+        ch->get()->setKKCharFont(font);
+        ch->get()->setKKCharColor(color);
+        charPtr = copyChar(ch->get());
+    }
+
+    if (ch->get() != nullptr)
+        *value = ch->get()->getValue();
+
+    return charPtr;
 }
 
 KKPosition KKCrdt::remoteInsert(const KKCharPtr& charPtr){
@@ -210,17 +229,16 @@ KKPosition KKCrdt::remoteFormatChange(const KKCharPtr& charPtr){
     return position;
 }
 
-void KKCrdt::remoteAlignmentChange(int alignment, unsigned long startIdx, unsigned long endIdx)
+bool KKCrdt::remoteAlignmentChange(unsigned long idx, int align)
 {
-    for(unsigned long i = startIdx; i <= endIdx; i++) {
-        // Controlla che la riga esista
-        if (checkLine(i) || (isTextEmpty() && i==0))
-            setLineAlignment(i, alignment);
-        else {
-            qDebug() << "[CRDT - remoteAlignmentChange] Alignment non modificabile";
-            break;
-        }
+    if (idx < linesAlignment.size()) {
+        linesAlignment.at(idx) = align;
+        return true;
     }
+    else
+        qDebug() << "[CRDT - remoteAlignmentChange] Index out of range";
+
+    return false;
 }
 
 list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition end, QString font, QString color){
@@ -266,23 +284,6 @@ list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition 
     return charsChanged;
 }
 
-KKCharPtr KKCrdt::changeSingleKKCharFormat(KKPosition pos, QString font, QString color, QChar* value){
-    list<KKCharPtr>::iterator ch = std::next(text[pos.getLine()].begin(), pos.getCh());
-
-    KKCharPtr charPtr;
-    if (ch->get() != nullptr &&
-            (ch->get()->getKKCharFont() != font || ch->get()->getKKCharColor() != color || ch->get()->getValue()=='\n')) {
-        ch->get()->setKKCharFont(font);
-        ch->get()->setKKCharColor(color);
-        charPtr = copyChar(ch->get());
-    }
-
-    if (ch->get() != nullptr)
-        *value = ch->get()->getValue();
-
-    return charPtr;
-}
-
 void KKCrdt::calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col){
     unsigned long tot = 0, succ = 0;
 
@@ -317,14 +318,6 @@ int KKCrdt::calculateGlobalPosition(KKPosition position){
         globalPosition = globalPosition + static_cast<int>(text[i].size());
     }
     return globalPosition + static_cast<int>(position.getCh());
-}
-
-void KKCrdt::setLineAlignment(unsigned long idx, int align)
-{
-    if (idx < linesAlignment.size())
-        linesAlignment.at(idx) = align;
-    else
-        qDebug() << "[CRDT - setLineAlignment] Index out of range";
 }
 
 int KKCrdt::getLineAlignment(unsigned long idx)
