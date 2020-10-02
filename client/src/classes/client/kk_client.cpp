@@ -839,9 +839,9 @@ QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
     QSharedPointer<QList<int>> myList = QSharedPointer<QList<int>>(new QList<int>());
     int global = 0;
     for(const list<KKCharPtr>& linea: crdt->getText()){
-        for(const KKCharPtr& carattere: linea){
-            if(carattere->getSiteId() == siteId){
-                myList->push_front(global);
+        for(const KKCharPtr& carattere: linea) {
+            if (carattere->getSiteId() == siteId) {
+                myList->push_back(global);
             }
             global++;
         }

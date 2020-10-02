@@ -119,8 +119,7 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
-    void colorText(const QString& siteId);
-    void clearColorText(const QString& name);
+    void colorText(const QString& siteId, QBrush color);
 
     void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
 
