@@ -140,6 +140,24 @@
 #define NAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
 #define SURNAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
 
+/// Modal messages
+#define MODAL_TIMEOUT "Server non raggiungibile\nSi prega di riprovare più tardi, grazie."
+#define MODAL_SUCCESS "L'operazione è andata a buon fine"
+#define MODAL_GENERIC_ERROR "Errore interno al server\nNon è possibile procedere con la richiesta"
+#define MODAL_NOT_LOGGED "Hai inserito delle credenziali non valide\nControlla che email e/o password siano corretti"
+#define MODAL_NOT_SIGNED "La registrazione non è andata a buon fine\nUsername e/o Email esistenti"
+#define MODAL_NOT_OPENFILE "Non è stato possibile scaricare il file dal server\nSi procederà con la chiusura del file"
+#define MODAL_OPENED_FILE "Non è stato possibile aggiornare il file dal server\nSi procederà con la chiusura del file"
+#define MODAL_LOGIN_ERROR "Errore generico nella risposta del server\nRiprovare dopo il login"
+#define MODAL_UPDATE_USER "Non è stato possibile procedere con il salvataggio\nSi procederà con la chiusura del file"
+#define MODAL_QUIT_FILE "Non è stato possibile effettuare la modifica\nSi procederà con la chiusura del file"
+#define MODAL_UPDATE_USER_INFO "Le tue informazioni sono state aggiornate con susccesso"
+#define MODAL_NETWORK_ERROR "Attenzione!\nSembra che tu non sia connesso alla rete"
+#define MODAL_UPDATE_USER_FAIL "Non è stato possibile aggiornare l'account"
+#define MODAL_QUIT_FILE_ERROR "Non è stato possibile chiudere il file"
+#define MODAL_UPDATE_FILE_ERROR "Non è stato possibile aggiornare il file dal server"
+#define MODAL_CRDT_ERROR "Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione"
+
 #ifdef Q_OS_MACOS
     #define DIM_ICN 25
     #define DIM_ICN_TXT 12

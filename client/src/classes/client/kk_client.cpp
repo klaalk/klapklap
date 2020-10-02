@@ -108,7 +108,7 @@ void KKClient::handleOpenedConnection() {
 void KKClient::handleTimeOutConnection() {
     logger("[handleTimeOutConnection] - Websocket time out connection");
     timer.stop();
-    modal.setModal("Time out connessione\nNon è stato possibile connettersi al server", "Riprova", CONNECTION_TIMEOUT);
+    modal.setModal(MODAL_TIMEOUT, "Riprova", CONNECTION_TIMEOUT);
     modal.show();
     socket.close();
 }
@@ -186,7 +186,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         editor->removeParticipant(params.at(0));
 
     } else {
-        modal.setModal("L'operazione è andata a buon fine", "Chiudi", GENERIC_SUCCESS);
+        modal.setModal(MODAL_SUCCESS, "Chiudi", GENERIC_SUCCESS);
         modal.show();
     }
 }
@@ -197,7 +197,7 @@ void KKClient::handleErrorResponse(KKPayload response){
     } else if (response.getResultType() == INTERNAL_SERVER_ERROR) {
         handleServerErrorResponse(response);
     } else {
-        modal.setModal("Errore generico\nNon è stato possibile gestire l'errore con il server", "Chiudi", GENERIC_ERROR);
+        modal.setModal(MODAL_GENERIC_ERROR, "Chiudi", GENERIC_ERROR);
         modal.show();
     }
 }
@@ -206,27 +206,27 @@ void KKClient::handleClientErrorResponse(KKPayload response) {
     QString message, button, modalType;
 
     if (state == CONNECTED_NOT_LOGGED) {
-        message = "Hai inserito delle credenziali non valide\nControlla che email e/o password siano corretti";
+        message = MODAL_NOT_LOGGED ;
         button = "Chiudi";
         modalType = LOGIN_ERROR;
 
     } else if (state == CONNECTED_NOT_SIGNED) {
-        message = "La registrazione non è andata a buon fine\nUsername e/o Email esistenti";
+        message = MODAL_NOT_SIGNED;
         button = "Riprova";
         modalType = SIGNUP_ERROR;
 
     } else if (state == CONNECTED_NOT_OPENFILE) {
-        message = "Non è stato possibile scaricare il file dal server\nSi procederà con la chiusura del file";
+        message = MODAL_NOT_OPENFILE;
         button = "Chiudi";
         modalType = OPENFILE_ERROR;
 
     } else if (state == CONNECTED_AND_OPENED) {
-        message = "Non è stato possibile aggiornare il file dal server\nSi procederà con la chiusura del file";
+        message = MODAL_OPENED_FILE;
         button = "Chiudi";
         modalType = CRDT_ERROR;
 
     } else {
-        message = "Errore generico nella risposta del server\nRiprovare dopo il login";
+        message = MODAL_LOGIN_ERROR;
         button = "Chiudi";
         modalType = GENERIC_ERROR;
     }
@@ -242,15 +242,15 @@ void KKClient::handleServerErrorResponse(KKPayload res) {
     QString message, button, modalType;
 
     if (res.getRequestType() == UPDATE_USER) {
-        message = "Non è stato possibile procedere con il salvataggio\nSi procederà con la chiusura del file";
+        message = MODAL_UPDATE_USER;
         button = "Chiudi";
         modalType = UPDATE_USER_ERROR;
     }else if (res.getRequestType() == QUIT_FILE) {
-        message = "Non è stato possibile effettuare la modifica\nSi procederà con la chiusura del file";
+        message = MODAL_QUIT_FILE;
         button = "Chiudi";
         modalType = INPUT_ERROR;
     }else {
-        message = "Errore interno al server\nNon è possibile procedere con la richiesta";
+        message = MODAL_GENERIC_ERROR;
         button = "Riprova";
         modalType = SERVER_ERROR;
     }
@@ -310,7 +310,7 @@ void KKClient::handleUpdateUserResponse()
         user->setSurname(openFile.getSurname());
         user->setImage(openFile.getAvatar());
     }
-    modal.setModal("Le tue informazioni sono state aggiornate con susccesso", "Chiudi", GENERIC_SUCCESS);
+    modal.setModal(MODAL_UPDATE_USER_INFO, "Chiudi", GENERIC_SUCCESS);
     modal.show();
 }
 
@@ -517,7 +517,7 @@ void KKClient::sendOpenFileRequest(const QString& link_, const QString& filename
 void KKClient::sendMessageRequest(QString username, QString message) {
     bool result = sendRequest(CHAT, NONE, {std::move(username), std::move(message)});
     if (!result || !socket.isValid()) {
-        modal.setModal("Attenzione!\nSembra che tu non sia connesso alla rete", "Riprova", CHAT_ERROR);
+        modal.setModal(MODAL_NETWORK_ERROR, "Riprova", CHAT_ERROR);
         modal.show();
     }
 }
@@ -526,7 +526,7 @@ void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alia
 {
     bool result = sendRequest(UPDATE_USER, NONE, {user->getUsername(), name, surname, alias, avatar});
     if (!result || !socket.isValid()) {
-        modal.setModal("Non è stato possibile aggiornare l'account", "Chiudi", GENERIC_ERROR);
+        modal.setModal(MODAL_UPDATE_USER_FAIL, "Chiudi", GENERIC_ERROR);
         modal.show();
     }
 }
@@ -535,7 +535,7 @@ void KKClient::onEditorClosed()
 {
     bool result = sendRequest(QUIT_FILE, NONE, {});
     if (!result || !socket.isValid()) {
-        modal.setModal("Non è stato possibile chiudere il file", "Chiudi", GENERIC_ERROR);
+        modal.setModal(MODAL_QUIT_FILE_ERROR, "Chiudi", GENERIC_ERROR);
         modal.show();
     }
 }
@@ -543,7 +543,7 @@ void KKClient::onEditorClosed()
 void KKClient::sendCrdtRequest(QStringList crdt) {
     bool result = sendRequest(CRDT, NONE, std::move(crdt));
     if (!result || !socket.isValid()) {
-        modal.setModal("Non è stato possibile aggiornare il file dal server", "Riprova", CRDT_ERROR);
+        modal.setModal(MODAL_UPDATE_FILE_ERROR, "Riprova", CRDT_ERROR);
         modal.show();
     }
 }
@@ -651,7 +651,7 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
         sendCrdtRequest(changes);
     else {
         logger("Inserimento illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
         modal.show();
     }
 }
@@ -680,7 +680,7 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
         sendCrdtRequest((changes));
     else {
         //logger("Cancellazione illegale per il CRDT");
-        //modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        //modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
         //modal.show();
     }
 }
@@ -715,7 +715,7 @@ void KKClient::onCharFormatChanged(unsigned long start, QStringList fonts, QStri
         sendCrdtRequest(changes);
     else {
         logger("Cambio formato illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
         modal.show();
     }
 }
@@ -748,7 +748,7 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
         sendCrdtRequest(changes);
     } else {
         logger("Cambio allineamento illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
         modal.show();
     }
 }
@@ -792,7 +792,7 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
         sendCrdtRequest(changes);
     } else {
         logger("Modifica allineamento illegale per il CRDT");
-        modal.setModal("Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione", "Continua", CRDT_ILLEGAL);
+        modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
         modal.show();
     }
 }
