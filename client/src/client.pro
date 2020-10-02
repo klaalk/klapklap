@@ -84,3 +84,6 @@ target.path = $$[QT_INSTALL_EXAMPLES]/klapklap
 INSTALLS += target
 
 DISTFILES +=
+
+CONFIG += app_bundle
+

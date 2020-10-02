@@ -98,3 +98,7 @@ EXAMPLE_FILES = klapklap_be.qdoc
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/klapklap_be
 INSTALLS += target
+
+#deploy macc
+
+CONFIG += app_bundle
