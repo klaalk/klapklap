@@ -296,6 +296,8 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
                     localCursorPosition + 1 : localCursorPosition-1;
         textEdit->setCursorPosition(newLocalCursorPosition);
     }
+
+    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -1080,7 +1082,7 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
     int last = siteIdsPositions.value(siteId)->last();
 
     for(int pos : *siteIdsPositions.value(siteId)) {
-        //qDebug() << "[colorText] - setPosition: " << pos;
+
         if (prevPos == -1) {
             start = pos;
             prevPos = pos;
