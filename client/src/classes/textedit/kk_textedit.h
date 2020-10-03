@@ -5,9 +5,7 @@
 #include <QKeyEvent>
 #include <QtDebug>
 
-
-#define DEL "DEL"
-#define INS "INS"
+#include "../../../../libs/src/constants/kk_constants.h"
 
 class KKTextEdit : public QTextEdit
 {
@@ -29,7 +27,6 @@ public:
     QTextCursor cursorIn(int position);
     void setCursorPosition(int position);
     void restoreCursorPosition();
-    void incrementUndoCounter();
     int cursorPosition();
     int getLocalCursorPosition();
 
@@ -51,7 +48,6 @@ private:
 
     /// Variabile che conta quanti tasti ho premuto
     int cursorCounter = 0;
-    int undoCounter = 0;
     bool wasSelected = false;
     bool textChanged = false;
     QString lastText;
