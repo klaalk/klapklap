@@ -282,6 +282,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         // Aggiorno formato
         applyRemoteFormatChange(position, siteId, font, color);
         delta = 1;
+
     } else if(operation == CRDT_DELETE) {
         //Prelevo il cursore dell'editor e inserisco il testo
         textEdit->lockCursor();
@@ -289,6 +290,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         editorCurs.deleteChar();
         textEdit->unlockCursor();
         delta = -1;
+
     }
 
     // Sblocco il cursore dell'editor.

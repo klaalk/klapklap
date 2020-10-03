@@ -366,7 +366,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     QString operation = body.takeFirst();
     QString remoteSiteId = body.takeFirst();
     int remoteCursorPos = QVariant(body.takeFirst()).toInt();
-    int delta = 0, startPosition = -1;
 
     if (operation == CRDT_ALIGNM) {
 
@@ -387,15 +386,11 @@ void KKClient::handleCrdtResponse(KKPayload response) {
                     break;
                 }
             }
-
-            if (startPosition == -1)
-                startPosition = static_cast<int>(startLine);
         }
 
     } else {
         KKPosition crdtPosition(0, 0);
         int currentPosition = -1;
-
         while (!body.isEmpty()) {
             QString crdtChar = operation == CRDT_DELETE ? body.takeLast() : body.takeFirst();
             KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
@@ -409,27 +404,14 @@ void KKClient::handleCrdtResponse(KKPayload response) {
             else if (operation == CRDT_DELETE)
                 crdtPosition = crdt->remoteDelete(charPtr);
 
-//            if (currentPosition == -1)
             currentPosition = crdt->calculateGlobalPosition(crdtPosition);
 
             if (operation == CRDT_FORMAT)
                 editor->applyRemoteFormatChange(currentPosition, remoteSiteId, charPtr->getKKCharFont(), charPtr->getKKCharColor());
             else
                 editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
-
-            if (startPosition == -1 || currentPosition < startPosition)
-                startPosition = currentPosition;
-
-//            if (operation == CRDT_DELETE)
-//                currentPosition--;
-//            else
-//                currentPosition++;
         }
-
-        if (operation == CRDT_DELETE || operation == CRDT_INSERT)
-            delta = currentPosition - startPosition;
     }
-
 
     if (user->getUsername() != remoteSiteId)
         editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
