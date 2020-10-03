@@ -377,14 +377,15 @@ void KKClient::handleCrdtResponse(KKPayload response) {
             unsigned long endLine = body.takeFirst().toULong();
 
             // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-            int alignPos = crdt->calculateGlobalPosition(KKPosition(startLine, 0));
             for(unsigned long i = startLine; i <= endLine; i++){
                 // Controlla che la riga esista
-                if (crdt->remoteAlignmentChange(i, alignment))
-                    editor->applyRemoteAlignmentChange(alignment, alignPos++);
-                else
+                if (crdt->remoteAlignmentChange(i, alignment)) {
+                    int position = crdt->calculateGlobalPosition(KKPosition(i, 0));
+                    editor->applyRemoteAlignmentChange(alignment, position);
+                }
+                else {
                     break;
-
+                }
             }
 
             if (startPosition == -1)
@@ -433,7 +434,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     if (user->getUsername() != remoteSiteId)
         editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
 
-    editor->updateCursors(remoteSiteId, startPosition, delta);
     editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
 }
 
