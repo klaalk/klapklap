@@ -51,8 +51,6 @@ private:
     bool wasSelected = false;
     bool textChanged = false;
     QString lastText;
-    QList<KKAction> undoStack;
-    QList<KKAction> redoStack;
 };
 
 #endif // KKTEXTEDIT_H
