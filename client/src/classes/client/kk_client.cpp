@@ -405,11 +405,7 @@ void KKClient::handleCrdtResponse(KKPayload response) {
                 crdtPosition = crdt->remoteDelete(charPtr);
 
             currentPosition = crdt->calculateGlobalPosition(crdtPosition);
-
-            if (operation == CRDT_FORMAT)
-                editor->applyRemoteFormatChange(currentPosition, remoteSiteId, charPtr->getKKCharFont(), charPtr->getKKCharColor());
-            else
-                editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
+            editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
         }
     }
 
