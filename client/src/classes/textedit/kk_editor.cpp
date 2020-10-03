@@ -209,6 +209,7 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
     textEdit->document()->clearUndoRedoStacks();
     textEdit->setCursorPosition(editorCursorPos);
     updateCursors(siteId, -1, 1);
+    updateLabels();
 }
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
@@ -309,8 +310,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
 
     if (delta != 0)
         updateCursors(siteId, position, delta);
-    else
-        updateLabels();
+    updateLabels();
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -587,9 +587,7 @@ void KKEditor::textStyle(int styleIndex)
     }
 
     cursor.beginEditBlock();
-
     QTextBlockFormat blockFmt = cursor.blockFormat();
-
     if (style == QTextListFormat::ListStyleUndefined) {
         blockFmt.setObjectIndex(-1);
         int headingLevel = styleIndex >= 9 ? styleIndex - 9 + 1 : 0; // H1 to H6, or Standard
@@ -602,18 +600,9 @@ void KKEditor::textStyle(int styleIndex)
         fmt.setProperty(QTextFormat::FontSizeAdjustment, sizeAdjustment);
         cursor.select(QTextCursor::LineUnderCursor);
         cursor.mergeCharFormat(fmt);
+        emit charFormatChange(static_cast<unsigned long>(cursor.selectionStart()),
+                              static_cast<unsigned long>(cursor.selectionEnd()), fmt.font().toString(), fmt.foreground().color().name());
         textEdit->mergeCurrentCharFormat(fmt);
-    } else {
-        QTextListFormat listFmt;
-        if (cursor.currentList()) {
-            listFmt = cursor.currentList()->format();
-        } else {
-            listFmt.setIndent(blockFmt.indent() + 1);
-            blockFmt.setIndent(0);
-            cursor.setBlockFormat(blockFmt);
-        }
-        listFmt.setStyle(style);
-        cursor.createList(listFmt);
     }
 
     cursor.endEditBlock();
@@ -673,9 +662,7 @@ void KKEditor::textAlign(QAction *a)
 
 void KKEditor::onAbout()
 {
-    QMessageBox::about(this, tr("About"), tr("This example demonstrates Qt's "
-                                             "rich text editing facilities in action, providing an example "
-                                             "document for you to experiment with."));
+    QMessageBox::about(this, tr("About"), tr("Klap Klap ti permette di condividere il tuo documento in tempo reale con gli altri utenti tramite un link di condivisione che potrai copiare selezionando l'opzione 'Share'.\nAll'interno dell'editor puoi comunicare con gli attuali partecipanti attraverso la nostra chat integrata.\nRicorda! Lo storico dei messaggi verrà cancellato non appena non ci saranno più partecipanti attivi."));
 }
 
 void KKEditor::onPrintPreview(QPrinter *printer)
@@ -748,6 +735,7 @@ void KKEditor::onCursorPositionChanged()
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
 
     updateCursors(siteId, static_cast<int>(start), operation == CRDT_INSERT ? diff.size() : -diff.size());
+    updateLabels();
 
     if (operation == CRDT_DELETE)
         emit removeTextFromCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end), diff);
@@ -996,14 +984,6 @@ void KKEditor::setupTextActions()
     comboStyle = new QComboBox(tb);
     tb->addWidget(comboStyle);
     comboStyle->addItem("Standard");
-    comboStyle->addItem("Bullet List (Disc)");
-    comboStyle->addItem("Bullet List (Circle)");
-    comboStyle->addItem("Bullet List (Square)");
-    comboStyle->addItem("Ordered List (Decimal)");
-    comboStyle->addItem("Ordered List (Alpha lower)");
-    comboStyle->addItem("Ordered List (Alpha upper)");
-    comboStyle->addItem("Ordered List (Roman lower)");
-    comboStyle->addItem("Ordered List (Roman upper)");
     comboStyle->addItem("Heading 1");
     comboStyle->addItem("Heading 2");
     comboStyle->addItem("Heading 3");
@@ -1133,8 +1113,6 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
 
 void KKEditor::updateCursors(QString siteId, int position, int value){
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
-    QTextCursor editorCurs = textEdit->textCursor();
-    int fontMax;
     for (KKCursor* c : cursors.values()) {
         if (c !=nullptr) {
             int nuovaPos = c->getGlobalPositon();
@@ -1146,22 +1124,6 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
 
             if (c->getGlobalPositon() > position || siteId == c->getSiteId()) {
                 c->setGlobalPositon(nuovaPos);
-                editorCurs.setPosition(nuovaPos);
-
-                int fontSx = editorCurs.charFormat().font().pointSize();
-                fontMax = fontSx;
-                if(editorCurs.position()<textEdit->document()->toPlainText().length()){
-                    if(textEdit->document()->toPlainText().at(editorCurs.position())!="\xa"){
-                        editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
-                        int fontDx=editorCurs.charFormat().font().pointSize();
-                        if(fontDx > fontSx)
-                            fontMax = fontDx;
-                    }
-                    editorCurs.setPosition(c->getGlobalPositon());
-                }
-
-                c->setLabelsSize(editorCurs.charFormat().font().pointSize());
-                c->moveLabels(textEdit->cursorRect(editorCurs));
             }
         }
     }

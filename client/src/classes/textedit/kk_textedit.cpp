@@ -15,36 +15,45 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     if (cursorCounter > 0)
         restoreCursorPosition();
 
-
-    if (e->text() == "\u001A")
+    if (e->text() == "\u001A") {
         textUndo();
-    else if (e->text() == "\u0019")
-        textRedo();
-    else {
-        if (textCursor().hasSelection()) {
-            selectionStart = textCursor().selectionStart();
-            selectionEnd = textCursor().selectionEnd();
-            wasSelected = true;
-        } else {
-            wasSelected = false;
-        }
-
-        start = textCursor().position();
-        lastText = toPlainText();
-        textChanged = false;
-
-        QTextCursor tmp = textCursor();
-        tmp.beginEditBlock();
-
-        QTextEdit::keyPressEvent(e);
-
-        tmp.endEditBlock();
-        setTextCursor(tmp);
-
-        if (textChanged)
-            sendDiffText();
-        textChanged = false;
+        e->ignore();
+        return;
     }
+
+    if (e->text() == "\u0019") {
+        textRedo();
+        e->ignore();
+        return;
+    }
+
+    qDebug() << e->text();
+
+    if (textCursor().hasSelection()) {
+        selectionStart = textCursor().selectionStart();
+        selectionEnd = textCursor().selectionEnd();
+        wasSelected = true;
+    } else {
+        wasSelected = false;
+    }
+
+    start = textCursor().position();
+    lastText = toPlainText();
+    textChanged = false;
+
+    QTextCursor tmp = textCursor();
+    tmp.beginEditBlock();
+
+    QTextEdit::keyPressEvent(e);
+
+    tmp.endEditBlock();
+    setTextCursor(tmp);
+
+    if (textChanged)
+        sendDiffText();
+
+    textChanged = false;
+
 }
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
