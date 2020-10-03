@@ -111,7 +111,6 @@ int KKTextEdit::getLocalCursorPosition()
 void KKTextEdit::handleTextChange()
 {
     textChanged = true;
-    qDebug() << " text change ";
 }
 
 void KKTextEdit::textUndo() {

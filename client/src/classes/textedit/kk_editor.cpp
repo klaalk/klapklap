@@ -80,7 +80,6 @@ KKEditor::KKEditor(QWidget *parent)
 
     //Collega funzioni nostre a funzioni di QTextEdit
     connect(textEdit, &QTextEdit::currentCharFormatChanged, this, &KKEditor::onFormatChanged);
-    connect(textEdit, &QTextEdit::cursorPositionChanged, this, &KKEditor::onCursorPositionChanged);
     connect(textEdit, &KKTextEdit::textChangedEvent, this, &KKEditor::onTextChange);
     connect(textEdit, &KKTextEdit::wheelEventTriggered, this, &KKEditor::updateLabels);
     connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::notifyAlignment);
@@ -552,62 +551,6 @@ void KKEditor::textSize(const QString &p)
     }
 }
 
-void KKEditor::textStyle(int styleIndex)
-{
-    QTextCursor cursor = textEdit->textCursor();
-    QTextListFormat::Style style = QTextListFormat::ListStyleUndefined;
-
-    switch (styleIndex) {
-    case 1:
-        style = QTextListFormat::ListDisc;
-        break;
-    case 2:
-        style = QTextListFormat::ListCircle;
-        break;
-    case 3:
-        style = QTextListFormat::ListSquare;
-        break;
-    case 4:
-        style = QTextListFormat::ListDecimal;
-        break;
-    case 5:
-        style = QTextListFormat::ListLowerAlpha;
-        break;
-    case 6:
-        style = QTextListFormat::ListUpperAlpha;
-        break;
-    case 7:
-        style = QTextListFormat::ListLowerRoman;
-        break;
-    case 8:
-        style = QTextListFormat::ListUpperRoman;
-        break;
-    default:
-        break;
-    }
-
-    cursor.beginEditBlock();
-    QTextBlockFormat blockFmt = cursor.blockFormat();
-    if (style == QTextListFormat::ListStyleUndefined) {
-        blockFmt.setObjectIndex(-1);
-        int headingLevel = styleIndex >= 9 ? styleIndex - 9 + 1 : 0; // H1 to H6, or Standard
-        blockFmt.setHeadingLevel(headingLevel);
-        cursor.setBlockFormat(blockFmt);
-
-        int sizeAdjustment = headingLevel ? 4 - headingLevel : 0; // H1 to H6: +3 to -2
-        QTextCharFormat fmt;
-        fmt.setFontWeight(headingLevel ? QFont::Bold : QFont::Normal);
-        fmt.setProperty(QTextFormat::FontSizeAdjustment, sizeAdjustment);
-        cursor.select(QTextCursor::LineUnderCursor);
-        cursor.mergeCharFormat(fmt);
-        emit charFormatChange(static_cast<unsigned long>(cursor.selectionStart()),
-                              static_cast<unsigned long>(cursor.selectionEnd()), fmt.font().toString(), fmt.foreground().color().name());
-        textEdit->mergeCurrentCharFormat(fmt);
-    }
-
-    cursor.endEditBlock();
-}
-
 void KKEditor::textColor()
 {
     QColor col = QColorDialog::getColor(textEdit->textColor(), this);
@@ -689,48 +632,6 @@ void KKEditor::onFormatChanged(const QTextCharFormat &format)
     colorChanged(format.foreground().color());
     //updateLabels();
 }
-
-void KKEditor::onCursorPositionChanged()
-{
-
-    QTextList *list = textEdit->textCursor().currentList();
-
-    if (list) {
-        switch (list->format().style()) {
-        case QTextListFormat::ListDisc:
-            comboStyle->setCurrentIndex(1);
-            break;
-        case QTextListFormat::ListCircle:
-            comboStyle->setCurrentIndex(2);
-            break;
-        case QTextListFormat::ListSquare:
-            comboStyle->setCurrentIndex(3);
-            break;
-        case QTextListFormat::ListDecimal:
-            comboStyle->setCurrentIndex(4);
-            break;
-        case QTextListFormat::ListLowerAlpha:
-            comboStyle->setCurrentIndex(5);
-            break;
-        case QTextListFormat::ListUpperAlpha:
-            comboStyle->setCurrentIndex(6);
-            break;
-        case QTextListFormat::ListLowerRoman:
-            comboStyle->setCurrentIndex(7);
-            break;
-        case QTextListFormat::ListUpperRoman:
-            comboStyle->setCurrentIndex(8);
-            break;
-        default:
-            comboStyle->setCurrentIndex(-1);
-            break;
-        }
-    } else {
-        int headingLevel = textEdit->textCursor().blockFormat().headingLevel();
-        comboStyle->setCurrentIndex(headingLevel ? headingLevel + 8 : 0);
-    }
-}
-
 
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
 
@@ -980,18 +881,6 @@ void KKEditor::setupTextActions()
     tb->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(tb);
-
-    comboStyle = new QComboBox(tb);
-    tb->addWidget(comboStyle);
-    comboStyle->addItem("Standard");
-    comboStyle->addItem("Heading 1");
-    comboStyle->addItem("Heading 2");
-    comboStyle->addItem("Heading 3");
-    comboStyle->addItem("Heading 4");
-    comboStyle->addItem("Heading 5");
-    comboStyle->addItem("Heading 6");
-
-    connect(comboStyle, QOverload<int>::of(&QComboBox::activated), this, &KKEditor::textStyle);
 
     comboFont = new QFontComboBox(tb);
     tb->addWidget(comboFont);
