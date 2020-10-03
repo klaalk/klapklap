@@ -79,7 +79,7 @@ private slots:
     void onSiteIdClicked(const QString& siteId);
     void onUpdateSiteIdsPositions(const QString& siteId);
     void logger(QString message);
-
+    void printCrdt();
 private:
     void initState();
     void initEditor();
