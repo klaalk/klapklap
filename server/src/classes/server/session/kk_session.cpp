@@ -243,11 +243,11 @@ void KKSession::handleCrdtRequest(KKPayload request) {
     QString operation = body.at(0);
 
     QString username = operation == CRDT_ALIGNM ? "All" : user->getUsername();
-    KKTask *mytask = new KKTask([&, body, username]() {
+//    KKTask *mytask = new KKTask([&, body, username]() {
         file->deliver(CRDT, SUCCESS, body, username);
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+//    });
+//    mytask->setAutoDelete(true);
+//    QThreadPool::globalInstance()->start(mytask);
 
     if (file->applyRemoteTextChangeSafe(body) < 0) {
         disconnectFromFile();

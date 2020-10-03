@@ -80,7 +80,7 @@ void KKClient::initEditor()
     connect(editor, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
     connect(editor, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialog);
     connect(editor, &KKEditor::editorClosed, this, &KKClient::onEditorClosed);
-
+    connect(editor, &KKEditor::printCrdt, this, &KKClient::printCrdt);
     editor->setChatDialog(chat);
     editor->setMySiteId(user->getUsername());
     editor->setCurrentFileName(filename);
@@ -366,7 +366,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     QString operation = body.takeFirst();
     QString remoteSiteId = body.takeFirst();
     int remoteCursorPos = QVariant(body.takeFirst()).toInt();
-    int delta = 0, startPosition = -1;
 
     if (operation == CRDT_ALIGNM) {
 
@@ -377,24 +376,21 @@ void KKClient::handleCrdtResponse(KKPayload response) {
             unsigned long endLine = body.takeFirst().toULong();
 
             // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-            int alignPos = crdt->calculateGlobalPosition(KKPosition(startLine, 0));
             for(unsigned long i = startLine; i <= endLine; i++){
                 // Controlla che la riga esista
-                if (crdt->remoteAlignmentChange(i, alignment))
-                    editor->applyRemoteAlignmentChange(alignment, alignPos++);
-                else
+                if (crdt->remoteAlignmentChange(i, alignment)) {
+                    int position = crdt->calculateGlobalPosition(KKPosition(i, 0));
+                    editor->applyRemoteAlignmentChange(alignment, position);
+                }
+                else {
                     break;
-
+                }
             }
-
-            if (startPosition == -1)
-                startPosition = static_cast<int>(startLine);
         }
 
     } else {
         KKPosition crdtPosition(0, 0);
         int currentPosition = -1;
-
         while (!body.isEmpty()) {
             QString crdtChar = operation == CRDT_DELETE ? body.takeLast() : body.takeFirst();
             KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
@@ -408,32 +404,18 @@ void KKClient::handleCrdtResponse(KKPayload response) {
             else if (operation == CRDT_DELETE)
                 crdtPosition = crdt->remoteDelete(charPtr);
 
-            if (currentPosition == -1)
-                currentPosition = crdt->calculateGlobalPosition(crdtPosition);
+            currentPosition = crdt->calculateGlobalPosition(crdtPosition);
 
             if (operation == CRDT_FORMAT)
                 editor->applyRemoteFormatChange(currentPosition, remoteSiteId, charPtr->getKKCharFont(), charPtr->getKKCharColor());
             else
                 editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
-
-            if (startPosition == -1 || currentPosition < startPosition)
-                startPosition = currentPosition;
-
-            if (operation == CRDT_DELETE)
-                currentPosition--;
-            else
-                currentPosition++;
         }
-
-        if (operation == CRDT_DELETE || operation == CRDT_INSERT)
-            delta = currentPosition - startPosition;
     }
-
 
     if (user->getUsername() != remoteSiteId)
         editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
 
-    editor->updateCursors(remoteSiteId, startPosition, delta);
     editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
 }
 
@@ -575,6 +557,13 @@ void KKClient::logger(QString message)
 {
     QString identifier = (user!=nullptr) ? user->getUsername() : "unknown";
     KKLogger::log(message, QString("CLIENT - %1").arg(identifier));
+}
+
+void KKClient::printCrdt()
+{
+    if (crdt != nullptr) {
+        crdt->printText();
+    }
 }
 
 /// MODAL ACTIONS

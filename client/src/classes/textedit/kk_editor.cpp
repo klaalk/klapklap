@@ -110,6 +110,8 @@ KKEditor::KKEditor(QWidget *parent)
         QMenu *helpMenu = menuBar()->addMenu(tr("Help"));
         helpMenu->addAction(tr("About"), this, &KKEditor::onAbout);
         helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
+        helpMenu->addAction(tr("Print CRDT"), this, &KKEditor::printCrdt);
+
     }
 
     QFont textFont("MS Shell Dlg 2");
@@ -268,7 +270,7 @@ void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString fon
 
 void KKEditor::applyRemoteTextChange(const QString& operation, int position, const QString& siteId, const QChar& text, const QString& font, const QString& color) {
 //    qDebug() << QString("APPLY REMOTE [%1]: %2 in %3 with font %4 and color %5").arg(operation, text, QVariant(position).toString(), font, color);
-
+    int delta = 0;
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
         //Prelevo il cursore dell'editor e inserisco il testo
@@ -279,12 +281,16 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
 
         // Aggiorno formato
         applyRemoteFormatChange(position, siteId, font, color);
+        delta = 1;
+
     } else if(operation == CRDT_DELETE) {
         //Prelevo il cursore dell'editor e inserisco il testo
         textEdit->lockCursor();
         QTextCursor editorCurs = textEdit->cursorIn(position);
         editorCurs.deleteChar();
         textEdit->unlockCursor();
+        delta = -1;
+
     }
 
     // Sblocco il cursore dell'editor.
@@ -297,7 +303,8 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         textEdit->setCursorPosition(newLocalCursorPosition);
     }
 
-//    textEdit->document()->clearUndoRedoStacks();
+    textEdit->document()->clearUndoRedoStacks();
+    updateCursors(siteId, position, delta);
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -734,23 +741,23 @@ void KKEditor::onCursorPositionChanged()
 
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
 
-    updateCursors(siteId, static_cast<int>(start), operation == INS ? diff.size() : -diff.size());
+    updateCursors(siteId, static_cast<int>(start), operation == CRDT_INSERT ? diff.size() : -diff.size());
     updateLabels();
 
-    if (operation == DEL)
+    if (operation == CRDT_DELETE)
         emit removeTextFromCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end), diff);
 
-    if (operation == INS) {
+    if (operation == CRDT_INSERT) {
         QTextCursor cursor = textEdit->textCursor();
-
         cursor.setPosition(start, QTextCursor::MoveAnchor);
         cursor.setPosition(end, QTextCursor::KeepAnchor);
+
         QTextCharFormat format = cursor.charFormat();
         if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId))
             format.setBackground(siteIdsColors.value(siteId));
         else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId))
             format.setBackground(Qt::white);
-        cursor.mergeCharFormat(format);
+            cursor.mergeCharFormat(format);
 
         QStringList fonts, colors;
         QList<QChar> values;
@@ -1103,7 +1110,7 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
             fmt.setBackground(color);
             cursor.mergeCharFormat(fmt);
 
-            textEdit->incrementUndoCounter();
+//            textEdit->incrementUndoCounter();
 
             start = pos;
         }
@@ -1112,7 +1119,7 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
     //    // Sblocco il cursore dell'editor.
     //    textEdit->unlockCursor();
     qDebug() << "[color text]";
-//    textEdit->document()->clearUndoRedoStacks();
+    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::updateCursors(QString siteId, int position, int value){
