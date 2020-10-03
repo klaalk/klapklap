@@ -17,17 +17,15 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
 
     if (e->text() == "\u001A") {
         textUndo();
-        e->ignore();
+        QTextEdit::keyPressEvent(e);
         return;
     }
 
     if (e->text() == "\u0019") {
         textRedo();
-        e->ignore();
+        QTextEdit::keyPressEvent(e);
         return;
     }
-
-    qDebug() << e->text();
 
     if (textCursor().hasSelection()) {
         selectionStart = textCursor().selectionStart();
@@ -41,16 +39,11 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     lastText = toPlainText();
     textChanged = false;
 
-    QTextCursor tmp = textCursor();
-    tmp.beginEditBlock();
-
     QTextEdit::keyPressEvent(e);
 
-    tmp.endEditBlock();
-    setTextCursor(tmp);
-
-    if (textChanged)
+    if (textChanged) {
         sendDiffText();
+    }
 
     textChanged = false;
 
@@ -118,6 +111,7 @@ int KKTextEdit::getLocalCursorPosition()
 void KKTextEdit::handleTextChange()
 {
     textChanged = true;
+    qDebug() << " text change ";
 }
 
 void KKTextEdit::textUndo() {
@@ -164,13 +158,8 @@ void KKTextEdit::textPaste()
     start = textCursor().position();
     lastText = toPlainText();
 
-    QTextCursor tmp = textCursor();
-    tmp.beginEditBlock();
-
     paste();
 
-    tmp.endEditBlock();
-    setTextCursor(tmp);
     if (textChanged)
         sendDiffText();
 }
@@ -183,13 +172,7 @@ void KKTextEdit::textCut()
     start = textCursor().position();
     lastText = toPlainText();
 
-    QTextCursor tmp = textCursor();
-    tmp.beginEditBlock();
-
     cut();
-
-    tmp.endEditBlock();
-    setTextCursor(tmp);
 
     if (textChanged)
         sendDiffText();
