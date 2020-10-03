@@ -408,8 +408,8 @@ void KKClient::handleCrdtResponse(KKPayload response) {
             else if (operation == CRDT_DELETE)
                 crdtPosition = crdt->remoteDelete(charPtr);
 
-            if (currentPosition == -1)
-                currentPosition = crdt->calculateGlobalPosition(crdtPosition);
+//            if (currentPosition == -1)
+            currentPosition = crdt->calculateGlobalPosition(crdtPosition);
 
             if (operation == CRDT_FORMAT)
                 editor->applyRemoteFormatChange(currentPosition, remoteSiteId, charPtr->getKKCharFont(), charPtr->getKKCharColor());
@@ -419,10 +419,10 @@ void KKClient::handleCrdtResponse(KKPayload response) {
             if (startPosition == -1 || currentPosition < startPosition)
                 startPosition = currentPosition;
 
-            if (operation == CRDT_DELETE)
-                currentPosition--;
-            else
-                currentPosition++;
+//            if (operation == CRDT_DELETE)
+//                currentPosition--;
+//            else
+//                currentPosition++;
         }
 
         if (operation == CRDT_DELETE || operation == CRDT_INSERT)
