@@ -29,8 +29,9 @@ public:
     QTextCursor cursorIn(int position);
     void setCursorPosition(int position);
     void restoreCursorPosition();
+    void incrementUndoCounter();
     int cursorPosition();
-    int localCursorPos();
+    int getLocalCursorPosition();
 
 public slots:
     void handleTextChange();
@@ -50,6 +51,7 @@ private:
 
     /// Variabile che conta quanti tasti ho premuto
     int cursorCounter = 0;
+    int undoCounter = 0;
     bool wasSelected = false;
     bool textChanged = false;
     QString lastText;

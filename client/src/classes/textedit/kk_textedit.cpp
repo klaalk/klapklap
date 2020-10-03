@@ -15,21 +15,27 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     if (cursorCounter > 0)
         restoreCursorPosition();
 
-    if (textCursor().hasSelection()) {
-        selectionStart = textCursor().selectionStart();
-        selectionEnd = textCursor().selectionEnd();
-        wasSelected = true;
-    } else {
-        wasSelected = false;
-    }
+    if (e->text() == "\u001A")
+        textUndo();
+    else {
+        if (textCursor().hasSelection()) {
+            selectionStart = textCursor().selectionStart();
+            selectionEnd = textCursor().selectionEnd();
+            wasSelected = true;
+        } else {
+            wasSelected = false;
+        }
 
-    start = textCursor().position();
-    lastText = toPlainText();
-    textChanged = false;
-    QTextEdit::keyPressEvent(e);
-    if (textChanged)
+        start = textCursor().position();
+        lastText = toPlainText();
+        textChanged = false;
+
+        QTextEdit::keyPressEvent(e);
+
+        if (textChanged)
             sendDiffText();
-    textChanged = false;
+        textChanged = false;
+    }
 }
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
@@ -81,12 +87,17 @@ void KKTextEdit::restoreCursorPosition()
     setTextCursor(tmp);
 }
 
+void KKTextEdit::incrementUndoCounter()
+{
+    undoCounter++;
+}
+
 int KKTextEdit::cursorPosition()
 {
     return textCursor().position();
 }
 
-int KKTextEdit::localCursorPos()
+int KKTextEdit::getLocalCursorPosition()
 {
     return localCursorPosition;
 }
@@ -94,6 +105,7 @@ int KKTextEdit::localCursorPos()
 void KKTextEdit::handleTextChange()
 {
     textChanged = true;
+    qDebug() << "TEXT CHANGED";
 }
 
 void KKTextEdit::textUndo() {
@@ -105,15 +117,17 @@ void KKTextEdit::textUndo() {
     // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
     start = lastPos;
     lastText = toPlainText();
+    while (undoCounter > 0) {
+        undo();
+        undoCounter--;
+    }
     undo();
-
     if (textChanged)
         sendDiffText();
 }
 
 void KKTextEdit::textRedo()
 {
-
     // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
     start = lastPos;
     lastText = toPlainText();
@@ -251,7 +265,6 @@ void KKTextEdit::sendDiffText()
                 QString lastDiff = lastText.mid(start, length);
                 qDebug() << "DELETE: " << lastDiff << " - START " << start << " END " << start + length;
                 emit textChangedEvent(DEL, lastDiff, start, start + length);
-
                 // Mi salvo l'ultima posizione del cursore in cui è cambiato il testo (serve per il CTRL + Z)
                 lastPos = textCursor().position();
             }

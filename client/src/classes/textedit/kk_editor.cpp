@@ -297,7 +297,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         textEdit->setCursorPosition(newLocalCursorPosition);
     }
 
-    textEdit->document()->clearUndoRedoStacks();
+//    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -1069,12 +1069,14 @@ void KKEditor::alignmentChanged(Qt::Alignment a)
 }
 
 void KKEditor::colorText(const QString& siteId, QBrush color) {
-    if(!siteIdsPositions.contains(siteId) || siteIdsPositions.value(siteId)->isEmpty())
+
+    if (!siteIdsPositions.contains(siteId)
+            || siteIdsPositions.value(siteId)->isEmpty())
+
         return;
 
     //    textEdit->lockCursor();
 
-    //Se non ho ancora inserito il siteId nella mappa dei colori lo inserisco
     QTextCursor cursor = textEdit->textCursor();
     int prevPos = -1;
     int start = 0;
@@ -1091,14 +1093,18 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
 
         if (pos-prevPos > 1 || pos == last) {
             end = prevPos;
-            if(pos==last)
+            if (pos == last)
                 end=pos;
+
             cursor.setPosition(start, QTextCursor::MoveAnchor);
             cursor.setPosition(end+1, QTextCursor::KeepAnchor);
-            qDebug() << "[color da " << start << " a " << end+1;
+
             QTextCharFormat fmt;
             fmt.setBackground(color);
             cursor.mergeCharFormat(fmt);
+
+            textEdit->incrementUndoCounter();
+
             start = pos;
         }
         prevPos = pos;
@@ -1106,6 +1112,7 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
     //    // Sblocco il cursore dell'editor.
     //    textEdit->unlockCursor();
     qDebug() << "[color text]";
+//    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::updateCursors(QString siteId, int position, int value){
