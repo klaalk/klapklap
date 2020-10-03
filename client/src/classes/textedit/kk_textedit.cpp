@@ -15,6 +15,7 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     if (cursorCounter > 0)
         restoreCursorPosition();
 
+
     if (e->text() == "\u001A")
         textUndo();
     else if (e->text() == "\u0019")
@@ -32,7 +33,13 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
         lastText = toPlainText();
         textChanged = false;
 
+        QTextCursor tmp = textCursor();
+        tmp.beginEditBlock();
+
         QTextEdit::keyPressEvent(e);
+
+        tmp.endEditBlock();
+        setTextCursor(tmp);
 
         if (textChanged)
             sendDiffText();
@@ -89,11 +96,6 @@ void KKTextEdit::restoreCursorPosition()
     setTextCursor(tmp);
 }
 
-void KKTextEdit::incrementUndoCounter()
-{
-    undoCounter++;
-}
-
 int KKTextEdit::cursorPosition()
 {
     return textCursor().position();
@@ -118,13 +120,9 @@ void KKTextEdit::textUndo() {
     // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
     start = lastPos;
     lastText = toPlainText();
-    while (undoCounter > 0) {
-        undo();
-        undoCounter--;
-        redoCounter++;
-    }
+
     undo();
-    undo();
+
     if (textChanged)
         sendDiffText();
 }
@@ -135,13 +133,6 @@ void KKTextEdit::textRedo()
     start = lastPos;
     lastText = toPlainText();
 
-    while (redoCounter > 0) {
-        redo();
-        undoCounter++;
-        redoCounter--;
-    }
-
-    redo();
     redo();
 
     if (textChanged)
@@ -164,8 +155,13 @@ void KKTextEdit::textPaste()
     start = textCursor().position();
     lastText = toPlainText();
 
+    QTextCursor tmp = textCursor();
+    tmp.beginEditBlock();
+
     paste();
 
+    tmp.endEditBlock();
+    setTextCursor(tmp);
     if (textChanged)
         sendDiffText();
 }
@@ -177,7 +173,15 @@ void KKTextEdit::textCut()
 
     start = textCursor().position();
     lastText = toPlainText();
+
+    QTextCursor tmp = textCursor();
+    tmp.beginEditBlock();
+
     cut();
+
+    tmp.endEditBlock();
+    setTextCursor(tmp);
+
     if (textChanged)
         sendDiffText();
 }

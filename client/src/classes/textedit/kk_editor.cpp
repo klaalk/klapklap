@@ -279,6 +279,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
 
         // Aggiorno formato
         applyRemoteFormatChange(position, siteId, font, color);
+
     } else if(operation == CRDT_DELETE) {
         //Prelevo il cursore dell'editor e inserisco il testo
         textEdit->lockCursor();
@@ -297,7 +298,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         textEdit->setCursorPosition(newLocalCursorPosition);
     }
 
-//    textEdit->document()->clearUndoRedoStacks();
+    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -742,15 +743,15 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
 
     if (operation == CRDT_INSERT) {
         QTextCursor cursor = textEdit->textCursor();
-
         cursor.setPosition(start, QTextCursor::MoveAnchor);
         cursor.setPosition(end, QTextCursor::KeepAnchor);
+
         QTextCharFormat format = cursor.charFormat();
         if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId))
             format.setBackground(siteIdsColors.value(siteId));
         else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId))
             format.setBackground(Qt::white);
-        cursor.mergeCharFormat(format);
+            cursor.mergeCharFormat(format);
 
         QStringList fonts, colors;
         QList<QChar> values;
@@ -1103,7 +1104,7 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
             fmt.setBackground(color);
             cursor.mergeCharFormat(fmt);
 
-            textEdit->incrementUndoCounter();
+//            textEdit->incrementUndoCounter();
 
             start = pos;
         }
@@ -1112,7 +1113,7 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
     //    // Sblocco il cursore dell'editor.
     //    textEdit->unlockCursor();
     qDebug() << "[color text]";
-//    textEdit->document()->clearUndoRedoStacks();
+    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::updateCursors(QString siteId, int position, int value){

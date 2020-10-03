@@ -27,7 +27,6 @@ public:
     QTextCursor cursorIn(int position);
     void setCursorPosition(int position);
     void restoreCursorPosition();
-    void incrementUndoCounter();
     int cursorPosition();
     int getLocalCursorPosition();
 
@@ -49,11 +48,11 @@ private:
 
     /// Variabile che conta quanti tasti ho premuto
     int cursorCounter = 0;
-    int undoCounter = 0;
-    int redoCounter = 0;
     bool wasSelected = false;
     bool textChanged = false;
     QString lastText;
+    QList<KKAction> undoStack;
+    QList<KKAction> redoStack;
 };
 
 #endif // KKTEXTEDIT_H
