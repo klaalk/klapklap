@@ -234,7 +234,6 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
     }
 
     textEdit->unlockCursor();
-
     updateLabels();
 }
 
@@ -271,6 +270,7 @@ void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString fon
 void KKEditor::applyRemoteTextChange(const QString& operation, int position, const QString& siteId, const QChar& text, const QString& font, const QString& color) {
 //    qDebug() << QString("APPLY REMOTE [%1]: %2 in %3 with font %4 and color %5").arg(operation, text, QVariant(position).toString(), font, color);
     int delta = 0;
+
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
         //Prelevo il cursore dell'editor e inserisco il testo
@@ -291,6 +291,8 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         textEdit->unlockCursor();
         delta = -1;
 
+    } else if (operation == CRDT_FORMAT) {
+        applyRemoteFormatChange(position, siteId, font, color);
     }
 
     // Sblocco il cursore dell'editor.
@@ -304,7 +306,11 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
     }
 
     textEdit->document()->clearUndoRedoStacks();
-    updateCursors(siteId, position, delta);
+
+    if (delta != 0)
+        updateCursors(siteId, position, delta);
+    else
+        updateLabels();
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -742,7 +748,6 @@ void KKEditor::onCursorPositionChanged()
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
 
     updateCursors(siteId, static_cast<int>(start), operation == CRDT_INSERT ? diff.size() : -diff.size());
-    updateLabels();
 
     if (operation == CRDT_DELETE)
         emit removeTextFromCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end), diff);
@@ -753,11 +758,15 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
         cursor.setPosition(end, QTextCursor::KeepAnchor);
 
         QTextCharFormat format = cursor.charFormat();
-        if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId))
+
+        if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId)) {
             format.setBackground(siteIdsColors.value(siteId));
-        else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId))
+            cursor.mergeCharFormat(format);
+        }
+        else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId)) {
             format.setBackground(Qt::white);
             cursor.mergeCharFormat(format);
+        }
 
         QStringList fonts, colors;
         QList<QChar> values;
@@ -1125,6 +1134,7 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
 void KKEditor::updateCursors(QString siteId, int position, int value){
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     QTextCursor editorCurs = textEdit->textCursor();
+    int fontMax;
     for (KKCursor* c : cursors.values()) {
         if (c !=nullptr) {
             int nuovaPos = c->getGlobalPositon();
@@ -1137,6 +1147,19 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
             if (c->getGlobalPositon() > position || siteId == c->getSiteId()) {
                 c->setGlobalPositon(nuovaPos);
                 editorCurs.setPosition(nuovaPos);
+
+                int fontSx = editorCurs.charFormat().font().pointSize();
+                fontMax = fontSx;
+                if(editorCurs.position()<textEdit->document()->toPlainText().length()){
+                    if(textEdit->document()->toPlainText().at(editorCurs.position())!="\xa"){
+                        editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
+                        int fontDx=editorCurs.charFormat().font().pointSize();
+                        if(fontDx > fontSx)
+                            fontMax = fontDx;
+                    }
+                    editorCurs.setPosition(c->getGlobalPositon());
+                }
+
                 c->setLabelsSize(editorCurs.charFormat().font().pointSize());
                 c->moveLabels(textEdit->cursorRect(editorCurs));
             }
