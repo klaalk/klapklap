@@ -5,7 +5,7 @@
 #ifndef SERVER_KK_CONSTANTS_H
 #define SERVER_KK_CONSTANTS_H
 
-#define TIMEOUT_VALUE 5000
+#define TIMEOUT_VALUE 10000
 
 /// Payload format
 #define PAYLOAD_HEAD_LENGTH 8
