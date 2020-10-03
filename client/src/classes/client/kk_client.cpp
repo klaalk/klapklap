@@ -80,7 +80,7 @@ void KKClient::initEditor()
     connect(editor, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
     connect(editor, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialog);
     connect(editor, &KKEditor::editorClosed, this, &KKClient::onEditorClosed);
-
+    connect(editor, &KKEditor::printCrdt, this, &KKClient::printCrdt);
     editor->setChatDialog(chat);
     editor->setMySiteId(user->getUsername());
     editor->setCurrentFileName(filename);
@@ -575,6 +575,13 @@ void KKClient::logger(QString message)
 {
     QString identifier = (user!=nullptr) ? user->getUsername() : "unknown";
     KKLogger::log(message, QString("CLIENT - %1").arg(identifier));
+}
+
+void KKClient::printCrdt()
+{
+    if (crdt != nullptr) {
+        crdt->printText();
+    }
 }
 
 /// MODAL ACTIONS

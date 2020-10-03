@@ -46,7 +46,7 @@ signals:
     void openFileDialog();
     void editorClosed();
     void notifyAlignment(int startAling,int endAlign);
-
+    void printCrdt();
 public:
     KKEditor(QWidget *parent = nullptr);
     void clear();

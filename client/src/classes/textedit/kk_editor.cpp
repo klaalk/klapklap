@@ -110,6 +110,8 @@ KKEditor::KKEditor(QWidget *parent)
         QMenu *helpMenu = menuBar()->addMenu(tr("Help"));
         helpMenu->addAction(tr("About"), this, &KKEditor::onAbout);
         helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
+        helpMenu->addAction(tr("Print CRDT"), this, &KKEditor::printCrdt);
+
     }
 
     QFont textFont("MS Shell Dlg 2");
