@@ -214,4 +214,3 @@ void KKFile::initCrdtText()
         file.get()->close();
     }
 }
-
