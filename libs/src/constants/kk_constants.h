@@ -141,7 +141,7 @@
 #define SURNAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
 
 /// Modal messages
-#define MODAL_TIMEOUT "Server non raggiungibile\nSi prega di riprovare più tardi, grazie."
+#define MODAL_TIMEOUT "Server non raggiungibile\nSi prega di riprovare più tardi"
 #define MODAL_SUCCESS "L'operazione è andata a buon fine"
 #define MODAL_GENERIC_ERROR "Errore interno al server\nNon è possibile procedere con la richiesta"
 #define MODAL_NOT_LOGGED "Hai inserito delle credenziali non valide\nControlla che email e/o password siano corretti"

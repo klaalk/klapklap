@@ -734,13 +734,13 @@ void KKEditor::onCursorPositionChanged()
 
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
 
-    updateCursors(siteId, static_cast<int>(start), operation == INS ? diff.size() : -diff.size());
+    updateCursors(siteId, static_cast<int>(start), operation == CRDT_INSERT ? diff.size() : -diff.size());
     updateLabels();
 
-    if (operation == DEL)
+    if (operation == CRDT_DELETE)
         emit removeTextFromCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end), diff);
 
-    if (operation == INS) {
+    if (operation == CRDT_INSERT) {
         QTextCursor cursor = textEdit->textCursor();
 
         cursor.setPosition(start, QTextCursor::MoveAnchor);
