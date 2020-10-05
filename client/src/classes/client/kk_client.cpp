@@ -367,6 +367,9 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     QString remoteSiteId = body.takeFirst();
     int remoteCursorPos = QVariant(body.takeFirst()).toInt();
 
+    if (user->getUsername() != remoteSiteId)
+        editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
+
     if (operation == CRDT_ALIGNM) {
 
         while(!body.isEmpty()) {
@@ -406,15 +409,9 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 
             currentPosition = crdt->calculateGlobalPosition(crdtPosition);
 
-            if (operation == CRDT_FORMAT)
-                editor->applyRemoteFormatChange(currentPosition, remoteSiteId, charPtr->getKKCharFont(), charPtr->getKKCharColor());
-            else
-                editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
+            editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
         }
     }
-
-    if (user->getUsername() != remoteSiteId)
-        editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
 
     editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
 }

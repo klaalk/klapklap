@@ -98,7 +98,6 @@ private slots:
     void textItalic();
     void textFamily(const QString &f);
     void textSize(const QString &p);
-    void textStyle(int styleIndex);
     void textColor();
     void textAlign(QAction *a);
 
@@ -106,7 +105,6 @@ private slots:
     void onPrintPreview(QPrinter *);
     void onClipboardDataChanged();
     void onFormatChanged(const QTextCharFormat &format);
-    void onCursorPositionChanged();
     void onTextChange(QString operation, QString diff, int start, int end);
 private:
     void resetState();
@@ -147,7 +145,6 @@ private:
     QString fileName;
     QString link;
     QMap <QString, KKCursor*> cursors;
-    QComboBox *comboStyle{};
     QFontComboBox *comboFont{};
     QComboBox *comboSize{};
     QToolBar *tb{};
