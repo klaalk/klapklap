@@ -203,6 +203,20 @@ void KKSession::handleGetFilesRequest() {
 void KKSession::handleOpenFileRequest(KKPayload request) {
     QStringList params = request.getBodyList();
     if (params.size() > 0) {
+
+        auto search = files->find(params.at(0));
+        if (search != files->end()) {
+            if(files->value(params.at(0))->partecipantExist(user->getUsername())){
+                sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: stai già partecipando al file"});
+                return;
+            }
+            if(files->value(params.at(0))->getPartecipantsNumber()==25){
+                sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: numero massimo di partecipanti attivi raggiunto"});
+                return;
+            }
+        }
+
+
         disconnectFromFile();
         connectToFile(params.at(0));
     } else {
@@ -308,8 +322,9 @@ void KKSession::connectToFile(QString filename)
         if (file != FILE_SYSTEM_CREATE_ERROR) {
             // Inserisco il file nella mappa dei file attivi
             file->initCrdtText();
-            files->insert(file->getHash(), file);
             file->setUsers(users);
+            files->insert(file->getHash(), file);
+
         }
     }
 
