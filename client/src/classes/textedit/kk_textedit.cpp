@@ -15,36 +15,38 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     if (cursorCounter > 0)
         restoreCursorPosition();
 
-
-    if (e->text() == "\u001A")
+    if (e->text() == "\u001A") {
         textUndo();
-    else if (e->text() == "\u0019")
-        textRedo();
-    else {
-        if (textCursor().hasSelection()) {
-            selectionStart = textCursor().selectionStart();
-            selectionEnd = textCursor().selectionEnd();
-            wasSelected = true;
-        } else {
-            wasSelected = false;
-        }
-
-        start = textCursor().position();
-        lastText = toPlainText();
-        textChanged = false;
-
-        QTextCursor tmp = textCursor();
-        tmp.beginEditBlock();
-
         QTextEdit::keyPressEvent(e);
-
-        tmp.endEditBlock();
-        setTextCursor(tmp);
-
-        if (textChanged)
-            sendDiffText();
-        textChanged = false;
+        return;
     }
+
+    if (e->text() == "\u0019") {
+        textRedo();
+        QTextEdit::keyPressEvent(e);
+        return;
+    }
+
+    if (textCursor().hasSelection()) {
+        selectionStart = textCursor().selectionStart();
+        selectionEnd = textCursor().selectionEnd();
+        wasSelected = true;
+    } else {
+        wasSelected = false;
+    }
+
+    start = textCursor().position();
+    lastText = toPlainText();
+    textChanged = false;
+
+    QTextEdit::keyPressEvent(e);
+
+    if (textChanged) {
+        sendDiffText();
+    }
+
+    textChanged = false;
+
 }
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
@@ -155,13 +157,8 @@ void KKTextEdit::textPaste()
     start = textCursor().position();
     lastText = toPlainText();
 
-    QTextCursor tmp = textCursor();
-    tmp.beginEditBlock();
-
     paste();
 
-    tmp.endEditBlock();
-    setTextCursor(tmp);
     if (textChanged)
         sendDiffText();
 }
@@ -174,13 +171,7 @@ void KKTextEdit::textCut()
     start = textCursor().position();
     lastText = toPlainText();
 
-    QTextCursor tmp = textCursor();
-    tmp.beginEditBlock();
-
     cut();
-
-    tmp.endEditBlock();
-    setTextCursor(tmp);
 
     if (textChanged)
         sendDiffText();

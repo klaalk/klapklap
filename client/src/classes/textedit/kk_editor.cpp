@@ -80,7 +80,6 @@ KKEditor::KKEditor(QWidget *parent)
 
     //Collega funzioni nostre a funzioni di QTextEdit
     connect(textEdit, &QTextEdit::currentCharFormatChanged, this, &KKEditor::onFormatChanged);
-    connect(textEdit, &QTextEdit::cursorPositionChanged, this, &KKEditor::onCursorPositionChanged);
     connect(textEdit, &KKTextEdit::textChangedEvent, this, &KKEditor::onTextChange);
     connect(textEdit, &KKTextEdit::wheelEventTriggered, this, &KKEditor::updateLabels);
     connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::notifyAlignment);
@@ -209,6 +208,7 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
     textEdit->document()->clearUndoRedoStacks();
     textEdit->setCursorPosition(editorCursorPos);
     updateCursors(siteId, -1, 1);
+    updateLabels();
 }
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
@@ -309,8 +309,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
 
     if (delta != 0)
         updateCursors(siteId, position, delta);
-    else
-        updateLabels();
+    updateLabels();
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -552,73 +551,6 @@ void KKEditor::textSize(const QString &p)
     }
 }
 
-void KKEditor::textStyle(int styleIndex)
-{
-    QTextCursor cursor = textEdit->textCursor();
-    QTextListFormat::Style style = QTextListFormat::ListStyleUndefined;
-
-    switch (styleIndex) {
-    case 1:
-        style = QTextListFormat::ListDisc;
-        break;
-    case 2:
-        style = QTextListFormat::ListCircle;
-        break;
-    case 3:
-        style = QTextListFormat::ListSquare;
-        break;
-    case 4:
-        style = QTextListFormat::ListDecimal;
-        break;
-    case 5:
-        style = QTextListFormat::ListLowerAlpha;
-        break;
-    case 6:
-        style = QTextListFormat::ListUpperAlpha;
-        break;
-    case 7:
-        style = QTextListFormat::ListLowerRoman;
-        break;
-    case 8:
-        style = QTextListFormat::ListUpperRoman;
-        break;
-    default:
-        break;
-    }
-
-    cursor.beginEditBlock();
-
-    QTextBlockFormat blockFmt = cursor.blockFormat();
-
-    if (style == QTextListFormat::ListStyleUndefined) {
-        blockFmt.setObjectIndex(-1);
-        int headingLevel = styleIndex >= 9 ? styleIndex - 9 + 1 : 0; // H1 to H6, or Standard
-        blockFmt.setHeadingLevel(headingLevel);
-        cursor.setBlockFormat(blockFmt);
-
-        int sizeAdjustment = headingLevel ? 4 - headingLevel : 0; // H1 to H6: +3 to -2
-        QTextCharFormat fmt;
-        fmt.setFontWeight(headingLevel ? QFont::Bold : QFont::Normal);
-        fmt.setProperty(QTextFormat::FontSizeAdjustment, sizeAdjustment);
-        cursor.select(QTextCursor::LineUnderCursor);
-        cursor.mergeCharFormat(fmt);
-        textEdit->mergeCurrentCharFormat(fmt);
-    } else {
-        QTextListFormat listFmt;
-        if (cursor.currentList()) {
-            listFmt = cursor.currentList()->format();
-        } else {
-            listFmt.setIndent(blockFmt.indent() + 1);
-            blockFmt.setIndent(0);
-            cursor.setBlockFormat(blockFmt);
-        }
-        listFmt.setStyle(style);
-        cursor.createList(listFmt);
-    }
-
-    cursor.endEditBlock();
-}
-
 void KKEditor::textColor()
 {
     QColor col = QColorDialog::getColor(textEdit->textColor(), this);
@@ -673,9 +605,7 @@ void KKEditor::textAlign(QAction *a)
 
 void KKEditor::onAbout()
 {
-    QMessageBox::about(this, tr("About"), tr("This example demonstrates Qt's "
-                                             "rich text editing facilities in action, providing an example "
-                                             "document for you to experiment with."));
+    QMessageBox::about(this, tr("About"), tr("Klap Klap ti permette di condividere il tuo documento in tempo reale con gli altri utenti tramite un link di condivisione che potrai copiare selezionando l'opzione 'Share'.\nAll'interno dell'editor puoi comunicare con gli attuali partecipanti attraverso la nostra chat integrata.\nRicorda! Lo storico dei messaggi verrà cancellato non appena non ci saranno più partecipanti attivi."));
 }
 
 void KKEditor::onPrintPreview(QPrinter *printer)
@@ -703,51 +633,10 @@ void KKEditor::onFormatChanged(const QTextCharFormat &format)
     //updateLabels();
 }
 
-void KKEditor::onCursorPositionChanged()
-{
-
-    QTextList *list = textEdit->textCursor().currentList();
-
-    if (list) {
-        switch (list->format().style()) {
-        case QTextListFormat::ListDisc:
-            comboStyle->setCurrentIndex(1);
-            break;
-        case QTextListFormat::ListCircle:
-            comboStyle->setCurrentIndex(2);
-            break;
-        case QTextListFormat::ListSquare:
-            comboStyle->setCurrentIndex(3);
-            break;
-        case QTextListFormat::ListDecimal:
-            comboStyle->setCurrentIndex(4);
-            break;
-        case QTextListFormat::ListLowerAlpha:
-            comboStyle->setCurrentIndex(5);
-            break;
-        case QTextListFormat::ListUpperAlpha:
-            comboStyle->setCurrentIndex(6);
-            break;
-        case QTextListFormat::ListLowerRoman:
-            comboStyle->setCurrentIndex(7);
-            break;
-        case QTextListFormat::ListUpperRoman:
-            comboStyle->setCurrentIndex(8);
-            break;
-        default:
-            comboStyle->setCurrentIndex(-1);
-            break;
-        }
-    } else {
-        int headingLevel = textEdit->textCursor().blockFormat().headingLevel();
-        comboStyle->setCurrentIndex(headingLevel ? headingLevel + 8 : 0);
-    }
-}
-
-
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {
 
     updateCursors(siteId, static_cast<int>(start), operation == CRDT_INSERT ? diff.size() : -diff.size());
+    updateLabels();
 
     if (operation == CRDT_DELETE)
         emit removeTextFromCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end), diff);
@@ -993,26 +882,6 @@ void KKEditor::setupTextActions()
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(tb);
 
-    comboStyle = new QComboBox(tb);
-    tb->addWidget(comboStyle);
-    comboStyle->addItem("Standard");
-    comboStyle->addItem("Bullet List (Disc)");
-    comboStyle->addItem("Bullet List (Circle)");
-    comboStyle->addItem("Bullet List (Square)");
-    comboStyle->addItem("Ordered List (Decimal)");
-    comboStyle->addItem("Ordered List (Alpha lower)");
-    comboStyle->addItem("Ordered List (Alpha upper)");
-    comboStyle->addItem("Ordered List (Roman lower)");
-    comboStyle->addItem("Ordered List (Roman upper)");
-    comboStyle->addItem("Heading 1");
-    comboStyle->addItem("Heading 2");
-    comboStyle->addItem("Heading 3");
-    comboStyle->addItem("Heading 4");
-    comboStyle->addItem("Heading 5");
-    comboStyle->addItem("Heading 6");
-
-    connect(comboStyle, QOverload<int>::of(&QComboBox::activated), this, &KKEditor::textStyle);
-
     comboFont = new QFontComboBox(tb);
     tb->addWidget(comboFont);
     connect(comboFont, QOverload<const QString &>::of(&QComboBox::activated), this, &KKEditor::textFamily);
@@ -1133,8 +1002,6 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
 
 void KKEditor::updateCursors(QString siteId, int position, int value){
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
-    QTextCursor editorCurs = textEdit->textCursor();
-    int fontMax;
     for (KKCursor* c : cursors.values()) {
         if (c !=nullptr) {
             int nuovaPos = c->getGlobalPositon();
@@ -1146,22 +1013,6 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
 
             if (c->getGlobalPositon() > position || siteId == c->getSiteId()) {
                 c->setGlobalPositon(nuovaPos);
-                editorCurs.setPosition(nuovaPos);
-
-                int fontSx = editorCurs.charFormat().font().pointSize();
-                fontMax = fontSx;
-                if(editorCurs.position()<textEdit->document()->toPlainText().length()){
-                    if(textEdit->document()->toPlainText().at(editorCurs.position())!="\xa"){
-                        editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
-                        int fontDx=editorCurs.charFormat().font().pointSize();
-                        if(fontDx > fontSx)
-                            fontMax = fontDx;
-                    }
-                    editorCurs.setPosition(c->getGlobalPositon());
-                }
-
-                c->setLabelsSize(editorCurs.charFormat().font().pointSize());
-                c->moveLabels(textEdit->cursorRect(editorCurs));
             }
         }
     }
