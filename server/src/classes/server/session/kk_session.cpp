@@ -29,8 +29,10 @@ KKSession::~KKSession() {
     KKLogger::log("Session deconstructed", sessionId);
 }
 
-void KKSession::deliver(KKPayloadPtr msg) {
-    socket->sendTextMessage(msg->encode());
+void KKSession::deliver(KKPayload msg) {
+    m_QueueMutex.lock();
+    socket->sendTextMessage(msg.encode());
+    m_QueueMutex.unlock();
 }
 
 QString KKSession::getSessionId() {
@@ -257,11 +259,8 @@ void KKSession::handleCrdtRequest(KKPayload request) {
     QString operation = body.at(0);
 
     QString username = operation == CRDT_ALIGNM ? "All" : user->getUsername();
-//    KKTask *mytask = new KKTask([&, body, username]() {
-        file->deliver(CRDT, SUCCESS, body, username);
-//    });
-//    mytask->setAutoDelete(true);
-//    QThreadPool::globalInstance()->start(mytask);
+    file->produceCrdtAction(request, username);
+
 
     if (file->applyRemoteTextChangeSafe(body) < 0) {
         disconnectFromFile();
@@ -271,7 +270,7 @@ void KKSession::handleCrdtRequest(KKPayload request) {
 }
 
 void KKSession::handleChatRequest(KKPayload request) {
-    file->deliver(CHAT, SUCCESS, request.getBodyList(), "All");
+    file->deliver(request, "All");
 }
 
 void KKSession::connectToFile(QString filename)
@@ -358,13 +357,13 @@ void KKSession::connectToFile(QString filename)
         // Aggiorno con gli ultimi messaggi mandati.
         KKVectorPayloadPtr queue = file->getRecentMessages();
         if(queue->length() > 0) {
-            std::for_each(queue->begin(), queue->end(), [&](KKPayloadPtr d){
-                socket->sendTextMessage(d->encode());
+            std::for_each(queue->begin(), queue->end(), [&](KKPayload d){
+                socket->sendTextMessage(d.encode());
             });
         }
 
         // Dico a tutti che c'è un nuovo partecipante.
-        file->deliver(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}, "All");
+        file->deliver(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
     }
 
 }
@@ -372,7 +371,7 @@ void KKSession::connectToFile(QString filename)
 void KKSession::disconnectFromFile()
 {
     if(!file.isNull()) {
-        file->deliver(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}, "All");
+        file->deliver(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
         file->leave(sharedFromThis());
 
         if (file->getParticipantCounter() < 1) {

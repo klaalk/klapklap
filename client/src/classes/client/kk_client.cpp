@@ -261,6 +261,7 @@ void KKClient::handleServerErrorResponse(KKPayload res) {
 
 void KKClient::handleLoginResponse(KKPayload res) {
     state= CONNECTED;
+
     // La risposta dovrebbe contenere le info dell'utente e poi i suoi file
     QStringList params = res.getBodyList();
 
@@ -337,6 +338,7 @@ void KKClient::handleOpenFileResponse(KKPayload res) {
     editor->loading(true);
     editor->show();
     chat->show();
+
     sendLoadFileRequest(res.getBodyList()[1]);
 }
 
@@ -384,8 +386,7 @@ void KKClient::handleCrdtResponse(KKPayload response) {
                 if (crdt->remoteAlignmentChange(i, alignment)) {
                     int position = crdt->calculateGlobalPosition(KKPosition(i, 0));
                     editor->applyRemoteAlignmentChange(alignment, position);
-                }
-                else {
+                } else {
                     break;
                 }
             }

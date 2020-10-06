@@ -58,8 +58,6 @@ const QString rsrcPath = ":/icon_set/png";
 #endif
 
 
-
-
 KKEditor::KKEditor(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -210,25 +208,25 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
     updateCursors(siteId, -1, 1);
     updateLabels();
 }
+
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
-//    qDebug() << QString("APPLY REMOTE [ALIGNM]: Tipo %1 in position %2").arg(QVariant(alignment).toString(), QVariant(alignPos).toString());
     textEdit->lockCursor();
     textEdit->setCursorPosition(alignPos);
     QTextBlockFormat f;
-    if (alignment==1) {
+    if (alignment == 1) {
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
         actionAlignLeft->setChecked(true);
     }
-    else if (alignment==2) {
+    else if (alignment == 2) {
         textEdit->setAlignment(Qt::AlignHCenter);
         actionAlignCenter->setChecked(true);
     }
-    else if (alignment==3) {
+    else if (alignment == 3) {
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
         actionAlignRight->setChecked(true);
     }
-    else if (alignment==4) {
+    else if (alignment == 4) {
         textEdit->setAlignment(Qt::AlignJustify);
         actionAlignJustify->setChecked(true);
     }
@@ -238,10 +236,6 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 }
 
 void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString font, QString color){
-//    qDebug() << QString("APPLY REMOTE [FORMAT]: In position %1 con font %2 e color %3").arg(QVariant(position).toString(), font, color);
-
-    //    textEdit->lockCursor();
-
     QTextCursor editorCurs = textEdit->cursorIn(position);
     editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
 
@@ -263,12 +257,9 @@ void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString fon
         format.setBackground(Qt::white);
 
     editorCurs.mergeCharFormat(format);
-    // Sblocco il cursore dell'editor.
-    //    textEdit->unlockCursor();
 }
 
 void KKEditor::applyRemoteTextChange(const QString& operation, int position, const QString& siteId, const QChar& text, const QString& font, const QString& color) {
-//    qDebug() << QString("APPLY REMOTE [%1]: %2 in %3 with font %4 and color %5").arg(operation, text, QVariant(position).toString(), font, color);
     int delta = 0;
 
     // Eseguo l'operazione.
@@ -296,7 +287,6 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
     }
 
     // Sblocco il cursore dell'editor.
-
     int localCursorPosition = textEdit->cursorPosition();
 
     if (localCursorPosition > position) {
@@ -515,7 +505,6 @@ void KKEditor::textBold()
 {
     QTextCharFormat fmt;
     fmt.setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
-
     mergeFormat(fmt);
 }
 
@@ -565,25 +554,25 @@ void KKEditor::textColor()
 
 void KKEditor::textAlign(QAction *a)
 {
-    int alignment=0;
+    int alignment = 0;
     int alignStart;
     int alignEnd;
 
     if (a == actionAlignLeft){
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
-        alignment=1;
+        alignment = 1;
     }
     else if (a == actionAlignCenter){
         textEdit->setAlignment(Qt::AlignHCenter);
-        alignment=2;
+        alignment = 2;
     }
     else if (a == actionAlignRight){
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
-        alignment=3;
+        alignment = 3;
     }
     else if (a == actionAlignJustify){
         textEdit->setAlignment(Qt::AlignJustify);
-        alignment=4;
+        alignment = 4;
     }
 
     if (textEdit->textCursor().hasSelection()) {
@@ -960,8 +949,6 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
 
         return;
 
-    //    textEdit->lockCursor();
-
     QTextCursor cursor = textEdit->textCursor();
     int prevPos = -1;
     int start = 0;
@@ -987,23 +974,19 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
             QTextCharFormat fmt;
             fmt.setBackground(color);
             cursor.mergeCharFormat(fmt);
-
-//            textEdit->incrementUndoCounter();
-
             start = pos;
         }
         prevPos = pos;
     }
-    //    // Sblocco il cursore dell'editor.
-    //    textEdit->unlockCursor();
-    qDebug() << "[color text]";
+
+    //  Sblocco il cursore dell'editor.
     textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::updateCursors(QString siteId, int position, int value){
     // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
     for (KKCursor* c : cursors.values()) {
-        if (c !=nullptr) {
+        if (c != nullptr) {
             int nuovaPos = c->getGlobalPositon();
 
             if (c->getGlobalPositon() > position && c->getSiteId() != siteId)

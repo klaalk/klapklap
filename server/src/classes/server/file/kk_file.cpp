@@ -4,12 +4,22 @@
 
 #include "kk_file.h"
 
+#include <QThreadPool>
 #include <QVariant>
 
 KKFile::KKFile(QObject *parent): QObject(parent) {
-    recentMessages = KKVectorPayloadPtr(new QVector<KKPayloadPtr>());
+    recentMessages = KKVectorPayloadPtr(new QVector<KKPayload>());
+    recentCrdts = QSharedPointer<QVector<QPair<KKPayload, QString>>>(new QVector<QPair<KKPayload, QString>>());
+
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
     crdt = KKCrdtPtr(new KKCrdt("file", casuale));
+
+    QThreadPool::globalInstance()->setMaxThreadCount(5);
+    KKTask *crdtTask = new KKTask([&]() {
+        consumeCrdtActions();
+    });
+    crdtTask->setAutoDelete(true);
+    QThreadPool::globalInstance()->start(crdtTask);
 
     // Set autosave timer
     timer = QSharedPointer<QTimer>(new QTimer());
@@ -31,8 +41,9 @@ void KKFile::leave(KKParticipantPtr participant) {
     participants->remove(participant->id);
 }
 
-int KKFile::deliver(QString type, QString result, QStringList message, QString username) {
-    KKPayloadPtr data = KKPayloadPtr(new KKPayload(type, result, message));
+int KKFile::deliver(KKPayload data, QString username) {
+
+    QString type = data.getRequestType();
 
     if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
         recentMessages->push_back(data);
@@ -48,7 +59,39 @@ int KKFile::deliver(QString type, QString result, QStringList message, QString u
             }
         });
     }
+
     return 0;
+}
+
+void KKFile::consumeCrdtActions()
+{
+    for (;;) {
+        m_QueueMutex.lock();
+
+        while (recentCrdts->isEmpty()) {
+          m_WaitAnyItem.wait(&m_QueueMutex);
+        }
+
+        QPair<KKPayload, QString> item = recentCrdts->first();
+        recentCrdts->removeFirst();
+
+        deliver(item.first, item.second);
+        m_QueueMutex.unlock();
+    }
+}
+
+void KKFile::produceCrdtAction(KKPayload action, QString username)
+{
+    m_QueueMutex.lock();
+     {
+       bool wasEmpty = recentCrdts->isEmpty();
+       recentCrdts->push_back(QPair<KKPayload, QString>(action, username));
+
+       if (wasEmpty) {
+         m_WaitAnyItem.wakeOne();
+       }
+     }
+     m_QueueMutex.unlock();
 }
 
 void KKFile::setFile(QSharedPointer<QFile> file)

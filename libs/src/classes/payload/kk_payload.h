@@ -19,6 +19,7 @@ public:
         max_body_length = 512
     };
     /// Costruttuore.
+    KKPayload();
     KKPayload(QString data);
     KKPayload(QString request, QString result, const QStringList& bodyList);
 
@@ -43,5 +44,5 @@ private:
 };
 
 typedef QSharedPointer<KKPayload> KKPayloadPtr;
-typedef QSharedPointer<QVector<KKPayloadPtr>> KKVectorPayloadPtr;
+typedef QSharedPointer<QVector<KKPayload>> KKVectorPayloadPtr;
 #endif //CLIENT_CHAT_MESSAGE_H

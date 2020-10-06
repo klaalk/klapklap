@@ -36,7 +36,7 @@ public:
     KKSession(KKDataBasePtr db, KKFileSystemPtr filesys, KKMapFilePtr files, QString sessiondId, QObject *parent = nullptr);
     ~KKSession();
 
-    void deliver(KKPayloadPtr msg);
+    void deliver(KKPayload msg);
     QString getSessionId();
     void setSocket(QSharedPointer<QWebSocket> Descriptor);
     void sendResponse(QString type, QString result, QStringList values);
@@ -71,6 +71,7 @@ private:
     KKUserPtr user;
     QString sessionId;
     int taskNumerator = 0;
+    QMutex m_QueueMutex;
 };
 
 typedef QSharedPointer<KKSession> KKSessionPtr;

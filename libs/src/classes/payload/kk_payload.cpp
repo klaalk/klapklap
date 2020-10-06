@@ -4,6 +4,9 @@
 
 #include "kk_payload.h"
 #include <utility>
+
+KKPayload::KKPayload(){}
+
 KKPayload::KKPayload(QString data)
     : data(std::move(data)) {
 }
@@ -12,7 +15,7 @@ KKPayload::KKPayload(QString data)
 KKPayload::KKPayload(QString request, QString result, const QStringList& bodyList)
     : request(std::move(request)), result(std::move(result)) {
 
-    for (const QString& value : bodyList){
+    for (const QString& value : bodyList) {
         body.append(QString(PAYLOAD_FORMAT).arg(value.length(), PAYLOAD_FORMAT_LENGTH, 10, QChar('0')) +
                     value);
     }

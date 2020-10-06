@@ -21,7 +21,7 @@
 #include "../../../../../libs/src/classes/payload/kk_payload.h"
 #include "../../../../../libs/src/classes/logger/kk_logger.h"
 #include "../../../../../libs/src/classes/crdt/kk_crdt.h"
-
+#include "../../../../../libs/src/classes/task/kk_task.h"
 #include "../participant/kk_participant.h"
 
 class KKFile : public QObject, public QEnableSharedFromThis<KKFile> {
@@ -31,7 +31,10 @@ public:
     ~KKFile();
     void join(KKParticipantPtr participant);
     void leave(KKParticipantPtr participant);
-    int deliver(QString type, QString result, QStringList values, QString myNick);
+    int deliver(KKPayload data, QString username);
+
+    void consumeCrdtActions();
+    void produceCrdtAction(KKPayload action, QString username);
 
     void setFile(QSharedPointer<QFile> file);
     QSharedPointer<QFile> getFile();
@@ -65,11 +68,15 @@ private:
 
     KKMapParticipantPtr participants;
     KKVectorPayloadPtr recentMessages;
+    QSharedPointer<QVector<QPair<KKPayload, QString>>> recentCrdts;
     KKCrdtPtr crdt;
     QStringList users;
     QSharedPointer<QFile> file;
     QSharedPointer<QTimer> timer;
     QString hash;
+
+    QWaitCondition m_WaitAnyItem;
+    QMutex m_QueueMutex;
 };
 
 typedef QSharedPointer<KKFile> KKFilePtr;
