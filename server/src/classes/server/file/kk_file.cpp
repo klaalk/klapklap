@@ -49,6 +49,7 @@ void KKFile::join(KKParticipantPtr participant) {
     participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
     participants->insert(participant->id, participant);
     participantsMutex.unlock();
+    KKLogger::log("JOINED", "FILE");
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
@@ -77,6 +78,7 @@ int KKFile::deliver(KKPayload data, QString username) {
         });
     }
     changeCrdtText(data.getBodyList());
+    KKLogger::log("CHANGED", "FILE");
     participantsMutex.unlock();
     return 0;
 }
@@ -86,6 +88,7 @@ void KKFile::consumeCrdtMessages()
     for (;;) {
         crdtMessagesMutex.lock();
         while (crdtMessages->isEmpty()) {
+            KKLogger::log("WAIT", "FILE");
             crdtMessagesWait.wait(&crdtMessagesMutex);
         }
         QPair<KKPayload, QString> item = crdtMessages->takeFirst();
