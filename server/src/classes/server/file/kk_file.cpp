@@ -8,18 +8,17 @@
 #include <QVariant>
 
 KKFile::KKFile(QObject *parent): QObject(parent) {
-    recentMessages = KKVectorPayloadPtr(new QVector<KKPayload>());
-    recentCrdts = QSharedPointer<QVector<QPair<KKPayload, QString>>>(new QVector<QPair<KKPayload, QString>>());
+    QThreadPool::globalInstance()->setMaxThreadCount(5);
 
+    chatMessages = KKVectorPayloadPtr(new QVector<KKPayload>());
+    crdtMessages = KKVectorPairPayloadPtr(new QVector<QPair<KKPayload, QString>>());
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
     crdt = KKCrdtPtr(new KKCrdt("file", casuale));
 
-    QThreadPool::globalInstance()->setMaxThreadCount(5);
-    KKTask *crdtTask = new KKTask([&]() {
-        consumeCrdtActions();
+    crdtMessagesTask = new KKTask([&]() {
+        consumeCrdtMessages();
     });
-    crdtTask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(crdtTask);
+    crdtMessagesTask->setAutoDelete(true);
 
     // Set autosave timer
     timer = QSharedPointer<QTimer>(new QTimer());
@@ -29,16 +28,33 @@ KKFile::KKFile(QObject *parent): QObject(parent) {
 
 KKFile::~KKFile() {
     timer->stop();
+    produceCrdtMessages(KKPayload(CLOSE_FILE, NONE, {CRDT_CLOSE}), "All");
+    QThreadPool::globalInstance()->waitForDone();
     flushCrdtText();
     KKLogger::log("File deconstructed", hash);
 }
 
 void KKFile::join(KKParticipantPtr participant) {
+    participantsMutex.lock();
+    participant->deliver(KKPayload(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", getHash()}));
+    participant->deliver(KKPayload(SET_PARTECIPANTS, SUCCESS, getParticipants()));
+
+    // Aggiorno con gli ultimi messaggi mandati.
+    KKVectorPayloadPtr queue = getRecentMessages();
+    if(queue->length() > 0) {
+        std::for_each(queue->begin(), queue->end(), [&](KKPayload d){
+           participant->deliver(d.encode());
+        });
+    }
+    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
     participants->insert(participant->id, participant);
+    participantsMutex.unlock();
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
+    participantsMutex.lock();
     participants->remove(participant->id);
+    participantsMutex.unlock();
 }
 
 int KKFile::deliver(KKPayload data, QString username) {
@@ -46,12 +62,13 @@ int KKFile::deliver(KKPayload data, QString username) {
     QString type = data.getRequestType();
 
     if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
-        recentMessages->push_back(data);
+        chatMessages->push_back(data);
     }
 
-    while (recentMessages->size() > MaxRecentMessages)
-        recentMessages->pop_front();
+    while (chatMessages->size() > MaxRecentMessages)
+        chatMessages->pop_front();
 
+    participantsMutex.lock();
     if (!participants->isEmpty()) {
         std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
             if(p->id != username) {
@@ -59,39 +76,40 @@ int KKFile::deliver(KKPayload data, QString username) {
             }
         });
     }
-
+    changeCrdtText(data.getBodyList());
+    participantsMutex.unlock();
     return 0;
 }
 
-void KKFile::consumeCrdtActions()
+void KKFile::consumeCrdtMessages()
 {
     for (;;) {
-        m_QueueMutex.lock();
-
-        while (recentCrdts->isEmpty()) {
-          m_WaitAnyItem.wait(&m_QueueMutex);
+        crdtMessagesMutex.lock();
+        while (crdtMessages->isEmpty()) {
+            crdtMessagesWait.wait(&crdtMessagesMutex);
         }
+        QPair<KKPayload, QString> item = crdtMessages->takeFirst();
+        crdtMessagesMutex.unlock();
 
-        QPair<KKPayload, QString> item = recentCrdts->first();
-        recentCrdts->removeFirst();
-
-        deliver(item.first, item.second);
-        m_QueueMutex.unlock();
+        if (item.first.getRequestType() == CLOSE_FILE) {
+            break;
+        } else {
+            deliver(item.first, item.second);
+        }
     }
 }
 
-void KKFile::produceCrdtAction(KKPayload action, QString username)
+void KKFile::produceCrdtMessages(KKPayload action, QString username)
 {
-    m_QueueMutex.lock();
-     {
-       bool wasEmpty = recentCrdts->isEmpty();
-       recentCrdts->push_back(QPair<KKPayload, QString>(action, username));
-
-       if (wasEmpty) {
-         m_WaitAnyItem.wakeOne();
-       }
-     }
-     m_QueueMutex.unlock();
+    crdtMessagesMutex.lock();
+    {
+        bool wasEmpty = crdtMessages->isEmpty();
+        crdtMessages->push_back(QPair<KKPayload, QString>(action, username));
+        if (wasEmpty) {
+            crdtMessagesWait.wakeOne();
+        }
+    }
+    crdtMessagesMutex.unlock();
 }
 
 void KKFile::setFile(QSharedPointer<QFile> file)
@@ -131,7 +149,57 @@ QStringList KKFile::getUsers()
     return users;
 }
 
-int KKFile::applyRemoteTextChangeSafe(QStringList body){
+void KKFile::initCrdtText()
+{
+    QStringList text;
+    if(file->open(QFile::ReadOnly)) {
+        QTextStream stream(file.get());
+        QString line = stream.readAll();
+        line.remove('\r');
+
+        int start = 0;
+        int nextFieldLength = 0;
+        do {
+            nextFieldLength = line.midRef(start, 3).toInt();
+            start += 3;
+            text.push_back(line.mid(start, nextFieldLength));
+            start += nextFieldLength;
+        } while (start < line.size()-1);
+
+
+        if(!text.isEmpty()) {
+            crdtMutex.lock();
+            crdt->decodeCrdt(text);
+            crdtMutex.unlock();
+        }
+        QThreadPool::globalInstance()->start(crdtMessagesTask);
+        file.get()->close();
+    }
+}
+
+void KKFile::flushCrdtText()
+{
+    bool result = file.get()->open(QIODevice::WriteOnly | QIODevice::Text);
+    if(result){
+        QTextStream stream(file.get());
+
+        // Scrivo il crdt
+        QStringList crdtText = getCrdtText();
+
+        for(QString crdtChar : crdtText) {
+            stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
+        }
+        stream << endl;
+        file->close();
+        KKLogger::log("Flushed succesfully", hash);
+    } else {
+        KKLogger::log("Error on opening the file", hash);
+    }
+}
+
+
+int KKFile::changeCrdtText(QStringList body){
+    crdtMutex.lock();
     try {
         // Ottengo i campi della risposta
         QString operation = body.takeFirst();
@@ -169,30 +237,15 @@ int KKFile::applyRemoteTextChangeSafe(QStringList body){
         qDebug() << "ERROR :" << e.what();
         return -200;
     }
+    crdtMutex.unlock();
 }
-
-void KKFile::flushCrdtText()
-{
-    bool result = file.get()->open(QIODevice::WriteOnly | QIODevice::Text);
-    if(result){
-        QTextStream stream(file.get());
-        // Scrivo il crdt
-        QStringList crdtText = crdt->encodeCrdt();
-        for(QString crdtChar : crdtText) {
-            stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
-        }
-        stream << endl;
-        file->close();
-        KKLogger::log("Flushed succesfully", hash);
-    } else {
-        KKLogger::log("Error on opening the file", hash);
-    }
-}
-
 
 QStringList KKFile::getCrdtText()
 {
-    return crdt->encodeCrdt();
+    crdtMutex.lock();
+    QStringList crdtText = crdt->encodeCrdt();
+    crdtMutex.unlock();
+    return crdtText;
 }
 
 QStringList KKFile::getParticipants()
@@ -209,51 +262,27 @@ QStringList KKFile::getParticipants()
     return participants_;
 }
 
-bool KKFile::partecipantExist(QString username){
-    return participants->contains(username);
+int KKFile::getPartecipantsNumber() {
+    participantsMutex.lock();
+    long size = participants->size();
+    participantsMutex.unlock();
+    return size;
 }
 
-int KKFile::getPartecipantsNumber(){
-    return participants->size();
+bool KKFile::partecipantExist(QString username){
+    participantsMutex.lock();
+    bool contains = participants->contains(username);
+    participantsMutex.unlock();
+    return contains;
 }
 
 KKVectorPayloadPtr KKFile::getRecentMessages()
 {
-    return recentMessages;
-}
-
-int KKFile::getParticipantCounter() const
-{
-    return participants->size();
+    return chatMessages;
 }
 
 void KKFile::handleTimeout() {
     if (participants->size() > 0) {
         flushCrdtText();
-    }
-}
-
-void KKFile::initCrdtText()
-{
-    QStringList text;
-    if(file->open(QFile::ReadOnly)) {
-        QTextStream stream(file.get());
-        QString line = stream.readAll();
-        line.remove('\r');
-
-        int start = 0;
-        int nextFieldLength = 0;
-        do {
-            nextFieldLength = line.midRef(start, 3).toInt();
-            start += 3;
-            text.push_back(line.mid(start, nextFieldLength));
-            start += nextFieldLength;
-        } while (start < line.size()-1);
-
-
-        if(!text.isEmpty()) {
-            crdt->decodeCrdt(text);
-        }
-        file.get()->close();
     }
 }

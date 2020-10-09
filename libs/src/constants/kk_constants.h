@@ -26,6 +26,7 @@
 #define UPDATE_USER "UPDU"
 #define GET_FILES "GETF"
 #define OPEN_FILE "OPNF"
+#define CLOSE_FILE "CLSF"
 #define SHAREFILE "SHRF"
 #define SAVE_FILE "SAVF"
 #define LOAD_FILE "LODF"
@@ -41,6 +42,8 @@
 #define CRDT_DELETE "DELETE"
 #define CRDT_FORMAT "FORMAT"
 #define CRDT_ALIGNM "ALIGNM"
+#define CRDT_CLOSE "CLOSE"
+
 /// Payload results
 #define NONE "000"
 #define SUCCESS "200"

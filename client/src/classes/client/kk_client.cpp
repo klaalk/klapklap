@@ -338,8 +338,6 @@ void KKClient::handleOpenFileResponse(KKPayload res) {
     editor->loading(true);
     editor->show();
     chat->show();
-
-    sendLoadFileRequest(res.getBodyList()[1]);
 }
 
 void KKClient::handleLoadFileResponse(KKPayload res) {

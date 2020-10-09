@@ -71,7 +71,7 @@ private:
     KKUserPtr user;
     QString sessionId;
     int taskNumerator = 0;
-    QMutex m_QueueMutex;
+    QMutex socketMutex;
 };
 
 typedef QSharedPointer<KKSession> KKSessionPtr;

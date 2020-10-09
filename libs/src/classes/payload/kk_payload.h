@@ -45,4 +45,5 @@ private:
 
 typedef QSharedPointer<KKPayload> KKPayloadPtr;
 typedef QSharedPointer<QVector<KKPayload>> KKVectorPayloadPtr;
+typedef QSharedPointer<QVector<QPair<KKPayload, QString>>> KKVectorPairPayloadPtr;
 #endif //CLIENT_CHAT_MESSAGE_H

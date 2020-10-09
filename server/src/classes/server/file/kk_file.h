@@ -33,8 +33,8 @@ public:
     void leave(KKParticipantPtr participant);
     int deliver(KKPayload data, QString username);
 
-    void consumeCrdtActions();
-    void produceCrdtAction(KKPayload action, QString username);
+    void consumeCrdtMessages();
+    void produceCrdtMessages(KKPayload action, QString username);
 
     void setFile(QSharedPointer<QFile> file);
     QSharedPointer<QFile> getFile();
@@ -46,20 +46,16 @@ public:
     void setUsers(QStringList users);
     QStringList getUsers();
 
-    int applyRemoteTextChangeSafe(QStringList bodyList);
-
     void initCrdtText();
     void flushCrdtText();
-    bool partecipantExist(QString username);
-    int getPartecipantsNumber();
-
-
+    int changeCrdtText(QStringList bodyList);
     QStringList getCrdtText();
+
     QStringList getParticipants();
+    int getPartecipantsNumber();
+    bool partecipantExist(QString username);
+
     KKVectorPayloadPtr getRecentMessages();
-
-    int getParticipantCounter() const;
-
 public slots:
     void handleTimeout();
 
@@ -67,16 +63,21 @@ private:
     enum { MaxRecentMessages = 100 };
 
     KKMapParticipantPtr participants;
-    KKVectorPayloadPtr recentMessages;
-    QSharedPointer<QVector<QPair<KKPayload, QString>>> recentCrdts;
+    KKVectorPayloadPtr chatMessages;
+    KKVectorPairPayloadPtr crdtMessages;
+    QSharedPointer<QVector<QStringList>> crdtActions;
+
     KKCrdtPtr crdt;
     QStringList users;
     QSharedPointer<QFile> file;
     QSharedPointer<QTimer> timer;
     QString hash;
 
-    QWaitCondition m_WaitAnyItem;
-    QMutex m_QueueMutex;
+    QWaitCondition crdtMessagesWait;
+    QMutex crdtMessagesMutex;
+    KKTask *crdtMessagesTask;
+    QMutex crdtMutex;
+    QMutex participantsMutex;
 };
 
 typedef QSharedPointer<KKFile> KKFilePtr;
