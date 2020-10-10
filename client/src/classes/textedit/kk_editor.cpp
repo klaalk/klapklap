@@ -1021,6 +1021,7 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
 void KKEditor::updateLabels() {
     QTextCursor editorCurs = textEdit->textCursor();
     int fontMax;
+    int fontDx=-1;
     for(KKCursor* c : cursors.values()) {
         editorCurs.setPosition(c->getGlobalPositon());
         int fontSx=editorCurs.charFormat().font().pointSize();
@@ -1035,7 +1036,14 @@ void KKEditor::updateLabels() {
             editorCurs.setPosition(c->getGlobalPositon());
         }
         c->setLabelsSize(fontMax);
-        c->moveLabels(textEdit->cursorRect(editorCurs));
+        QRect rect;
+        rect.setX(textEdit->cursorRect(editorCurs).x());
+        if(textEdit->cursorRect(editorCurs).size().height()>QFontMetrics(editorCurs.charFormat().font()).height() && fontDx!=-1 && fontSx==fontDx)
+            rect.setY(textEdit->cursorRect(editorCurs).y()+QFontMetrics(editorCurs.charFormat().font()).height());
+        else
+            rect.setY(textEdit->cursorRect(editorCurs).y());
+        c->moveLabels(rect);
+        qDebug()<<rect.x()<<rect.y();
     }
 }
 
