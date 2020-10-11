@@ -61,7 +61,7 @@ void KKFile::leave(KKParticipantPtr participant) {
 int KKFile::deliver(KKPayload data, QString username) {
 
     QString type = data.getRequestType();
-
+     KKLogger::log("ABOUT TO DELIVER","FILE");
     if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
         chatMessages->push_back(data);
     }
@@ -175,6 +175,7 @@ void KKFile::initCrdtText()
             crdt->decodeCrdt(text);
             crdtMutex.unlock();
         }
+
         QThreadPool::globalInstance()->start(crdtMessagesTask);
         file.get()->close();
     }
@@ -234,13 +235,15 @@ int KKFile::changeCrdtText(QStringList body){
                 }
             }
         }
+        crdtMutex.unlock();
         return 200;
     } catch (QException e) {
         KKLogger::log(e.what(), "applyRemoteChangeSafe");
         qDebug() << "ERROR :" << e.what();
+        crdtMutex.unlock();
         return -200;
     }
-    crdtMutex.unlock();
+
 }
 
 QStringList KKFile::getCrdtText()
