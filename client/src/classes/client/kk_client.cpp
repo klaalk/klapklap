@@ -506,7 +506,7 @@ void KKClient::sendLoadFileRequest(const QString &link)
 }
 
 void KKClient::sendMessageRequest(QString username, QString message) {
-    bool result = sendRequest(CHAT, NONE, {std::move(username), std::move(message)});
+    bool result = sendRequest(CHAT, SUCCESS, {std::move(username), std::move(message)});
     if (!result || !socket.isValid()) {
         modal.setModal(MODAL_NETWORK_ERROR, "Riprova", CHAT_ERROR);
         modal.show();

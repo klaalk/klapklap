@@ -55,7 +55,7 @@ public:
     int getPartecipantsNumber();
     bool partecipantExist(QString username);
 
-    KKVectorPayloadPtr getRecentMessages();
+    QVector<KKPayload> getChatMessages();
 public slots:
     void handleTimeout();
 
@@ -74,9 +74,10 @@ private:
     QString hash;
 
     QWaitCondition messagesWait;
-    QMutex messagesMutex;
     KKTask *messagesTask;
+    QMutex messagesMutex;
     QMutex crdtMutex;
+    QMutex chatMutex;
     QMutex participantsMutex;
 };
 

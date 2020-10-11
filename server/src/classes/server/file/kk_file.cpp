@@ -37,14 +37,6 @@ KKFile::~KKFile() {
 void KKFile::join(KKParticipantPtr participant) {
     participantsMutex.lock();
 
-    // Aggiorno con gli ultimi messaggi mandati.
-    KKVectorPayloadPtr queue = getRecentMessages();
-    if(queue->length() > 0) {
-        std::for_each(queue->begin(), queue->end(), [&](KKPayload d){
-           participant->deliver(d.encode());
-        });
-    }
-
     participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
     participants->insert(participant->id, participant);
 
@@ -76,10 +68,12 @@ int KKFile::deliver(KKPayload data, QString username) {
     }
 
     if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
+        chatMutex.lock();
         chatMessages->push_back(data);
 
         while (chatMessages->size() > MaxRecentMessages)
             chatMessages->pop_front();
+        chatMutex.unlock();
     }
 
     participantsMutex.unlock();
@@ -285,8 +279,11 @@ bool KKFile::partecipantExist(QString username){
     return contains;
 }
 
-KKVectorPayloadPtr KKFile::getRecentMessages()
+QVector<KKPayload> KKFile::getChatMessages()
 {
+    chatMutex.lock();
+    QVector<KKPayload> chatMessages = QVector<KKPayload>(*this->chatMessages.get());
+    chatMutex.unlock();
     return chatMessages;
 }
 

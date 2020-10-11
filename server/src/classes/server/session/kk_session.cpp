@@ -324,8 +324,18 @@ void KKSession::connectToFile(QString filename)
 
     if (result == SUCCESS) {
         sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", file->getHash()});
-        sendResponse(SET_PARTECIPANTS, SUCCESS, file->getParticipants());
         file->join(sharedFromThis());
+
+        sendResponse(SET_PARTECIPANTS, SUCCESS, file->getParticipants());
+
+        // Aggiorno con gli ultimi messaggi mandati.
+        QVector<KKPayload> chatMessages = file->getChatMessages();
+        if(chatMessages.length() > 0) {
+            std::for_each(chatMessages.begin(), chatMessages.end(), [&](KKPayload chatMessage){
+                deliver(chatMessage);
+            });
+        }
+
     }
 
 }
