@@ -11,14 +11,14 @@ KKFile::KKFile(QObject *parent): QObject(parent) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
 
     chatMessages = KKVectorPayloadPtr(new QVector<KKPayload>());
-    crdtMessages = KKVectorPairPayloadPtr(new QVector<QPair<KKPayload, QString>>());
+    messages = KKVectorPairPayloadPtr(new QVector<QPair<KKPayload, QString>>());
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
     crdt = KKCrdtPtr(new KKCrdt("file", casuale));
 
-    crdtMessagesTask = new KKTask([&]() {
-        consumeCrdtMessages();
+    messagesTask = new KKTask([&]() {
+        consumeMessages();
     });
-    crdtMessagesTask->setAutoDelete(true);
+    messagesTask->setAutoDelete(true);
 
     // Set autosave timer
     timer = QSharedPointer<QTimer>(new QTimer());
@@ -28,7 +28,7 @@ KKFile::KKFile(QObject *parent): QObject(parent) {
 
 KKFile::~KKFile() {
     timer->stop();
-    produceCrdtMessages(KKPayload(CLOSE_FILE, NONE, {CRDT_CLOSE}), "All");
+    produceMessages(KKPayload(CLOSE_FILE, NONE, {CRDT_CLOSE}), "All");
     QThreadPool::globalInstance()->waitForDone();
     flushCrdtText();
     KKLogger::log("File deconstructed", hash);
@@ -36,8 +36,6 @@ KKFile::~KKFile() {
 
 void KKFile::join(KKParticipantPtr participant) {
     participantsMutex.lock();
-    participant->deliver(KKPayload(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", getHash()}));
-    participant->deliver(KKPayload(SET_PARTECIPANTS, SUCCESS, getParticipants()));
 
     // Aggiorno con gli ultimi messaggi mandati.
     KKVectorPayloadPtr queue = getRecentMessages();
@@ -46,10 +44,11 @@ void KKFile::join(KKParticipantPtr participant) {
            participant->deliver(d.encode());
         });
     }
+
     participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
     participants->insert(participant->id, participant);
+
     participantsMutex.unlock();
-    KKLogger::log("JOINED", "FILE");
 }
 
 void KKFile::leave(KKParticipantPtr participant) {
@@ -61,15 +60,9 @@ void KKFile::leave(KKParticipantPtr participant) {
 int KKFile::deliver(KKPayload data, QString username) {
 
     QString type = data.getRequestType();
-     KKLogger::log("ABOUT TO DELIVER","FILE");
-    if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
-        chatMessages->push_back(data);
-    }
-
-    while (chatMessages->size() > MaxRecentMessages)
-        chatMessages->pop_front();
 
     participantsMutex.lock();
+
     if (!participants->isEmpty()) {
         std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
             if(p->id != username) {
@@ -77,22 +70,32 @@ int KKFile::deliver(KKPayload data, QString username) {
             }
         });
     }
-    changeCrdtText(data.getBodyList());
-    KKLogger::log("CHANGED", "FILE");
+
+    if (type == CRDT) {
+        changeCrdtText(data.getBodyList());
+    }
+
+    if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
+        chatMessages->push_back(data);
+
+        while (chatMessages->size() > MaxRecentMessages)
+            chatMessages->pop_front();
+    }
+
     participantsMutex.unlock();
     return 0;
 }
 
-void KKFile::consumeCrdtMessages()
+void KKFile::consumeMessages()
 {
     for (;;) {
-        crdtMessagesMutex.lock();
-        while (crdtMessages->isEmpty()) {
+        messagesMutex.lock();
+        while (messages->isEmpty()) {
             KKLogger::log("WAIT", "FILE");
-            crdtMessagesWait.wait(&crdtMessagesMutex);
+            messagesWait.wait(&messagesMutex);
         }
-        QPair<KKPayload, QString> item = crdtMessages->takeFirst();
-        crdtMessagesMutex.unlock();
+        QPair<KKPayload, QString> item = messages->takeFirst();
+        messagesMutex.unlock();
 
         if (item.first.getRequestType() == CLOSE_FILE) {
             break;
@@ -102,17 +105,17 @@ void KKFile::consumeCrdtMessages()
     }
 }
 
-void KKFile::produceCrdtMessages(KKPayload action, QString username)
+void KKFile::produceMessages(KKPayload action, QString username)
 {
-    crdtMessagesMutex.lock();
+    messagesMutex.lock();
     {
-        bool wasEmpty = crdtMessages->isEmpty();
-        crdtMessages->push_back(QPair<KKPayload, QString>(action, username));
+        bool wasEmpty = messages->isEmpty();
+        messages->push_back(QPair<KKPayload, QString>(action, username));
         if (wasEmpty) {
-            crdtMessagesWait.wakeOne();
+            messagesWait.wakeOne();
         }
     }
-    crdtMessagesMutex.unlock();
+    messagesMutex.unlock();
 }
 
 void KKFile::setFile(QSharedPointer<QFile> file)
@@ -176,7 +179,7 @@ void KKFile::initCrdtText()
             crdtMutex.unlock();
         }
 
-        QThreadPool::globalInstance()->start(crdtMessagesTask);
+        QThreadPool::globalInstance()->start(messagesTask);
         file.get()->close();
     }
 }
@@ -258,13 +261,13 @@ QStringList KKFile::getParticipants()
 {
     // Rispondo con la list di tutti partecipanti al file (attivi o non attivi)
     QStringList participants_;
-
+    participantsMutex.lock();
     for(QString user : users) {
         QString id = user.split(":").at(0);
         QString state = participants->find(id) != participants->end() ? PARTICIPANT_ONLINE : PARTICIPANT_OFFLINE;
         participants_.push_back(user + ":" + state);
     }
-
+    participantsMutex.unlock();
     return participants_;
 }
 

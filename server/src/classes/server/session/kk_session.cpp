@@ -256,17 +256,18 @@ void KKSession::handleQuitFileRequest()
 void KKSession::handleCrdtRequest(KKPayload request) {
     QStringList body = request.getBodyList();
     QString operation = body.at(0);
-    logger(request.getRequestType());
-    file->produceCrdtMessages(request, operation == CRDT_ALIGNM ? "All" : user->getUsername());
+    file->produceMessages(request, operation == CRDT_ALIGNM ? "All" : user->getUsername());
 }
 
 void KKSession::handleChatRequest(KKPayload request) {
-    file->deliver(request, "All");
+    file->produceMessages(request, "All");
 }
 
 void KKSession::connectToFile(QString filename)
 {
     QStringList users;
+    QString result = INTERNAL_SERVER_ERROR;
+
     auto search = files->find(filename);
     if (search != files->end()) {
         // Controllo se il file risulta tra quelli già aperti.
@@ -312,21 +313,27 @@ void KKSession::connectToFile(QString filename)
 
             if (db->addShareFile(file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
                 file->addUser(QString("%1:%2:%3").arg(user->getUsername(), user->getAlias(), user->getImage()));
-                file->join(sharedFromThis());
+                result = SUCCESS;
             } else
                 sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore in fase di inserimento partecipante per il file richiesto"});
 
         } else
-            file->join(sharedFromThis());
-
+            result = SUCCESS;
     } else
         sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nel filesystem durante l'apertura del nuovo file"});
+
+    if (result == SUCCESS) {
+        sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", file->getHash()});
+        sendResponse(SET_PARTECIPANTS, SUCCESS, file->getParticipants());
+        file->join(sharedFromThis());
+    }
+
 }
 
 void KKSession::disconnectFromFile()
 {
     if(!file.isNull()) {
-        file->deliver(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
+        file->produceMessages(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
         file->leave(sharedFromThis());
 
         if (file->getPartecipantsNumber() < 1) {

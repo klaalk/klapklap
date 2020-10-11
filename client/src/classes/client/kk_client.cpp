@@ -532,7 +532,7 @@ void KKClient::onEditorClosed()
 }
 
 void KKClient::sendCrdtRequest(QStringList crdt) {
-    bool result = sendRequest(CRDT, NONE, std::move(crdt));
+    bool result = sendRequest(CRDT, SUCCESS, std::move(crdt));
     if (!result || !socket.isValid()) {
         modal.setModal(MODAL_UPDATE_FILE_ERROR, "Riprova", CRDT_ERROR);
         modal.show();

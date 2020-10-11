@@ -33,8 +33,8 @@ public:
     void leave(KKParticipantPtr participant);
     int deliver(KKPayload data, QString username);
 
-    void consumeCrdtMessages();
-    void produceCrdtMessages(KKPayload action, QString username);
+    void consumeMessages();
+    void produceMessages(KKPayload action, QString username);
 
     void setFile(QSharedPointer<QFile> file);
     QSharedPointer<QFile> getFile();
@@ -64,7 +64,7 @@ private:
 
     KKMapParticipantPtr participants;
     KKVectorPayloadPtr chatMessages;
-    KKVectorPairPayloadPtr crdtMessages;
+    KKVectorPairPayloadPtr messages;
     QSharedPointer<QVector<QStringList>> crdtActions;
 
     KKCrdtPtr crdt;
@@ -73,9 +73,9 @@ private:
     QSharedPointer<QTimer> timer;
     QString hash;
 
-    QWaitCondition crdtMessagesWait;
-    QMutex crdtMessagesMutex;
-    KKTask *crdtMessagesTask;
+    QWaitCondition messagesWait;
+    QMutex messagesMutex;
+    KKTask *messagesTask;
     QMutex crdtMutex;
     QMutex participantsMutex;
 };
