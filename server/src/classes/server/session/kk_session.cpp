@@ -67,31 +67,32 @@ void KKSession::handleRequest(QString message) {
     socketMutex.lock();
     if (socket) {
         socketMutex.unlock();
-    KKPayload req(message);
-    req.decode();
-    if (req.getRequestType() == LOGIN) {
-        handleLoginRequest(req);
-    } else if(req.getRequestType() == SIGNUP) {
-        handleSignupRequest(req);
-    } else if(req.getRequestType() == LOGOUT){
-        handleLogoutRequest(req);
-    } else if(req.getRequestType() == UPDATE_USER) {
-        handleUpdateUserRequest(req);
-    } else if(req.getRequestType() == GET_FILES) {
-        handleGetFilesRequest();
-    } else if(req.getRequestType() == OPEN_FILE) {
-        handleOpenFileRequest(req);
-    } else if(req.getRequestType() == SAVE_FILE) {
-        handleSaveFileRequest(req);
-    } else if(req.getRequestType() == LOAD_FILE) {
-        handleLoadFileRequest(req);
-    } else if (req.getRequestType() == QUIT_FILE) {
-        handleQuitFileRequest();
-    } else if(req.getRequestType() == CRDT) {
-        handleCrdtRequest(req);
-    } else if(req.getRequestType() == CHAT) {
-        handleChatRequest(req);
-    }
+        KKPayload req(message);
+        req.decode();
+        if (req.getRequestType() == LOGIN) {
+            handleLoginRequest(req);
+        } else if(req.getRequestType() == SIGNUP) {
+            handleSignupRequest(req);
+        } else if(req.getRequestType() == LOGOUT){
+            handleLogoutRequest(req);
+        } else if(req.getRequestType() == UPDATE_USER) {
+            handleUpdateUserRequest(req);
+        } else if(req.getRequestType() == GET_FILES) {
+            handleGetFilesRequest();
+        } else if(req.getRequestType() == OPEN_FILE) {
+            handleOpenFileRequest(req);
+        } else if(req.getRequestType() == SAVE_FILE) {
+            handleSaveFileRequest(req);
+        } else if(req.getRequestType() == LOAD_FILE) {
+            handleLoadFileRequest(req);
+        } else if (req.getRequestType() == QUIT_FILE) {
+            handleQuitFileRequest();
+        } else if(req.getRequestType() == CRDT) {
+            handleCrdtRequest(req);
+        } else if(req.getRequestType() == CHAT) {
+            handleChatRequest(req);
+        }
+
     } else
         socketMutex.unlock();
  }
@@ -324,10 +325,7 @@ void KKSession::connectToFile(QString filename)
 
     if (result == SUCCESS) {
         sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", file->getHash()});
-        file->join(sharedFromThis());
-
         sendResponse(SET_PARTECIPANTS, SUCCESS, file->getParticipants());
-
         // Aggiorno con gli ultimi messaggi mandati.
         QVector<KKPayload> chatMessages = file->getChatMessages();
         if(chatMessages.length() > 0) {
@@ -335,7 +333,8 @@ void KKSession::connectToFile(QString filename)
                 deliver(chatMessage);
             });
         }
-
+        file->join(sharedFromThis());
+        file->produceMessages(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
     }
 
 }

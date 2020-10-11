@@ -28,7 +28,7 @@ KKFile::KKFile(QObject *parent): QObject(parent) {
 
 KKFile::~KKFile() {
     timer->stop();
-    produceMessages(KKPayload(CLOSE_FILE, NONE, {CRDT_CLOSE}), "All");
+    produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");
     QThreadPool::globalInstance()->waitForDone();
     flushCrdtText();
     KKLogger::log("File deconstructed", hash);
@@ -85,7 +85,6 @@ void KKFile::consumeMessages()
     for (;;) {
         messagesMutex.lock();
         while (messages->isEmpty()) {
-            KKLogger::log("WAIT", "FILE");
             messagesWait.wait(&messagesMutex);
         }
         QPair<KKPayload, QString> item = messages->takeFirst();
