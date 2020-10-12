@@ -494,7 +494,7 @@
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
           <property name="text">
-           <string>Logout</string>
+           <string>Esci</string>
           </property>
           <property name="class" stdset="0">
            <string>SecondaryOutlineBtn</string>

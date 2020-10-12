@@ -53,9 +53,23 @@ void ChooseAvatarDialog::loadAvatars()
     }
 
     int counter=0;
+
     for(QString avatarImage : avatarsImages) {
         QLabel *avatar = new QLabel();
-        avatar->setPixmap(QPixmap(avatarImage));
+        QPixmap avpix(avatarImage);
+
+        #ifdef Q_OS_MACOS
+
+        avpix.setDevicePixelRatio(10);
+
+        avatar->setPixmap(avpix.scaled(1110,800,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+         #endif
+
+         #ifndef Q_OS_MACOS
+        avatar->setPixmap(avpix);
+         #endif
+
+
         avatar->setObjectName("avatar"+avatarImage.split(":/images/avatars/")[1]);
         avatars.push_back(avatar);
         counter++;

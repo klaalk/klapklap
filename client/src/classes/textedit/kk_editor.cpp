@@ -699,39 +699,39 @@ void KKEditor::setupFileActions()
     QMenu *menu = menuBar()->addMenu(tr("&File"));
 
     const QIcon newIcon = QIcon::fromTheme("document-new", QIcon(rsrcPath + "/link.png"));
-    QAction *a = menu->addAction(newIcon,  tr("&Share"), this, &KKEditor::fileNew);
+    QAction *a = menu->addAction(newIcon,  tr("&Condividi"), this, &KKEditor::fileNew);
     tb->addAction(a);
     a->setPriority(QAction::LowPriority);
     a->setShortcut(QKeySequence::New);
 
     const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(rsrcPath + "/folder.png"));
-    a = menu->addAction(openIcon, tr("&Open..."), this, &KKEditor::fileOpen);
+    a = menu->addAction(openIcon, tr("&Apri..."), this, &KKEditor::fileOpen);
     a->setShortcut(QKeySequence::Open);
     tb->addAction(a);
 
     menu->addSeparator();
 
     const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(rsrcPath + "/save.png"));
-    actionSave = menu->addAction(saveIcon, tr("&Save"), this, &KKEditor::fileSave);
+    actionSave = menu->addAction(saveIcon, tr("&Salva"), this, &KKEditor::fileSave);
     actionSave->setShortcut(QKeySequence::Save);
     actionSave->setEnabled(false);
     tb->addAction(actionSave);
-    a = menu->addAction(tr("Save &As..."), this, &KKEditor::fileSaveAs);
+    a = menu->addAction(tr("Salva &come..."), this, &KKEditor::fileSaveAs);
     a->setPriority(QAction::LowPriority);
     menu->addSeparator();
 
 #ifndef QT_NO_PRINTER
     const QIcon printIcon = QIcon::fromTheme("document-print", QIcon(rsrcPath + "/print.png"));
-    a = menu->addAction(printIcon, tr("&Print..."), this, &KKEditor::filePrint);
+    a = menu->addAction(printIcon, tr("&Stampa..."), this, &KKEditor::filePrint);
     a->setPriority(QAction::LowPriority);
     a->setShortcut(QKeySequence::Print);
     tb->addAction(a);
 
     const QIcon filePrintIcon = QIcon::fromTheme("fileprint", QIcon(rsrcPath + "/print.png"));
-    menu->addAction(filePrintIcon, tr("Print Preview..."), this, &KKEditor::filePrintPreview);
+    menu->addAction(filePrintIcon, tr("Anteprima di stampa..."), this, &KKEditor::filePrintPreview);
 
     const QIcon exportPdfIcon = QIcon::fromTheme("exportpdf", QIcon(rsrcPath + "/export.png"));
-    a = menu->addAction(exportPdfIcon, tr("&Export PDF..."), this, &KKEditor::filePrintPdf);
+    a = menu->addAction(exportPdfIcon, tr("&Esporta come PDF..."), this, &KKEditor::filePrintPdf);
     a->setPriority(QAction::LowPriority);
     a->setShortcut(Qt::CTRL + Qt::Key_D);
     tb->addAction(a);
@@ -739,14 +739,14 @@ void KKEditor::setupFileActions()
     menu->addSeparator();
 #endif
 
-    a = menu->addAction(tr("&Quit"), this, &QWidget::close);
+    a = menu->addAction(tr("&Chiudi"), this, &QWidget::close);
     a->setShortcut(Qt::CTRL + Qt::Key_Q);
 }
 
 void KKEditor::setupEditActions()
 {
     QToolBar *tb = addToolBar(tr("Edit Actions"));
-    QMenu *menu = menuBar()->addMenu(tr("&Edit"));
+    QMenu *menu = menuBar()->addMenu(tr("&Modifica"));
 
     const QIcon undoIcon = QIcon::fromTheme("edit-undo", QIcon(rsrcPath + "/undo.png"));
     actionUndo = menu->addAction(undoIcon, tr("&Undo"), textEdit, &KKTextEdit::textUndo);
@@ -762,19 +762,19 @@ void KKEditor::setupEditActions()
 
 #ifndef QT_NO_CLIPBOARD
     const QIcon cutIcon = QIcon::fromTheme("edit-cut", QIcon(rsrcPath + "/scissors.png"));
-    actionCut = menu->addAction(cutIcon, tr("Cu&t"), textEdit, &KKTextEdit::textCut);
+    actionCut = menu->addAction(cutIcon, tr("Taglia"), textEdit, &KKTextEdit::textCut);
     actionCut->setPriority(QAction::LowPriority);
     actionCut->setShortcut(QKeySequence::Cut);
     tb->addAction(actionCut);
 
     const QIcon copyIcon = QIcon::fromTheme("edit-copy", QIcon(rsrcPath + "/copy.png"));
-    actionCopy = menu->addAction(copyIcon, tr("&Copy"), textEdit, &KKTextEdit::textCopy);
+    actionCopy = menu->addAction(copyIcon, tr("&Copia"), textEdit, &KKTextEdit::textCopy);
     actionCopy->setPriority(QAction::LowPriority);
     actionCopy->setShortcut(QKeySequence::Copy);
     tb->addAction(actionCopy);
 
     const QIcon pasteIcon = QIcon::fromTheme("edit-paste", QIcon(rsrcPath + "/paste.png"));
-    actionPaste = menu->addAction(pasteIcon, tr("&Paste"), textEdit, &KKTextEdit::textPaste);
+    actionPaste = menu->addAction(pasteIcon, tr("&Incolla"), textEdit, &KKTextEdit::textPaste);
     actionPaste->setPriority(QAction::LowPriority);
     actionPaste->setShortcut(QKeySequence::Paste);
     tb->addAction(actionPaste);
@@ -789,7 +789,7 @@ void KKEditor::setupTextActions()
     QMenu *menu = menuBar()->addMenu(tr("F&ormat"));
 
     const QIcon boldIcon = QIcon::fromTheme("format-text-bold", QIcon(rsrcPath + "/bold.png"));
-    actionTextBold = menu->addAction(boldIcon, tr("&Bold"), this, &KKEditor::textBold);
+    actionTextBold = menu->addAction(boldIcon, tr("&Grassetto"), this, &KKEditor::textBold);
     actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
     actionTextBold->setPriority(QAction::LowPriority);
     QFont bold;
@@ -799,7 +799,7 @@ void KKEditor::setupTextActions()
     actionTextBold->setCheckable(true);
 
     const QIcon italicIcon = QIcon::fromTheme("format-text-italic", QIcon(rsrcPath + "/italic.png"));
-    actionTextItalic = menu->addAction(italicIcon, tr("&Italic"), this, &KKEditor::textItalic);
+    actionTextItalic = menu->addAction(italicIcon, tr("&Corsivo"), this, &KKEditor::textItalic);
     actionTextItalic->setPriority(QAction::LowPriority);
     actionTextItalic->setShortcut(Qt::CTRL + Qt::Key_I);
     QFont italic;
@@ -809,7 +809,7 @@ void KKEditor::setupTextActions()
     actionTextItalic->setCheckable(true);
 
     const QIcon underlineIcon = QIcon::fromTheme("format-text-underline", QIcon(rsrcPath + "/underline.png"));
-    actionTextUnderline = menu->addAction(underlineIcon, tr("&Underline"), this, &KKEditor::textUnderline);
+    actionTextUnderline = menu->addAction(underlineIcon, tr("&Sottolineatura"), this, &KKEditor::textUnderline);
     actionTextUnderline->setShortcut(Qt::CTRL + Qt::Key_U);
     actionTextUnderline->setPriority(QAction::LowPriority);
     QFont underline;
@@ -821,22 +821,22 @@ void KKEditor::setupTextActions()
     menu->addSeparator();
 
     const QIcon leftIcon = QIcon::fromTheme("format-justify-left", QIcon(rsrcPath + "/left-align.png"));
-    actionAlignLeft = new QAction(leftIcon, tr("&Left"), this);
+    actionAlignLeft = new QAction(leftIcon, tr("&Sinistra"), this);
     actionAlignLeft->setShortcut(Qt::CTRL + Qt::Key_L);
     actionAlignLeft->setCheckable(true);
     actionAlignLeft->setPriority(QAction::LowPriority);
     const QIcon centerIcon = QIcon::fromTheme("format-justify-center", QIcon(rsrcPath + "/center-align.png"));
-    actionAlignCenter = new QAction(centerIcon, tr("C&enter"), this);
+    actionAlignCenter = new QAction(centerIcon, tr("C&entro"), this);
     actionAlignCenter->setShortcut(Qt::CTRL + Qt::Key_E);
     actionAlignCenter->setCheckable(true);
     actionAlignCenter->setPriority(QAction::LowPriority);
     const QIcon rightIcon = QIcon::fromTheme("format-justify-right", QIcon(rsrcPath + "/right-align.png"));
-    actionAlignRight = new QAction(rightIcon, tr("&Right"), this);
+    actionAlignRight = new QAction(rightIcon, tr("&Destra"), this);
     actionAlignRight->setShortcut(Qt::CTRL + Qt::Key_R);
     actionAlignRight->setCheckable(true);
     actionAlignRight->setPriority(QAction::LowPriority);
     const QIcon fillIcon = QIcon::fromTheme("format-justify-fill", QIcon(rsrcPath + "/justify.png"));
-    actionAlignJustify = new QAction(fillIcon, tr("&Justify"), this);
+    actionAlignJustify = new QAction(fillIcon, tr("&Giustifica"), this);
     actionAlignJustify->setShortcut(Qt::CTRL + Qt::Key_J);
     actionAlignJustify->setCheckable(true);
     actionAlignJustify->setPriority(QAction::LowPriority);
@@ -863,7 +863,7 @@ void KKEditor::setupTextActions()
 
     QPixmap pix(16, 16);
     pix.fill(Qt::black);
-    actionTextColor = menu->addAction(pix, tr("&Color..."), this, &KKEditor::textColor);
+    actionTextColor = menu->addAction(pix, tr("&Colore..."), this, &KKEditor::textColor);
     tb->addAction(actionTextColor);
 
     tb = addToolBar(tr("Format Actions"));

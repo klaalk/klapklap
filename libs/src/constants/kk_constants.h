@@ -154,7 +154,7 @@
 #define MODAL_LOGIN_ERROR "Errore generico nella risposta del server\nRiprovare dopo il login"
 #define MODAL_UPDATE_USER "Non è stato possibile procedere con il salvataggio\nSi procederà con la chiusura del file"
 #define MODAL_QUIT_FILE "Non è stato possibile effettuare la modifica\nSi procederà con la chiusura del file"
-#define MODAL_UPDATE_USER_INFO "Le tue informazioni sono state aggiornate con susccesso"
+#define MODAL_UPDATE_USER_INFO "Le tue informazioni sono state aggiornate con successo"
 #define MODAL_NETWORK_ERROR "Attenzione!\nSembra che tu non sia connesso alla rete"
 #define MODAL_UPDATE_USER_FAIL "Non è stato possibile aggiornare l'account"
 #define MODAL_QUIT_FILE_ERROR "Non è stato possibile chiudere il file"

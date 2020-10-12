@@ -68,7 +68,7 @@ void KKChat::addParticipant(const QString &username, const QString &nick, const 
 
     QColor color = textEdit->textColor();
     textEdit->setTextColor(Qt::gray);
-    textEdit->append(tr("* %1 has joined").arg(nick));
+    textEdit->append(tr("* %1 si è aggiunto").arg(nick));
     textEdit->setTextColor(color);
 }
 
@@ -79,7 +79,7 @@ void KKChat::removeParticipant(const QString &username, const QString &nick, con
 
     QColor color = textEdit->textColor();
     textEdit->setTextColor(Qt::gray);
-    textEdit->append(tr("* %1 has left").arg(nick));
+    textEdit->append(tr("* %1 è uscito").arg(nick));
     textEdit->setTextColor(color);
 }
 
@@ -119,9 +119,7 @@ void KKChat::showInformation()
 {
     if (listWidget->count() == 1) {
         QMessageBox::information(this, tr("Chat"),
-                                 tr("Launch several instances of this "
-                                    "program on your local network and "
-                                    "start chatting!"));
+                                 tr("Inizia a chattare!"));
     }
 }
 

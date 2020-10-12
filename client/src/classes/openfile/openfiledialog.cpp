@@ -97,6 +97,7 @@ void OpenFileDialog::setAvatar(const QString &avatar)
     QString path = ":images/avatars/"+avatar;
     bool exist = QFile::exists(path);
     if (exist) {
+
         const QPixmap orig = QPixmap(":/images/avatars/"+avatar);
 
         int size = qMax(orig.width(), orig.height());
@@ -108,6 +109,7 @@ void OpenFileDialog::setAvatar(const QString &avatar)
         path.addEllipse(rounded.rect());
 
         QPainter painter(&rounded);
+
         painter.setClipPath(path);
 
         painter.fillRect(rounded.rect(), Qt::black);

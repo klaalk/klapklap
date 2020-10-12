@@ -12,6 +12,7 @@
   </property>
   <property name="font">
    <font>
+    <family>.AppleSystemUIFont</family>
     <pointsize>8</pointsize>
    </font>
   </property>
@@ -81,6 +82,7 @@
          <widget class="QLabel" name="title_label">
           <property name="font">
            <font>
+            <family>.AppleSystemUIFont</family>
             <pointsize>15</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -98,6 +100,7 @@
          <widget class="QLabel" name="subtitle_label">
           <property name="font">
            <font>
+            <family>.AppleSystemUIFont</family>
             <pointsize>12</pointsize>
             <weight>50</weight>
             <bold>false</bold>
@@ -139,6 +142,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
@@ -148,7 +152,7 @@
               <string extracomment="Inserisci il tuo nome"/>
              </property>
              <property name="text">
-              <string>Name</string>
+              <string>Nome</string>
              </property>
             </widget>
            </item>
@@ -168,17 +172,21 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
              <property name="toolTip">
               <string extracomment="Inserisci il tuo nome"/>
              </property>
+             <property name="text">
+              <string/>
+             </property>
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
              </property>
              <property name="placeholderText">
-              <string>insert your name</string>
+              <string>Inserisci il tuo nome</string>
              </property>
             </widget>
            </item>
@@ -198,6 +206,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
@@ -207,7 +216,7 @@
               <string extracomment="Inserisci il tuo cognome"/>
              </property>
              <property name="text">
-              <string>Surname</string>
+              <string>Cognome</string>
              </property>
             </widget>
            </item>
@@ -227,6 +236,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -237,7 +247,7 @@
               <enum>QLineEdit::Normal</enum>
              </property>
              <property name="placeholderText">
-              <string>insert your surname</string>
+              <string>Inserisci il tuo cognome</string>
              </property>
             </widget>
            </item>
@@ -257,6 +267,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
@@ -283,6 +294,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -293,7 +305,7 @@
               <enum>QLineEdit::Normal</enum>
              </property>
              <property name="placeholderText">
-              <string>insert your email</string>
+              <string>Inserisci la tua email</string>
              </property>
             </widget>
            </item>
@@ -313,6 +325,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
@@ -339,6 +352,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -349,7 +363,7 @@
               <enum>QLineEdit::Normal</enum>
              </property>
              <property name="placeholderText">
-              <string>insert your username</string>
+              <string>Inserisci il tuo username</string>
              </property>
             </widget>
            </item>
@@ -369,6 +383,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
@@ -395,6 +410,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -405,7 +421,7 @@
               <enum>QLineEdit::Password</enum>
              </property>
              <property name="placeholderText">
-              <string>insert your password</string>
+              <string>Inserisci la tua password</string>
              </property>
             </widget>
            </item>
@@ -428,6 +444,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>8</pointsize>
               </font>
              </property>
@@ -458,6 +475,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -584,6 +602,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
@@ -610,6 +629,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -620,10 +640,10 @@
               <number>2</number>
              </property>
              <property name="text">
-              <string>klauscuko</string>
+              <string>albo</string>
              </property>
              <property name="placeholderText">
-              <string>insert your username</string>
+              <string>Inserisci il tuo username</string>
              </property>
             </widget>
            </item>
@@ -650,6 +670,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
@@ -676,6 +697,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -686,13 +708,13 @@
               <number>2</number>
              </property>
              <property name="text">
-              <string>Campioni38</string>
+              <string>password95</string>
              </property>
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>
              </property>
              <property name="placeholderText">
-              <string>insert your password</string>
+              <string>Inserisci la tua password</string>
              </property>
             </widget>
            </item>
@@ -753,6 +775,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -766,7 +789,7 @@
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>Login</string>
+              <string>Accedi</string>
              </property>
              <property name="autoDefault">
               <bool>false</bool>
@@ -795,6 +818,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -822,6 +846,7 @@
              </property>
              <property name="font">
               <font>
+               <family>.AppleSystemUIFont</family>
                <pointsize>10</pointsize>
               </font>
              </property>
