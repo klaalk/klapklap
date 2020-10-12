@@ -221,10 +221,10 @@ KKPosition KKCrdt::remoteFormatChange(const KKCharPtr& charPtr){
             ch->get()->setKKCharColor(charPtr->getKKCharColor());
             ch->get()->setKKCharFont(charPtr->getKKCharFont());
         } else
-            qDebug() << "[CRDT - remoteFormatChange] Char non modificabile";
+            logger("[CRDT - remoteFormatChange] Char non modificabile");
 
     } else
-        qDebug() << "[CRDT - remoteFormatChange] Posizione non valida";
+        logger("[CRDT - remoteFormatChange] Posizione non valida");
 
     return position;
 }
@@ -236,7 +236,7 @@ bool KKCrdt::remoteAlignmentChange(unsigned long idx, int align)
         return true;
     }
     else
-        qDebug() << "[CRDT - remoteAlignmentChange] Index out of range";
+        logger("[CRDT - remoteAlignmentChange] Index out of range");
 
     return false;
 }
@@ -309,7 +309,7 @@ void KKCrdt::calculateLineCol(unsigned long position, unsigned long startLine, u
         }
         tot+=text[i].size();
     }
-    qDebug() << "[calculateLineCol] line: " << *line << " - col: " << *col;
+    logger(QString("[calculateLineCol] Invalid line >%1< and col >%2<").arg(QVariant(static_cast<long long>(*line)).toString(), QVariant(static_cast<long long>(*col)).toString()));
 }
 
 int KKCrdt::calculateGlobalPosition(KKPosition position){
@@ -326,7 +326,7 @@ int KKCrdt::getLineAlignment(unsigned long idx)
     if (idx < linesAlignment.size())
         alignment = linesAlignment.at(idx);
     else
-        qDebug() << "[CRDT - getLineAlignment] Index out of range";
+        logger("[CRDT - getLineAlignment] Index out of range");
     return alignment;
 }
 
@@ -927,5 +927,10 @@ KKCharPtr KKCrdt::copyChar(KKChar* source)
         dest.get()->insertPosition(idsPtr);
     }
     return dest;
+}
+
+void KKCrdt::logger(QString message)
+{
+    KKLogger::log(message, "CRDT");
 }
 

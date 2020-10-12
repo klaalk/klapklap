@@ -2,6 +2,7 @@
 #define KKLOGGER_H
 
 #include <QFile>
+#include <QMutex>
 
 #include "../../constants/kk_constants.h"
 

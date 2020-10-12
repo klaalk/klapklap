@@ -125,11 +125,17 @@
 #define SERVER_ERROR "ServerError"
 #define INPUT_ERROR "InputOnClientError"
 
+/// Modal Buttons Action
+#define BUTTON_CLOSE_ACTION "Chiudi"
+#define BUTTON_RETRY_ACTION "Riprova"
+#define BUTTON_CONTINUE_ACTION "Continua"
+
 /// File system costants
 #define LOG_FILE "log"
 #define FILE_SYSTEM_USER "root"
 
-#define SERVER_ROOT QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/KKServer"
+/// Application roots
+#define SERVER_ROOT QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).first() + "/klapklap"
 #define LOG_ROOT SERVER_ROOT + "/log/"
 #define APPLICATION_ROOT SERVER_ROOT + "/application/"
 
@@ -147,7 +153,7 @@
 #define MODAL_TIMEOUT "Server non raggiungibile\nSi prega di riprovare più tardi"
 #define MODAL_SUCCESS "L'operazione è andata a buon fine"
 #define MODAL_GENERIC_ERROR "Errore interno al server\nNon è possibile procedere con la richiesta"
-#define MODAL_NOT_LOGGED "Hai inserito delle credenziali non valide\nControlla che email e/o password siano corretti"
+#define MODAL_NOT_LOGGED "Hai inserito delle credenziali non valide\nControlla che email e/o password siano corrette"
 #define MODAL_NOT_SIGNED "La registrazione non è andata a buon fine\nUsername e/o Email esistenti"
 #define MODAL_NOT_OPENFILE "Non è stato possibile scaricare il file dal server\nSi procederà con la chiusura del file"
 #define MODAL_OPENED_FILE "Non è stato possibile aggiornare il file dal server\nSi procederà con la chiusura del file"

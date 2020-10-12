@@ -31,7 +31,7 @@ public:
     ~KKFile();
     void join(KKParticipantPtr participant);
     void leave(KKParticipantPtr participant);
-    int deliver(KKPayload data, QString username);
+    int deliverMessages(KKPayload data, QString username);
 
     void consumeMessages();
     void produceMessages(KKPayload action, QString username);

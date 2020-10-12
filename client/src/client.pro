@@ -39,8 +39,8 @@ HEADERS         = ../../libs/src/classes/crdt/kk_crdt.h \
                 classes/access/accessdialog.h \
                 classes/chat/kk_chat.h \
                 classes/client/kk_client.h \
+                classes/modal/kk_modal.h \
                 classes/openfile/openfiledialog.h \
-                classes/modal/modaldialog.h \
                 classes/openfile/chooseavatardialog.h \
                 classes/textedit/kk_cursor.h \
                 classes/textedit/kk_editor.h \
@@ -58,11 +58,11 @@ SOURCES         = ../../libs/src/classes/crdt/kk_crdt.cpp \
                 classes/access/accessdialog.cpp \
                 classes/chat/kk_chat.cpp \
                 classes/client/kk_client.cpp \
+                classes/modal/kk_modal.cpp \
                 classes/textedit/kk_editor.cpp \
                 classes/textedit/kk_textedit.cpp \
                 main.cpp \
                 classes/openfile/openfiledialog.cpp \
-                classes/modal/modaldialog.cpp \
                 classes/openfile/chooseavatardialog.cpp
 
 RESOURCES += assets/client.qrc
@@ -70,7 +70,6 @@ RESOURCES += assets/client.qrc
 FORMS += \
         ui/accessdialog.ui \
         ui/chooseavatardialog.ui \
-        ui/modaldialog.ui \
         ui/chatdialog.ui \
         ui/openfiledialog.ui
 

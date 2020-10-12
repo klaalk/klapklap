@@ -27,12 +27,15 @@ KKSession::~KKSession() {
     if (!user.isNull())
         user->deleteLater();
 
-    KKLogger::log("Session deconstructed", sessionId);
+    logger("Session deconstructed");
 }
 
-void KKSession::deliver(KKPayload msg) {
+void KKSession::deliver(KKPayload msg, bool log) {
     socketMutex.lock();
-    socket->sendTextMessage(msg.encode());
+    QString data = msg.encode();
+    if (log)
+        logger(QString("[deliver] - %1 ").arg(data));
+    socket->sendTextMessage(data);
     socketMutex.unlock();
 }
 
@@ -47,23 +50,21 @@ void KKSession::setSocket(QSharedPointer<QWebSocket> descriptor) {
     connect(socket.get(), &QWebSocket::textMessageReceived, this, &KKSession::handleRequest);
     connect(socket.get(), &QWebSocket::binaryMessageReceived, this, &KKSession::handleBinaryRequests);
     connect(socket.get(), &QWebSocket::disconnected, this, &KKSession::handleDisconnection);
+    logger(QString("[setSocket] - %1, %2 connected at %3, %4").arg(
+               descriptor->peerAddress().toString(),
+               QString::number(descriptor->peerPort()),
+               descriptor->localAddress().toString(),
+               QString::number(descriptor->localPort())));
     socketMutex.unlock();
-    logger("Client info: " + descriptor->peerAddress().toString() + ", "
-                           + QString::number(descriptor->peerPort()) + " connected at "
-                           + descriptor->localAddress().toString() + ", "
-                           + QString::number(descriptor->localPort()));
 }
 
 void KKSession::sendResponse(QString type, QString result, QStringList values) {
-    QString body;
-    for (QString elem : values)
-        body.append(" ").append(elem);
-    logger("Response: " + type + " " + result + body);
-    deliver(KKPayload(type, result, values));
+    deliver(KKPayload(type, result, values), true);
 }
 
 void KKSession::handleRequest(QString message) {
-    logger("Client send: " + message);
+    logger(QString("[handelRequest] - %1").arg(message));
+
     socketMutex.lock();
     if (socket) {
         socketMutex.unlock();
@@ -95,33 +96,31 @@ void KKSession::handleRequest(QString message) {
 
     } else
         socketMutex.unlock();
- }
+}
 
 void KKSession::handleBinaryRequests(QByteArray message) {
     socketMutex.lock();
     if (socket) {
-        KKLogger::log("Client send binary: " + message, sessionId);
+        logger(QString("[handleBinaryRequests] - %1").arg(QVariant(message).toString()));
     }
     socketMutex.unlock();
 }
 
 void KKSession::handleDisconnection() {
     socketMutex.lock();
-    logger("Session "
-                    + id + ", "
-                    + socket->peerAddress().toString() + ", "
-                    + QString::number(socket->peerPort()) + " closing...");
+    logger(QString("[handleDisconnection] - Session %1, %2, %3 closing...")
+           .arg(id, socket->peerAddress().toString(), QString::number(socket->peerPort())));
+
     socketMutex.unlock();
     disconnectFromFile();
     emit disconnected(sessionId);
 }
 
 void KKSession::handleLoginRequest(KKPayload request) {
-    QStringList _body = request.getBodyList();
-    logger("Client username: " + _body[0]);
+    QStringList params = request.getBodyList();
 
     int result = DB_LOGIN_SUCCESS;
-    result = db->loginUser(_body[0], _body[1], user);
+    result = db->loginUser(params[0], params[1], user);
 
     if(result == DB_LOGIN_SUCCESS) {
         QStringList* output = new QStringList();
@@ -138,41 +137,41 @@ void KKSession::handleLoginRequest(KKPayload request) {
         result = db->getUserFiles(user->getUsername(), output);
 
         if (result != DB_USER_FILES_FOUND) {
-            logger("Non è stato possibile recuperare i file associati a " + _body[0]);
+            logger("Non è stato possibile recuperare i file associati a " + params[0]);
         }
 
-        this->sendResponse(LOGIN, SUCCESS, *output);
+        sendResponse(LOGIN, SUCCESS, *output);
 
     } else if (result == DB_LOGIN_FAILED) {
-        this->sendResponse(LOGIN, BAD_REQUEST, {"Credenziali non valide"});
+        sendResponse(LOGIN, BAD_REQUEST, {"Credenziali non valide"});
 
     } else if (result == DB_ERR_USER_NOT_FOUND) {
-        this->sendResponse(LOGIN, BAD_REQUEST, {"Account non esistente"});
+        sendResponse(LOGIN, BAD_REQUEST, {"Account non esistente"});
 
     } else {
-        this->sendResponse(LOGIN, INTERNAL_SERVER_ERROR, {"Errore interno. Non è stato possibile effettuare il login!"});
+        sendResponse(LOGIN, INTERNAL_SERVER_ERROR, {"Errore interno. Non è stato possibile effettuare il login!"});
     }
 }
 
 void KKSession::handleSignupRequest(KKPayload request) {
-    QStringList _body = request.getBodyList();
-    int result = db->signupUser(_body[4],_body[1],_body[0],_body[2], _body[3], _body[5]);
+    QStringList params = request.getBodyList();
+    int result = db->signupUser(params[4],params[1],params[0],params[2], params[3], params[5]);
 
     if(result == DB_SIGNUP_SUCCESS) {
-        this->sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
+        sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
 
     } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
-        this->sendResponse(SIGNUP, BAD_REQUEST, {"Errore nella richiesta, username e/o Email esistenti!"});
+        sendResponse(SIGNUP, BAD_REQUEST, {"Errore nella richiesta, username e/o Email esistenti!"});
 
     } else {
-        this->sendResponse(SIGNUP, INTERNAL_SERVER_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
+        sendResponse(SIGNUP, INTERNAL_SERVER_ERROR, {"Errore interno. Non e' stato possibile effettuare la registrazione!"});
     }
 }
 
 void KKSession::handleLogoutRequest(KKPayload request) {
     Q_UNUSED(request)
     disconnectFromFile();
-    this->sendResponse(LOGOUT, SUCCESS, {"Logut eseguito"});
+    sendResponse(LOGOUT, SUCCESS, {"Logut eseguito"});
 }
 
 void KKSession::handleUpdateUserRequest(KKPayload request)
@@ -330,9 +329,10 @@ void KKSession::connectToFile(QString filename)
         QVector<KKPayload> chatMessages = file->getChatMessages();
         if(chatMessages.length() > 0) {
             std::for_each(chatMessages.begin(), chatMessages.end(), [&](KKPayload chatMessage){
-                deliver(chatMessage);
+                deliver(chatMessage, true);
             });
         }
+
         file->join(sharedFromThis());
         file->produceMessages(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
     }
@@ -352,6 +352,8 @@ void KKSession::disconnectFromFile()
 }
 
 void KKSession::logger(QString message) {
-     KKLogger::log(message, QString("%1 - %2").arg(sessionId, id));
+    loggerMutex.lock();
+    KKLogger::log(message, QString("%1 - %2").arg(sessionId, id));
+    loggerMutex.unlock();
 }
 

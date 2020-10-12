@@ -36,10 +36,8 @@ KKFile::~KKFile() {
 
 void KKFile::join(KKParticipantPtr participant) {
     participantsMutex.lock();
-
-    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
+    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()), true);
     participants->insert(participant->id, participant);
-
     participantsMutex.unlock();
 }
 
@@ -49,22 +47,22 @@ void KKFile::leave(KKParticipantPtr participant) {
     participantsMutex.unlock();
 }
 
-int KKFile::deliver(KKPayload data, QString username) {
+int KKFile::deliverMessages(KKPayload data, QString username) {
+    participantsMutex.lock();
+    int result = 0;
 
     QString type = data.getRequestType();
-
-    participantsMutex.lock();
-
     if (!participants->isEmpty()) {
-        std::for_each(participants->begin(), participants->end(),[&](QSharedPointer<KKParticipant> p){
-            if(p->id != username) {
-                p->deliver(data);
+        std::for_each(participants->begin(), participants->end(),
+                      [&](QSharedPointer<KKParticipant> participant){
+            if(participant->id != username) {
+                participant->deliver(data);
             }
         });
     }
 
     if (type == CRDT) {
-        changeCrdtText(data.getBodyList());
+        result = changeCrdtText(data.getBodyList());
     }
 
     if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
@@ -77,7 +75,7 @@ int KKFile::deliver(KKPayload data, QString username) {
     }
 
     participantsMutex.unlock();
-    return 0;
+    return result;
 }
 
 void KKFile::consumeMessages()
@@ -93,7 +91,7 @@ void KKFile::consumeMessages()
         if (item.first.getRequestType() == CLOSE_FILE) {
             break;
         } else {
-            deliver(item.first, item.second);
+            deliverMessages(item.first, item.second);
         }
     }
 }
@@ -234,12 +232,9 @@ int KKFile::changeCrdtText(QStringList body){
         crdtMutex.unlock();
         return 200;
     } catch (QException e) {
-        KKLogger::log(e.what(), "applyRemoteChangeSafe");
-        qDebug() << "ERROR :" << e.what();
         crdtMutex.unlock();
         return -200;
     }
-
 }
 
 QStringList KKFile::getCrdtText()

@@ -12,6 +12,7 @@
 
 #include "../../../../libs/src/classes/user/kk_user.h"
 #include "../../libs/src/classes/crypt/kk_crypt.h"
+#include "../../libs/src/classes/logger/kk_logger.h"
 #include "../../libs/src/constants/kk_constants.h"
 
 #include <classes/openfile/chooseavatardialog.h>
@@ -29,7 +30,7 @@ signals:
     void logoutRequest();
 public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
-    ~OpenFileDialog();
+    ~OpenFileDialog() override;
 
     void setUser(KKUser* info);
     void setAvatar(const QString &avatar);
@@ -42,6 +43,9 @@ public:
     QString getSurname() const;
     QString getAlias() const;
     void clear();
+
+    QString getUsername() const;
+    void setUsername(const QString &value);
 
 private slots:
     void on_filesTableWidget_itemClicked(QTableWidgetItem *item);
@@ -70,6 +74,10 @@ protected:
 private:
     void addFile(int fileIndex, const QString& fileName);
     void initializeFilesTableView();
+    bool checkEditForm();
+    bool chackEditChanges();
+    bool regexMatch(const QString& value, QRegularExpression regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage);
+
 
     Ui::OpenFileDialog *ui;
     KKCrypt* crypt;
@@ -85,17 +93,14 @@ private:
     QString name;
     QString surname;
     QString alias;
+    QString username;
 
-    QMap<QString, QString> files_;
+    QMap<QString, QString> files;
     ChooseAvatarDialog chooseAvatarDialog;
 
     bool showHintName = false;
     bool showHintSurname = false;
     bool showHintAlias = false;
-
-    bool checkEditForm();
-    bool chackEditChanges();
-    bool regexMatch(const QString& value, QRegularExpression regex, bool canShowHint, QLabel* hintLabel, const QString& hintMessage);
 };
 
 #endif // OPENFILEDIALOG_H

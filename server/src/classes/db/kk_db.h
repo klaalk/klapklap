@@ -10,6 +10,7 @@
 
 #include "../../../../libs/src/classes/crypt/kk_crypt.h"
 #include "../../../../libs/src/classes/user/kk_user.h"
+#include "../../../../libs/src/classes/logger/kk_logger.h"
 #include "../../../../libs/src/constants/kk_constants.h"
 
 
@@ -41,6 +42,8 @@ public:
     int existUserByEmail(QString email);
     int existFileByUsername(QString filename, QString username);
     int existShareFileByUsername(QString filename, QString username);
+private:
+    void logger(QString message);
 };
 
 typedef QSharedPointer<KKDataBase> KKDataBasePtr;

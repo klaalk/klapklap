@@ -3,10 +3,15 @@ QDialog, QMainWindow {
     color: rgb(33, 33, 33);
 }
 
+QMessageBox[class="ModalDialog"] {
+    padding: 16px;
+}
+
 QPushButton[class="PrimaryBtn"], QPushButton[class="SecondaryBtn"], QPushButton[class="IconBtn"] {
     min-height: 23px;
     max-height: 23px;
     height: 23px;
+    padding: 0 8px;
     color: white;
     font-size: 12px;
     font-weight: bold;

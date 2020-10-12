@@ -6,8 +6,6 @@
 
 #include <utility>
 
-//#define test
-
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url(std::move(url)) {
     QThreadPool::globalInstance()->setMaxThreadCount(5);
@@ -22,8 +20,8 @@ KKClient::KKClient(QUrl url, QObject *parent)
     connect(&socket, QOverload<const QList<QSslError>&>::of(&QWebSocket::sslErrors), this, &KKClient::handleSslErrors);
 
     // Gestisco le due chiusuere della modale
-    connect(&modal, &ModalDialog::modalButtonClicked, this, &KKClient::handleModalButtonClick);
-    connect(&modal, &ModalDialog::modalClosed, this, &KKClient::handleModalClosed);
+    connect(&modal, &KKModal::modalButtonClicked, this, &KKClient::handleModalButtonClick);
+    connect(&modal, &KKModal::modalClosed, this, &KKClient::handleModalClosed);
 
     // Gestisco le richieste di login o di registrazione o logout
     connect(&access, &AccessDialog::loginBtnClicked, this, &KKClient::sendLoginRequest);
@@ -108,7 +106,7 @@ void KKClient::handleOpenedConnection() {
 void KKClient::handleTimeOutConnection() {
     logger("[handleTimeOutConnection] - Websocket time out connection");
     timer.stop();
-    modal.setModal(MODAL_TIMEOUT, "Riprova", CONNECTION_TIMEOUT);
+    modal.setModal(MODAL_TIMEOUT, BUTTON_RETRY_ACTION, CONNECTION_TIMEOUT);
     modal.show();
     socket.close();
 }
@@ -128,9 +126,12 @@ void KKClient::handleSslErrors(const QList<QSslError> &errors) {
 
 void KKClient::handleResponse(const QString& message) {
     timer.stop();
-    logger("[handleResponse] - Ricevuto: " + message);
+
+    logger(QString("[handleResponse] - %1").arg(message));
+
     KKPayload res(message);
     res.decode();
+
     if (res.getResultType() == SUCCESS)
         handleSuccessResponse(res);
     else
@@ -186,7 +187,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
         editor->removeParticipant(params.at(0));
 
     } else {
-        modal.setModal(MODAL_SUCCESS, "Chiudi", GENERIC_SUCCESS);
+        modal.setModal(MODAL_SUCCESS, BUTTON_CLOSE_ACTION, GENERIC_SUCCESS);
         modal.show();
     }
 }
@@ -197,7 +198,7 @@ void KKClient::handleErrorResponse(KKPayload response){
     } else if (response.getResultType() == INTERNAL_SERVER_ERROR) {
         handleServerErrorResponse(response);
     } else {
-        modal.setModal(MODAL_GENERIC_ERROR, "Chiudi", GENERIC_ERROR);
+        modal.setModal(MODAL_GENERIC_ERROR, BUTTON_CLOSE_ACTION, GENERIC_ERROR);
         modal.show();
     }
 }
@@ -207,32 +208,33 @@ void KKClient::handleClientErrorResponse(KKPayload response) {
 
     if (state == CONNECTED_NOT_LOGGED) {
         message = MODAL_NOT_LOGGED ;
-        button = "Chiudi";
+        button = BUTTON_CLOSE_ACTION;
         modalType = LOGIN_ERROR;
 
     } else if (state == CONNECTED_NOT_SIGNED) {
         message = MODAL_NOT_SIGNED;
-        button = "Riprova";
+        button = BUTTON_RETRY_ACTION;
         modalType = SIGNUP_ERROR;
 
     } else if (state == CONNECTED_NOT_OPENFILE) {
         message = MODAL_NOT_OPENFILE;
-        button = "Chiudi";
+        button = BUTTON_CLOSE_ACTION;
         modalType = OPENFILE_ERROR;
 
     } else if (state == CONNECTED_AND_OPENED) {
         message = MODAL_OPENED_FILE;
-        button = "Chiudi";
+        button = BUTTON_CLOSE_ACTION;
         modalType = CRDT_ERROR;
 
     } else {
         message = MODAL_LOGIN_ERROR;
-        button = "Chiudi";
+        button = BUTTON_CLOSE_ACTION;
         modalType = GENERIC_ERROR;
     }
-
-    QString remoteMessage = response.getBodyList().at(0);
-    message.append(".\n").append(remoteMessage);
+    if (modalType == OPENFILE_ERROR) {
+        QString remoteMessage = response.getBodyList().at(0);
+        message.append("\n").append(remoteMessage);
+    }
     modal.setModal(message, button, modalType);
     modal.show();
 }
@@ -243,17 +245,19 @@ void KKClient::handleServerErrorResponse(KKPayload res) {
 
     if (res.getRequestType() == UPDATE_USER) {
         message = MODAL_UPDATE_USER;
-        button = "Chiudi";
+        button = BUTTON_CLOSE_ACTION;
         modalType = UPDATE_USER_ERROR;
-    }else if (res.getRequestType() == QUIT_FILE) {
+
+    } else if (res.getRequestType() == QUIT_FILE) {
         message = MODAL_QUIT_FILE;
-        button = "Chiudi";
+        button = BUTTON_CLOSE_ACTION;
         modalType = INPUT_ERROR;
-    }else {
+    } else {
         message = MODAL_GENERIC_ERROR;
-        button = "Riprova";
+        button = BUTTON_RETRY_ACTION;
         modalType = SERVER_ERROR;
     }
+
     modal.setModal(message, button, modalType);
     modal.show();
 }
@@ -282,7 +286,6 @@ void KKClient::handleLoginResponse(KKPayload res) {
 
     access.hide();
     openFile.show();
-    logger("[handleLoginResponse] - Site id: " + user->getUsername());
 }
 
 void KKClient::handleLogoutResponse(KKPayload res) {
@@ -311,7 +314,7 @@ void KKClient::handleUpdateUserResponse()
         user->setSurname(openFile.getSurname());
         user->setImage(openFile.getAvatar());
     }
-    modal.setModal(MODAL_UPDATE_USER_INFO, "Chiudi", GENERIC_SUCCESS);
+    modal.setModal(MODAL_UPDATE_USER_INFO, BUTTON_CLOSE_ACTION, GENERIC_SUCCESS);
     modal.show();
 }
 
@@ -418,30 +421,19 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 /// SENDING
 
 void KKClient::sendLoginRequest(QString email, const QString& password) {
-#ifdef test
-    email="bot"+QString::number(rand()%100);
-    QString _password="none";
     KKCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
-    QString psw = solver.encryptToString(_password);
-    qDebug() << psw << " "<< email;
-    access_.showLoader(true);
-    if (!timer_.isActive())
-        timer_.start(TIMEOUT_VALUE);
-    bool sended = sendRequest(LOGIN,NONE,{std::move(email), psw});
-    if (sended) {
-        state_ = CONNECTED_NOT_LOGGED;
-    }
-#else
-    KKCrypt solver(Q_UINT64_C(0x0c2ad4a4acb9f023));
+
     QString psw = solver.encryptToString(password);
     access.showLoader(true);
+
     if (!timer.isActive())
         timer.start(TIMEOUT_VALUE);
+
     bool sended = sendRequest(LOGIN, NONE, {std::move(email), psw});
+
     if (sended) {
         state = CONNECTED_NOT_LOGGED;
     }
-#endif
 }
 
 void KKClient::sendGetFilesRequest()
@@ -500,7 +492,7 @@ void KKClient::sendLoadFileRequest(const QString &link)
 {
     bool result = sendRequest(LOAD_FILE, NONE, {link});
     if (!result || !socket.isValid()) {
-        modal.setModal("Attenzione!\nSembra che tu non sia connesso alla rete", "Riprova", CHAT_ERROR);
+        modal.setModal("Attenzione!\nSembra che tu non sia connesso alla rete", BUTTON_RETRY_ACTION, CHAT_ERROR);
         modal.show();
     }
 }
@@ -508,7 +500,7 @@ void KKClient::sendLoadFileRequest(const QString &link)
 void KKClient::sendMessageRequest(QString username, QString message) {
     bool result = sendRequest(CHAT, SUCCESS, {std::move(username), std::move(message)});
     if (!result || !socket.isValid()) {
-        modal.setModal(MODAL_NETWORK_ERROR, "Riprova", CHAT_ERROR);
+        modal.setModal(MODAL_NETWORK_ERROR, BUTTON_RETRY_ACTION, CHAT_ERROR);
         modal.show();
     }
 }
@@ -517,7 +509,7 @@ void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alia
 {
     bool result = sendRequest(UPDATE_USER, NONE, {user->getUsername(), name, surname, alias, avatar});
     if (!result || !socket.isValid()) {
-        modal.setModal(MODAL_UPDATE_USER_FAIL, "Chiudi", GENERIC_ERROR);
+        modal.setModal(MODAL_UPDATE_USER_FAIL, BUTTON_CLOSE_ACTION, GENERIC_ERROR);
         modal.show();
     }
 }
@@ -526,7 +518,7 @@ void KKClient::onEditorClosed()
 {
     bool result = sendRequest(QUIT_FILE, NONE, {});
     if (!result || !socket.isValid()) {
-        modal.setModal(MODAL_QUIT_FILE_ERROR, "Chiudi", GENERIC_ERROR);
+        modal.setModal(MODAL_QUIT_FILE_ERROR, BUTTON_CLOSE_ACTION, GENERIC_ERROR);
         modal.show();
     }
 }
@@ -534,17 +526,17 @@ void KKClient::onEditorClosed()
 void KKClient::sendCrdtRequest(QStringList crdt) {
     bool result = sendRequest(CRDT, SUCCESS, std::move(crdt));
     if (!result || !socket.isValid()) {
-        modal.setModal(MODAL_UPDATE_FILE_ERROR, "Riprova", CRDT_ERROR);
+        modal.setModal(MODAL_UPDATE_FILE_ERROR, BUTTON_RETRY_ACTION, CRDT_ERROR);
         modal.show();
     }
 }
 
 bool KKClient::sendRequest(QString type, QString result, QStringList values) {
     KKPayload req(std::move(type), std::move(result), std::move(values));
-    req.encode();
-    QString body;
-    for (QString elem : values) body.append(" ").append(elem);
-    logger("[sendRequest] - Send: " + req.getRequestType() + body);
+
+    QString message = req.encode();
+    logger(QString("[sendRequest] - %1").arg(message));
+
     qint64 size = socket.sendTextMessage(req.getData());
     return size >= req.getTotalLength();
 }
@@ -566,16 +558,16 @@ void KKClient::printCrdt()
 
 void KKClient::handleModalButtonClick(const QString& btnText, const QString& modalType) {
     Q_UNUSED(btnText)
-    handleModalActions(modalType);
+    handleModalActions(modalType, btnText == BUTTON_CLOSE_ACTION);
 }
 
 void KKClient::handleModalClosed(const QString& modalType) {
-    handleModalActions(modalType);
+    handleModalActions(modalType, true);
 }
 
-void KKClient::handleModalActions(const QString &modalType)
+void KKClient::handleModalActions(const QString &modalType, bool closed)
 {
-    if(modalType == CONNECTION_TIMEOUT) {
+    if (modalType == CONNECTION_TIMEOUT) {
         initState();
 
     } else if (modalType == LOGIN_TIMEOUT) {
@@ -598,6 +590,7 @@ void KKClient::handleModalActions(const QString &modalType)
     } else if (modalType == CRDT_ILLEGAL) {
         modal.hide();
         sendLoadFileRequest(link);
+
     } else if (modalType == OPENFILE_ERROR) {
         modal.hide();
 
@@ -652,7 +645,7 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
 //        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Inserimento illegale per il CRDT");
-        modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
+        modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
 }
@@ -722,7 +715,7 @@ void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QStri
 //        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cambio formato illegale per il CRDT");
-        modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
+        modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
 }
@@ -752,7 +745,7 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
 //        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cambio allineamento illegale per il CRDT");
-        modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
+        modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
 }
@@ -804,7 +797,7 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
 //        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Modifica allineamento illegale per il CRDT");
-        modal.setModal(MODAL_CRDT_ERROR, "Continua", CRDT_ILLEGAL);
+        modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
 }

@@ -36,7 +36,7 @@
 #include "../chat/kk_chat.h"
 #include "../openfile/openfiledialog.h"
 #include "../textedit/kk_editor.h"
-#include "../modal/modaldialog.h"
+#include "../modal/kk_modal.h"
 
 
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -56,7 +56,7 @@ private slots:
     void handleSslErrors(const QList<QSslError> &errors);
     void handleModalButtonClick(const QString& btnText, const QString& modalType);
     void handleModalClosed(const QString& modalType);
-    void handleModalActions(const QString& modalType);
+    void handleModalActions(const QString& modalType, bool closed);
 
     void sendSignupRequest(QString email, const QString& password, QString name, QString surname, QString username);
     void sendLoginRequest(QString email, const QString& password);
@@ -110,7 +110,7 @@ private:
     QTimer timer;
     AccessDialog access;
     OpenFileDialog openFile;
-    ModalDialog modal;
+    KKModal modal;
 
     KKUser* user{};
     KKEditor* editor{};

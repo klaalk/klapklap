@@ -39,6 +39,8 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
 OpenFileDialog::~OpenFileDialog()
 {
     delete ui;
+    delete crypt;
+    delete fileNameRegexp;
 }
 
 
@@ -75,14 +77,14 @@ void OpenFileDialog::setUser(KKUser* user) {
     setName(user->getName());
     setSurname(user->getSurname());
     setAlias(user->getAlias());
-
+    setUsername(user->getUsername());
     ui->saveChangesButton->setEnabled(chackEditChanges());
 
 }
 
 void OpenFileDialog::setUserFiles(const QStringList &files)
 {
-    files_.clear();
+    this->files.clear();
     ui->filesTableWidget->setRowCount(files.size());
 
     int fileIndex = 0;
@@ -123,7 +125,7 @@ void OpenFileDialog::setAvatar(const QString &avatar)
         ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
 
     } else
-       qDebug() << "[setUserAvatar] Avatar not exist: " + path;
+       KKLogger::log(QString("[setUserAvatar] Avatar not exist: %1").arg(path), username);
 
 }
 
@@ -173,7 +175,7 @@ void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
     QStringList splittedFilename = fileName.split(FILENAME_SEPARATOR);
     QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
 
-    files_.insert(splittedFilename[2], splittedFileRow[0]);
+    files.insert(splittedFilename[2], splittedFileRow[0]);
     QTableWidgetItem* name =  new QTableWidgetItem(splittedFilename[2]);
     QTableWidgetItem* owner =  new QTableWidgetItem(splittedFilename[1]);
     QTableWidgetItem* date = new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT));
@@ -214,7 +216,7 @@ void OpenFileDialog::on_openFileButton_clicked()
         emit openFileRequest(pastedLink, pastedFilename);
     } else {
         selectedLink = (selectedLink != nullptr && !selectedLink.isEmpty()) ? selectedLink
-                  : files_.value(selectedFilename);
+                  : files.value(selectedFilename);
 
         if (selectedLink != nullptr && !selectedLink.isEmpty()) {
             emit openFileRequest(selectedLink, selectedFilename);
@@ -223,8 +225,8 @@ void OpenFileDialog::on_openFileButton_clicked()
              if (newFileName != "" && newFileName != nullptr) {
                 emit openFileRequest(newFileName, newFileName);
             } else {
-                qDebug() << "[on_openFileButton_clicked] Errore nell'apertura file: nome file vuoto!";
-            }
+                 KKLogger::log("[on_openFileButton_clicked] Errore nell'apertura file: nome file vuoto!", username);
+             }
         }
     }
 }
@@ -265,7 +267,7 @@ void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEd
             pastedFilename = "";
 
             if (isFileNameValid) {
-                selectedLink = files_.value(lineEditText);
+                selectedLink = files.value(lineEditText);
                 if (selectedLink != nullptr && !selectedLink.isEmpty()) {
                     selectedFilename = lineEditText;
                     isSharedFileName = true;
@@ -329,6 +331,16 @@ bool OpenFileDialog::regexMatch(const QString& value, QRegularExpression regex, 
     }
     hintLabel->setText("");
     return true;
+}
+
+QString OpenFileDialog::getUsername() const
+{
+    return username;
+}
+
+void OpenFileDialog::setUsername(const QString &value)
+{
+    username = value;
 }
 
 void OpenFileDialog::on_nameLineEdit_textChanged(const QString &arg1)

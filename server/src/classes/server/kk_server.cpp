@@ -42,12 +42,14 @@ KKServer::KKServer(quint16 port, QObject *parent):
     filesys = KKFileSystemPtr(new KKFileSystem(this));
 
     KKLogger::log(QString("Running Server (Version: %1.%2 Build: %3)")
-                  .arg(QString::number(VERSION_MAJOR), QString::number(VERSION_MINOR), QString::number(VERSION_BUILD)), "SERVER");
+                  .arg(QString::number(VERSION_MAJOR),
+                       QString::number(VERSION_MINOR),
+                       QString::number(VERSION_BUILD)), "SERVER");
 
     if (socket->listen(QHostAddress::Any, port)) {
         connect(socket, &QWebSocketServer::newConnection, this, &KKServer::onNewConnection);
         connect(socket, &QWebSocketServer::sslErrors, this, &KKServer::onSslErrors);
-        KKLogger::log("SSL Server listening on port " + QString::number(port), "SERVER");
+        KKLogger::log(QString("SSL Server listening on port %1").arg(QString::number(port)), "SERVER");
     }
 }
 KKServer::~KKServer()

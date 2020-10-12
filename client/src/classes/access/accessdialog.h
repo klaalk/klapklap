@@ -21,7 +21,6 @@ class AccessDialog : public QDialog
 public:
     explicit AccessDialog(QWidget *parent = nullptr);
     ~AccessDialog();
-    void enableLoginBtn();
     void showLoader(bool show);
     void showLogin();
     void showSignup();

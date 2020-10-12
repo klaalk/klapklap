@@ -1,7 +1,5 @@
 #include "accessdialog.h"
 #include "ui_accessdialog.h"
-#define test
-
 
 #include <QFile>
 #include <QSizePolicy>
@@ -55,20 +53,12 @@ AccessDialog::AccessDialog(QWidget *parent) :
 
 
     ui_->signup_widget->hide();
-
-#ifdef test
-    ui_->login_btn->setEnabled(true);
-#endif
 }
 
 AccessDialog::~AccessDialog(){
     delete ui_;
     delete gif_;
     delete logo_;
-}
-
-void AccessDialog::enableLoginBtn() {
-    ui_->login_btn->setEnabled(true);
 }
 
 void AccessDialog::showLoader(bool show) {
@@ -233,11 +223,7 @@ bool AccessDialog::checkLoginForm() {
     bool isValidPassword = regexMatch(password, PASSWORD_REGEX, showHintPassword, ui_->login_hint_label_2, "*inserisci una password di minimo 8 caratteri e almeno 1 lettera maiuscola e 1 numero");
     if (!isValidPassword) return false;
 
-#ifdef test
-    return true;
-#else
-    return isValidEmail && isValidPassword;
-#endif
+    return isValidUsername && isValidPassword;
 }
 
 bool AccessDialog::checkSingupForm() {
@@ -247,19 +233,19 @@ bool AccessDialog::checkSingupForm() {
     QString surname = ui_->signup_surname_input->text();
     QString username = ui_->signup_username_input->text();
 
-    bool isValidName = regexMatch(name, NAME_REGEX, showHintName, ui_->signup_hint_label, "*il nome può contenere solo caratteri alfabetici");
+    bool isValidName = regexMatch(name, NAME_REGEX, showHintName, ui_->signup_hint_label, "*name must contain only alphabetic characters");
     if (!isValidName) return false;
 
-    bool isValidSurname = regexMatch(surname, SURNAME_REGEX, showHintSurname, ui_->signup_hint_label, "*il cognome può contenere solo caratteri alfabetici");
+    bool isValidSurname = regexMatch(surname, SURNAME_REGEX, showHintSurname, ui_->signup_hint_label, "*surname must contain only alphabetic characters");
     if (!isValidSurname) return false;
 
-    bool isValidEmail = regexMatch(email, EMAIL_REGEX, showHintEmail, ui_->signup_hint_label, "*inserisci un indirizzo email valido");
+    bool isValidEmail = regexMatch(email, EMAIL_REGEX, showHintEmail, ui_->signup_hint_label, "*insert a valid email");
     if (!isValidEmail) return false;
 
-    bool isValidUsername = regexMatch(username, USERNAME_REGEX, showHintUsername, ui_->signup_hint_label, "*inserisci un username valido");
+    bool isValidUsername = regexMatch(username, USERNAME_REGEX, showHintUsername, ui_->signup_hint_label, "*insert a valid username");
     if (!isValidUsername) return false;
 
-    bool isValidPassword = regexMatch(password, PASSWORD_REGEX, showHintPassword, ui_->signup_hint_label, "*inserisci una password di minimo 8 caratteri e almeno 1 lettera maiuscola e 1 numero");
+    bool isValidPassword = regexMatch(password, PASSWORD_REGEX, showHintPassword, ui_->signup_hint_label, "*insert password with minimum eight characters, at least one letter and one number");
     if (!isValidPassword) return false;
 
     return isValidEmail && isValidPassword && isValidName && isValidSurname && isValidUsername;

@@ -6,6 +6,8 @@
 #include <QtDebug>
 
 #include "../../../../libs/src/constants/kk_constants.h"
+#include "../../../../libs/src/classes/logger/kk_logger.h"
+
 
 class KKTextEdit : public QTextEdit
 {
@@ -37,8 +39,10 @@ public slots:
     void textCopy();
     void textPaste();
     void textCut();
+
 private:
-    void sendDiffText();
+    void calculateDiffText();
+    void sendDiffText(QString operation, QString text, int start, int end);
     int lastPos = -1;
     int start = -1;
     int end = -1;

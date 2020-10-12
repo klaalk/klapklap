@@ -66,12 +66,12 @@ int KKDataBase::signupUser(QString username, QString password, QString email, QS
                 db.close();
                 resCode = DB_SIGNUP_SUCCESS;
             } catch (QException &e) {
-                QString _str(e.what());
-                qDebug() << "Errore inserimento user: " << _str;
+                QString errorMsg(e.what());
+                logger(QString("Errore inserimento user: %1").arg(errorMsg));
                 db.close();
-                if (_str.contains("EMAIL"))
+                if (errorMsg.contains("EMAIL"))
                     resCode = DB_ERR_INSERT_EMAIL;
-                else if (_str.contains("USERNAME"))
+                else if (errorMsg.contains("USERNAME"))
                     resCode = DB_ERR_INSERT_USERNAME;
             }
         }
@@ -141,8 +141,8 @@ int KKDataBase::updateUser(QString username, QString name, QString surname, QStr
             db.close();
             resCode = DB_UPDATE_USER_SUCCESS;
         } catch (QException &e) {
-            QString _str(e.what());
-            qDebug() << "Errore aggiornamento user: " << _str;
+            QString errorMsg(e.what());
+            logger(QString("Errore aggiornamento user: %1").arg(errorMsg));
             db.close();
         }
     }
@@ -168,14 +168,14 @@ int KKDataBase::addFile(QString filename, QString hashname, QString username)
             resCode = DB_INSERT_FILE_SUCCESS;
         } catch (QException &e) {
             db.close();
-            qDebug() << e.what();
+            logger(QString("Errore inserimento file >%1< con hash >%2< per l'utente >%3<\nErrore: %4").arg(filename, hashname, username, e.what()));
         }
     }
 
     return resCode;
 }
 
-int KKDataBase::addShareFile(QString filename, QString username) {
+int KKDataBase::addShareFile(QString hashname, QString username) {
     int resCode = DB_INSERT_FILE_FAILED;
 
     if(!db.open()) {
@@ -185,13 +185,13 @@ int KKDataBase::addShareFile(QString filename, QString username) {
             QSqlQuery query(db);
             query.prepare(INSERT_SHAREFILE_QRY);
             query.addBindValue(username);
-            query.addBindValue(filename);
+            query.addBindValue(hashname);
             query.exec();
             db.close();
             resCode = DB_INSERT_FILE_SUCCESS;
         } catch (QException &e) {
             db.close();
-            qDebug() << e.what();
+            logger(QString("Errore inserimento share file con hash >%1< per l'utente >%2<\nErrore: %3").arg(hashname, username, e.what()));
         }
     }
 
@@ -348,5 +348,10 @@ int KKDataBase::existShareFileByUsername(QString filename, QString username)
         }
     }
     return resCode;
+}
+
+void KKDataBase::logger(QString message)
+{
+    KKLogger::log(message, "DATABASE");
 }
 

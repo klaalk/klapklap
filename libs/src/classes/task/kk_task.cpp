@@ -17,9 +17,7 @@ void KKTask::run()
 {
     // time consumer
     qDebug() << "Task started";
-
     function();
-
     qDebug() << "Task completed";
 
 }

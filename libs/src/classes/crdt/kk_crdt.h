@@ -27,6 +27,8 @@
 #include <QMutex>
 #include <QWaitCondition>
 
+#include "../logger/kk_logger.h"
+
 #include "char/kk_char.h"
 #include "pos/kk_pos.h"
 #include "identifier/kk_identifier.h"
@@ -116,6 +118,8 @@ private:
     vector<KKIdentifierPtr> slice(vector<KKIdentifierPtr> const &v,int i);
     /// Creo un nuovo Char da quello passato per parametro
     KKCharPtr copyChar(KKChar* source);
+
+    void logger(QString message);
 
     QString siteId;
     KKStrategy strategy;
