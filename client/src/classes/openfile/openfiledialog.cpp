@@ -115,12 +115,16 @@ void OpenFileDialog::setAvatar(const QString &avatar)
         painter.setClipPath(path);
 
         painter.fillRect(rounded.rect(), Qt::black);
+        painter.setRenderHint(QPainter::Antialiasing);
 
         int x = qAbs(orig.width() - size) / 2;
         int y = qAbs(orig.height() - size) / 2;
         painter.drawPixmap(x, y, orig.width(), orig.height(), orig);
 
-        ui->changeImageButton->setIcon(QIcon(rounded));
+        rounded.setDevicePixelRatio(10);
+
+
+        ui->changeImageButton->setIcon(QIcon(rounded.scaled(1110,800,Qt::KeepAspectRatio,Qt::SmoothTransformation)));
         ui->changeImageButton->setWhatsThis(avatar);
         ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
 

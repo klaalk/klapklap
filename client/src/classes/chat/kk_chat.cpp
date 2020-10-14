@@ -189,11 +189,12 @@ QPixmap KKChat::createAvatarIcon(const QString &avatar, const QString &state){
     QPainterPath path;
     path.addEllipse(rounded.rect());
     QPainter painter(&rounded);
+    painter.setRenderHint(QPainter::Antialiasing);
     painter.setClipPath(path);
     painter.drawPixmap(0, 0, pixmap.width(), pixmap.height(), pixmap);
+
     if(state==PARTICIPANT_OFFLINE)
         return rounded;
-
     QPixmap icon2(":/images/online.png");
     QPixmap pixmapG= icon2.scaled(QSize(DIM_ICN_GREEN,DIM_ICN_GREEN), Qt::KeepAspectRatio);
     QPixmap roundedG = QPixmap(DIM_ICN_GREEN, DIM_ICN_GREEN);
@@ -201,12 +202,14 @@ QPixmap KKChat::createAvatarIcon(const QString &avatar, const QString &state){
     QPainterPath pathG;
     pathG.addEllipse(roundedG.rect());
     QPainter painterG(&roundedG);
+    painterG.setRenderHint(QPainter::Antialiasing);
     painterG.setClipPath(pathG);
     painterG.drawPixmap(0, 0, pixmapG.width(), pixmapG.height(), pixmapG);
 
     QPixmap result= QPixmap(QSize(DIM_ICN,DIM_ICN));
     result.fill(Qt::transparent);
     QPainter painterRes(&result);
+    painterRes.setRenderHint(QPainter::Antialiasing);
     painterRes.drawPixmap(0,0,rounded);
     painterRes.drawPixmap(result.width()-roundedG.width(),result.height()-roundedG.width(),roundedG);
     return result;

@@ -28,7 +28,7 @@ AccessDialog::AccessDialog(QWidget *parent) :
     ui_->setupUi(this);
 
 
-
+    setFixedSize(size());
 #ifdef Q_OS_MACOS
     QSize layoutSize = logo_->size() / logo_->devicePixelRatio();
     logo_->setDevicePixelRatio(8.8);

@@ -30,16 +30,16 @@ int main(int argc, char* argv[])
 
     QApplication::setWindowIcon(QIcon(":/klapklap.icns"));
 
-    bool EnableHighDpiScaling = false;
+//    bool EnableHighDpiScaling = false;
 
-        {
+//        {
 
-            if ( app.screens().at(0)->geometry().width() > 1090)
-                EnableHighDpiScaling = true;
-        }
+//            if ( app.screens().at(0)->geometry().width() > 1090)
+//                EnableHighDpiScaling = true;
+//        }
 
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-    QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps );
+//    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+//    QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps );
 
     Q_UNUSED(client)
     return QApplication::exec();

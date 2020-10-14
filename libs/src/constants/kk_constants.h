@@ -168,9 +168,9 @@
 #define MODAL_CRDT_ERROR "Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione"
 
 #ifdef Q_OS_MACOS
-    #define DIM_ICN 25
+    #define DIM_ICN 36
     #define DIM_ICN_TXT 12
-    #define DIM_ICN_GREEN 8
+    #define DIM_ICN_GREEN 12
 #else
     #define DIM_ICN 32
     #define DIM_ICN_TXT 10
