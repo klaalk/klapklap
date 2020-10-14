@@ -69,7 +69,7 @@ public:
 
     void moveLabels(QRect qRect) {
         earpiece->move(qRect.x()-static_cast<int>(0.5*fontSize), qRect.y()-static_cast<int>(0.35*fontSize));
-        name->move(qRect.x()-static_cast<int>(0.1*fontSize), qRect.y()-name->font().pointSize()*2);
+        name->move(qRect.x()-static_cast<int>(0.1*fontSize), qRect.y()-QFontMetrics(name->font()).height());
     }
     int getGlobalPositon() {
         return this->globalPositon;
