@@ -12,7 +12,8 @@
 int main(int argc, char* argv[])
 {
     Q_INIT_RESOURCE(client);
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+    QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps );
     QApplication app(argc, argv);
 
     // Apply the loaded stylesheet
@@ -24,22 +25,9 @@ int main(int argc, char* argv[])
     KKClient client(QUrl(QStringLiteral("wss://localhost:3002")));
 
     // Public Server
-     //KKClient client(QUrl(QStringLiteral("wss://93.56.104.204:3002")));
-
-
+    //KKClient client(QUrl(QStringLiteral("wss://93.56.104.204:3002")));
 
     QApplication::setWindowIcon(QIcon(":/klapklap.icns"));
-
-//    bool EnableHighDpiScaling = false;
-
-//        {
-
-//            if ( app.screens().at(0)->geometry().width() > 1090)
-//                EnableHighDpiScaling = true;
-//        }
-
-//    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-//    QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps );
 
     Q_UNUSED(client)
     return QApplication::exec();
