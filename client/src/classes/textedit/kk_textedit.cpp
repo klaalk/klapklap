@@ -271,11 +271,12 @@ void KKTextEdit::calculateDiffText()
 
 void KKTextEdit::sendDiffText(QString operation, QString text, int start, int end)
 {
-    if (text.size() > 50) {
-        text.truncate(50);
-        text.append("[...]");
+    QString printText = text;
+    if (printText.size() > 50) {
+        printText.truncate(50);
+        printText.append("[...]");
     }
-    KKLogger::log(QString("[sendDiffText] - %1 >%2< from >%3< to >%4<").arg(operation, text, QString::number(start), QString::number(end)), "TEXTEDIT");
+    KKLogger::log(QString("[sendDiffText] - %1 >%2< from >%3< to >%4<").arg(operation, printText, QString::number(start), QString::number(end)), "TEXTEDIT");
     emit textChangedEvent(operation, text, start, end);
 }
 
