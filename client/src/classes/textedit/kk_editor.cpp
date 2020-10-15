@@ -1065,7 +1065,9 @@ void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& siteId
 
     // Impost le labels.
     remoteCurs->setLabels(qLbl, qLbl2);
-    remoteCurs->setLabelsStyle(color.color().toRgb(), fontSize);
+    QColor tmp = color.color();
+    tmp.setAlpha(250);
+    remoteCurs->setLabelsStyle(tmp, fontSize);
 }
 
 QBrush KKEditor::selectRandomColor(){
