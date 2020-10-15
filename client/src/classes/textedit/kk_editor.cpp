@@ -1038,20 +1038,11 @@ void KKEditor::updateLabels() {
         }
         c->setLabelsSize(fontMax);
         QRect rect;
-        qDebug()<<textEdit->cursorRect(editorCurs).bottom()<<textEdit->cursorRect(editorCurs).y()<<textEdit->cursorRect(editorCurs).top()<<textEdit->cursorRect(editorCurs).height()<<textEdit->cursorRect(editorCurs).size().height();
         rect.setX(textEdit->cursorRect(editorCurs).x());
         int yH = textEdit->cursorRect(editorCurs).y()+padding;
-        if(textEdit->cursorRect(editorCurs).size().height()>QFontMetrics(editorCurs.charFormat().font()).height() && fontDx!=-1 && fontSx==fontDx){
-//            if(padding<=textEdit->cursorRect(editorCurs).size().height()-QFontMetrics(editorCurs.charFormat().font()).height())
-//                yH=yH+textEdit->cursorRect(editorCurs).height()-QFontMetrics(editorCurs.charFormat().font()).height();
-//            else
-                yH=yH-padding+editorCurs.charFormat().font().pointSize()+textEdit->cursorRect(editorCurs).height()-QFontMetrics(editorCurs.charFormat().font()).height();
+        if(textEdit->cursorRect(editorCurs).height()>QFontMetrics(editorCurs.charFormat().font()).height() && ((fontDx!=-1 && fontSx==fontDx) || editorCurs.position()==textEdit->document()->toPlainText().length())){
+           yH=yH+textEdit->cursorRect(editorCurs).height()-QFontMetrics(editorCurs.charFormat().font()).height()-static_cast<int>(textEdit->cursorRect(editorCurs).height()/7.5);
         }
-        else qDebug()<<"SONO MINORE O UGUALE!";
-
-        qDebug()<<"yH="<<yH<<"TOP:"<<textEdit->cursorRect(editorCurs).top()<<"cursorRect Height:"<<textEdit->cursorRect(editorCurs).height();
-        qDebug()<<"fontHeight:"<<QFontMetrics(editorCurs.charFormat().font()).height()<<"PointSize:"<<editorCurs.charFormat().font().pointSize()<<"Padding:"<<padding;
-
         rect.setY(yH);
         c->moveLabels(rect);
     }
