@@ -12,8 +12,8 @@
 int main(int argc, char* argv[])
 {
     Q_INIT_RESOURCE(client);
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-    QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps );
+//    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+//    QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps );
     QApplication app(argc, argv);
 
     // Apply the loaded stylesheet

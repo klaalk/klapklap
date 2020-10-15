@@ -40,7 +40,7 @@ void KKFile::join(KKParticipantPtr participant) {
     participants->insert(participant->id, participant);
 
     // Invio il crdt
-    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()), true);
+    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
 
     // Invio gli ultimi messaggi della chat (al massimo 100)
     QVector<KKPayload> chatMessages = getChatMessages();

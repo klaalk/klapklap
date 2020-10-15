@@ -323,7 +323,7 @@ void KKSession::connectToFile(QString filename)
     if (result == SUCCESS) {
         sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", file->getHash()});
         file->join(sharedFromThis());
-        file->produceMessages(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
+        file->produceMessages(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
     }
 
 }
