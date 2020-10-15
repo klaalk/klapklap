@@ -301,7 +301,7 @@ void KKSession::connectToFile(QString filename)
 
         if (file != FILE_SYSTEM_CREATE_ERROR) {
             // Inserisco il file nella mappa dei file attivi
-            file->initCrdtText();
+            file->initFile();
             file->setUsers(users);
             files->insert(file->getHash(), file);
         }
@@ -323,7 +323,7 @@ void KKSession::connectToFile(QString filename)
     if (result == SUCCESS) {
         sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", file->getHash()});
         file->join(sharedFromThis());
-        file->produceMessages(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
+        file->deliverMessages(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
     }
 
 }
@@ -331,8 +331,8 @@ void KKSession::connectToFile(QString filename)
 void KKSession::disconnectFromFile()
 {
     if(!file.isNull()) {
-        file->produceMessages(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
         file->leave(sharedFromThis());
+        file->deliverMessages(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
 
         if (file->getPartecipantsNumber() < 1) {
             files->remove(file->getHash());

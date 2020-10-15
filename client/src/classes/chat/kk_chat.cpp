@@ -75,6 +75,7 @@ void KKChat::addParticipant(const QString &username, const QString &nick, const 
 void KKChat::removeParticipant(const QString &username, const QString &nick, const QString &avatar)
 {
 
+
     setParticipantState(username, nick, avatar, PARTICIPANT_OFFLINE);
 
     QColor color = textEdit->textColor();
@@ -113,6 +114,8 @@ void KKChat::setParticipants(const QStringList participants)
         listWidget->setIconSize(QSize(DIM_ICN,DIM_ICN));
         listWidget->addItem(item);
     }
+
+    participants_label->setText(QString("Partecipanti (%1)").arg(QVariant(this->participants.values().length()).toString()));
 }
 
 void KKChat::showInformation()
@@ -164,8 +167,10 @@ void KKChat::setParticipantState(const QString &username, const QString &nick, c
         if (!nick.isEmpty())
             item->setText(nick);
 
+        participants.insert(username, state);
+
     }
-    participants_label->setText(QString("Partecipanti (%1)").arg(participants.values().length()));
+    participants_label->setText(QString("Partecipanti (%1)").arg(QVariant(participants.values().length()).toString()));
 }
 
 QListWidgetItem *KKChat::findParticipantItem(const QString &nick, const QString &siteId){

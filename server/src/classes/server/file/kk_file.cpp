@@ -36,9 +36,6 @@ KKFile::~KKFile() {
 
 void KKFile::join(KKParticipantPtr participant) {
     participantsMutex.lock();
-    // Lo inserisco tra i partecipanti del file
-    participants->insert(participant->id, participant);
-
     // Invio il crdt
     participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
 
@@ -50,8 +47,12 @@ void KKFile::join(KKParticipantPtr participant) {
         });
     }
 
+    // Lo inserisco tra i partecipanti del file
+    participants->insert(participant->id, participant);
+
     // Invio la lista dei partecipante con lo stato aggiornato
     participant->deliver(KKPayload(SET_PARTECIPANTS, SUCCESS, getParticipants()));
+
     participantsMutex.unlock();
 }
 
@@ -79,7 +80,7 @@ int KKFile::deliverMessages(KKPayload data, QString username) {
         result = changeCrdtText(data.getBodyList());
     }
 
-    if (type == CHAT || type == REMOVED_PARTECIPANT || type == ADDED_PARTECIPANT) {
+    if (type == CHAT) {
         chatMutex.lock();
         chatMessages->push_back(data);
 
@@ -105,6 +106,8 @@ void KKFile::consumeMessages()
         if (item.first.getRequestType() == CLOSE_FILE) {
             break;
         } else {
+            KKPayload data = item.first;
+            qDebug() << "Sto per mandare: " << data.encode();
             deliverMessages(item.first, item.second);
         }
     }
@@ -160,7 +163,7 @@ QStringList KKFile::getUsers()
     return users;
 }
 
-void KKFile::initCrdtText()
+void KKFile::initFile()
 {
     QStringList text;
     if(file->open(QFile::ReadOnly)) {
@@ -184,9 +187,10 @@ void KKFile::initCrdtText()
             crdtMutex.unlock();
         }
 
-        QThreadPool::globalInstance()->start(messagesTask);
         file.get()->close();
     }
+
+    QThreadPool::globalInstance()->start(messagesTask);
 }
 
 void KKFile::flushCrdtText()

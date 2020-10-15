@@ -204,9 +204,13 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
             startPos++;
         }
     }
+
     textEdit->document()->clearUndoRedoStacks();
     textEdit->setCursorPosition(editorCursorPos);
-    updateCursors(siteId, -1, 1);
+    for (KKCursor* c : cursors.values()) {
+        qDebug() << "SITE ID " << c->getSiteId() << " POS " << c->getGlobalPositon();
+    }
+//    updateCursors(siteId, -1, 1);
     updateLabels();
 }
 
@@ -362,7 +366,7 @@ void KKEditor::setCurrentFileName(const QString &fileName)
 
 void KKEditor::setParticipantAlias(QStringList participants)
 {
-    for(QString participant : participants) {
+    for (QString participant : participants) {
         QStringList params = participant.split(":");
         QString username = params.at(0);
         QString nick = params.at(1);

@@ -46,7 +46,7 @@ public:
     void setUsers(QStringList users);
     QStringList getUsers();
 
-    void initCrdtText();
+    void initFile();
     void flushCrdtText();
     int changeCrdtText(QStringList bodyList);
     QStringList getCrdtText();
