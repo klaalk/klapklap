@@ -51,7 +51,6 @@ public:
     int changeCrdtText(QStringList bodyList);
     QStringList getCrdtText();
 
-    QStringList getParticipants();
     int getPartecipantsNumber();
     bool partecipantExist(QString username);
 
@@ -59,8 +58,10 @@ public:
 public slots:
     void handleTimeout();
 
-private:
+private:    
     enum { MaxRecentMessages = 100 };
+
+    QStringList getParticipants();
 
     KKMapParticipantPtr participants;
     KKVectorPayloadPtr chatMessages;

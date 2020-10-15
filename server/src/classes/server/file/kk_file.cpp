@@ -36,8 +36,22 @@ KKFile::~KKFile() {
 
 void KKFile::join(KKParticipantPtr participant) {
     participantsMutex.lock();
-    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()), true);
+    // Lo inserisco tra i partecipanti del file
     participants->insert(participant->id, participant);
+
+    // Invio il crdt
+    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()), true);
+
+    // Invio gli ultimi messaggi della chat (al massimo 100)
+    QVector<KKPayload> chatMessages = getChatMessages();
+    if(chatMessages.length() > 0) {
+        std::for_each(chatMessages.begin(), chatMessages.end(), [&](KKPayload chatMessage){
+            participant->deliver(chatMessage, true);
+        });
+    }
+
+    // Invio la lista dei partecipante con lo stato aggiornato
+    participant->deliver(KKPayload(SET_PARTECIPANTS, SUCCESS, getParticipants()));
     participantsMutex.unlock();
 }
 
@@ -55,7 +69,7 @@ int KKFile::deliverMessages(KKPayload data, QString username) {
     if (!participants->isEmpty()) {
         std::for_each(participants->begin(), participants->end(),
                       [&](QSharedPointer<KKParticipant> participant){
-            if(participant->id != username) {
+            if (participant->id != username) {
                 participant->deliver(data);
             }
         });
@@ -245,20 +259,6 @@ QStringList KKFile::getCrdtText()
     return crdtText;
 }
 
-QStringList KKFile::getParticipants()
-{
-    // Rispondo con la list di tutti partecipanti al file (attivi o non attivi)
-    QStringList participants_;
-    participantsMutex.lock();
-    for(QString user : users) {
-        QString id = user.split(":").at(0);
-        QString state = participants->find(id) != participants->end() ? PARTICIPANT_ONLINE : PARTICIPANT_OFFLINE;
-        participants_.push_back(user + ":" + state);
-    }
-    participantsMutex.unlock();
-    return participants_;
-}
-
 int KKFile::getPartecipantsNumber() {
     participantsMutex.lock();
     long size = participants->size();
@@ -285,4 +285,16 @@ void KKFile::handleTimeout() {
     if (participants->size() > 0) {
         flushCrdtText();
     }
+}
+
+QStringList KKFile::getParticipants()
+{
+    // Rispondo con la list di tutti partecipanti al file (attivi o non attivi)
+    QStringList participants_;
+    for(QString user : users) {
+        QString id = user.split(":").at(0);
+        QString state = participants->find(id) != participants->end() ? PARTICIPANT_ONLINE : PARTICIPANT_OFFLINE;
+        participants_.push_back(user + ":" + state);
+    }
+    return participants_;
 }

@@ -207,12 +207,12 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         auto search = files->find(params.at(0));
 
         if (search != files->end()) {
-            if(files->value(params.at(0))->partecipantExist(user->getUsername())){
+            if (files->value(params.at(0))->partecipantExist(user->getUsername())) {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: stai già partecipando al file"});
                 return;
             }
 
-            if(files->value(params.at(0))->getPartecipantsNumber()==25){
+            if (files->value(params.at(0))->getPartecipantsNumber()>=25) {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: numero massimo di partecipanti attivi raggiunto"});
                 return;
             }
@@ -314,25 +314,14 @@ void KKSession::connectToFile(QString filename)
             if (db->addShareFile(file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
                 file->addUser(QString("%1:%2:%3").arg(user->getUsername(), user->getAlias(), user->getImage()));
                 result = SUCCESS;
-            } else
-                sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore in fase di inserimento partecipante per il file richiesto"});
+            } else sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore in fase di inserimento partecipante per il file richiesto"});
 
-        } else
-            result = SUCCESS;
-    } else
-        sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nel filesystem durante l'apertura del nuovo file"});
+        } else result = SUCCESS;
+
+    } else sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nel filesystem durante l'apertura del nuovo file"});
 
     if (result == SUCCESS) {
         sendResponse(OPEN_FILE, SUCCESS, { "File aperto con successo, partecipazione confermata", file->getHash()});
-        sendResponse(SET_PARTECIPANTS, SUCCESS, file->getParticipants());
-        // Aggiorno con gli ultimi messaggi mandati.
-        QVector<KKPayload> chatMessages = file->getChatMessages();
-        if(chatMessages.length() > 0) {
-            std::for_each(chatMessages.begin(), chatMessages.end(), [&](KKPayload chatMessage){
-                deliver(chatMessage, true);
-            });
-        }
-
         file->join(sharedFromThis());
         file->produceMessages(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), "All");
     }
