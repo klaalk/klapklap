@@ -33,7 +33,7 @@ private:
         QString size=QString::number(1.15*fontSize);
         QString styleName;
         QString styleEarpiece;
-        styleEarpiece = "font: 75 "+size+"pt \"Calibri\";\n";
+        styleEarpiece = "font: "+size+"pt \"Calibri\";\n";
         styleName = "background-color: " + fontColor + ";\nfont: 10pt \"Calibri\";\nfont: bold;";
 
         //Aggiorno le label
@@ -70,14 +70,18 @@ public:
     void moveLabels(QRect qRect) {
 #ifndef Q_OS_MACOS
         earpiece->move(qRect.x()-static_cast<int>(0.5*fontSize), qRect.y()-static_cast<int>(0.35*fontSize));
-        name->move(qRect.x()-static_cast<int>(0.1*fontSize), qRect.y()-17);
+        name->move(qRect.x()-static_cast<int>(0.1*fontSize), qRect.y()-QFontMetrics(name->font()).height());
 #else
          earpiece->move(qRect.x()-static_cast<int>(0.5*fontSize), qRect.y()-static_cast<int>(0.2*fontSize));
-         name->move(qRect.x(),qRect.y()-10);
+         name->move(qRect.x(),earpiece->y()-QFontMetrics(name->font()).height());
 #endif
     }
     int getGlobalPositon() {
         return this->globalPositon;
+    }
+
+    QLabel* getLabelEarpiece(){
+        return this->earpiece;
     }
 
     void setGlobalPositon(int position) {

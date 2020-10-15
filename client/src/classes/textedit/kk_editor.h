@@ -140,7 +140,7 @@ private:
     QAction *actionPaste{};
 #endif
     int fontSize=0;
-    int maxFontSize=0;
+    int padding=15;
     QString siteId;
     QString fileName;
     QString link;

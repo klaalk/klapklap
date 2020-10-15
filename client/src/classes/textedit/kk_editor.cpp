@@ -115,6 +115,7 @@ KKEditor::KKEditor(QWidget *parent)
     textFont.setStyleHint(QFont::System);
     textFont.setPointSize(10);
     textEdit->setFont(textFont);
+    textEdit->setStyleSheet("QTextEdit{ padding-top: 15; }");
 
     fontChanged(textEdit->font());
     colorChanged(textEdit->textColor());
@@ -1003,22 +1004,30 @@ void KKEditor::updateCursors(QString siteId, int position, int value){
 
 void KKEditor::updateLabels() {
     QTextCursor editorCurs = textEdit->textCursor();
-    int fontMax;
+    int fontMax=-1;
     for(KKCursor* c : cursors.values()) {
+        int fontDx=-1;
         editorCurs.setPosition(c->getGlobalPositon());
         int fontSx=editorCurs.charFormat().font().pointSize();
         fontMax=fontSx;
         if(editorCurs.position()<textEdit->document()->toPlainText().length()){
             if(textEdit->document()->toPlainText().at(editorCurs.position())!="\xa"){
                 editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
-                int fontDx=editorCurs.charFormat().font().pointSize();
+                fontDx=editorCurs.charFormat().font().pointSize();
                 if(fontDx>fontSx)
                     fontMax=fontDx;
             }
             editorCurs.setPosition(c->getGlobalPositon());
         }
         c->setLabelsSize(fontMax);
-        c->moveLabels(textEdit->cursorRect(editorCurs));
+        QRect rect;
+        rect.setX(textEdit->cursorRect(editorCurs).x());
+        int yH = textEdit->cursorRect(editorCurs).y()+padding;
+        if(textEdit->cursorRect(editorCurs).height()>QFontMetrics(editorCurs.charFormat().font()).height() && ((fontDx!=-1 && fontSx==fontDx) || editorCurs.position()==textEdit->document()->toPlainText().length())){
+           yH=yH+textEdit->cursorRect(editorCurs).height()-QFontMetrics(editorCurs.charFormat().font()).height()-static_cast<int>(textEdit->cursorRect(editorCurs).height()/7.5);
+        }
+        rect.setY(yH);
+        c->moveLabels(rect);
     }
 }
 
@@ -1039,7 +1048,9 @@ void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& siteId
 
     // Impost le labels.
     remoteCurs->setLabels(qLbl, qLbl2);
-    remoteCurs->setLabelsStyle(color.color().toRgb(), fontSize);
+    QColor tmp = color.color();
+    tmp.setAlpha(250);
+    remoteCurs->setLabelsStyle(tmp, fontSize);
 }
 
 QBrush KKEditor::selectRandomColor(){
