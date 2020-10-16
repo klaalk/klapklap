@@ -171,7 +171,7 @@ void KKSession::handleSignupRequest(KKPayload request) {
 void KKSession::handleLogoutRequest(KKPayload request) {
     Q_UNUSED(request)
     disconnectFromFile();
-    sendResponse(LOGOUT, SUCCESS, {"Logut eseguito"});
+    sendResponse(LOGOUT, SUCCESS, {"Logout eseguito"});
 }
 
 void KKSession::handleUpdateUserRequest(KKPayload request)
@@ -202,10 +202,9 @@ void KKSession::handleGetFilesRequest() {
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
     QStringList params = request.getBodyList();
+    logger("[handleOpenFileRequest]");
     if (params.size() > 0) {
-
         auto search = files->find(params.at(0));
-
         if (search != files->end()) {
             if (files->value(params.at(0))->partecipantExist(user->getUsername())) {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: stai già partecipando al file"});
@@ -217,7 +216,6 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
                 return;
             }
         }
-
         disconnectFromFile();
         connectToFile(params.at(0));
     } else {
@@ -265,9 +263,9 @@ void KKSession::handleChatRequest(KKPayload request) {
 
 void KKSession::connectToFile(QString filename)
 {
+    logger(QString("[connectToFile] -  File >%1<").arg(filename));
     QStringList users;
     QString result = INTERNAL_SERVER_ERROR;
-
     auto search = files->find(filename);
     if (search != files->end()) {
         // Controllo se il file risulta tra quelli già aperti.
@@ -281,17 +279,19 @@ void KKSession::connectToFile(QString filename)
                 file = fileSystem->createFile(filename, user->getUsername());
 
                 if (file != FILE_SYSTEM_CREATE_ERROR) {
+
                     if (db->addFile(filename, file->getHash(), user->getUsername()) != DB_INSERT_FILE_SUCCESS) {
                         file = FILE_SYSTEM_CREATE_ERROR;
                         sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemento del nuovo file nel database"});
                         return;
                     }
+
                 } else {
                     sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile creare il file"});
                     return;
                 }
 
-            } else{
+            } else {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: nome file già esistente"});
                 return;
             }
@@ -330,7 +330,8 @@ void KKSession::connectToFile(QString filename)
 
 void KKSession::disconnectFromFile()
 {
-    if(!file.isNull()) {
+    if(file != nullptr && !file.isNull()) {
+        logger(QString("[disconnectFromFile] - File >%1<").arg(file->getHash()));
         file->leave(sharedFromThis());
         file->deliverMessages(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
 

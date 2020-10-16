@@ -168,7 +168,9 @@ void KKEditor::loading(bool loading)
         textEdit->hide();
         loaderGif->start();
         loader->show();
+        setEnabled(false);
     } else {
+        setEnabled(true);
         loader->hide();
         loaderGif->stop();
         textEdit->show();
@@ -207,10 +209,7 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
 
     textEdit->document()->clearUndoRedoStacks();
     textEdit->setCursorPosition(editorCursorPos);
-    for (KKCursor* c : cursors.values()) {
-        qDebug() << "SITE ID " << c->getSiteId() << " POS " << c->getGlobalPositon();
-    }
-//    updateCursors(siteId, -1, 1);
+    updateCursors(siteId, -1, 1);
     updateLabels();
 }
 
@@ -218,6 +217,7 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
     textEdit->lockCursor();
     textEdit->setCursorPosition(alignPos);
+
     QTextBlockFormat f;
     if (alignment == 1) {
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
@@ -237,7 +237,6 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
     }
 
     textEdit->unlockCursor();
-    updateLabels();
 }
 
 void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString font, QString color){
@@ -265,8 +264,6 @@ void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString fon
 }
 
 void KKEditor::applyRemoteTextChange(const QString& operation, int position, const QString& siteId, const QChar& text, const QString& font, const QString& color) {
-    int delta = 0;
-
     // Eseguo l'operazione.
     if(operation == CRDT_INSERT) {
         //Prelevo il cursore dell'editor e inserisco il testo
@@ -277,7 +274,6 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
 
         // Aggiorno formato
         applyRemoteFormatChange(position, siteId, font, color);
-        delta = 1;
 
     } else if(operation == CRDT_DELETE) {
         //Prelevo il cursore dell'editor e inserisco il testo
@@ -285,7 +281,6 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         QTextCursor editorCurs = textEdit->cursorIn(position);
         editorCurs.deleteChar();
         textEdit->unlockCursor();
-        delta = -1;
 
     } else if (operation == CRDT_FORMAT) {
         applyRemoteFormatChange(position, siteId, font, color);
@@ -301,10 +296,6 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
     }
 
     textEdit->document()->clearUndoRedoStacks();
-
-    if (delta != 0)
-        updateCursors(siteId, position, delta);
-    updateLabels();
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -425,9 +416,9 @@ void KKEditor::fileNew()
     clipboard->setText(link_);
 }
 
-void KKEditor::closeEvent(QCloseEvent *e)
+void KKEditor::closeEvent(QCloseEvent *event)
 {
-    e->ignore();
+    event->ignore();
     hide();
     emit editorClosed();
 }
@@ -667,6 +658,11 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
     }
 
     emit updateSiteIdsPositions(siteId);
+}
+
+bool KKEditor::isLoading()
+{
+    return loader->isVisible();
 }
 
 int KKEditor::getCurrentAlignment(int pos){
@@ -988,47 +984,54 @@ void KKEditor::colorText(const QString& siteId, QBrush color) {
     textEdit->document()->clearUndoRedoStacks();
 }
 
-void KKEditor::updateCursors(QString siteId, int position, int value){
-    // Aggiorno e muovo tutti i cursori sulla base dell'operazione.
+/// Aggiorno i cursori sulla base della posizione iniziale e numero di operazioni.
+void KKEditor::updateCursors(QString siteId, int startPosition, int operations){
+    int maxPosition = textEdit->toPlainText().length();
     for (KKCursor* c : cursors.values()) {
         if (c != nullptr) {
-            int nuovaPos = c->getGlobalPositon();
+            int cursorPosition = c->getGlobalPositon();
+            if (cursorPosition > startPosition) {
 
-            if (c->getGlobalPositon() > position && c->getSiteId() != siteId)
-                nuovaPos += value;
+                if (c->getSiteId() != siteId)
+                    cursorPosition += operations;
 
-            nuovaPos = nuovaPos >= 0 ? nuovaPos : 0;
-
-            if (c->getGlobalPositon() > position || siteId == c->getSiteId()) {
-                c->setGlobalPositon(nuovaPos);
+                cursorPosition = cursorPosition >= 0 ? cursorPosition : 0;
+                cursorPosition = cursorPosition <= maxPosition ? cursorPosition : maxPosition;
+                c->setGlobalPositon(cursorPosition);
+                KKLogger::log(QString("[updateCursors] - %1 in posizione %2").arg(c->getSiteId(), QString::number(cursorPosition)), "EDITOR");
             }
         }
     }
 }
 
+/// Muovo tutte le labels sulla base della posizione salvata
 void KKEditor::updateLabels() {
     QTextCursor editorCurs = textEdit->textCursor();
+    QString text = textEdit->toPlainText();
     int fontMax=-1;
+    int positionMax = text.length();
+
     for(KKCursor* c : cursors.values()) {
-        int fontDx=-1;
         editorCurs.setPosition(c->getGlobalPositon());
-        int fontSx=editorCurs.charFormat().font().pointSize();
-        fontMax=fontSx;
-        if(editorCurs.position()<textEdit->document()->toPlainText().length()){
-            if(textEdit->document()->toPlainText().at(editorCurs.position())!="\xa"){
+        int fontSx = editorCurs.charFormat().font().pointSize();
+        int fontDx = -1;
+
+        fontMax = fontSx;
+        if(editorCurs.position() < positionMax) {
+            if (text.at(editorCurs.position()) != "\xa"){
                 editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
-                fontDx=editorCurs.charFormat().font().pointSize();
-                if(fontDx>fontSx)
-                    fontMax=fontDx;
+                fontDx = editorCurs.charFormat().font().pointSize();
+                if(fontDx > fontSx)
+                    fontMax = fontDx;
             }
             editorCurs.setPosition(c->getGlobalPositon());
         }
         c->setLabelsSize(fontMax);
         QRect rect;
         rect.setX(textEdit->cursorRect(editorCurs).x());
-        int yH = textEdit->cursorRect(editorCurs).y()+padding;
-        if(textEdit->cursorRect(editorCurs).height()>QFontMetrics(editorCurs.charFormat().font()).height() && ((fontDx!=-1 && fontSx==fontDx) || editorCurs.position()==textEdit->document()->toPlainText().length())){
-           yH=yH+textEdit->cursorRect(editorCurs).height()-QFontMetrics(editorCurs.charFormat().font()).height()-static_cast<int>(textEdit->cursorRect(editorCurs).height()/7.5);
+        int yH = textEdit->cursorRect(editorCurs).y() + PADDING;
+        if(textEdit->cursorRect(editorCurs).height()>QFontMetrics(editorCurs.charFormat().font()).height() && ((fontDx!=-1 && fontSx==fontDx) || editorCurs.position()==textEdit->document()->toPlainText().length())) {
+           yH= yH + textEdit->cursorRect(editorCurs).height() - QFontMetrics(editorCurs.charFormat().font()).height() - static_cast<int>(textEdit->cursorRect(editorCurs).height() / 7.5);
         }
         rect.setY(yH);
         c->moveLabels(rect);

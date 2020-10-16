@@ -32,6 +32,8 @@ class QMenu;
 class QPrinter;
 class QLabel;
 
+#define PADDING 15
+
 class KKEditor : public QMainWindow
 {
     Q_OBJECT
@@ -77,7 +79,7 @@ public:
 
     bool clickedOne(const QString& siteId);
     bool clickedAny();
-
+    bool isLoading();
 public slots:
     void fileNew();
 
@@ -106,6 +108,7 @@ private slots:
     void onClipboardDataChanged();
     void onFormatChanged(const QTextCharFormat &format);
     void onTextChange(QString operation, QString diff, int start, int end);
+
 private:
     void resetState();
     void setupFileActions();
@@ -139,8 +142,7 @@ private:
     QAction *actionCopy{};
     QAction *actionPaste{};
 #endif
-    int fontSize=0;
-    int padding=15;
+    int fontSize = 0;
     QString siteId;
     QString fileName;
     QString link;
@@ -154,7 +156,6 @@ private:
     QMap<QString, QString> participantsAlias;
     QMovie* loaderGif;
     QLabel* loader;
-
     KKChat* chatDialog;
     KKTextEdit *textEdit;
     QList<QBrush> primaryColors_={QColor(255,179,216,255),

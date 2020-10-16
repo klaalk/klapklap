@@ -25,9 +25,11 @@ class OpenFileDialog : public QDialog
 {
     Q_OBJECT
 signals:
-    void openFileRequest(QString link, QString fileName);
-    void updateAccountRequest(QString name, QString surname, QString alias, QString blobImage);
-    void logoutRequest();
+    void openFile(QString link, QString fileName);
+    void updateAccount(QString name, QString surname, QString alias, QString blobImage);
+    void logout();
+    void closed();
+
 public:
     explicit OpenFileDialog(QWidget *parent = nullptr);
     ~OpenFileDialog() override;

@@ -43,10 +43,10 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>34</x>
-      <y>110</y>
-      <width>280</width>
-      <height>270</height>
+      <x>86</x>
+      <y>198</y>
+      <width>191</width>
+      <height>191</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -743,6 +743,7 @@
           </property>
           <property name="font">
            <font>
+            <family>.AppleSystemUIFont</family>
             <pointsize>10</pointsize>
            </font>
           </property>
@@ -889,6 +890,8 @@
      </item>
     </layout>
    </widget>
+   <zorder>access_frame</zorder>
+   <zorder>gif_viewer</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

@@ -107,7 +107,6 @@ void KKFile::consumeMessages()
             break;
         } else {
             KKPayload data = item.first;
-            qDebug() << "Sto per mandare: " << data.encode();
             deliverMessages(item.first, item.second);
         }
     }
@@ -189,8 +188,8 @@ void KKFile::initFile()
 
         file.get()->close();
     }
-
     QThreadPool::globalInstance()->start(messagesTask);
+    KKLogger::log("File constructed", hash);
 }
 
 void KKFile::flushCrdtText()

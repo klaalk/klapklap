@@ -75,7 +75,8 @@ private slots:
     void onAlignmentChange(int alignment, int alignStart, int alignEnd);
     void onNotifyAlignment(int alignStart, int alignEnd);
     void onSaveCrdtToFile();
-    void onOpenFileDialog();
+    void onOpenFileDialogOpened();
+    void onOpenFileDialogClosed();
     void onSiteIdClicked(const QString& siteId);
     void onUpdateSiteIdsPositions(const QString& siteId);
     void logger(QString message);

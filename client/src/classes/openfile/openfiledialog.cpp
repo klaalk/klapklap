@@ -46,8 +46,9 @@ OpenFileDialog::~OpenFileDialog()
 
 void OpenFileDialog::closeEvent(QCloseEvent *e)
 {
-    Q_UNUSED(e)
+    e->ignore();
     clear();
+    emit closed();
 }
 
 void OpenFileDialog::initializeFilesTableView() {
@@ -217,17 +218,17 @@ void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 void OpenFileDialog::on_openFileButton_clicked()
 {
     if (pastedLink != nullptr && !pastedLink.isEmpty()) {
-        emit openFileRequest(pastedLink, pastedFilename);
+        emit openFile(pastedLink, pastedFilename);
     } else {
         selectedLink = (selectedLink != nullptr && !selectedLink.isEmpty()) ? selectedLink
                   : files.value(selectedFilename);
 
         if (selectedLink != nullptr && !selectedLink.isEmpty()) {
-            emit openFileRequest(selectedLink, selectedFilename);
+            emit openFile(selectedLink, selectedFilename);
         } else {
             QString newFileName = ui->createFileNameLineEdit->text();
              if (newFileName != "" && newFileName != nullptr) {
-                emit openFileRequest(newFileName, newFileName);
+                emit openFile(newFileName, newFileName);
             } else {
                  KKLogger::log("[on_openFileButton_clicked] Errore nell'apertura file: nome file vuoto!", username);
              }
@@ -296,12 +297,12 @@ void OpenFileDialog::on_saveChangesButton_clicked()
     surname = ui->surnameLineEdit->text();
     alias = ui->aliasLineEdit->text();
     avatar = ui->changeImageButton->whatsThis();
-    emit updateAccountRequest(name, surname, alias, avatar);
+    emit updateAccount(name, surname, alias, avatar);
 }
 
 void OpenFileDialog::on_LogoutButton_clicked()
 {
-    emit logoutRequest();
+    emit logout();
 }
 
 bool OpenFileDialog::checkEditForm() {

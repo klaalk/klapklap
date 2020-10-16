@@ -16,8 +16,5 @@ KKTask::KKTask(std::function<void()> f): function(f){}
 void KKTask::run()
 {
     // time consumer
-    qDebug() << "Task started";
     function();
-    qDebug() << "Task completed";
-
 }

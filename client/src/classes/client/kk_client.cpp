@@ -26,11 +26,12 @@ KKClient::KKClient(QUrl url, QObject *parent)
     // Gestisco le richieste di login o di registrazione o logout
     connect(&access, &AccessDialog::loginBtnClicked, this, &KKClient::sendLoginRequest);
     connect(&access, &AccessDialog::signupBtnClicked, this, &KKClient::sendSignupRequest);
-    connect(&openFile, &OpenFileDialog::logoutRequest, this, &KKClient::sendLogoutRequest);
 
     // Gestisco le richieste di apertura file
-    connect(&openFile, &OpenFileDialog::openFileRequest, this, &KKClient::sendOpenFileRequest);
-    connect(&openFile, &OpenFileDialog::updateAccountRequest, this, &KKClient::sendUpdateUserRequest);
+    connect(&openFile, &OpenFileDialog::openFile, this, &KKClient::sendOpenFileRequest);
+    connect(&openFile, &OpenFileDialog::updateAccount, this, &KKClient::sendUpdateUserRequest);
+    connect(&openFile, &OpenFileDialog::logout, this, &KKClient::sendLogoutRequest);
+    connect(&openFile, &OpenFileDialog::closed, this, &KKClient::onOpenFileDialogClosed);
 
     // Gestisco il timeout
     connect(&timer, &QTimer::timeout, this, &KKClient::handleTimeOutConnection);
@@ -51,6 +52,8 @@ void KKClient::initState() {
     socket.open(QUrl(url));
     openFile.hide();
     modal.hide();
+    if (editor != nullptr)
+        editor->hide();
     access.show();
     access.showLoader(true);
 }
@@ -76,7 +79,7 @@ void KKClient::initEditor()
     connect(editor, &KKEditor::notifyAlignment, this, &KKClient::onNotifyAlignment);
     connect(editor, &KKEditor::charFormatChange, this, &KKClient::onCharFormatChanged);
     connect(editor, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
-    connect(editor, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialog);
+    connect(editor, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialogOpened);
     connect(editor, &KKEditor::editorClosed, this, &KKClient::onEditorClosed);
     connect(editor, &KKEditor::printCrdt, this, &KKClient::printCrdt);
     editor->setChatDialog(chat);
@@ -333,14 +336,9 @@ void KKClient::handleGetFilesResponse(KKPayload res)
 }
 
 void KKClient::handleOpenFileResponse(KKPayload res) {
-    initEditor();
-    state= CONNECTED_AND_OPENED;
+    state = CONNECTED_AND_OPENED;
     fileValid = true;
-    openFile.hide();
     editor->setLink(res.getBodyList()[1]);
-    editor->loading(true);
-    editor->show();
-    chat->show();
 }
 
 void KKClient::handleLoadFileResponse(KKPayload res) {
@@ -366,21 +364,23 @@ void KKClient::handleQuitFileResponse()
 void KKClient::handleCrdtResponse(KKPayload response) {
     // Ottengo i campi della risposta
     QStringList body = response.getBodyList();
+
+    // Recupero le info generiche dell'operazione
     QString operation = body.takeFirst();
     QString remoteSiteId = body.takeFirst();
     int remoteCursorPos = QVariant(body.takeFirst()).toInt();
 
+    // Aggiorno il cursore dell'utente che ha eseguito l'operazione
     if (user->getUsername() != remoteSiteId)
         editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
 
     if (operation == CRDT_ALIGNM) {
-
+        // Caso in cui sia una operazione di allineamento
         while(!body.isEmpty()) {
-
+            // Recupero le info dell'allineamento
             int alignment = body.takeFirst().toInt();
             unsigned long startLine = body.takeFirst().toULong();
             unsigned long endLine = body.takeFirst().toULong();
-
             // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
             for(unsigned long i = startLine; i <= endLine; i++){
                 // Controlla che la riga esista
@@ -395,27 +395,55 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 
     } else {
         KKPosition crdtPosition(0, 0);
+        // Posizione corrente
         int currentPosition = -1;
+
+        // Memorizza la posizione iniziale in cui è stato modificato il testo
+        int startPosition = -1;
+
+        // Memorizza di quanti caratteri è cambiato il testo
+        int operationCounter = 0;
+
         while (!body.isEmpty()) {
             QString crdtChar = operation == CRDT_DELETE ? body.takeLast() : body.takeFirst();
             KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
 
-            if (operation == CRDT_FORMAT)
+            int deltaPosition = 0;
+            if (operation == CRDT_FORMAT) {
                 crdtPosition = crdt->remoteFormatChange(charPtr);
-
-            else if (operation == CRDT_INSERT)
+                deltaPosition = 1;
+            }
+            else if (operation == CRDT_INSERT) {
                 crdtPosition = crdt->remoteInsert(charPtr);
-
-            else if (operation == CRDT_DELETE)
+                operationCounter++;
+                deltaPosition = 1;
+            }
+            else if (operation == CRDT_DELETE) {
                 crdtPosition = crdt->remoteDelete(charPtr);
+                operationCounter--;
+                deltaPosition = -1;
+            }
 
-            currentPosition = crdt->calculateGlobalPosition(crdtPosition);
+            if (currentPosition == -1) {
+                currentPosition = crdt->calculateGlobalPosition(crdtPosition);
+                startPosition = currentPosition;
+            } else {
+                currentPosition += deltaPosition;
+            }
 
             editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
         }
+
+        logger(QString("[handleCrdtResponse] - >%1< start >%2< delta >%3<").arg(operation, QString::number(startPosition), QString::number(operationCounter)));
+
+        if (operationCounter != 0)
+            editor->updateCursors(remoteSiteId, startPosition, operationCounter);
+
     }
 
     editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
+    editor->updateLabels();
+
 }
 
 /// SENDING
@@ -462,10 +490,12 @@ void KKClient::sendSignupRequest(QString email, const QString& password, QString
 }
 
 void KKClient::sendLogoutRequest() {
-    bool sended = sendRequest(LOGOUT, NONE, PAYLOAD_EMPTY_BODY);
+    if (!timer.isActive())
+        timer.start(TIMEOUT_VALUE);
 
+    bool sended = sendRequest(LOGOUT, NONE, PAYLOAD_EMPTY_BODY);
     if (sended) {
-        state = CONNECTED_NOT_SIGNED;
+        state = CONNECTED_NOT_LOGGED;
     }
 }
 
@@ -476,6 +506,12 @@ void KKClient::sendOpenFileRequest(const QString& link_, const QString& filename
     filename = filename_;
     link = link_;
     fileValid = false;
+
+    initEditor();
+    openFile.hide();
+    editor->loading(true);
+    editor->show();
+    chat->show();
 
     if (state == CONNECTED_AND_OPENED) {
         chat->close();
@@ -569,12 +605,8 @@ void KKClient::handleModalActions(const QString &modalType, bool closed)
 {
     if (modalType == CONNECTION_TIMEOUT) {
         initState();
-
-    } else if (modalType == LOGIN_TIMEOUT) {
-        initState();
-
-    } else if (modalType == OPENFILE_TIMEOUT) {
-        initState();
+        if(closed)
+            QApplication::quit();
 
     } else  if (modalType == LOGIN_ERROR) {
         modal.hide();
@@ -585,7 +617,7 @@ void KKClient::handleModalActions(const QString &modalType, bool closed)
 
     } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR || modalType == INPUT_ERROR) {
         modal.hide();
-        editor->close();
+        sendRequest(QUIT_FILE, NONE, {});
 
     } else if (modalType == CRDT_ILLEGAL) {
         modal.hide();
@@ -593,16 +625,16 @@ void KKClient::handleModalActions(const QString &modalType, bool closed)
 
     } else if (modalType == OPENFILE_ERROR) {
         modal.hide();
+        sendRequest(QUIT_FILE, NONE, {});
 
     } else if (modalType == GENERIC_SUCCESS) {
         modal.hide();
 
     } else if (modalType == GENERIC_ERROR) {
-        modal.hide();
+        initState();
 
     } else if (modalType == SERVER_ERROR) {
-        modal.hide();
-        access.showLoader(false);
+        initState();
     }
 }
 
@@ -639,10 +671,6 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
     }
     if (!changes.isEmpty() && correctInsert) {
         sendCrdtRequest(changes);
-//        KKTask *sendTask = new KKTask([=]() {
-//        });
-//        sendTask->setAutoDelete(true);
-//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Inserimento illegale per il CRDT");
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
@@ -672,12 +700,10 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
 
     if (!changes.isEmpty() && value == deletedValue) {
         sendCrdtRequest(changes);
-//        KKTask *sendTask = new KKTask([=]() {
-//        });
-//        sendTask->setAutoDelete(true);
-//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cancellazione illegale per il CRDT");
+        modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
+        modal.show();
     }
 }
 
@@ -709,10 +735,6 @@ void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QStri
 
     if (!changes.isEmpty()) {
         sendCrdtRequest(changes);
-//        KKTask *sendTask = new KKTask([=]() {
-//        });
-//        sendTask->setAutoDelete(true);
-//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cambio formato illegale per il CRDT");
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
@@ -739,10 +761,6 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
 
     if (!changes.isEmpty()) {
         sendCrdtRequest(changes);
-//        KKTask *sendTask = new KKTask([=]() {
-//        });
-//        sendTask->setAutoDelete(true);
-//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Cambio allineamento illegale per il CRDT");
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
@@ -791,10 +809,6 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
     }
     if (!changes.isEmpty()) {
         sendCrdtRequest(changes);
-//        KKTask *sendTask = new KKTask([=]() {
-//        });
-//        sendTask->setAutoDelete(true);
-//        QThreadPool::globalInstance()->start(sendTask);
     } else {
         logger("Modifica allineamento illegale per il CRDT");
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
@@ -809,8 +823,16 @@ void KKClient::onSaveCrdtToFile() {
     }
 }
 
-void KKClient::onOpenFileDialog() {
+void KKClient::onOpenFileDialogOpened() {
     sendGetFilesRequest();
+}
+
+void KKClient::onOpenFileDialogClosed()
+{
+    if (editor != nullptr && editor->isVisible())
+        openFile.hide();
+    else
+        sendLogoutRequest();
 }
 
 QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){

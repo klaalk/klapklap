@@ -106,9 +106,6 @@
 
 /// Timeout Modal Types
 #define CONNECTION_TIMEOUT "ConnectionTimeout"
-#define LOGIN_TIMEOUT "LoginTimeout"
-#define SIGNUP_TIMEOUT "SignupTimeout"
-#define OPENFILE_TIMEOUT "OpenfileTimeout"
 
 /// Success Modal Types
 #define GENERIC_SUCCESS "GenericSuccess"
