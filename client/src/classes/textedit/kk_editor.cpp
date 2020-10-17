@@ -69,8 +69,10 @@ KKEditor::KKEditor(QWidget *parent)
     setMouseTracking(true);
 
     textEdit = new KKTextEdit(this);
-    // FIXME: no così no
-    //    textEdit->setAcceptRichText(false);
+
+    textEdit->setAcceptDrops(false);
+    setAcceptDrops(false);
+
     textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
 
     loaderGif = new QMovie(":/gif/animation.gif");
