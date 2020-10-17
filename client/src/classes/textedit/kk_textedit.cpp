@@ -2,6 +2,10 @@
 #include "kk_textedit.h"
 
 #include <QScrollBar>
+#include <QApplication>
+#include <QClipboard>
+#include <QMimeData>
+#include <QTextCharFormat>
 
 KKTextEdit::KKTextEdit(QWidget *parent): QTextEdit(parent)
 {
@@ -14,6 +18,8 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
 {
     if (cursorCounter > 0)
         restoreCursorPosition();
+    qDebug() << e->text();
+
 
     if (e->text() == "\u001A") {
         textUndo();
@@ -24,6 +30,11 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     if (e->text() == "\u0019") {
         textRedo();
         QTextEdit::keyPressEvent(e);
+        return;
+    }
+
+    if (e->text() == "\u0016") {
+        textPaste();
         return;
     }
 
@@ -148,8 +159,16 @@ void KKTextEdit::textPaste()
     start = textCursor().position();
     lastText = toPlainText();
 
-    paste();
+    const QClipboard *clipboard = QApplication::clipboard();
+    const QMimeData *mimeData = clipboard->mimeData();
 
+    if (mimeData->hasHtml() && !mimeData->formats().contains("application/vnd.oasis.opendocument.text")) {
+        qDebug()<< "HTML TEXT: " << mimeData->text();
+        textCursor().insertText(mimeData->text());
+    } else if (mimeData->hasText()) {
+        paste();
+    }
+    qDebug()<< "FORMATS: " << mimeData->formats();
     if (textChanged)
         calculateDiffText();
 }

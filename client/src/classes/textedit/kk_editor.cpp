@@ -70,7 +70,8 @@ KKEditor::KKEditor(QWidget *parent)
 
     textEdit = new KKTextEdit(this);
     // FIXME: no così no
-//    textEdit->setAcceptRichText(false);
+    //    textEdit->setAcceptRichText(false);
+    textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
 
     loaderGif = new QMovie(":/gif/animation.gif");
     loaderGif->setScaledSize(QSize(100, 100));
@@ -83,7 +84,7 @@ KKEditor::KKEditor(QWidget *parent)
     connect(textEdit, &KKTextEdit::textChangedEvent, this, &KKEditor::onTextChange);
     connect(textEdit, &KKTextEdit::wheelEventTriggered, this, &KKEditor::updateLabels);
     connect(textEdit, &KKTextEdit::alignmentNotifyEvent, this, &KKEditor::notifyAlignment);
-
+    connect(textEdit, &QTextEdit::customContextMenuRequested, this, &KKEditor::showContextMenu);
     // Set layout
     QHBoxLayout *editorLayout = new QHBoxLayout;
     textEdit->setProperty("class", "TextEdit");
@@ -213,7 +214,7 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
     textEdit->setLocalCursorPosition(localPostion);
 
     for (auto entry : remotePositions.toStdMap()) {
-           applyRemoteCursorChange(entry.first, entry.second);
+        applyRemoteCursorChange(entry.first, entry.second);
     }
     updateLabels();
 }
@@ -644,6 +645,37 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
     }
 }
 
+void KKEditor::showContextMenu(const QPoint &pos)
+{
+    QMenu menu(tr("Context menu"), this);
+    qDebug() << "context";
+
+    const QIcon undoIcon = QIcon::fromTheme("edit-undo", QIcon(rsrcPath + "/undo.png"));
+    QAction* undoAction = menu.addAction(undoIcon, tr("&Undo"), textEdit, &KKTextEdit::textUndo);
+    undoAction->setEnabled(textEdit->document()->isUndoAvailable());
+
+    const QIcon redoIcon = QIcon::fromTheme("edit-redo", QIcon(rsrcPath + "/redo.png"));
+    QAction* redoAction = menu.addAction(redoIcon, tr("&Redo"), textEdit, &KKTextEdit::textRedo);
+    redoAction->setEnabled(textEdit->document()->isRedoAvailable());
+
+    menu.addSeparator();
+#ifndef QT_NO_CLIPBOARD
+    const QIcon copyIcon = QIcon::fromTheme("edit-copy", QIcon(rsrcPath + "/copy.png"));
+    QAction* copyAction = menu.addAction(copyIcon, tr("&Copia"), textEdit, &KKTextEdit::textCopy);
+    copyAction->setEnabled(textEdit->textCursor().hasSelection());
+
+    const QIcon cutIcon = QIcon::fromTheme("edit-cut", QIcon(rsrcPath + "/scissors.png"));
+    QAction* cutAction = menu.addAction(cutIcon, tr("&Taglia"), textEdit, &KKTextEdit::textCut);
+    cutAction->setEnabled(textEdit->textCursor().hasSelection());
+
+    const QIcon pasteIcon = QIcon::fromTheme("edit-paste", QIcon(rsrcPath + "/paste.png"));
+    QAction* pasteAction = menu.addAction(pasteIcon, tr("&Incolla"), textEdit, &KKTextEdit::textPaste);
+    if (const QMimeData *md = QApplication::clipboard()->mimeData())
+        pasteAction->setEnabled(md->hasText());
+#endif
+    menu.exec(mapToGlobal(pos));
+}
+
 bool KKEditor::isLoading()
 {
     return loader->isVisible();
@@ -1031,7 +1063,7 @@ void KKEditor::updateLabels() {
         rect.setX(textEdit->cursorRect(editorCurs).x());
         int yH = textEdit->cursorRect(editorCurs).y() + PADDING;
         if(textEdit->cursorRect(editorCurs).height()>QFontMetrics(editorCurs.charFormat().font()).height() && ((fontDx!=-1 && fontSx==fontDx) || editorCurs.position()==textEdit->document()->toPlainText().length())) {
-           yH= yH + textEdit->cursorRect(editorCurs).height() - QFontMetrics(editorCurs.charFormat().font()).height() - static_cast<int>(textEdit->cursorRect(editorCurs).height() / 7.5);
+            yH= yH + textEdit->cursorRect(editorCurs).height() - QFontMetrics(editorCurs.charFormat().font()).height() - static_cast<int>(textEdit->cursorRect(editorCurs).height() / 7.5);
         }
         rect.setY(yH);
         c->moveLabels(rect);

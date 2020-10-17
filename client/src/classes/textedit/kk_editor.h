@@ -107,6 +107,7 @@ private slots:
     void onClipboardDataChanged();
     void onFormatChanged(const QTextCharFormat &format);
     void onTextChange(QString operation, QString diff, int start, int end);
+    void showContextMenu(const QPoint &pos);
 
 private:
     void resetState();
