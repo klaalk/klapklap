@@ -69,6 +69,7 @@ KKEditor::KKEditor(QWidget *parent)
     setMouseTracking(true);
 
     textEdit = new KKTextEdit(this);
+    textEdit->setAcceptRichText(false);
 
     loaderGif = new QMovie(":/gif/animation.gif");
     loaderGif->setScaledSize(QSize(100, 100));
