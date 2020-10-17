@@ -62,23 +62,11 @@ void KKTextEdit::wheelEvent(QWheelEvent *e)
     QTextEdit::wheelEvent(e);
 }
 
-void KKTextEdit::lockCursor()
+QTextCursor KKTextEdit::getCursor(int position)
 {
-    if (cursorCounter == 0) {
-        localCursorPosition = textCursor().position();
-    }
-    cursorCounter++;
-}
-
-void KKTextEdit::unlockCursor()
-{
-    cursorCounter--;
-    if (cursorCounter == 0)
-        restoreCursorPosition();
-}
-
-QTextCursor KKTextEdit::cursorIn(int position)
-{
+    int maxPosition = toPlainText().length();
+    position = position >= 0 ? position : 0;
+    position = position <= maxPosition ? position : maxPosition;
     QTextCursor tmp = textCursor();
     tmp.setPosition(position);
     return tmp;
@@ -86,16 +74,19 @@ QTextCursor KKTextEdit::cursorIn(int position)
 
 void KKTextEdit::setCursorPosition(int position)
 {
-    QTextCursor tmp = textCursor();
-    tmp.setPosition(position);
+    QTextCursor tmp = getCursor(position);
     setTextCursor(tmp);
+}
+
+void KKTextEdit::setLocalCursorPosition(int position)
+{
+    localCursorPosition = position;
+    setCursorPosition(localCursorPosition);
 }
 
 void KKTextEdit::restoreCursorPosition()
 {
-    QTextCursor tmp = textCursor();
-    tmp.setPosition(localCursorPosition);
-    setTextCursor(tmp);
+    setCursorPosition(localCursorPosition);
 }
 
 int KKTextEdit::cursorPosition()

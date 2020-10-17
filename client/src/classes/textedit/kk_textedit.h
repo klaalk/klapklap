@@ -23,11 +23,9 @@ public:
     void mousePressEvent(QMouseEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
 
-    void lockCursor();
-    void unlockCursor();
-
-    QTextCursor cursorIn(int position);
+    QTextCursor getCursor(int position);
     void setCursorPosition(int position);
+    void setLocalCursorPosition(int position);
     void restoreCursorPosition();
     int cursorPosition();
     int getLocalCursorPosition();

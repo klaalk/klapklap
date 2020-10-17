@@ -79,7 +79,6 @@ private slots:
     void onOpenFileDialogOpened();
     void onOpenFileDialogClosed();
     void onSiteIdClicked(const QString& siteId);
-    void onUpdateSiteIdsPositions(const QString& siteId);
     void logger(QString message);
     void printCrdt();
 private:

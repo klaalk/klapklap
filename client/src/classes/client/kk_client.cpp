@@ -77,7 +77,6 @@ void KKClient::initEditor()
     connect(editor, &KKEditor::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor, &KKEditor::notifyAlignment, this, &KKClient::onNotifyAlignment);
     connect(editor, &KKEditor::charFormatChange, this, &KKClient::onCharFormatChanged);
-    connect(editor, &KKEditor::updateSiteIdsPositions, this, &KKClient::onUpdateSiteIdsPositions);
     connect(editor, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialogOpened);
     connect(editor, &KKEditor::editorClosed, this, &KKClient::onEditorClosed);
     connect(editor, &KKEditor::printCrdt, this, &KKClient::printCrdt);
@@ -369,10 +368,6 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     QString remoteSiteId = body.takeFirst();
     int remoteCursorPos = QVariant(body.takeFirst()).toInt();
 
-    // Aggiorno il cursore dell'utente che ha eseguito l'operazione
-    if (user->getUsername() != remoteSiteId)
-        editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
-
     if (operation == CRDT_ALIGNM) {
         // Caso in cui sia una operazione di allineamento
         while(!body.isEmpty()) {
@@ -425,24 +420,25 @@ void KKClient::handleCrdtResponse(KKPayload response) {
 
             if (currentPosition == -1) {
                 currentPosition = crdt->calculateGlobalPosition(crdtPosition);
-                startPosition = currentPosition;
             } else {
                 currentPosition += deltaPosition;
             }
 
+            if (startPosition > currentPosition || startPosition == -1)
+                startPosition = currentPosition;
+
             editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
         }
-
-        logger(QString("[handleCrdtResponse] - >%1< start >%2< delta >%3<").arg(operation, QString::number(startPosition), QString::number(operationCounter)));
 
         if (operationCounter != 0)
             editor->updateCursors(remoteSiteId, startPosition, operationCounter);
 
     }
+    // Aggiorno il cursore dell'utente che ha eseguito l'operazione
+    if (user->getUsername() != remoteSiteId)
+        editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
 
-    editor->applySiteIdsPositions(remoteSiteId, findPositions(remoteSiteId));
     editor->updateLabels();
-
 }
 
 /// SENDING
@@ -854,11 +850,7 @@ QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
 
 void KKClient::onSiteIdClicked(const QString& siteId)
 {
-    onUpdateSiteIdsPositions(siteId);
-    chat->setParticipantChatBackgroundColor(editor->applySiteIdClicked(siteId),siteId);
-}
-
-void KKClient::onUpdateSiteIdsPositions(const QString &siteId)
-{
     editor->applySiteIdsPositions(siteId, findPositions(siteId));
+    QBrush color = editor->applySiteIdClicked(siteId);
+    chat->setParticipantChatBackgroundColor(color, siteId);
 }

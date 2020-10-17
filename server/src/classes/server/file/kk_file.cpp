@@ -37,8 +37,8 @@ KKFile::~KKFile() {
 
 void KKFile::join(KKParticipantPtr participant) {
     participantsMutex.lock();
-    // Invio il crdt
-    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
+    // Lo inserisco tra i partecipanti del file
+    participants->insert(participant->id, participant);
 
     // Invio gli ultimi messaggi della chat (al massimo 100)
     QVector<KKPayload> chatMessages = getChatMessages();
@@ -48,11 +48,11 @@ void KKFile::join(KKParticipantPtr participant) {
         });
     }
 
-    // Lo inserisco tra i partecipanti del file
-    participants->insert(participant->id, participant);
-
     // Invio la lista dei partecipante con lo stato aggiornato
     participant->deliver(KKPayload(SET_PARTECIPANTS, SUCCESS, getParticipants()));
+
+    // Invio il crdt
+    participant->deliver(KKPayload(LOAD_FILE, SUCCESS, getCrdtText()));
 
     participantsMutex.unlock();
 }

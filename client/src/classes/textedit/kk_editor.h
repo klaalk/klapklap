@@ -44,7 +44,6 @@ signals:
     void saveCrdtTtoFile();
     void alignChange(int alignment, int alignStart, int alignEnd);
     void charFormatChange(unsigned long start, unsigned long end, QString font, QString color);
-    void updateSiteIdsPositions(QString siteId);
     void openFileDialog();
     void editorClosed();
     void notifyAlignment(int startAling,int endAlign);
@@ -120,7 +119,8 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
-    void colorText(const QString& siteId, QBrush color);
+    void setColorText(const QString& siteId, QBrush color);
+    void updateColorText(int start, int end, const QString& siteId);
 
     void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
 
