@@ -14,7 +14,7 @@
 AccessDialog::AccessDialog(QWidget *parent) :
     QDialog(parent),
     ui_(new Ui::AccessDialog),
-    gif_(new QMovie(":/gif/animation.gif")),
+    gif_(new QMovie(":/gif/animation300x300.gif")),
 
 
 
@@ -29,6 +29,7 @@ AccessDialog::AccessDialog(QWidget *parent) :
 
 
     setFixedSize(size());
+
 #ifdef Q_OS_MACOS
     QSize layoutSize = logo_->size() / logo_->devicePixelRatio();
     logo_->setDevicePixelRatio(8.8);
@@ -40,19 +41,23 @@ AccessDialog::AccessDialog(QWidget *parent) :
 #endif
 
 
-   QSize *size = new QSize(300,300);
+      //QImageReader image_reader(":/gif/animation300x300.gif");
+      //QMovie movie(":/gif/animation300x300.gif");
+      //QSize *size = new QSize(300,300);
+      //gif_->setScaledSize(*size);
+      //QVBoxLayout layout;
+       //movie.jumpToFrame(0);
+      //QSize movie_size = movie.currentImage().size();
+      //int movie_aspect = movie_size.width()/movie_size.height();
+      //QPixmap origPixmap(QPixmap::fromImage(image_reader.read()));
+     // ui_->gif_viewer->setPixmap(origPixmap);
+      //ui_->gif_viewer->resizeEvent(QEvent e);
 
 
-    gif_->setScaledSize(*size);
 
 
-
-
-    ui_->gif_viewer->setMovie(gif_);
-
-
-
-    ui_->signup_widget->hide();
+      ui_->gif_viewer->setMovie(gif_);
+      ui_->signup_widget->hide();
 }
 
 AccessDialog::~AccessDialog(){

@@ -185,24 +185,68 @@ QListWidgetItem *KKChat::findParticipantItem(const QString &nick, const QString 
     return nullptr;
 }
 
-QPixmap KKChat::createAvatarIcon(const QString &avatar, const QString &state){
-    QIcon icon1(":/images/avatars/"+avatar);
-    QPixmap pixmap= icon1.pixmap(QSize(DIM_ICN,DIM_ICN));
+//QPixmap KKChat::createAvatarIcon(const QString &avatar, const QString &state){
+//    QIcon icon1(":/images/avatars/"+avatar);
+//    QPixmap pixmap= icon1.pixmap(QSize(DIM_ICN,DIM_ICN));
 
-    QPixmap rounded = QPixmap(DIM_ICN,DIM_ICN);
+//    QPixmap rounded = QPixmap(DIM_ICN,DIM_ICN);
+//    rounded.fill(Qt::transparent);
+//    QPainterPath path;
+//    path.addEllipse(rounded.rect());
+//    QPainter painter(&rounded);
+//    painter.setRenderHint(QPainter::Antialiasing);
+//    painter.setClipPath(path);
+//    painter.drawPixmap(0, 0, pixmap.width(), pixmap.height(), pixmap);
+
+//    if(state==PARTICIPANT_OFFLINE)
+//        return rounded;
+//    QPixmap icon2(":/images/online.png");
+//    QPixmap pixmapG= icon2.scaled(QSize(DIM_ICN_GREEN,DIM_ICN_GREEN), Qt::KeepAspectRatio);
+//    QPixmap roundedG = QPixmap(DIM_ICN_GREEN, DIM_ICN_GREEN);
+//    roundedG.fill(Qt::transparent);
+//    QPainterPath pathG;
+//    pathG.addEllipse(roundedG.rect());
+//    QPainter painterG(&roundedG);
+//    painterG.setRenderHint(QPainter::Antialiasing);
+//    painterG.setClipPath(pathG);
+//    painterG.drawPixmap(0, 0, pixmapG.width(), pixmapG.height(), pixmapG);
+
+//    QPixmap result= QPixmap(QSize(DIM_ICN,DIM_ICN));
+//    result.fill(Qt::transparent);
+//    QPainter painterRes(&result);
+//    painterRes.setRenderHint(QPainter::Antialiasing);
+//    painterRes.drawPixmap(0,0,rounded);
+//    painterRes.drawPixmap(result.width()-roundedG.width(),result.height()-roundedG.width(),roundedG);
+//    return result;
+//}
+
+QPixmap KKChat::createAvatarIcon(const QString &avatar, const QString &state){
+    QPixmap icon1 (":/images/avatars/"+avatar);
+    QSize layoutSize= icon1.size()/icon1.devicePixelRatio();
+    icon1.setDevicePixelRatio(60);
+    icon1.scaled(layoutSize,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    //QPixmap pixmap= icon1->pixmap(QSize(DIM_ICN,DIM_ICN));
+
+    //QPixmap rounded = QPixmap(DIM_ICN,DIM_ICN);
+    QPixmap rounded = QPixmap(layoutSize);
     rounded.fill(Qt::transparent);
     QPainterPath path;
     path.addEllipse(rounded.rect());
     QPainter painter(&rounded);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setClipPath(path);
-    painter.drawPixmap(0, 0, pixmap.width(), pixmap.height(), pixmap);
+    painter.drawPixmap(0, 0, icon1.width(), icon1.height(), icon1);
 
     if(state==PARTICIPANT_OFFLINE)
-        return rounded;
+        return rounded.scaled(DIM_ICN, DIM_ICN,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+
     QPixmap icon2(":/images/online.png");
-    QPixmap pixmapG= icon2.scaled(QSize(DIM_ICN_GREEN,DIM_ICN_GREEN), Qt::KeepAspectRatio);
-    QPixmap roundedG = QPixmap(DIM_ICN_GREEN, DIM_ICN_GREEN);
+    QSize layoutSize2= icon2.size()/icon2.devicePixelRatio();
+    icon2.setDevicePixelRatio(50);
+    QPixmap pixmapG=icon2.scaled(layoutSize2,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    //QPixmap pixmapG= icon2.scaled(QSize(DIM_ICN_GREEN,DIM_ICN_GREEN), Qt::KeepAspectRatio);
+    //QPixmap roundedG = QPixmap(DIM_ICN_GREEN, DIM_ICN_GREEN);
+    QPixmap roundedG = QPixmap(layoutSize2);
     roundedG.fill(Qt::transparent);
     QPainterPath pathG;
     pathG.addEllipse(roundedG.rect());
@@ -210,14 +254,16 @@ QPixmap KKChat::createAvatarIcon(const QString &avatar, const QString &state){
     painterG.setRenderHint(QPainter::Antialiasing);
     painterG.setClipPath(pathG);
     painterG.drawPixmap(0, 0, pixmapG.width(), pixmapG.height(), pixmapG);
+    QPixmap roundedGScaled=roundedG.scaled(layoutSize/3,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 
-    QPixmap result= QPixmap(QSize(DIM_ICN,DIM_ICN));
+    //QPixmap result= QPixmap(QSize(DIM_ICN,DIM_ICN));
+    QPixmap result= QPixmap(layoutSize);
     result.fill(Qt::transparent);
     QPainter painterRes(&result);
     painterRes.setRenderHint(QPainter::Antialiasing);
     painterRes.drawPixmap(0,0,rounded);
-    painterRes.drawPixmap(result.width()-roundedG.width(),result.height()-roundedG.width(),roundedG);
-    return result;
+    painterRes.drawPixmap(result.width()-roundedGScaled.width(),result.height()-roundedGScaled.width(),roundedGScaled);
+    return result.scaled(DIM_ICN, DIM_ICN,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 }
 
 

@@ -122,5 +122,8 @@
         <file>styles/styles.qss</file>
         <file>styles/access-dialog.qss</file>
         <file>images/online.png</file>
+        <file>gif/animation300x300.gif</file>
+        <file>gif/animation512x512.gif</file>
+        <file>gif/animation2048x2048.gif</file>
     </qresource>
 </RCC>
