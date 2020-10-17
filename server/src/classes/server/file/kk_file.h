@@ -66,7 +66,6 @@ private:
     KKMapParticipantPtr participants;
     KKVectorPayloadPtr chatMessages;
     KKVectorPairPayloadPtr messages;
-    QSharedPointer<QVector<QStringList>> crdtActions;
 
     KKCrdtPtr crdt;
     QStringList users;

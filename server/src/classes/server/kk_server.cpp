@@ -14,6 +14,9 @@ QT_USE_NAMESPACE
 
 KKServer::KKServer(quint16 port, QObject *parent):
     QObject(parent), socket(nullptr) {
+    // Imposto il numero di thread per il server
+    QThreadPool::globalInstance()->setMaxThreadCount(50);
+
     socket = new QWebSocketServer(QStringLiteral("SSL Echo Server"), QWebSocketServer::SecureMode, this);
     possibleCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -69,8 +72,8 @@ void KKServer::onNewConnection() {
     QWebSocket *pSocket = socket->nextPendingConnection();
     QString sessionId = generateSessionId();
 
-    KKSessionPtr session = KKSessionPtr(new KKSession(db, filesys, files, sessionId, this));
-    session->setSocket(QSharedPointer<QWebSocket>(pSocket));
+    KKSessionPtr session = KKSessionPtr(new KKSession(db, filesys, files, sessionId, this), &QObject::deleteLater);
+    session->setSocket(QSharedPointer<QWebSocket>(pSocket, &QObject::deleteLater));
 
     connect(session.get(), &KKSession::disconnected, this, &KKServer::onSessionDisconnected);
     sessions->insert(sessionId, session);
@@ -83,8 +86,18 @@ void KKServer::onSslErrors(const QList<QSslError> &)
 
 void KKServer::onSessionDisconnected(QString sessionId)
 {
-    if (sessions->remove(sessionId)) {
-        KKLogger::log("Session closed succesfully", sessionId);
+    KKLogger::log("[onSessionDisconnected]", "SERVER");
+    if (sessions->contains(sessionId)) {
+        KKSessionPtr session = sessions->take(sessionId);
+
+        if (session != nullptr && session.get() != nullptr && !session.isNull()) {
+            session->deleteLater();
+            KKLogger::log("[onSessionDisconnected] - Session closed succesfully", sessionId);
+        } else {
+            KKLogger::log("[onSessionDisconnected] - Session is empty", sessionId);
+        }
+    } else {
+        KKLogger::log("[onSessionDisconnected] - Session not found", sessionId);
     }
 }
 

@@ -64,6 +64,7 @@ private slots:
     void sendGetFilesRequest();
     void sendOpenFileRequest(const QString& link, const QString& fileName);
     void sendLoadFileRequest(const QString& link);
+    void sendQuitFileRequest();
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
     void sendUpdateUserRequest(QString name, QString surname, QString alias, QString avatar);

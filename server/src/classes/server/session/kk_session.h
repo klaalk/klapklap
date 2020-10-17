@@ -48,14 +48,12 @@ public slots:
 private:
     void handleLoginRequest(KKPayload request);
     void handleSignupRequest(KKPayload request);
-    void handleLogoutRequest(KKPayload request);
     void handleUpdateUserRequest(KKPayload request);
 
     void handleGetFilesRequest();
     void handleOpenFileRequest(KKPayload request);
     void handleSaveFileRequest(KKPayload request);
     void handleLoadFileRequest(KKPayload request);
-    void handleQuitFileRequest();
     void handleCrdtRequest(KKPayload request);
     void handleChatRequest(KKPayload request);
 
@@ -71,6 +69,7 @@ private:
     KKUserPtr user;
     QString sessionId;
     int taskNumerator = 0;
+
     QMutex socketMutex;
     QMutex loggerMutex;
 };

@@ -13,18 +13,17 @@
 #define DEBUG
 
 KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr fileSystem, KKMapFilePtr files, QString sessionId, QObject*  parent)
-    : QObject(parent), db(db), files(files), fileSystem(fileSystem), user(KKUserPtr(new KKUser())), sessionId(sessionId) {
+    : QObject(parent), db(db), files(files), fileSystem(fileSystem), user(KKUserPtr(new KKUser(), &QObject::deleteLater)), sessionId(sessionId) {
 
-    QThreadPool::globalInstance()->setMaxThreadCount(5);
 }
 
 KKSession::~KKSession() {
     socketMutex.lock();
-    if (!socket.isNull())
+    if (socket != nullptr && socket.get() != nullptr && !socket.isNull())
         socket->deleteLater();
     socketMutex.unlock();
 
-    if (!user.isNull())
+    if (user != nullptr && user.get() != nullptr && !user.isNull())
         user->deleteLater();
 
     logger("Session deconstructed");
@@ -72,28 +71,29 @@ void KKSession::handleRequest(QString message) {
         req.decode();
         if (req.getRequestType() == LOGIN) {
             handleLoginRequest(req);
+        } else if(req.getRequestType() == LOGOUT) {
+            disconnectFromFile();
+            sendResponse(LOGOUT, SUCCESS, {"Logout eseguito"});
         } else if(req.getRequestType() == SIGNUP) {
             handleSignupRequest(req);
-        } else if(req.getRequestType() == LOGOUT){
-            handleLogoutRequest(req);
         } else if(req.getRequestType() == UPDATE_USER) {
             handleUpdateUserRequest(req);
         } else if(req.getRequestType() == GET_FILES) {
             handleGetFilesRequest();
-        } else if(req.getRequestType() == OPEN_FILE) {
-            handleOpenFileRequest(req);
         } else if(req.getRequestType() == SAVE_FILE) {
             handleSaveFileRequest(req);
         } else if(req.getRequestType() == LOAD_FILE) {
             handleLoadFileRequest(req);
         } else if (req.getRequestType() == QUIT_FILE) {
-            handleQuitFileRequest();
+            disconnectFromFile();
+            sendResponse(QUIT_FILE, SUCCESS, {"File chiuso"});
+        } else if(req.getRequestType() == OPEN_FILE) {
+            handleOpenFileRequest(req);
         } else if(req.getRequestType() == CRDT) {
             handleCrdtRequest(req);
         } else if(req.getRequestType() == CHAT) {
             handleChatRequest(req);
         }
-
     } else
         socketMutex.unlock();
 }
@@ -120,6 +120,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
     QStringList params = request.getBodyList();
 
     int result = DB_LOGIN_SUCCESS;
+
     result = db->loginUser(params[0], params[1], user);
 
     if(result == DB_LOGIN_SUCCESS) {
@@ -155,6 +156,7 @@ void KKSession::handleLoginRequest(KKPayload request) {
 
 void KKSession::handleSignupRequest(KKPayload request) {
     QStringList params = request.getBodyList();
+
     int result = db->signupUser(params[4],params[1],params[0],params[2], params[3], params[5]);
 
     if(result == DB_SIGNUP_SUCCESS) {
@@ -168,12 +170,6 @@ void KKSession::handleSignupRequest(KKPayload request) {
     }
 }
 
-void KKSession::handleLogoutRequest(KKPayload request) {
-    Q_UNUSED(request)
-    disconnectFromFile();
-    sendResponse(LOGOUT, SUCCESS, {"Logout eseguito"});
-}
-
 void KKSession::handleUpdateUserRequest(KKPayload request)
 {
     QStringList bodyReqeust = request.getBodyList();
@@ -183,13 +179,16 @@ void KKSession::handleUpdateUserRequest(KKPayload request)
     QString avatar = bodyReqeust.value(4);
 
     int result = db->updateUser(user->getUsername(), name, surname, alias, avatar);
+
     if (result == DB_UPDATE_USER_SUCCESS) {
+
         db->getUser(user->getUsername(), user);
-        this->sendResponse(UPDATE_USER, SUCCESS, {"Aggiornamento effettuato con successo"});
+
+        sendResponse(UPDATE_USER, SUCCESS, {"Aggiornamento effettuato con successo"});
 
     } else {
         logger("Errore durante l'aggiornamento user. Result code: " + QVariant(result).toString());
-        this->sendResponse(UPDATE_USER, INTERNAL_SERVER_ERROR, {"Non è stato possibile procedere con l'aggiornamento"});
+        sendResponse(UPDATE_USER, INTERNAL_SERVER_ERROR, {"Non è stato possibile procedere con l'aggiornamento"});
 
     }
 }
@@ -197,25 +196,29 @@ void KKSession::handleUpdateUserRequest(KKPayload request)
 void KKSession::handleGetFilesRequest() {
     QStringList* output = new QStringList();
     db->getUserFiles(user->getUsername(), output);
-    this->sendResponse(GET_FILES, SUCCESS, *output);
+    sendResponse(GET_FILES, SUCCESS, *output);
 }
 
 void KKSession::handleOpenFileRequest(KKPayload request) {
     QStringList params = request.getBodyList();
     logger("[handleOpenFileRequest]");
     if (params.size() > 0) {
+
         auto search = files->find(params.at(0));
         if (search != files->end()) {
             if (files->value(params.at(0))->partecipantExist(user->getUsername())) {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: stai già partecipando al file"});
+
                 return;
             }
 
             if (files->value(params.at(0))->getPartecipantsNumber()>=25) {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: numero massimo di partecipanti attivi raggiunto"});
+
                 return;
             }
         }
+
         disconnectFromFile();
         connectToFile(params.at(0));
     } else {
@@ -226,29 +229,15 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
 
 void KKSession::handleSaveFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
-
-    KKTask *mytask = new KKTask([&]() {
-        file->flushCrdtText();
-    });
-
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
+    file->flushCrdtText();
 }
 
 void KKSession::handleLoadFileRequest(KKPayload request) {
     QStringList _body = request.getBodyList();
 
-    KKTask *mytask = new KKTask([&]() {
-        sendResponse(LOAD_FILE, SUCCESS, file->getCrdtText());
-    });
-    mytask->setAutoDelete(true);
-    QThreadPool::globalInstance()->start(mytask);
-}
+    QStringList fileTxt = file->getCrdtText();
 
-void KKSession::handleQuitFileRequest()
-{
-    disconnectFromFile();
-    sendResponse(QUIT_FILE, SUCCESS, {});
+    sendResponse(LOAD_FILE, SUCCESS, fileTxt);
 }
 
 void KKSession::handleCrdtRequest(KKPayload request) {
@@ -266,6 +255,7 @@ void KKSession::connectToFile(QString filename)
     logger(QString("[connectToFile] -  File >%1<").arg(filename));
     QStringList users;
     QString result = INTERNAL_SERVER_ERROR;
+
     auto search = files->find(filename);
     if (search != files->end()) {
         // Controllo se il file risulta tra quelli già aperti.
@@ -283,16 +273,19 @@ void KKSession::connectToFile(QString filename)
                     if (db->addFile(filename, file->getHash(), user->getUsername()) != DB_INSERT_FILE_SUCCESS) {
                         file = FILE_SYSTEM_CREATE_ERROR;
                         sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemento del nuovo file nel database"});
+
                         return;
                     }
 
                 } else {
                     sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile creare il file"});
+
                     return;
                 }
 
             } else {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: nome file già esistente"});
+
                 return;
             }
 
@@ -325,18 +318,20 @@ void KKSession::connectToFile(QString filename)
         file->join(sharedFromThis());
         file->deliverMessages(KKPayload(ADDED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
     }
-
 }
 
 void KKSession::disconnectFromFile()
 {
-    if(file != nullptr && !file.isNull()) {
-        logger(QString("[disconnectFromFile] - File >%1<").arg(file->getHash()));
+    if (file != nullptr && file.get() != nullptr && !file.isNull()) {
+        logger(QString("[disconnectFromFile] - Remove perticipant >%1< from file >%2<").arg(user->getUsername(), file->getHash()));
         file->leave(sharedFromThis());
         file->deliverMessages(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
 
         if (file->getPartecipantsNumber() < 1) {
-            files->remove(file->getHash());
+            logger(QString("[disconnectFromFile] - Delete file >%1<").arg(file->getHash()));
+            KKFilePtr f = files->take(file->getHash());
+            f = nullptr;
+            file = nullptr;
         }
     }
 }

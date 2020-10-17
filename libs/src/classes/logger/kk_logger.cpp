@@ -14,20 +14,20 @@ void KKLogger::log(QString message, QString identifier)
     QString path = LOG_ROOT + QDateTime::currentDateTime().toString("dd.MM.yyyy") + "_log.txt";
 
     if (!QFile().exists(path)) {
-        if (!logFile.isNull()) {
+        if (logFile != nullptr && logFile.get() != nullptr && !logFile.isNull()) {
             logFile->deleteLater();
         }
         logFile = nullptr;
     }
 
     if (logFile == nullptr)
-        logFile = QSharedPointer<QFile>(new QFile (path));
+        logFile = QSharedPointer<QFile>(new QFile (path), &QObject::deleteLater);
 
     bool result = logFile->open(QIODevice::Append | QIODevice::Text);
     if (result) {
         QString printMessage = message;
-        if (printMessage.size() > 60) {
-            printMessage.truncate(50);
+        if (printMessage.size() > 70) {
+            printMessage.truncate(60);
             printMessage.append("[...]");
             printMessage.append(message.mid(message.length() - 10));
         }

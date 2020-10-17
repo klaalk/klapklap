@@ -8,8 +8,6 @@
 #include <QVariant>
 
 KKFile::KKFile(QObject *parent): QObject(parent) {
-    QThreadPool::globalInstance()->setMaxThreadCount(5);
-
     chatMessages = KKVectorPayloadPtr(new QVector<KKPayload>());
     messages = KKVectorPairPayloadPtr(new QVector<QPair<KKPayload, QString>>());
     participants = KKMapParticipantPtr(new QMap<QString, KKParticipantPtr>());
@@ -29,8 +27,11 @@ KKFile::KKFile(QObject *parent): QObject(parent) {
 KKFile::~KKFile() {
     timer->stop();
     produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");
-    QThreadPool::globalInstance()->waitForDone();
+    messagesTask->thread()->wait();
     flushCrdtText();
+    crdt = nullptr;
+    file = nullptr;
+    timer = nullptr;
     KKLogger::log("File deconstructed", hash);
 }
 

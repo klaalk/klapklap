@@ -37,12 +37,11 @@ KKFilePtr KKFileSystem::createFile(QString filename, QString username){
 }
 
 KKFilePtr KKFileSystem::openFile(QString hash, QString rootPath){
-    KKFilePtr file = QSharedPointer<KKFile>(new KKFile(this));
-    QSharedPointer<QFile> qfile = QSharedPointer<QFile>(new QFile (rootPath + hash));
+    KKFilePtr file = QSharedPointer<KKFile>(new KKFile(this), &QObject::deleteLater);
+    QSharedPointer<QFile> qfile = QSharedPointer<QFile>(new QFile (rootPath + hash), &QObject::deleteLater);
     file->setFile(qfile);
     file->setHash(hash);
     KKLogger::log(QString("File con hash >%1< aperto").arg(hash), "FILE SYSTEM");
-
     return  file;
 }
 

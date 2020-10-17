@@ -8,7 +8,6 @@
 
 KKClient::KKClient(QUrl url, QObject *parent)
     : QObject(parent), url(std::move(url)) {
-    QThreadPool::globalInstance()->setMaxThreadCount(5);
 
     // Gestisco l' apertura della connessione al socket
     connect(&socket, &QWebSocket::connected, this, &KKClient::handleOpenedConnection);
@@ -552,6 +551,10 @@ void KKClient::sendUpdateUserRequest(QString name, QString surname, QString alia
 
 void KKClient::onEditorClosed()
 {
+    sendQuitFileRequest();
+}
+
+void KKClient::sendQuitFileRequest() {
     bool result = sendRequest(QUIT_FILE, NONE, {});
     if (!result || !socket.isValid()) {
         modal.setModal(MODAL_QUIT_FILE_ERROR, BUTTON_CLOSE_ACTION, GENERIC_ERROR);
@@ -617,7 +620,7 @@ void KKClient::handleModalActions(const QString &modalType, bool closed)
 
     } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR || modalType == INPUT_ERROR) {
         modal.hide();
-        sendRequest(QUIT_FILE, NONE, {});
+        sendQuitFileRequest();
 
     } else if (modalType == CRDT_ILLEGAL) {
         modal.hide();
@@ -625,7 +628,7 @@ void KKClient::handleModalActions(const QString &modalType, bool closed)
 
     } else if (modalType == OPENFILE_ERROR) {
         modal.hide();
-        sendRequest(QUIT_FILE, NONE, {});
+        sendQuitFileRequest();
 
     } else if (modalType == GENERIC_SUCCESS) {
         modal.hide();
