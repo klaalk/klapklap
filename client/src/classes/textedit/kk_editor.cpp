@@ -64,7 +64,6 @@ KKEditor::KKEditor(QWidget *parent)
 #ifdef Q_OS_OSX
     setUnifiedTitleAndToolBarOnMac(true);
 #endif
-    //    setWindowState(Qt::WindowMaximized);
     setWindowTitle(QCoreApplication::applicationName());
     setMouseTracking(true);
 
@@ -985,8 +984,8 @@ void KKEditor::setColorText(const QString& siteId, QBrush color) {
 
         if (pos-prevPos > 1 || pos == last) {
             end = prevPos;
-            if (pos == last)
-                end=pos;
+            if (pos == last && pos-prevPos==1)
+                end = pos;
 
             cursor.setPosition(start, QTextCursor::MoveAnchor);
             cursor.setPosition(end+1, QTextCursor::KeepAnchor);
@@ -995,11 +994,20 @@ void KKEditor::setColorText(const QString& siteId, QBrush color) {
             fmt.setBackground(color);
             cursor.mergeCharFormat(fmt);
             start = pos;
+
+            if (pos == last && pos-prevPos>1){
+                cursor.setPosition(pos, QTextCursor::MoveAnchor);
+                cursor.setPosition(pos+1, QTextCursor::KeepAnchor);
+
+                QTextCharFormat fmt;
+                fmt.setBackground(color);
+                cursor.mergeCharFormat(fmt);
+            }
+
         }
         prevPos = pos;
     }
 
-    //  Sblocco il cursore dell'editor.
     textEdit->document()->clearUndoRedoStacks();
 }
 
@@ -1052,7 +1060,7 @@ void KKEditor::updateLocalCursor(int startPosition, int delta)
     }
 }
 
-/// Muovo tutte le labels sulla base della posizione salvata
+// Muovo tutte le labels sulla base della posizione salvata
 void KKEditor::updateLabels() {
     QTextCursor editorCurs = textEdit->textCursor();
     QString text = textEdit->toPlainText();

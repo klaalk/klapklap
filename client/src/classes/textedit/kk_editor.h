@@ -190,7 +190,6 @@ private:
     KKChat* chatDialog;
     KKTextEdit *textEdit;
     QList<QBrush> primaryColors_={QColor(255,179,216,255),
-                                    QColor(240,98,146,71),
                                     QColor(140,158,255,127),
                                     QColor(143,207,255,255),
                                     QColor(29,233,182,96),
@@ -198,12 +197,13 @@ private:
                                     QColor(245,124,0,140),
                                     QColor(255,106,116,214),
                                     QColor(172,255,154,255),
+                                    QColor(21,101,200,150),
                                     QColor(0,214,127,201)
     };
     QList<QBrush> secondaryColors_={QColor(244,67,54,127),
+                           QColor(240,98,146,71),
                            QColor(156,39,176,71),
                            QColor(94,53,177,96),
-                           QColor(21,101,192,89),
                            QColor(0,188,212,102),
                            QColor(0,150,136,107),
                            QColor(76,175,80,104),
