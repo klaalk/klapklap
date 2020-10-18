@@ -232,8 +232,10 @@ KKPosition KKCrdt::remoteFormatChange(const KKCharPtr& charPtr){
 bool KKCrdt::remoteAlignmentChange(unsigned long idx, int align)
 {
     if (idx < linesAlignment.size()) {
-        linesAlignment.at(idx) = align;
-        return true;
+        if (linesAlignment.at(idx) != align) {
+            linesAlignment.at(idx) = align;
+            return true;
+        }
     }
     else
         logger("[CRDT - remoteAlignmentChange] Index out of range");
@@ -284,32 +286,33 @@ list<KKCharPtr> KKCrdt::changeMultipleKKCharFormat(KKPosition start, KKPosition 
     return charsChanged;
 }
 
-void KKCrdt::calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col){
+bool KKCrdt::calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col){
     unsigned long tot = 0, succ = 0;
+    *line = 0;
+    *col = 0;
 
-    if(position <= 0){
-        *line=0;
-        *col=0;
-        return;
-    }
+    if (position <= 0)
+        return true;
 
     for(unsigned long i = startLine; i<text.size(); i++){
-
         succ+=text[i].size();
-        if(position<=succ){
+
+        if (position<=succ) {
 
             if(position==succ && std::next(text[i].begin(), static_cast<long>(text[i].size()-1))->get()->getValue()=='\n'){
                 *line=i+1;
-                *col=0;//per calcolare il carattere \n
+                *col=0; //per calcolare il carattere \n
             } else {
                 *col=position-tot;
                 *line=i;
             }
-            return;
+            return true;
         }
         tot+=text[i].size();
     }
+
     logger(QString("[calculateLineCol] Invalid line >%1< and col >%2<").arg(QVariant(static_cast<long long>(*line)).toString(), QVariant(static_cast<long long>(*col)).toString()));
+    return false;
 }
 
 int KKCrdt::calculateGlobalPosition(KKPosition position){

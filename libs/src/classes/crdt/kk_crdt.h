@@ -61,7 +61,7 @@ public:
     list<KKCharPtr> changeMultipleKKCharFormat(KKPosition start, KKPosition end,QString font_, QString color_);//cambia il formato di tutte le KKChar comprese tra le due posizioni e restituisce la lista delle KKChar cambiate
     KKCharPtr localFormatChange(KKPosition pos, QString font, QString color, QChar* value);
 
-    void calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col);
+    bool calculateLineCol(unsigned long position, unsigned long startLine, unsigned long *line, unsigned long *col);
     int calculateGlobalPosition(KKPosition pos);
     int getLineAlignment(unsigned long idx);
     bool checkLine(unsigned long lineIdx);

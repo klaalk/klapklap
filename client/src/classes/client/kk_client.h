@@ -105,7 +105,7 @@ private:
 
     QString state;
     QString filename;
-    QString link;
+    QString hashname;
     bool fileValid;
 
     QUrl url;

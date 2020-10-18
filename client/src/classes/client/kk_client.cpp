@@ -167,7 +167,6 @@ void KKClient::handleSuccessResponse(KKPayload response) {
 
     } else if(response.getRequestType() == CRDT) {
         handleCrdtResponse(response);
-
     } else if(response.getRequestType() == CHAT) {
         QStringList bodyList = response.getBodyList();
         chat->appendMessage(bodyList[0], bodyList[1]);
@@ -242,8 +241,8 @@ void KKClient::handleClientErrorResponse(KKPayload response) {
 
 void KKClient::handleServerErrorResponse(KKPayload res) {
     Q_UNUSED(res)
-    QString message, button, modalType;
 
+    QString message, button, modalType;
     if (res.getRequestType() == UPDATE_USER) {
         message = MODAL_UPDATE_USER;
         button = BUTTON_CLOSE_ACTION;
@@ -343,10 +342,11 @@ void KKClient::handleLoadFileResponse(KKPayload res) {
     QStringList bodyList = res.getBodyList();
     if (bodyList.isEmpty())
         return;
+    fileValid = true;
     crdt->decodeCrdt(bodyList);
     editor->load(crdt->getText(), crdt->getLinesAlignment());
-    editor->clearUndoRedoStack();
     editor->loading(false);
+    editor->clearUndoRedoStack();
     editor->updateLabels();
 }
 
@@ -362,26 +362,27 @@ void KKClient::handleQuitFileResponse()
 }
 
 void KKClient::handleCrdtResponse(KKPayload response) {
+    // Se il file non è valido non faccio nessuna modifica
+    if (!fileValid) return;
+
     // Ottengo i campi della risposta
     QStringList body = response.getBodyList();
-
     // Recupero le info generiche dell'operazione
     QString operation = body.takeFirst();
     QString remoteSiteId = body.takeFirst();
     int remoteCursorPos = QVariant(body.takeFirst()).toInt();
-
     if (operation == CRDT_ALIGNM) {
         handleCrdtAlignmentResponse(body);
     } else {
         handleCrdtTextResponse(remoteSiteId, operation, body);
     }
-
     // Aggiorno il cursore dell'utente che ha eseguito l'operazione
-    if (user->getUsername() != remoteSiteId)
+    if (user->getUsername() != remoteSiteId) {
         editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
-
+        // E pulisco lo stack delle operazioni
+        editor->clearUndoRedoStack();
+    }
     editor->updateLabels();
-    editor->clearUndoRedoStack();
 }
 
 void KKClient::handleCrdtAlignmentResponse(QStringList ranges)
@@ -399,8 +400,6 @@ void KKClient::handleCrdtAlignmentResponse(QStringList ranges)
             if (crdt->remoteAlignmentChange(i, alignment)) {
                 int position = crdt->calculateGlobalPosition(KKPosition(i, 0));
                 editor->applyRemoteAlignmentChange(alignment, position);
-            } else {
-                break;
             }
         }
     }
@@ -517,13 +516,10 @@ void KKClient::sendLogoutRequest() {
     }
 }
 
-void KKClient::sendOpenFileRequest(const QString& link_, const QString& filename_) {
-    if (!timer.isActive())
-        timer.start(TIMEOUT_VALUE);
-
-    filename = filename_;
-    link = link_;
+void KKClient::sendOpenFileRequest(const QString& hashname_, const QString& filename_) {
     fileValid = false;
+    filename = filename_;
+    hashname = hashname_;
 
     initEditor();
     openFile.hide();
@@ -536,7 +532,9 @@ void KKClient::sendOpenFileRequest(const QString& link_, const QString& filename
         editor->close();
     }
 
-    bool sended = sendRequest(OPEN_FILE, NONE, {link});
+    if (!timer.isActive())
+        timer.start(TIMEOUT_VALUE);
+    bool sended = sendRequest(OPEN_FILE, NONE, {hashname});
     if (sended) {
         state = CONNECTED_NOT_OPENFILE;
     }
@@ -615,7 +613,6 @@ void KKClient::printCrdt()
 /// MODAL ACTIONS
 
 void KKClient::handleModalButtonClick(const QString& btnText, const QString& modalType) {
-    Q_UNUSED(btnText)
     handleModalActions(modalType, btnText == BUTTON_CLOSE_ACTION);
 }
 
@@ -625,11 +622,9 @@ void KKClient::handleModalClosed(const QString& modalType) {
 
 void KKClient::handleModalActions(const QString &modalType, bool closed)
 {
+    Q_UNUSED(closed)
     if (modalType == CONNECTION_TIMEOUT) {
         initState();
-        if(closed)
-            QApplication::quit();
-
     } else  if (modalType == LOGIN_ERROR) {
         modal.hide();
         access.showLoader(false);
@@ -643,7 +638,7 @@ void KKClient::handleModalActions(const QString &modalType, bool closed)
 
     } else if (modalType == CRDT_ILLEGAL) {
         modal.hide();
-        sendLoadFileRequest(link);
+        sendLoadFileRequest(hashname);
 
     } else if (modalType == OPENFILE_ERROR) {
         modal.hide();
@@ -666,10 +661,10 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
     QStringList changes;
 
     unsigned long line, col;
-    crdt->calculateLineCol(start, 0, &line, &col);
-
+    bool success = crdt->calculateLineCol(start, 0, &line, &col);
     bool correctInsert = true;
-    if (crdt->checkPosition(line, col)) {
+
+    if (success && crdt->checkPosition(line, col)) {
         changes.push_back(CRDT_INSERT);
         changes.push_back(user->getUsername());
         changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
@@ -695,28 +690,32 @@ void KKClient::onInsertTextToCrdt(unsigned long start, QList<QChar> values, QStr
         sendCrdtRequest(changes);
     } else {
         logger("Inserimento illegale per il CRDT");
+        fileValid = false;
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
 }
 
 void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QString value) {
-    unsigned long startLine, endLine, startCol, endCol;
-    crdt->calculateLineCol(start, 0, &startLine, &startCol);
-    crdt->calculateLineCol(end, 0, &endLine, &endCol);
-    list<KKCharPtr> deletedChars = crdt->localDelete(KKPosition(startLine, startCol), KKPosition(endLine, endCol));
-
+    unsigned long startLine = 0, endLine = 0, startCol = 0, endCol = 0;
+    list<KKCharPtr> deletedChars;
     QStringList changes;
     QString deletedValue;
 
-    if (deletedChars.size() > 0) {
-        changes.push_back(CRDT_DELETE);
-        changes.push_back(user->getUsername());
-        changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
+    bool success = crdt->calculateLineCol(start, 0, &startLine, &startCol)
+            && crdt->calculateLineCol(end, 0, &endLine, &endCol);
 
-        for (KKCharPtr charPtr : deletedChars) {
-            deletedValue.append(charPtr->getValue());
-            changes.push_back(crdt->encodeCrdtChar(charPtr));
+    if (success) {
+        deletedChars = crdt->localDelete(KKPosition(startLine, startCol), KKPosition(endLine, endCol));
+        if (deletedChars.size() > 0) {
+            changes.push_back(CRDT_DELETE);
+            changes.push_back(user->getUsername());
+            changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
+
+            for (KKCharPtr charPtr : deletedChars) {
+                deletedValue.append(charPtr->getValue());
+                changes.push_back(crdt->encodeCrdtChar(charPtr));
+            }
         }
     }
 
@@ -724,6 +723,7 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
         sendCrdtRequest(changes);
     } else {
         logger("Cancellazione illegale per il CRDT");
+        fileValid = false;
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
@@ -731,12 +731,11 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
 
 
 void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QString font, QString color){
+    unsigned long line = 0, col = 0;
     QStringList changes;
 
-    unsigned long line, col;
-    crdt->calculateLineCol(start, 0, &line, &col);
-
-    if (crdt->checkPosition(line, col)) {
+    bool success = crdt->calculateLineCol(start, 0, &line, &col);
+    if (success && crdt->checkPosition(line, col)) {
         changes.push_back(CRDT_FORMAT);
         changes.push_back(user->getUsername());
         changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
@@ -759,19 +758,20 @@ void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QStri
         sendCrdtRequest(changes);
     } else {
         logger("Cambio formato illegale per il CRDT");
+        fileValid = false;
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
 }
 
 void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
-    unsigned long startAlignLine, endAlignLine, startAlignCol, endAlignCol;
+    unsigned long startAlignLine = 0, endAlignLine = 0, startAlignCol = 0, endAlignCol = 0;
     // Le colonne non serviranno
-    crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol);
-    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
+    bool success = crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol)
+            && crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
 
     QStringList changes;
-    if (crdt->checkPosition(startAlignLine, startAlignCol)
+    if (success && crdt->checkPosition(startAlignLine, startAlignCol)
             && crdt->checkPosition(endAlignLine, endAlignCol)) {
         changes.push_back(CRDT_ALIGNM);
         changes.push_back(user->getUsername());
@@ -785,6 +785,7 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
         sendCrdtRequest(changes);
     } else {
         logger("Cambio allineamento illegale per il CRDT");
+        fileValid = false;
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
@@ -792,13 +793,14 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
 
 /// Prende l'allineamento delle righe da start a end dal textedit e manda un messaggio di cambio allineamento per quelle righe
 void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
-    unsigned long startAlignLine, endAlignLine,startAlignCol, endAlignCol;
+    unsigned long startAlignLine = 0, endAlignLine = 0, startAlignCol = 0, endAlignCol = 0;
+
     // Le colonne non serviranno
-    crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol);
-    crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
+    bool success = crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol)
+            && crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
 
     QStringList changes;
-    if (crdt->checkPosition(startAlignLine, startAlignCol) && crdt->checkPosition(endAlignLine, endAlignCol)) {
+    if (success && crdt->checkPosition(startAlignLine, startAlignCol) && crdt->checkPosition(endAlignLine, endAlignCol)) {
 
         int prevAlignment = -1;
 
@@ -831,6 +833,7 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
         sendCrdtRequest(changes);
     } else {
         logger("Modifica allineamento illegale per il CRDT");
+        fileValid = false;
         modal.setModal(MODAL_CRDT_ERROR, BUTTON_CONTINUE_ACTION, CRDT_ILLEGAL);
         modal.show();
     }
@@ -838,7 +841,7 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
 
 
 void KKClient::onSaveCrdtToFile() {
-    if(fileValid) {
+    if (fileValid) {
         sendRequest(SAVE_FILE, NONE, {crdt->getSiteId(), filename});
     }
 }
