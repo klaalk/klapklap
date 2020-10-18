@@ -109,6 +109,9 @@ private slots:
     void onFormatChanged(const QTextCharFormat &format);
     void onTextChange(QString operation, QString diff, int start, int end);
     void showContextMenu(const QPoint &pos);
+    void removeFontMacOs(QComboBox* comboFont);
+    void removeFontWin(QComboBox* comboFont);
+    void removeFontItems(QComboBox *comboFont,int val,int n);
 
 private:
     void resetState();
@@ -149,7 +152,8 @@ private:
     QString fileName;
     QString link;
     QMap <QString, KKCursor*> cursors;
-    QFontComboBox *comboFont{};
+    //QFontComboBox *comboFont{};
+    QComboBox *comboFont{};
     QComboBox *comboSize{};
     QToolBar *tb{};
     QMap<QString, QSharedPointer<QList<int>>> siteIdsPositions;
