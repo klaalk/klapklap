@@ -116,7 +116,7 @@ KKEditor::KKEditor(QWidget *parent)
 
     }
 
-    QFont textFont("MS Shell Dlg 2");
+    QFont textFont("Arial");
     textFont.setStyleHint(QFont::System);
     textFont.setPointSize(10);
     textEdit->setFont(textFont);

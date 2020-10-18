@@ -173,8 +173,7 @@ private:
                                    "Verdana",
                                    "Webdings",
                                    "Wingdings 2",
-                                   "Wingdings 3",
-                                   "Helvetica"};
+                                   "Wingdings 3"};
     QString siteId;
     QString fileName;
     QString link;
