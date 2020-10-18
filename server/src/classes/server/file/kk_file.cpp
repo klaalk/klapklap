@@ -27,7 +27,8 @@ KKFile::KKFile(QObject *parent): QObject(parent) {
 KKFile::~KKFile() {
     timer->stop();
     produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");
-    messagesTask->thread()->wait();
+    if (messagesTask != nullptr && messagesTask->thread() != nullptr)
+        messagesTask->thread()->wait();
     flushCrdtText();
     crdt = nullptr;
     file = nullptr;

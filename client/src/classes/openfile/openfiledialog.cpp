@@ -350,7 +350,6 @@ void OpenFileDialog::setUsername(const QString &value)
 void OpenFileDialog::on_nameLineEdit_textChanged(const QString &arg1)
 {
     Q_UNUSED( arg1 )
-
     ui->saveChangesButton->setEnabled(checkEditForm() && chackEditChanges());
 }
 
