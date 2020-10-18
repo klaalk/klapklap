@@ -178,7 +178,6 @@ private:
     QString fileName;
     QString link;
     QMap <QString, KKCursor*> cursors;
-    //QFontComboBox *comboFont{};
     QComboBox *comboFont{};
     QComboBox *comboSize{};
     QToolBar *tb{};
