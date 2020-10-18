@@ -216,9 +216,6 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
 
     for (auto entry : remotePositions.toStdMap())
         applyRemoteCursorChange(entry.first, entry.second);
-
-    updateLabels();
-    clearUndoRedoStack();
 }
 
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
@@ -646,8 +643,6 @@ void KKEditor::onTextChange(QString operation, QString diff, int start, int end)
 void KKEditor::showContextMenu(const QPoint &pos)
 {
     QMenu menu(tr("Context menu"), this);
-    qDebug() << "context";
-
     const QIcon undoIcon = QIcon::fromTheme("edit-undo", QIcon(rsrcPath + "/undo.png"));
     QAction* undoAction = menu.addAction(undoIcon, tr("&Undo"), textEdit, &KKTextEdit::textUndo);
     undoAction->setEnabled(textEdit->document()->isUndoAvailable());
@@ -1083,7 +1078,6 @@ void KKEditor::updateLabels() {
     QString text = textEdit->toPlainText();
     int fontMax=-1;
     int positionMax = text.length();
-
     for(KKCursor* c : cursors.values()) {
         editorCurs.setPosition(c->getGlobalPositon());
         int fontSx = editorCurs.charFormat().font().pointSize();

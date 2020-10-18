@@ -161,12 +161,11 @@ void KKTextEdit::textPaste()
     const QMimeData *mimeData = clipboard->mimeData();
 
     if (mimeData->hasHtml() && !mimeData->formats().contains("application/vnd.oasis.opendocument.text")) {
-        qDebug()<< "HTML TEXT: " << mimeData->text();
         textCursor().insertText(mimeData->text());
     } else if (mimeData->hasText()) {
         paste();
     }
-    qDebug()<< "FORMATS: " << mimeData->formats();
+
     if (textChanged)
         calculateDiffText();
 }

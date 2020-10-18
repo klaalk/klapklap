@@ -345,7 +345,9 @@ void KKClient::handleLoadFileResponse(KKPayload res) {
         return;
     crdt->decodeCrdt(bodyList);
     editor->load(crdt->getText(), crdt->getLinesAlignment());
+    editor->clearUndoRedoStack();
     editor->loading(false);
+    editor->updateLabels();
 }
 
 void KKClient::handleQuitFileResponse()
