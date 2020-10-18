@@ -11,7 +11,7 @@
 #define MAX_TABLE_SIZE 16777215
 
 #define COLUMN_NAME_SIZE 250
-#define COLUMN_CREATOR_SIZE 150
+#define COLUMN_DATE_SIZE 150
 
 
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
@@ -53,15 +53,15 @@ void OpenFileDialog::closeEvent(QCloseEvent *e)
 
 void OpenFileDialog::initializeFilesTableView() {
     ui->filesTableWidget->clear();
-    ui->filesTableWidget->setColumnCount(3);
-    ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Creato da", "Creato il"});
+    ui->filesTableWidget->setColumnCount(2);
+    ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Creato il"});
     ui->filesTableWidget->verticalHeader()->setVisible(false);
 
     ui->filesTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->filesTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
     ui->filesTableWidget->setColumnWidth(0, COLUMN_NAME_SIZE);
-    ui->filesTableWidget->setColumnWidth(1, COLUMN_CREATOR_SIZE);
+    ui->filesTableWidget->setColumnWidth(1, COLUMN_DATE_SIZE);
     ui->filesTableWidget->horizontalHeader()->setStretchLastSection(true);
 }
 
@@ -176,20 +176,19 @@ QString OpenFileDialog::getAlias() const
 
 void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
     QStringList splittedFileRow = fileRow.split(FILENAME_SEPARATOR);
+
     QString fileName = crypt->decryptToString(splittedFileRow[0]);
+
     QStringList splittedFilename = fileName.split(FILENAME_SEPARATOR);
     QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
 
     files.insert(splittedFilename[2], splittedFileRow[0]);
     QTableWidgetItem* name =  new QTableWidgetItem(splittedFilename[2]);
-    QTableWidgetItem* owner =  new QTableWidgetItem(splittedFilename[1]);
     QTableWidgetItem* date = new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT));
-    owner->setTextAlignment(Qt::AlignCenter);
     date->setTextAlignment(Qt::AlignCenter);
 
     ui->filesTableWidget->setItem(fileIndex, 0, name);
-    ui->filesTableWidget->setItem(fileIndex, 1, owner);
-    ui->filesTableWidget->setItem(fileIndex, 2, date);
+    ui->filesTableWidget->setItem(fileIndex, 1, date);
 }
 
 void OpenFileDialog::clear()
