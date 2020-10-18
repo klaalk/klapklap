@@ -647,13 +647,14 @@ void KKEditor::showContextMenu(const QPoint &pos)
     QMenu menu(tr("Context menu"), this);
     const QIcon undoIcon = QIcon::fromTheme("edit-undo", QIcon(rsrcPath + "/undo.png"));
     QAction* undoAction = menu.addAction(undoIcon, tr("&Undo"), textEdit, &KKTextEdit::textUndo);
-    undoAction->setEnabled(textEdit->document()->isUndoAvailable());
+    undoAction->setEnabled(textEdit->getIsUndoAvailable());
 
     const QIcon redoIcon = QIcon::fromTheme("edit-redo", QIcon(rsrcPath + "/redo.png"));
     QAction* redoAction = menu.addAction(redoIcon, tr("&Redo"), textEdit, &KKTextEdit::textRedo);
-    redoAction->setEnabled(textEdit->document()->isRedoAvailable());
+    redoAction->setEnabled(textEdit->getIsRedoAvailable());
 
     menu.addSeparator();
+
 #ifndef QT_NO_CLIPBOARD
     const QIcon copyIcon = QIcon::fromTheme("edit-copy", QIcon(rsrcPath + "/copy.png"));
     QAction* copyAction = menu.addAction(copyIcon, tr("&Copia"), textEdit, &KKTextEdit::textCopy);

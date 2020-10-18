@@ -30,6 +30,9 @@ public:
     int cursorPosition();
     int getLocalCursorPosition();
 
+    bool getIsUndoAvailable() const;
+    bool getIsRedoAvailable() const;
+
 public slots:
     void handleTextChange();
     void textUndo();
@@ -50,6 +53,8 @@ private:
 
     bool wasSelected = false;
     bool textChanged = false;
+    bool isUndoAvailable = false;
+    bool isRedoAvailable = false;
     QString lastText;
 };
 

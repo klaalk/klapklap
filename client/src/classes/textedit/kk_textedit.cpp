@@ -107,35 +107,54 @@ int KKTextEdit::getLocalCursorPosition()
 void KKTextEdit::handleTextChange()
 {
     textChanged = true;
+    isUndoAvailable = true;
+    isRedoAvailable = false;
+    emit undoAvailable(isUndoAvailable);
+    emit redoAvailable(isRedoAvailable);
 }
 
 void KKTextEdit::textUndo() {
-    // Ho premuto ctrl+z
-    // Inizializzo la prima volta all'apertura dell'editor con la posizione finale del testo
-    if (lastPos == -1)
-        lastPos = toPlainText().length();
+    if (isUndoAvailable) {
+        // Ho premuto ctrl+z
+        // Inizializzo la prima volta all'apertura dell'editor con la posizione finale del testo
+        if (lastPos == -1)
+            lastPos = toPlainText().length();
 
-    // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
-    start = lastPos;
-    lastText = toPlainText();
-    undo();
-    if (textChanged)
-        calculateDiffText();
+        // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
+        start = lastPos;
+        lastText = toPlainText();
 
-    emit undoAvailable(false);
-    emit redoAvailable(true);
+        undo();
+
+        isUndoAvailable = false;
+        isRedoAvailable = true;
+
+        if (textChanged)
+            calculateDiffText();
+
+        emit undoAvailable(isUndoAvailable);
+        emit redoAvailable(isRedoAvailable);
+    }
 }
 
 void KKTextEdit::textRedo()
 {
-    // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
-    start = lastPos;
-    lastText = toPlainText();
-    redo();
-    if (textChanged)
-        calculateDiffText();
-    emit undoAvailable(true);
-    emit redoAvailable(false);
+    if (isRedoAvailable) {
+        // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
+        start = lastPos;
+        lastText = toPlainText();
+
+        redo();
+
+        isRedoAvailable = false;
+        isUndoAvailable = true;
+
+        if (textChanged)
+            calculateDiffText();
+
+        emit undoAvailable(isUndoAvailable);
+        emit redoAvailable(isRedoAvailable);
+    }
 }
 
 void KKTextEdit::textCopy()
@@ -273,5 +292,15 @@ void KKTextEdit::sendDiffText(QString operation, QString text, int start, int en
     }
     KKLogger::log(QString("[sendDiffText] - %1 >%2< from >%3< to >%4<").arg(operation, printText, QString::number(start), QString::number(end)), "TEXTEDIT");
     emit textChangedEvent(operation, text, start, end);
+}
+
+bool KKTextEdit::getIsRedoAvailable() const
+{
+    return isRedoAvailable;
+}
+
+bool KKTextEdit::getIsUndoAvailable() const
+{
+    return isUndoAvailable;
 }
 
