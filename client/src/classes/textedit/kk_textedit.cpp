@@ -61,6 +61,7 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
 {
     start = textCursor().position();
+    localCursorPosition=start;
     lastText = toPlainText();
     QTextEdit::mousePressEvent(e);
 }

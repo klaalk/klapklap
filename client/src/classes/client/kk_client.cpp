@@ -800,8 +800,6 @@ void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
     QStringList changes;
     if (crdt->checkPosition(startAlignLine, startAlignCol) && crdt->checkPosition(endAlignLine, endAlignCol)) {
 
-        //int pos = crdt->calculateGlobalPosition(KKPosition(startAlignLine, 0));
-
         int prevAlignment = -1;
 
         for(unsigned long i = startAlignLine; i <= endAlignLine; i++) {
