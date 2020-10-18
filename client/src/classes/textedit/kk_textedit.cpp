@@ -119,11 +119,11 @@ void KKTextEdit::textUndo() {
     start = lastPos;
     lastText = toPlainText();
     undo();
-
     if (textChanged)
         calculateDiffText();
 
     emit undoAvailable(false);
+    emit redoAvailable(true);
 }
 
 void KKTextEdit::textRedo()
@@ -134,6 +134,8 @@ void KKTextEdit::textRedo()
     redo();
     if (textChanged)
         calculateDiffText();
+    emit undoAvailable(true);
+    emit redoAvailable(false);
 }
 
 void KKTextEdit::textCopy()

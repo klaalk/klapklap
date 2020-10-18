@@ -128,10 +128,8 @@ KKEditor::KKEditor(QWidget *parent)
 
     connect(textEdit->document(), &QTextDocument::modificationChanged,
             actionSave, &QAction::setEnabled);
-    connect(textEdit->document(), &QTextDocument::undoAvailable,
-            actionUndo, &QAction::setEnabled);
-    connect(textEdit->document(), &QTextDocument::redoAvailable,
-            actionRedo, &QAction::setEnabled);
+    connect(textEdit, &QTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
+    connect(textEdit, &QTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
 
     actionSave->setEnabled(textEdit->document()->isModified());
     actionUndo->setEnabled(textEdit->document()->isUndoAvailable());
