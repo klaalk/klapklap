@@ -152,7 +152,6 @@ void KKChat::setParticipantState(const QString &username, const QString &nick, c
             item = new QListWidgetItem();
             item->setWhatsThis(username);
             item->setText(nick);
-//            item->setIcon(createAvatarIcon(avatar, PARTICIPANT_OFFLINE));
             siteIdNickName.insert(username,nick);
             listWidget->addItem(item);
         }

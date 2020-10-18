@@ -34,18 +34,6 @@ AccessDialog::AccessDialog(QWidget *parent) :
       ui_->logo_view->setPixmap((*logo_).scaled(217,217,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 #endif
 
-      //QImageReader image_reader(":/gif/animation300x300.gif");
-      //QMovie movie(":/gif/animation300x300.gif");
-      //QSize *size = new QSize(300,300);
-      //gif_->setScaledSize(*size);
-      //QVBoxLayout layout;
-       //movie.jumpToFrame(0);
-      //QSize movie_size = movie.currentImage().size();
-      //int movie_aspect = movie_size.width()/movie_size.height();
-      //QPixmap origPixmap(QPixmap::fromImage(image_reader.read()));
-     // ui_->gif_viewer->setPixmap(origPixmap);
-      //ui_->gif_viewer->resizeEvent(QEvent e);
-
       ui_->gif_viewer->setMovie(gif_);
       ui_->signup_widget->hide();
 }

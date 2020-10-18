@@ -13,7 +13,7 @@ int KKSmtp::sendSignupEmail(QString username, QString email, QString name, QStri
     QString destName = name + " " + surname;
     QString mex = messageBuilder("Welcome to KlapKlap Soft :)",
                                         destName,
-                                        username + "\nYour registration is now complete!",
+                                        username + "\nyour registration is now complete!",
                                         "You are signed-up!",
                                         "blank"
                                         );
@@ -27,7 +27,7 @@ int KKSmtp::sendSignupEmail(QString username, QString email, QString name, QStri
 int KKSmtp::sendAddUserFileEmail(KKUserPtr user, QString filename) {
     QString destName = user->getName() + " " + user->getSurname();
 
-    QString mex = messageBuilder("New File added: " + filename, "Owner: " + destName, user->getUsername() + "", "Share now!", "http://www.facebook.it");
+    QString mex = messageBuilder("New File added: " + filename, "Owner: " + destName, user->getUsername() + "", "Share now!", "abaout:blank");
     bool success = sendMessage(mex, destName, user->getEmail(), "KlapKlap File_Add");
     if (!success) {
         return SEND_EMAIL_NOT_SUCCESS;
@@ -41,7 +41,7 @@ int KKSmtp::sendShareUserFileEmail(QString filename, KKUserPtr fromUser, KKUserP
     QString mex = messageBuilder("New file shared: " + filename, "",
                                         "Sender: " + fromUser->getName() + " " + fromUser->getSurname(),
                                         "Open now!",
-                                        "http://www.facebook.it");
+                                        "about:blank");
     bool success = sendMessage(mex, toUser->getName() + " " + toUser->getSurname(), toUser->getEmail(), "KlapKlap Invite");
 
     if (!success) {

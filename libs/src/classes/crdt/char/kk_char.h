@@ -27,7 +27,6 @@ class KKChar {
     vector<KKIdentifierPtr> position; // array di identifier, serve per dare come posizioni univoche numeri anche con la virgola (es 0,5 -> [identifier1.digit=0][identifier2.digit=5])
     QString siteId; //univoco per il client
     QChar value; //valore (es 'a')
-    //QTextCharFormat KKCharFormat;
     QString KKCharFont;
     QString KKCharColor;
 

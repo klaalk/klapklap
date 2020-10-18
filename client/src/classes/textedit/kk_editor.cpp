@@ -615,7 +615,6 @@ void KKEditor::onFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
-    //updateLabels();
 }
 
 void KKEditor::onTextChange(QString operation, QString diff, int start, int end) {

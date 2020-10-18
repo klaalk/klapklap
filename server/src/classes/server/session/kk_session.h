@@ -23,8 +23,6 @@
 #include "../../../../../libs/src/classes/task/kk_task.h"
 #include "../../../../../libs/src/constants/kk_constants.h"
 
-//#define ENV
-
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
@@ -63,6 +61,7 @@ private:
 
     QSharedPointer<QWebSocket> socket;
     KKDataBasePtr db;
+    KKSmtpPtr smtp;
     KKMapFilePtr files;
     KKFilePtr file;
     KKFileSystemPtr fileSystem;

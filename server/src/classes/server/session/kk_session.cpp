@@ -13,7 +13,7 @@
 #define DEBUG
 
 KKSession::KKSession(KKDataBasePtr db, KKFileSystemPtr fileSystem, KKMapFilePtr files, QString sessionId, QObject*  parent)
-    : QObject(parent), db(db), files(files), fileSystem(fileSystem), user(KKUserPtr(new KKUser(), &QObject::deleteLater)), sessionId(sessionId) {
+    : QObject(parent), db(db),smtp(KKSmtpPtr(new KKSmtp())), files(files), fileSystem(fileSystem), user(KKUserPtr(new KKUser(), &QObject::deleteLater)), sessionId(sessionId) {
 
 }
 
@@ -161,6 +161,8 @@ void KKSession::handleSignupRequest(KKPayload request) {
 
     if(result == DB_SIGNUP_SUCCESS) {
         sendResponse(SIGNUP, SUCCESS, {"Registrazione effettuata con successo"});
+        if(!smtp->sendSignupEmail(params[4],params[0],params[2],params[3]))
+            logger("Non è stato possibile inviare la mail. Email: "+params[0]);
 
     } else if (result == DB_ERR_INSERT_EMAIL || result == DB_ERR_INSERT_USERNAME) {
         sendResponse(SIGNUP, BAD_REQUEST, {"Errore nella richiesta, username e/o Email esistenti!"});
@@ -307,6 +309,9 @@ void KKSession::connectToFile(QString filename)
             if (db->addShareFile(file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
                 file->addUser(QString("%1:%2:%3").arg(user->getUsername(), user->getAlias(), user->getImage()));
                 result = SUCCESS;
+                if(!smtp->sendAddUserFileEmail(user,filename))
+                    logger("Non è stato possibile inviare la mail. Email: "+user->getEmail());
+
             } else sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore in fase di inserimento partecipante per il file richiesto"});
 
         } else result = SUCCESS;

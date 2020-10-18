@@ -766,7 +766,6 @@ void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QStri
 
 void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
     unsigned long startAlignLine = 0, endAlignLine = 0, startAlignCol = 0, endAlignCol = 0;
-    // Le colonne non serviranno
     bool success = crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol)
             && crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
 
@@ -795,7 +794,6 @@ void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
 void KKClient::onNotifyAlignment(int alignStart, int alignEnd){
     unsigned long startAlignLine = 0, endAlignLine = 0, startAlignCol = 0, endAlignCol = 0;
 
-    // Le colonne non serviranno
     bool success = crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol)
             && crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);
 
