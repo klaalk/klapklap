@@ -164,14 +164,12 @@
 #define MODAL_UPDATE_FILE_ERROR "Non è stato possibile aggiornare il file dal server"
 #define MODAL_CRDT_ERROR "Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione"
 
+#define DIM_ICN 36
+#define DIM_ICN_GREEN 11
 #ifdef Q_OS_MACOS
-    #define DIM_ICN 36
     #define DIM_ICN_TXT 12
-    #define DIM_ICN_GREEN 12
 #else
-    #define DIM_ICN 32
     #define DIM_ICN_TXT 10
-    #define DIM_ICN_GREEN 10
 #endif
 
 #endif //SERVER_KK_CONSTANTS_H
