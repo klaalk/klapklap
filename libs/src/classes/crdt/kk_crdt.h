@@ -128,8 +128,6 @@ private:
     vector<int> linesAlignment;
     unsigned long boundary;
     unsigned long base;
-    int remoteOperation = 0;
-    int localOperation = 0;
     QMutex mutex;
     QWaitCondition remoteOperationEmpty;
     QWaitCondition localOperationEmpty;
