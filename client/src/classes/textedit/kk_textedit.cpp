@@ -16,18 +16,13 @@ KKTextEdit::KKTextEdit(QWidget *parent): QTextEdit(parent)
 // Evento che inizia quando premo un tasto
 void KKTextEdit::keyPressEvent(QKeyEvent *e)
 {
-    if (cursorCounter > 0)
-        restoreCursorPosition();
-
     if (e->text() == "\u001A") {
         textUndo();
-        QTextEdit::keyPressEvent(e);
         return;
     }
 
     if (e->text() == "\u0019") {
         textRedo();
-        QTextEdit::keyPressEvent(e);
         return;
     }
 
@@ -60,10 +55,10 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
 {
-    QTextEdit::mousePressEvent(e);
     start = textCursor().position();
     lastText = toPlainText();
-    localCursorPosition=textCursor().position();
+    QTextEdit::mousePressEvent(e);
+    localCursorPosition = textCursor().position();
 }
 
 void KKTextEdit::wheelEvent(QWheelEvent *e)
@@ -123,9 +118,7 @@ void KKTextEdit::textUndo() {
     // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
     start = lastPos;
     lastText = toPlainText();
-
     undo();
-
     if (textChanged)
         calculateDiffText();
 }
@@ -135,26 +128,18 @@ void KKTextEdit::textRedo()
     // Vuol dire che devo partire dall'ultima posizione in cui è cambiato il testo
     start = lastPos;
     lastText = toPlainText();
-
     redo();
-
     if (textChanged)
         calculateDiffText();
 }
 
 void KKTextEdit::textCopy()
 {
-    if (cursorCounter > 0)
-        restoreCursorPosition();
-
     copy();
 }
 
 void KKTextEdit::textPaste()
 {
-    if (cursorCounter > 0)
-        restoreCursorPosition();
-
     start = textCursor().position();
     lastText = toPlainText();
 
@@ -173,9 +158,6 @@ void KKTextEdit::textPaste()
 
 void KKTextEdit::textCut()
 {
-    if (cursorCounter > 0)
-        restoreCursorPosition();
-
     start = textCursor().position();
     lastText = toPlainText();
 

@@ -48,8 +48,6 @@ private:
     int selectionEnd = -1;
     int localCursorPosition = -1;
 
-    /// Variabile che conta quanti tasti ho premuto
-    int cursorCounter = 0;
     bool wasSelected = false;
     bool textChanged = false;
     QString lastText;
