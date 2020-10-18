@@ -147,7 +147,34 @@ private:
     QAction *actionPaste{};
 #endif
     int fontSize = 0;
-    QStringList fontCompatibili = {"Arial","Arial Black", "Arial Narrow","Arial Unicode MS", "Bradley Hand","Bradley Hand ITC", "Comic Sans MS", "Courier", "Courier New", "Georgia", "Impact", "Lucida Grande","Lucida Console", "Microsoft Sans Serif", "Myanmar MN", "Myanmar Text", "Palatino","Palatine Linotype", "Papyrus", "Symbol", "Tahoma", "Times New Roman", "Trebuchet MS", "Verdana","Webdings","Wingdings 2","Wingdings 3", "Helvetica"};
+    QStringList fontCompatibili = {"Arial",
+                                   "Arial Black",
+                                   "Arial Narrow",
+                                   "Arial Unicode MS",
+                                   "Bradley Hand",
+                                   "Bradley Hand ITC",
+                                   "Comic Sans MS",
+                                   "Courier",
+                                   "Courier New",
+                                   "Georgia",
+                                   "Impact",
+                                   "Lucida Grande",
+                                   "Lucida Console",
+                                   "Microsoft Sans Serif",
+                                   "Myanmar MN",
+                                   "Myanmar Text",
+                                   "Palatino",
+                                   "Palatine Linotype",
+                                   "Papyrus",
+                                   "Symbol",
+                                   "Tahoma",
+                                   "Times New Roman",
+                                   "Trebuchet MS",
+                                   "Verdana",
+                                   "Webdings",
+                                   "Wingdings 2",
+                                   "Wingdings 3",
+                                   "Helvetica"};
     QString siteId;
     QString fileName;
     QString link;
