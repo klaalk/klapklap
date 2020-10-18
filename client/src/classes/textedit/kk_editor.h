@@ -62,6 +62,7 @@ public:
 
 
     void updateCursors(QString siteId, int position, int value);
+    void updateLocalCursor(int startPosition = 0, int delta = 0);
     void updateLabels();
 
     int getCurrentAlignment(int pos);
@@ -72,7 +73,7 @@ public:
     void removeParticipant(const QString &username);
     void setChatDialog(KKChat *value);
     void setMySiteId(QString mySiteId);
-
+    void clearUndoRedoStack();
     QString getMySiteId();
     KKTextEdit* getTextEdit();
 

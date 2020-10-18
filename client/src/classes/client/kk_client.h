@@ -94,6 +94,8 @@ private:
     void handleLoadFileResponse(KKPayload res);
     void handleQuitFileResponse();
     void handleCrdtResponse(KKPayload res);
+    void handleCrdtAlignmentResponse(QStringList ranges);
+    void handleCrdtTextResponse(QString remoteSiteId, QString operation, QStringList chars);
     void handleErrorResponse(KKPayload res);
     void handleClientErrorResponse(KKPayload res);
     void handleServerErrorResponse(KKPayload res);

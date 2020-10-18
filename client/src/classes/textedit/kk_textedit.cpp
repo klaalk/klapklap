@@ -18,8 +18,6 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
 {
     if (cursorCounter > 0)
         restoreCursorPosition();
-    qDebug() << e->text();
-
 
     if (e->text() == "\u001A") {
         textUndo();

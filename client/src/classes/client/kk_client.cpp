@@ -369,76 +369,97 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     int remoteCursorPos = QVariant(body.takeFirst()).toInt();
 
     if (operation == CRDT_ALIGNM) {
-        // Caso in cui sia una operazione di allineamento
-        while(!body.isEmpty()) {
-            // Recupero le info dell'allineamento
-            int alignment = body.takeFirst().toInt();
-            unsigned long startLine = body.takeFirst().toULong();
-            unsigned long endLine = body.takeFirst().toULong();
-            // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
-            for(unsigned long i = startLine; i <= endLine; i++){
-                // Controlla che la riga esista
-                if (crdt->remoteAlignmentChange(i, alignment)) {
-                    int position = crdt->calculateGlobalPosition(KKPosition(i, 0));
-                    editor->applyRemoteAlignmentChange(alignment, position);
-                } else {
-                    break;
-                }
-            }
-        }
-
+        handleCrdtAlignmentResponse(body);
     } else {
-        KKPosition crdtPosition(0, 0);
-        // Posizione corrente
-        int currentPosition = -1;
-
-        // Memorizza la posizione iniziale in cui è stato modificato il testo
-        int startPosition = -1;
-
-        // Memorizza di quanti caratteri è cambiato il testo
-        int operationCounter = 0;
-
-        while (!body.isEmpty()) {
-            QString crdtChar = operation == CRDT_DELETE ? body.takeLast() : body.takeFirst();
-            KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
-
-            int deltaPosition = 0;
-            if (operation == CRDT_FORMAT) {
-                crdtPosition = crdt->remoteFormatChange(charPtr);
-                deltaPosition = 1;
-            }
-            else if (operation == CRDT_INSERT) {
-                crdtPosition = crdt->remoteInsert(charPtr);
-                operationCounter++;
-                deltaPosition = 1;
-            }
-            else if (operation == CRDT_DELETE) {
-                crdtPosition = crdt->remoteDelete(charPtr);
-                operationCounter--;
-                deltaPosition = -1;
-            }
-
-            if (currentPosition == -1) {
-                currentPosition = crdt->calculateGlobalPosition(crdtPosition);
-            } else {
-                currentPosition += deltaPosition;
-            }
-
-            if (startPosition > currentPosition || startPosition == -1)
-                startPosition = currentPosition;
-
-            editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
-        }
-
-        if (operationCounter != 0)
-            editor->updateCursors(remoteSiteId, startPosition, operationCounter);
-
+        handleCrdtTextResponse(remoteSiteId, operation, body);
     }
+
     // Aggiorno il cursore dell'utente che ha eseguito l'operazione
     if (user->getUsername() != remoteSiteId)
         editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
 
     editor->updateLabels();
+    editor->clearUndoRedoStack();
+}
+
+void KKClient::handleCrdtAlignmentResponse(QStringList ranges)
+{
+    // Caso in cui sia una operazione di allineamento
+    while(!ranges.isEmpty()) {
+        // Recupero le info dell'allineamento
+        int alignment = ranges.takeFirst().toInt();
+        unsigned long startLine = ranges.takeFirst().toULong();
+        unsigned long endLine = ranges.takeFirst().toULong();
+
+        // Per ogni riga si crea la posizione globale dell'inizio della riga e chiama la alignmentRemoteChange
+        for(unsigned long i = startLine; i <= endLine; i++) {
+            // Controlla che la riga esista
+            if (crdt->remoteAlignmentChange(i, alignment)) {
+                int position = crdt->calculateGlobalPosition(KKPosition(i, 0));
+                editor->applyRemoteAlignmentChange(alignment, position);
+            } else {
+                break;
+            }
+        }
+    }
+
+    // Semplicemente riposiziono il cursore dov'era
+    editor->updateLocalCursor();
+}
+
+void KKClient::handleCrdtTextResponse(QString remoteSiteId, QString operation, QStringList chars)
+{
+    // Posizione corrente
+    int currentPosition = -1;
+    // Memorizza la posizione iniziale in cui è stato modificato il testo
+    int startPosition = -1;
+    // Memorizza di quanti caratteri è cambiato il testo
+    int operationCounter = 0;
+
+    // Ciclo carattere per carattere
+    KKPosition crdtPosition(0, 0);
+
+    while (!chars.isEmpty()) {
+
+        QString crdtChar = operation == CRDT_DELETE ? chars.takeLast() : chars.takeFirst();
+        KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
+
+        int deltaPosition = 0;
+        if (operation == CRDT_FORMAT) {
+            crdtPosition = crdt->remoteFormatChange(charPtr);
+            deltaPosition = 1;
+        }
+        else if (operation == CRDT_INSERT) {
+            crdtPosition = crdt->remoteInsert(charPtr);
+            operationCounter++;
+            deltaPosition = 1;
+        }
+        else if (operation == CRDT_DELETE) {
+            crdtPosition = crdt->remoteDelete(charPtr);
+            operationCounter--;
+            deltaPosition = -1;
+        }
+
+        // Calcolo la global position solo una volta
+        // poi da lì sarà sequenziale
+        if (currentPosition == -1)
+            currentPosition = crdt->calculateGlobalPosition(crdtPosition);
+        else
+            currentPosition += deltaPosition;
+
+        if (startPosition > currentPosition || startPosition == -1)
+            startPosition = currentPosition;
+
+        editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
+    }
+
+    if (operationCounter != 0) {
+        // Aggiorno la posizione degl'altri utenti se necessario
+        editor->updateCursors(remoteSiteId, startPosition, operationCounter);
+
+        // Aggiorno la posizione del cursore locale se necessario
+        editor->updateLocalCursor(startPosition, operationCounter);
+    }
 }
 
 /// SENDING

@@ -212,13 +212,13 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
             remotePosition++;
         }
     }
-    textEdit->document()->clearUndoRedoStacks();
     textEdit->setLocalCursorPosition(localPostion);
 
-    for (auto entry : remotePositions.toStdMap()) {
+    for (auto entry : remotePositions.toStdMap())
         applyRemoteCursorChange(entry.first, entry.second);
-    }
+
     updateLabels();
+    clearUndoRedoStack();
 }
 
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
@@ -241,32 +241,35 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
         textEdit->setAlignment(Qt::AlignJustify);
         actionAlignJustify->setChecked(true);
     }
-    textEdit->restoreCursorPosition();
-    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString font, QString color){
+    // Recupero il cursore dell'editor
     QTextCursor editorCurs = textEdit->getCursor(position);
     editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
+
+    // Creo il nuovo font
     QFont fontNuovo;
     fontNuovo.fromString(font);
+
+    // Creo il nuovo colore
     QColor coloreNuovo(color);
 
+    // Recupero il formato presente e lo modifico con il nuovo stile
     QTextCharFormat format = editorCurs.charFormat();
-
     if(format.font() != fontNuovo)
         format.setFont(fontNuovo);
-
     if(format.foreground() != coloreNuovo)
         format.setForeground(coloreNuovo);
 
+    // Controllo che il background sia coerente
     if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId))
         format.setBackground(siteIdsColors.value(siteId));
     else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId))
         format.setBackground(Qt::white);
 
+    // Mergio le modifiche
     editorCurs.mergeCharFormat(format);
-    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::applyRemoteTextChange(const QString& operation, int position, const QString& siteId, const QChar& text, const QString& font, const QString& color) {
@@ -286,18 +289,6 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         // Aggiorno formato
         applyRemoteFormatChange(position, siteId, font, color);
     }
-
-    // Sblocco il cursore dell'editor.
-    int localCursorPosition = textEdit->cursorPosition();
-
-    if (localCursorPosition > position) {
-        int newLocalCursorPosition = operation == CRDT_INSERT ?
-                    localCursorPosition + 1 : localCursorPosition - 1;
-
-        textEdit->setLocalCursorPosition(newLocalCursorPosition);
-    }
-
-    textEdit->document()->clearUndoRedoStacks();
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)
@@ -392,6 +383,11 @@ void KKEditor::setChatDialog(KKChat *value)
 
 void KKEditor::setMySiteId(QString mySiteId){
     siteId=std::move(mySiteId);
+}
+
+void KKEditor::clearUndoRedoStack()
+{
+    textEdit->document()->clearUndoRedoStacks();
 }
 
 QString KKEditor::getMySiteId() {
@@ -1018,7 +1014,7 @@ void KKEditor::updateColorText(int start, int end, const QString& siteId)
     }
 }
 
-/// Aggiorno i cursori sulla base della posizione iniziale e numero di operazioni.
+/// Aggiorno i cursori remoti sulla base della posizione iniziale e numero di operazioni.
 void KKEditor::updateCursors(QString siteId, int startPosition, int operations){
     int maxPosition = textEdit->toPlainText().length();
     for (KKCursor* c : cursors.values()) {
@@ -1035,6 +1031,19 @@ void KKEditor::updateCursors(QString siteId, int startPosition, int operations){
                 KKLogger::log(QString("[updateCursors] - %1 in posizione %2").arg(c->getSiteId(), QString::number(cursorPosition)), "EDITOR");
             }
         }
+    }
+}
+
+void KKEditor::updateLocalCursor(int startPosition, int delta)
+{
+    // Controllo la posizione dell'editor locale
+    // e ne eseguo l'aggiornamento se necessario
+    int position = textEdit->getLocalCursorPosition();
+    if (position > startPosition) {
+        position += delta;
+        textEdit->setLocalCursorPosition(position);
+    } else {
+        textEdit->restoreCursorPosition();
     }
 }
 
