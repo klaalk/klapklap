@@ -892,9 +892,9 @@ void KKEditor::setupTextActions()
  comboFont = new QFontComboBox(tb);
 
 #ifdef Q_OS_MACOS
-    removeFontMacOs(comboFont);
+//    removeFontMacOs(comboFont);
  #else
-    removeFontWin(comboFont);
+//    removeFontWin(comboFont);
 #endif
 
 
