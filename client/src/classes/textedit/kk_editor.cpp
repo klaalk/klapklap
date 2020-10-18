@@ -213,6 +213,7 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
         }
     }
     textEdit->setLocalCursorPosition(localPostion);
+    textEdit->document()->setModified(false);
 
     for (auto entry : remotePositions.toStdMap())
         applyRemoteCursorChange(entry.first, entry.second);
@@ -431,6 +432,8 @@ void KKEditor::fileOpen()
 bool KKEditor::fileSave()
 {
     emit saveCrdtTtoFile();
+    textEdit->document()->setModified(false);
+    textEdit->document()->clearUndoRedoStacks();
     return true;
 }
 
@@ -549,38 +552,40 @@ void KKEditor::textAlign(QAction *a)
     int alignStart;
     int alignEnd;
 
-    if (a == actionAlignLeft){
+    if (a == actionAlignLeft && textEdit->alignment() != (Qt::AlignLeft | Qt::AlignAbsolute)){
         textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
         alignment = 1;
     }
-    else if (a == actionAlignCenter){
+    else if (a == actionAlignCenter && textEdit->alignment() != (Qt::AlignHCenter)){
         textEdit->setAlignment(Qt::AlignHCenter);
         alignment = 2;
     }
-    else if (a == actionAlignRight){
+    else if (a == actionAlignRight && textEdit->alignment() != (Qt::AlignRight | Qt::AlignAbsolute)){
         textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
         alignment = 3;
     }
-    else if (a == actionAlignJustify){
+    else if (a == actionAlignJustify && textEdit->alignment() != (Qt::AlignJustify) ){
         textEdit->setAlignment(Qt::AlignJustify);
         alignment = 4;
     }
 
-    if (textEdit->textCursor().hasSelection()) {
-        if (textEdit->textCursor().selectionEnd() > textEdit->textCursor().selectionStart()){
-            alignStart=textEdit->textCursor().selectionStart();
-            alignEnd=textEdit->textCursor().selectionEnd();
+    if (alignment >= 1 && alignment <= 4) {
+        if (textEdit->textCursor().hasSelection()) {
+            if (textEdit->textCursor().selectionEnd() > textEdit->textCursor().selectionStart()){
+                alignStart = textEdit->textCursor().selectionStart();
+                alignEnd = textEdit->textCursor().selectionEnd();
+            } else {
+                alignStart = textEdit->textCursor().selectionEnd();
+                alignEnd = textEdit->textCursor().selectionStart();
+            }
+
         } else {
-            alignStart=textEdit->textCursor().selectionEnd();
-            alignEnd=textEdit->textCursor().selectionStart();
+            alignStart = textEdit->textCursor().position();
+            alignEnd = alignStart;
         }
 
-    } else {
-        alignStart = textEdit->textCursor().position();
-        alignEnd = alignStart;
+        emit(alignChange(alignment, alignStart, alignEnd));
     }
-
-    emit(alignChange(alignment, alignStart, alignEnd));
 }
 
 void KKEditor::onAbout()
