@@ -119,8 +119,11 @@ void KKTextEdit::textUndo() {
     start = lastPos;
     lastText = toPlainText();
     undo();
+
     if (textChanged)
         calculateDiffText();
+
+    emit undoAvailable(false);
 }
 
 void KKTextEdit::textRedo()
