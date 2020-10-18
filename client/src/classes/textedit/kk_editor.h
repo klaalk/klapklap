@@ -76,6 +76,7 @@ public:
     void clearUndoRedoStack();
     QString getMySiteId();
     KKTextEdit* getTextEdit();
+    QStringList getCompatibleFonts();
 
     bool clickedOne(const QString& siteId);
     bool clickedAny();
@@ -109,9 +110,7 @@ private slots:
     void onFormatChanged(const QTextCharFormat &format);
     void onTextChange(QString operation, QString diff, int start, int end);
     void showContextMenu(const QPoint &pos);
-    void removeFontMacOs(QComboBox* comboFont);
-    void removeFontWin(QComboBox* comboFont);
-    void removeFontItems(QComboBox *comboFont,int val,int n);
+    void removeNonCompatibleFonts(QComboBox *comboFont);
 
 private:
     void resetState();
@@ -148,6 +147,34 @@ private:
     QAction *actionPaste{};
 #endif
     int fontSize = 0;
+    QStringList fontCompatibili = {"Arial",
+                                   "Arial Black",
+                                   "Arial Narrow",
+                                   "Arial Unicode MS",
+                                   "Bradley Hand",
+                                   "Bradley Hand ITC",
+                                   "Comic Sans MS",
+                                   "Courier",
+                                   "Courier New",
+                                   "Georgia",
+                                   "Impact",
+                                   "Lucida Grande",
+                                   "Lucida Console",
+                                   "Microsoft Sans Serif",
+                                   "Myanmar MN",
+                                   "Myanmar Text",
+                                   "Palatino",
+                                   "Palatine Linotype",
+                                   "Papyrus",
+                                   "Symbol",
+                                   "Tahoma",
+                                   "Times New Roman",
+                                   "Trebuchet MS",
+                                   "Verdana",
+                                   "Webdings",
+                                   "Wingdings 2",
+                                   "Wingdings 3",
+                                   "Helvetica"};
     QString siteId;
     QString fileName;
     QString link;
