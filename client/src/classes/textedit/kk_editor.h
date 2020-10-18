@@ -110,9 +110,6 @@ private slots:
     void onFormatChanged(const QTextCharFormat &format);
     void onTextChange(QString operation, QString diff, int start, int end);
     void showContextMenu(const QPoint &pos);
-    void removeFontMacOs(QComboBox* comboFont);
-    void removeFontWin(QComboBox* comboFont);
-    void removeFontItems(QComboBox *comboFont,int val,int n);
     void removeNonCompatibleFonts(QComboBox *comboFont);
 
 private:

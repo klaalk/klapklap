@@ -884,38 +884,10 @@ void KKEditor::setupTextActions()
     QFontDatabase Datab;
     QStringList standardFonts = Datab.families(QFontDatabase::Any);
 
-     qDebug()<<"FONTS AFTER REMOVE:";
 
-    foreach (QString font, standardFonts){
-          qDebug()<<font;
-    }
+    comboFont = new QFontComboBox(tb);
+    removeNonCompatibleFonts(comboFont);
 
-
- comboFont = new QFontComboBox(tb);
- removeNonCompatibleFonts(comboFont);
-
-
-
-#ifdef Q_OS_MACOS
-//    removeFontMacOs(comboFont);
- #else
-//    removeFontWin(comboFont);
-#endif
-
-
-//    comboFont = new QComboBox(tb);
-//    comboFont->setObjectName("comboFont");
-//    tb->addWidget(comboFont);
-//    comboFont->setEditable(true);
-
-
-
-//    foreach (QString font, standardFonts){
-//        if(Datab.isPrivateFamily(font)){
-//            comboFont->addItem(font);
-//        }
-
-//    }
 
     tb->addWidget(comboFont);
     connect(comboFont, QOverload<const QString &>::of(&QComboBox::activated), this, &KKEditor::textFamily);
@@ -1146,51 +1118,6 @@ QBrush KKEditor::selectRandomColor(){
     return secondaryColors_.takeAt(index);
 }
 
-void KKEditor::removeFontWin(QComboBox* comboFont){
-     removeFontItems(comboFont,0,2);
-     removeFontItems(comboFont,4,15);
-     removeFontItems(comboFont,5,8);
-     removeFontItems(comboFont,6,4);
-     removeFontItems(comboFont,8,8);
-     removeFontItems(comboFont,9,1);
-     removeFontItems(comboFont,10,7);
-     removeFontItems(comboFont,13,10);
-     removeFontItems(comboFont,14,21);
-     removeFontItems(comboFont,15,3);
-     removeFontItems(comboFont,17,26);
-     removeFontItems(comboFont,18,1);
-     removeFontItems(comboFont,19,2);
-     removeFontItems(comboFont,26,8);
-}
-
-void KKEditor::removeFontMacOs(QComboBox* comboFont){
-     removeFontItems(comboFont,0,12);
-     removeFontItems(comboFont,2,2);
-     removeFontItems(comboFont,3,1);
-     removeFontItems(comboFont,4,14);
-     removeFontItems(comboFont,5,6);
-     removeFontItems(comboFont,6,2);
-     removeFontItems(comboFont,8,17);
-     removeFontItems(comboFont,9,16);
-     removeFontItems(comboFont,10,18);
-     removeFontItems(comboFont,11,5);
-     removeFontItems(comboFont,12,6);
-     removeFontItems(comboFont,13,13);
-     removeFontItems(comboFont,15,40);
-     removeFontItems(comboFont,17,6);
-     removeFontItems(comboFont,18,1);
-     removeFontItems(comboFont,20,1);
-     removeFontItems(comboFont,24,2);
-  }
-
-void KKEditor::removeFontItems(QComboBox *comboFont,int val,int n){
-    int i;
-    for(i=0;i<n;i++){
-        comboFont->removeItem(val);
-    }
-    return;
-}
-
 void KKEditor::removeNonCompatibleFonts(QComboBox *comboFont){
     QFontDatabase Datab;
     QStringList standardFonts = Datab.families(QFontDatabase::Any);
@@ -1225,10 +1152,7 @@ void KKEditor::removeNonCompatibleFonts(QComboBox *comboFont){
 
 
        }
-       qDebug()<<"FONTS AFTER REMOVE:";
-       foreach (QString font, standardFonts){
-             qDebug()<<font;
-       }
+
 }
 
 
