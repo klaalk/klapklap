@@ -188,6 +188,9 @@
              <property name="text">
               <string/>
              </property>
+             <property name="maxLength">
+              <number>30</number>
+             </property>
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
              </property>
@@ -249,6 +252,9 @@
              <property name="toolTip">
               <string extracomment="Inserisci il tuo cognome"/>
              </property>
+             <property name="maxLength">
+              <number>30</number>
+             </property>
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
              </property>
@@ -306,6 +312,9 @@
              </property>
              <property name="toolTip">
               <string extracomment="Insersci la tua password. Deve contenere almeno 8 caratteri"/>
+             </property>
+             <property name="maxLength">
+              <number>100</number>
              </property>
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
@@ -365,6 +374,9 @@
              <property name="toolTip">
               <string extracomment="Inserisci il tuo username"/>
              </property>
+             <property name="maxLength">
+              <number>100</number>
+             </property>
              <property name="echoMode">
               <enum>QLineEdit::Normal</enum>
              </property>
@@ -422,6 +434,9 @@
              </property>
              <property name="toolTip">
               <string extracomment="Inserisci la tua email"/>
+             </property>
+             <property name="maxLength">
+              <number>100</number>
              </property>
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>
@@ -646,7 +661,10 @@
               <number>2</number>
              </property>
              <property name="text">
-              <string>michele6000</string>
+              <string/>
+             </property>
+             <property name="maxLength">
+              <number>100</number>
              </property>
              <property name="placeholderText">
               <string>Inserisci il tuo username</string>
@@ -714,7 +732,10 @@
               <number>2</number>
              </property>
              <property name="text">
-              <string>Password1</string>
+              <string/>
+             </property>
+             <property name="maxLength">
+              <number>100</number>
              </property>
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>

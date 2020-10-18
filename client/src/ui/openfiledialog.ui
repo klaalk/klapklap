@@ -250,6 +250,9 @@
         <property name="focusPolicy">
          <enum>Qt::StrongFocus</enum>
         </property>
+        <property name="maxLength">
+         <number>100</number>
+        </property>
         <property name="placeholderText">
          <string>Inserisci il tuo nome</string>
         </property>
@@ -314,6 +317,9 @@
         <property name="focusPolicy">
          <enum>Qt::StrongFocus</enum>
         </property>
+        <property name="maxLength">
+         <number>100</number>
+        </property>
         <property name="placeholderText">
          <string>Inserisici il tuo cognome</string>
         </property>
@@ -374,6 +380,9 @@
         </property>
         <property name="focusPolicy">
          <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="maxLength">
+         <number>100</number>
         </property>
         <property name="placeholderText">
          <string>Inserisici il tuo nickname</string>
@@ -618,6 +627,9 @@
             <weight>50</weight>
             <bold>false</bold>
            </font>
+          </property>
+          <property name="maxLength">
+           <number>500</number>
           </property>
           <property name="placeholderText">
            <string>lnserisci il nome del file oppure il link di condivisione</string>

@@ -15,10 +15,6 @@ AccessDialog::AccessDialog(QWidget *parent) :
     QDialog(parent),
     ui_(new Ui::AccessDialog),
     gif_(new QMovie(":/gif/animation300x300.gif")),
-
-
-
-
     logo_(new QPixmap(":/images/logo.jp2"))
 {
     QFile styleFile( ":/styles/access-dialog.qss");
@@ -26,8 +22,6 @@ AccessDialog::AccessDialog(QWidget *parent) :
     setStyleSheet(QString(styleFile.readAll()));
 
     ui_->setupUi(this);
-
-
     setFixedSize(size());
 
 #ifdef Q_OS_MACOS
@@ -40,7 +34,6 @@ AccessDialog::AccessDialog(QWidget *parent) :
       ui_->logo_view->setPixmap((*logo_).scaled(217,217,Qt::KeepAspectRatio,Qt::SmoothTransformation));
 #endif
 
-
       //QImageReader image_reader(":/gif/animation300x300.gif");
       //QMovie movie(":/gif/animation300x300.gif");
       //QSize *size = new QSize(300,300);
@@ -52,9 +45,6 @@ AccessDialog::AccessDialog(QWidget *parent) :
       //QPixmap origPixmap(QPixmap::fromImage(image_reader.read()));
      // ui_->gif_viewer->setPixmap(origPixmap);
       //ui_->gif_viewer->resizeEvent(QEvent e);
-
-
-
 
       ui_->gif_viewer->setMovie(gif_);
       ui_->signup_widget->hide();

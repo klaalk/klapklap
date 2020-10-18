@@ -140,9 +140,9 @@
 #define FILE_SYSTEM_CREATE_ERROR nullptr
 
 /// Regular Expressions
-#define EMAIL_REGEX QRegularExpression(R"(^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b)")
-#define PASSWORD_REGEX QRegularExpression("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
-#define USERNAME_REGEX QRegularExpression("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$")
+#define EMAIL_REGEX QRegularExpression(R"(^\b[A-Za-z0-9._%+-]{1,30}@[A-Za-z0-9.-]{1,20}\.[A-Za-z]{2,4}\b)")
+#define PASSWORD_REGEX QRegularExpression("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,20}$")
+#define USERNAME_REGEX QRegularExpression("^[A-Za-z0-9]{1,20}(?:[ _-][A-Za-z0-9]+)*$")
 #define NAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
 #define SURNAME_REGEX QRegularExpression("^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
 
