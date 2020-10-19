@@ -54,7 +54,7 @@ public:
     void loading(bool enable);
     void load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> alignments);
     void applyRemoteAlignmentChange(int alignment, int alignPos);
-    void applyRemoteFormatChange(int position, QString siteId, QString font, QString color);
+    void applyRemoteFormatChange(int position, QString siteId, QString font, QString color, const QString& operation);
     void applyRemoteTextChange(const QString& operation, int position, const QString& siteId, const QChar& value, const QString& font, const QString& colorRecived);
     void applyRemoteCursorChange(const QString& siteId, int position);
     void applySiteIdsPositions(const QString& siteId, const QSharedPointer<QList<int>>& list);

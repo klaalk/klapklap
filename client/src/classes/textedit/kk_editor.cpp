@@ -238,7 +238,7 @@ void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
     }
 }
 
-void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString font, QString color){
+void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString font, QString color, const QString& operation){
     // Recupero il cursore dell'editor
     QTextCursor editorCurs = textEdit->getCursor(position);
     editorCurs.movePosition(editorCurs.Right, QTextCursor::KeepAnchor);
@@ -258,10 +258,12 @@ void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString fon
         format.setForeground(coloreNuovo);
 
     // Controllo che il background sia coerente
+    if (operation == CRDT_INSERT){
     if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId))
         format.setBackground(siteIdsColors.value(siteId));
     else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId))
         format.setBackground(Qt::white);
+    }
 
     // Mergio le modifiche
     editorCurs.mergeCharFormat(format);
@@ -282,7 +284,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
 
     if (operation == CRDT_FORMAT || operation == CRDT_INSERT) {
         // Aggiorno formato
-        applyRemoteFormatChange(position, siteId, font, color);
+        applyRemoteFormatChange(position, siteId, font, color, operation);
     }
 }
 
