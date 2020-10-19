@@ -3,10 +3,10 @@
 #include <QDebug>
 
 #define  HOST "localhost"
-#define  PORT 3306
-#define  USR  "root"
+#define  PORT 3307
+#define  USR  "michele"
 #define  DBN  "klapklap"
-#define  PSW  ""
+#define  PSW  "michele"
 
 #define INSERT_USER_QRY "INSERT INTO `USERS` (`USERNAME`,`PASSWORD`,`EMAIL`,`ALIAS`,`NAME`,`SURNAME`, `IMAGE`, `REGISTRATION_DATE`) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIME())"
 #define UPDATE_USER_QRY "UPDATE `USERS` SET `ALIAS`=?,`NAME`=?,`SURNAME`=?,`IMAGE`=? WHERE `USERNAME` = ?"
@@ -17,12 +17,13 @@
 #define INSERT_FILE_QRY "INSERT INTO `FILES` (`FILENAME`, `HASHNAME`, `USERNAME`, `CREATION_DATE`) VALUES (?, ?, ?, CURRENT_TIME())"
 #define INSERT_SHAREFILE_QRY "INSERT INTO `FILES_OWNERS` (`USERNAME`, `HASHNAME`, `JOIN_DATE`) VALUES (?, ?, CURRENT_TIME())"
 #define DELETE_SHAREFILE_QRY "DELETE FROM `FILES_OWNERS` WHERE `USERNAME` = ? AND `HASHNAME` = ?"
+#define DELETE_FILE_QRY "DELETE FROM `FILES` WHERE `HASHNAME` = ?"
 
 #define GET_USER_FILES_QRY "SELECT `FILES_OWNERS`.`HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` JOIN `FILES` ON `FILES_OWNERS`.`HASHNAME` = `FILES`.`HASHNAME` WHERE `FILES_OWNERS`.`USERNAME`= ? ORDER BY `JOIN_DATE` DESC, `FILES`.`FILENAME`"
 #define GET_SHAREFILE_USERS_QRY "SELECT `USERS`.`USERNAME`, `USERS`.`ALIAS`, `USERS`.`IMAGE` FROM `FILES_OWNERS` JOIN `USERS` ON `USERS`.`USERNAME` = `FILES_OWNERS`.`USERNAME` WHERE `HASHNAME`= ?"
 #define COUNT_SHAREFILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `HASHNAME`= ? AND `USERNAME` = ?"
 #define COUNT_FILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES` WHERE `FILENAME`= ? AND `USERNAME` = ?"
-
+#define COUNT_USER_BY_HASH "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `HASHNAME`= ?"
 
 KKDataBase::KKDataBase():
     crypter(KKCryptPtr(new KKCrypt(Q_UINT64_C(0x0c2ad4a4acb9f023))))
@@ -217,7 +218,30 @@ int KKDataBase::deleteShareFile(QString hashname, QString username)
             resCode = DB_DELETE_FILE_SUCCESS;
         } catch (QException &e) {
             db.close();
-            logger(QString("Errore inserimento share file con hash >%1< per l'utente >%2<\nErrore: %3").arg(hashname, username, e.what()));
+            logger(QString("Errore cancellazione shared file con hash >%1< per l'utente >%2<\nErrore: %3").arg(hashname, username, e.what()));
+        }
+    }
+
+    return resCode;
+}
+
+int KKDataBase::deleteFile(QString hashname)
+{
+    int resCode = DB_DELETE_FILE_FAILED;
+
+    if(!db.open()) {
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else {
+        try {
+            QSqlQuery query(db);
+            query.prepare(DELETE_FILE_QRY);
+            query.addBindValue(hashname);
+            query.exec();
+            db.close();
+            resCode = DB_DELETE_FILE_SUCCESS;
+        } catch (QException &e) {
+            db.close();
+            logger(QString("Errore cancellazione file con hash >%1<\nErrore: %2").arg(hashname, e.what()));
         }
     }
 
@@ -362,6 +386,30 @@ int KKDataBase::existShareFileByUsername(QString filename, QString username)
             query.prepare(COUNT_SHAREFILE_PER_USER_QRY);
             query.addBindValue(filename);
             query.addBindValue(username);
+            query.exec();
+            db.close();
+            query.next();
+
+            if (query.value(0).toInt() > 0)
+                resCode = DB_FILE_EXIST;
+        } catch (QException &e) {
+            QString _str(e.what());
+            db.close();
+        }
+    }
+    return resCode;
+}
+
+int KKDataBase::existUserByHashName(QString hash)
+{
+    int resCode = DB_FILE_NOT_EXIST;
+    if(!db.open()) {
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else {
+        try {
+            QSqlQuery query(db);
+            query.prepare(COUNT_USER_BY_HASH);
+            query.addBindValue(hash);
             query.exec();
             db.close();
             query.next();

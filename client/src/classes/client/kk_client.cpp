@@ -163,6 +163,7 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == DELETE_FILE) {
         sendGetFilesRequest();
 
+
     } else if(response.getRequestType() == LOAD_FILE) {
         handleLoadFileResponse(response);
 

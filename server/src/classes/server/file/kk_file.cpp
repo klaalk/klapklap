@@ -274,7 +274,7 @@ int KKFile::getPartecipantsNumber() {
     participantsMutex.lock();
     long size = participants->size();
     participantsMutex.unlock();
-    return size;
+    return static_cast<int>(size);
 }
 
 bool KKFile::partecipantExist(QString username){
@@ -308,4 +308,11 @@ QStringList KKFile::getParticipants()
         participants_.push_back(user + ":" + state);
     }
     return participants_;
+}
+
+void KKFile::removeParticipant(QString username){
+    //participantsMutex.lock();
+        participants->remove(username);
+    //participantsMutex.unlock();
+
 }

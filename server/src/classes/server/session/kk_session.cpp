@@ -232,6 +232,7 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
 
 void KKSession::handleDeleteFileRequest(KKPayload request)
 {
+    QString username = user->getUsername();
     QStringList params = request.getBodyList();
     if (params.size() > 0) {
         QString hashname = params[0];
@@ -239,11 +240,22 @@ void KKSession::handleDeleteFileRequest(KKPayload request)
         if ((file == nullptr
                 || file.get() == nullptr
                 || file.isNull())
-                || file->getHash() != hashname) {
+                || file->getHash() != hashname
+                //|| file->getParticipants().at(file->getParticipants().indexOf(username)).split(":")[2]==PARTICIPANT_OFFLINE
+                ) {
 
             logger(QString("[handleDeleteFileRequest] - Delete perticipant >%1< from file >%2<").arg(user->getUsername(), hashname));
-            if (db->deleteShareFile(hashname, user->getUsername())==DB_DELETE_FILE_SUCCESS)
-                sendResponse(DELETE_FILE, SUCCESS, {"File cancellato con successo"});
+            if (db->deleteShareFile(hashname, user->getUsername())==DB_DELETE_FILE_SUCCESS){
+                if(db->existUserByHashName(hashname)==DB_FILE_NOT_EXIST){
+                    if(db->deleteFile(hashname)==DB_DELETE_FILE_SUCCESS)
+                        sendResponse(DELETE_FILE, SUCCESS, {"File eliminato con successo"});
+                    else
+                         sendResponse(DELETE_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile rimuovere il file\nErrore interno generico"});
+                }else{
+                    sendResponse(DELETE_FILE, SUCCESS, {"Condivisione eliminata con successo"});
+                    //file->removeParticipant(username);
+                }
+            }
             else
                 sendResponse(DELETE_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile rimuovere il file\nErrore interno generico"});
 
@@ -361,6 +373,7 @@ void KKSession::disconnectFromFile()
         file->deliverMessages(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
 
         if (file->getPartecipantsNumber() < 1) {
+            file->setHash("");
             logger(QString("[disconnectFromFile] - Close file >%1<").arg(file->getHash()));
             files->remove(file->getHash());
             file->produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");

@@ -53,6 +53,8 @@ public:
     QStringList getCrdtText();
 
     int getPartecipantsNumber();
+    QStringList getParticipants();
+    void removeParticipant(QString username);
     bool partecipantExist(QString username);
 
     QVector<KKPayload> getChatMessages();
@@ -62,7 +64,7 @@ public slots:
 private:    
     enum { MaxRecentMessages = 100 };
 
-    QStringList getParticipants();
+
 
     KKMapParticipantPtr participants;
     KKVectorPayloadPtr chatMessages;

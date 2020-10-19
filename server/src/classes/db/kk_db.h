@@ -35,6 +35,7 @@ public:
     int addFile(QString filename, QString hashname, QString username);
     int addShareFile(QString filename, QString username);
     int deleteShareFile(QString filename, QString username);
+    int deleteFile(QString hashname);
     int getUserFiles(QString username, QStringList* files);
     int getShareFileUsers(QString hash, QStringList* users);
 
@@ -43,6 +44,8 @@ public:
     int existUserByEmail(QString email);
     int existFileByUsername(QString filename, QString username);
     int existShareFileByUsername(QString filename, QString username);
+    int existUserByHashName(QString hash);
+
 private:
     void logger(QString message);
 };
