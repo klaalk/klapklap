@@ -26,6 +26,7 @@
 #define UPDATE_USER "UPDU"
 #define GET_FILES "GETF"
 #define OPEN_FILE "OPNF"
+#define DELETE_FILE "DELF"
 #define CLOSE_FILE "CLSF"
 #define SHAREFILE "SHRF"
 #define SAVE_FILE "SAVF"
@@ -74,6 +75,8 @@
 
 #define DB_INSERT_FILE_SUCCESS 5
 #define DB_INSERT_FILE_FAILED -5
+#define DB_DELETE_FILE_SUCCESS 15
+#define DB_DELETE_FILE_FAILED -15
 
 #define DB_ERR_NOT_OPEN_CONNECTION -1
 #define DB_ERR_USER_NOT_FOUND -2
@@ -118,6 +121,7 @@
 #define CRDT_ERROR "CrdtError"
 #define CRDT_ILLEGAL "CrdtIllegal"
 #define CHAT_ERROR "ChatError"
+#define FILE_ERROR "FileError"
 #define GENERIC_ERROR "GenericError"
 #define SERVER_ERROR "ServerError"
 #define INPUT_ERROR "InputOnClientError"
@@ -161,6 +165,7 @@
 #define MODAL_NETWORK_ERROR "Attenzione!\nSembra che tu non sia connesso alla rete"
 #define MODAL_UPDATE_USER_FAIL "Non è stato possibile aggiornare l'account"
 #define MODAL_QUIT_FILE_ERROR "Non è stato possibile chiudere il file"
+#define MODAL_DELETE_FILE_ERROR "Non è stato possibile eliminare il file"
 #define MODAL_UPDATE_FILE_ERROR "Non è stato possibile aggiornare il file dal server"
 #define MODAL_CRDT_ERROR "Non è stato possibile effettuare l'operarzione\nIl file verrà ricaricato con l'ultima versione"
 

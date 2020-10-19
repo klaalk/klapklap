@@ -16,6 +16,8 @@
 
 #define INSERT_FILE_QRY "INSERT INTO `FILES` (`FILENAME`, `HASHNAME`, `USERNAME`, `CREATION_DATE`) VALUES (?, ?, ?, CURRENT_TIME())"
 #define INSERT_SHAREFILE_QRY "INSERT INTO `FILES_OWNERS` (`USERNAME`, `HASHNAME`, `JOIN_DATE`) VALUES (?, ?, CURRENT_TIME())"
+#define DELETE_SHAREFILE_QRY "DELETE FROM `FILES_OWNERS` WHERE `USERNAME` = ? AND `HASHNAME` = ?"
+
 #define GET_USER_FILES_QRY "SELECT `FILES_OWNERS`.`HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` JOIN `FILES` ON `FILES_OWNERS`.`HASHNAME` = `FILES`.`HASHNAME` WHERE `FILES_OWNERS`.`USERNAME`= ? ORDER BY `JOIN_DATE` DESC, `FILES`.`FILENAME`"
 #define GET_SHAREFILE_USERS_QRY "SELECT `USERS`.`USERNAME`, `USERS`.`ALIAS`, `USERS`.`IMAGE` FROM `FILES_OWNERS` JOIN `USERS` ON `USERS`.`USERNAME` = `FILES_OWNERS`.`USERNAME` WHERE `HASHNAME`= ?"
 #define COUNT_SHAREFILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `HASHNAME`= ? AND `USERNAME` = ?"
@@ -189,6 +191,30 @@ int KKDataBase::addShareFile(QString hashname, QString username) {
             query.exec();
             db.close();
             resCode = DB_INSERT_FILE_SUCCESS;
+        } catch (QException &e) {
+            db.close();
+            logger(QString("Errore inserimento share file con hash >%1< per l'utente >%2<\nErrore: %3").arg(hashname, username, e.what()));
+        }
+    }
+
+    return resCode;
+}
+
+int KKDataBase::deleteShareFile(QString hashname, QString username)
+{
+    int resCode = DB_DELETE_FILE_FAILED;
+
+    if(!db.open()) {
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else {
+        try {
+            QSqlQuery query(db);
+            query.prepare(DELETE_SHAREFILE_QRY);
+            query.addBindValue(username);
+            query.addBindValue(hashname);
+            query.exec();
+            db.close();
+            resCode = DB_DELETE_FILE_SUCCESS;
         } catch (QException &e) {
             db.close();
             logger(QString("Errore inserimento share file con hash >%1< per l'utente >%2<\nErrore: %3").arg(hashname, username, e.what()));

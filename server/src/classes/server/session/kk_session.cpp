@@ -89,6 +89,8 @@ void KKSession::handleRequest(QString message) {
             sendResponse(QUIT_FILE, SUCCESS, {"File chiuso"});
         } else if(req.getRequestType() == OPEN_FILE) {
             handleOpenFileRequest(req);
+        } else if(req.getRequestType() == DELETE_FILE) {
+            handleDeleteFileRequest(req);
         } else if(req.getRequestType() == CRDT) {
             handleCrdtRequest(req);
         } else if(req.getRequestType() == CHAT) {
@@ -225,6 +227,31 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         connectToFile(params.at(0));
     } else {
         sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: non è stato inserito nessun nome file"});
+    }
+}
+
+void KKSession::handleDeleteFileRequest(KKPayload request)
+{
+    QStringList params = request.getBodyList();
+    if (params.size() > 0) {
+        QString hashname = params[0];
+        logger("[handleDeleteFileRequest]");
+        if ((file == nullptr
+                || file.get() == nullptr
+                || file.isNull())
+                || file->getHash() != hashname) {
+
+            logger(QString("[handleDeleteFileRequest] - Delete perticipant >%1< from file >%2<").arg(user->getUsername(), hashname));
+            if (db->deleteShareFile(hashname, user->getUsername())==DB_DELETE_FILE_SUCCESS)
+                sendResponse(DELETE_FILE, SUCCESS, {"File cancellato con successo"});
+            else
+                sendResponse(DELETE_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile rimuovere il file\nErrore interno generico"});
+
+        } else {
+            sendResponse(DELETE_FILE, BAD_REQUEST, {"Non è stato possibile rimuovere il file\nAttualmente risulta aperto"});
+        }
+    } else {
+        sendResponse(DELETE_FILE, BAD_REQUEST, {"Non è stato possibile rimuovere il file\nIdentificativo file non presente in richiesta"});
     }
 }
 

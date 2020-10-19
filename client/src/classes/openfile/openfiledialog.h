@@ -25,7 +25,8 @@ class OpenFileDialog : public QDialog
 {
     Q_OBJECT
 signals:
-    void openFile(QString link, QString fileName);
+    void openFile(QString hashname, QString fileName);
+    void deleteFile(QString hashname);
     void updateAccount(QString name, QString surname, QString alias, QString blobImage);
     void logout();
     void closed();

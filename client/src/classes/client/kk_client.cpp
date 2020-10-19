@@ -28,6 +28,7 @@ KKClient::KKClient(QUrl url, QObject *parent)
 
     // Gestisco le richieste di apertura file
     connect(&openFile, &OpenFileDialog::openFile, this, &KKClient::sendOpenFileRequest);
+    connect(&openFile, &OpenFileDialog::deleteFile, this, &KKClient::sendDeleteFileRequest);
     connect(&openFile, &OpenFileDialog::updateAccount, this, &KKClient::sendUpdateUserRequest);
     connect(&openFile, &OpenFileDialog::logout, this, &KKClient::sendLogoutRequest);
     connect(&openFile, &OpenFileDialog::closed, this, &KKClient::onOpenFileDialogClosed);
@@ -159,6 +160,9 @@ void KKClient::handleSuccessResponse(KKPayload response) {
     } else if(response.getRequestType() == OPEN_FILE) {
         handleOpenFileResponse(response);
 
+    } else if(response.getRequestType() == DELETE_FILE) {
+        sendGetFilesRequest();
+
     } else if(response.getRequestType() == LOAD_FILE) {
         handleLoadFileResponse(response);
 
@@ -226,6 +230,10 @@ void KKClient::handleClientErrorResponse(KKPayload response) {
         button = BUTTON_CLOSE_ACTION;
         modalType = CRDT_ERROR;
 
+    } else if (response.getRequestType() == DELETE_FILE) {
+        message = MODAL_DELETE_FILE_ERROR;
+        button = BUTTON_CLOSE_ACTION;
+        modalType = FILE_ERROR;
     } else {
         message = MODAL_LOGIN_ERROR;
         button = BUTTON_CLOSE_ACTION;
@@ -234,6 +242,10 @@ void KKClient::handleClientErrorResponse(KKPayload response) {
     if (modalType == OPENFILE_ERROR) {
         QString remoteMessage = response.getBodyList().at(0);
         message.append("\n").append(remoteMessage);
+    }
+    if (modalType == FILE_ERROR) {
+        QString remoteMessage = response.getBodyList().at(0);
+        message = remoteMessage;
     }
     modal.setModal(message, button, modalType);
     modal.show();
@@ -540,11 +552,20 @@ void KKClient::sendOpenFileRequest(const QString& hashname_, const QString& file
     }
 }
 
-void KKClient::sendLoadFileRequest(const QString &link)
+void KKClient::sendDeleteFileRequest(const QString &hashname)
 {
-    bool result = sendRequest(LOAD_FILE, NONE, {link});
+    bool result = sendRequest(DELETE_FILE, NONE, {hashname});
     if (!result || !socket.isValid()) {
-        modal.setModal("Attenzione!\nSembra che tu non sia connesso alla rete", BUTTON_RETRY_ACTION, CHAT_ERROR);
+        modal.setModal(MODAL_DELETE_FILE_ERROR, BUTTON_CLOSE_ACTION, FILE_ERROR);
+        modal.show();
+    }
+}
+
+void KKClient::sendLoadFileRequest(const QString &hashname)
+{
+    bool result = sendRequest(LOAD_FILE, NONE, {hashname});
+    if (!result || !socket.isValid()) {
+        modal.setModal("Attenzione!\nSembra che tu non sia connesso alla rete", BUTTON_RETRY_ACTION, CRDT_ERROR);
         modal.show();
     }
 }
@@ -632,7 +653,9 @@ void KKClient::handleModalActions(const QString &modalType, bool closed)
     } else if (modalType == UPDATE_USER_ERROR) {
         openFile.setUser(user);
 
-    } else if (modalType == CRDT_ERROR || modalType == CHAT_ERROR || modalType == INPUT_ERROR) {
+    } else if (modalType == CRDT_ERROR
+               || modalType == CHAT_ERROR
+               || modalType == INPUT_ERROR) {
         modal.hide();
         sendQuitFileRequest();
 
@@ -647,7 +670,10 @@ void KKClient::handleModalActions(const QString &modalType, bool closed)
     } else if (modalType == GENERIC_SUCCESS) {
         modal.hide();
 
-    } else if (modalType == GENERIC_ERROR) {
+    } else if (modalType == FILE_ERROR) {
+        modal.hide();
+
+    }  else if (modalType == GENERIC_ERROR) {
         initState();
 
     } else if (modalType == SERVER_ERROR) {

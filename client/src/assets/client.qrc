@@ -125,5 +125,7 @@
         <file>gif/animation300x300.gif</file>
         <file>gif/animation512x512.gif</file>
         <file>gif/animation2048x2048.gif</file>
+        <file>icons/delete-icon.png</file>
+        <file>icons/logo.ico</file>
     </qresource>
 </RCC>

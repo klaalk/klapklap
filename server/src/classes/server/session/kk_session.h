@@ -50,6 +50,8 @@ private:
 
     void handleGetFilesRequest();
     void handleOpenFileRequest(KKPayload request);
+    void handleDeleteFileRequest(KKPayload request);
+
     void handleSaveFileRequest(KKPayload request);
     void handleLoadFileRequest(KKPayload request);
     void handleCrdtRequest(KKPayload request);

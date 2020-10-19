@@ -9,10 +9,10 @@
 #include <QPainter>
 #include <QPainterPath>
 
-#define MAX_TABLE_SIZE 16777215
-
-#define COLUMN_NAME_SIZE 250
+#define COLUMN_NAME_SIZE 200
 #define COLUMN_DATE_SIZE 150
+#define COLUMN_ACCESS_SIZE 150
+#define COLUMN_DELETE_SIZE 20
 
 
 OpenFileDialog::OpenFileDialog(QWidget *parent) :
@@ -54,15 +54,17 @@ void OpenFileDialog::closeEvent(QCloseEvent *e)
 
 void OpenFileDialog::initializeFilesTableView() {
     ui->filesTableWidget->clear();
-    ui->filesTableWidget->setColumnCount(2);
-    ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Data partecipazione"});
+    ui->filesTableWidget->setColumnCount(4);
+    ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Ultimo accesso", "Data partecipazione", ""});
     ui->filesTableWidget->verticalHeader()->setVisible(false);
 
     ui->filesTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->filesTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
     ui->filesTableWidget->setColumnWidth(0, COLUMN_NAME_SIZE);
-    ui->filesTableWidget->setColumnWidth(1, COLUMN_DATE_SIZE);
+    ui->filesTableWidget->setColumnWidth(1, COLUMN_ACCESS_SIZE);
+    ui->filesTableWidget->setColumnWidth(2, COLUMN_DATE_SIZE);
+    ui->filesTableWidget->setColumnWidth(3, COLUMN_DELETE_SIZE);
     ui->filesTableWidget->horizontalHeader()->setStretchLastSection(true);
 }
 
@@ -183,13 +185,30 @@ void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
     QStringList splittedFilename = fileName.split(FILENAME_SEPARATOR);
     QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
 
-    files.insert(splittedFilename[2], splittedFileRow[0]);
-    QTableWidgetItem* name =  new QTableWidgetItem(splittedFilename[2]);
+    QString innerFileName = splittedFilename[2];
+    int identifier = 0;
+    for(QString key : files.keys()) {
+        if (key.startsWith(innerFileName))
+            identifier++;
+    }
+    if (identifier > 0)
+        innerFileName = QString("%1 (%2)").arg(innerFileName, QString::number(identifier));
+
+    files.insert(innerFileName, splittedFileRow[0]);
+
+    QTableWidgetItem* name =  new QTableWidgetItem(innerFileName);
+    QTableWidgetItem* access = new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT));
     QTableWidgetItem* date = new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT));
+    QTableWidgetItem* delet = new QTableWidgetItem(QIcon(":/icons/delete-icon.png"), "");
     date->setTextAlignment(Qt::AlignCenter);
+    access->setTextAlignment(Qt::AlignCenter);
+    delet->setTextAlignment(Qt::AlignCenter);
 
     ui->filesTableWidget->setItem(fileIndex, 0, name);
-    ui->filesTableWidget->setItem(fileIndex, 1, date);
+    ui->filesTableWidget->setItem(fileIndex, 1, access);
+    ui->filesTableWidget->setItem(fileIndex, 2, date);
+    ui->filesTableWidget->setItem(fileIndex, 3, delet);
+
 }
 
 void OpenFileDialog::clear()
@@ -209,10 +228,14 @@ void OpenFileDialog::clear()
 void OpenFileDialog::on_filesTableWidget_itemClicked(QTableWidgetItem *item)
 {
     selectedFilename = ui->filesTableWidget->item(item->row(), 0)->text();
-    ui->createFileNameLineEdit->setText(selectedFilename);
+    if (item->column() < 3) {
+        ui->createFileNameLineEdit->setText(selectedFilename);
 
-    ui->openFileButton->setEnabled(true);
-    ui->shareFileButton->setEnabled(true);
+        ui->openFileButton->setEnabled(true);
+        ui->shareFileButton->setEnabled(true);
+    } else if (item->column() == 3) {
+        emit deleteFile(files.value(selectedFilename));
+    }
 }
 
 void OpenFileDialog::on_openFileButton_clicked()

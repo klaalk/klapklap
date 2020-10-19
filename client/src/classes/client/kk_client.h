@@ -62,8 +62,10 @@ private slots:
     void sendLoginRequest(QString email, const QString& password);
     void sendLogoutRequest();
     void sendGetFilesRequest();
-    void sendOpenFileRequest(const QString& link, const QString& fileName);
-    void sendLoadFileRequest(const QString& link);
+    void sendOpenFileRequest(const QString& hashname, const QString& fileName);
+    void sendDeleteFileRequest(const QString& hashname);
+
+    void sendLoadFileRequest(const QString& hashname);
     void sendQuitFileRequest();
     void sendCrdtRequest(QStringList crdt);
     void sendMessageRequest(QString username, QString message);
