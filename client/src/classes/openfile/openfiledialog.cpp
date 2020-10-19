@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 #include <QPainter>
+#include <QPainterPath>
 
 #define MAX_TABLE_SIZE 16777215
 
