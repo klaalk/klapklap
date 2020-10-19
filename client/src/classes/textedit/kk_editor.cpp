@@ -201,12 +201,12 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
                                   charPtr->getKKCharFont(),
                                   charPtr->getKKCharColor());
 
+            remotePosition++;
+
             if (siteId == remoteSiteId)
                 localPostion = remotePosition;
             else
                 remotePositions.insert(remoteSiteId, remotePosition);
-
-            remotePosition++;
         }
     }
     textEdit->setLocalCursorPosition(localPostion);
