@@ -22,15 +22,12 @@ KKFile::KKFile(QObject *parent): QObject(parent) {
     timer = QSharedPointer<QTimer>(new QTimer());
     timer->start(10000);
     connect(timer.get(), &QTimer::timeout, this, &KKFile::handleTimeout);
+    connect(messagesTask->thread(), &QThread::finished, this, &QObject::deleteLater);
+
 }
 
 KKFile::~KKFile() {
     timer->stop();
-    produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");
-
-    if (messagesTask != nullptr && messagesTask->thread() != nullptr)
-        messagesTask->thread()->wait();
-
     flushCrdtText();
     crdt = nullptr;
     file = nullptr;

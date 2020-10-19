@@ -334,10 +334,9 @@ void KKSession::disconnectFromFile()
         file->deliverMessages(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
 
         if (file->getPartecipantsNumber() < 1) {
-            logger(QString("[disconnectFromFile] - Delete file >%1<").arg(file->getHash()));
-            KKFilePtr f = files->take(file->getHash());
-            f = nullptr;
-            file = nullptr;
+            logger(QString("[disconnectFromFile] - Close file >%1<").arg(file->getHash()));
+            files->remove(file->getHash());
+            file->produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");
         }
     }
 }

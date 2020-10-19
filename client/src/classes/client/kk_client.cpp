@@ -852,8 +852,12 @@ void KKClient::onOpenFileDialogClosed()
 {
     if (editor != nullptr && editor->isVisible())
         openFile.hide();
-    else
+    else {
+        openFile.hide();
+        access.show();
+        access.showLoader(true);
         sendLogoutRequest();
+    }
 }
 
 QSharedPointer<QList<int>> KKClient::findPositions(const QString& siteId){
