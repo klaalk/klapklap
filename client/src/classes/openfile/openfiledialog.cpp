@@ -55,7 +55,7 @@ void OpenFileDialog::closeEvent(QCloseEvent *e)
 void OpenFileDialog::initializeFilesTableView() {
     ui->filesTableWidget->clear();
     ui->filesTableWidget->setColumnCount(2);
-    ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Creato il"});
+    ui->filesTableWidget->setHorizontalHeaderLabels({"Nome file", "Data partecipazione"});
     ui->filesTableWidget->verticalHeader()->setVisible(false);
 
     ui->filesTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
