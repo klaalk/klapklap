@@ -275,19 +275,15 @@ void KKSession::connectToFile(QString filename)
                     if (db->addFile(filename, file->getHash(), user->getUsername()) != DB_INSERT_FILE_SUCCESS) {
                         file = FILE_SYSTEM_CREATE_ERROR;
                         sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemento del nuovo file nel database"});
-
                         return;
                     }
 
                 } else {
                     sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile creare il file"});
-
                     return;
                 }
-
             } else {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: nome file già esistente"});
-
                 return;
             }
 
@@ -327,8 +323,13 @@ void KKSession::connectToFile(QString filename)
 
 void KKSession::disconnectFromFile()
 {
-    if (file != nullptr && file.get() != nullptr && !file.isNull()) {
+    if (file != nullptr
+            && file.get() != nullptr
+            && !file.isNull()
+            && file->contains(sharedFromThis())) {
+
         logger(QString("[disconnectFromFile] - Remove perticipant >%1< from file >%2<").arg(user->getUsername(), file->getHash()));
+
         file->leave(sharedFromThis());
         file->deliverMessages(KKPayload(REMOVED_PARTECIPANT, SUCCESS, {user->getUsername(), user->getAlias(), user->getImage()}), user->getUsername());
 

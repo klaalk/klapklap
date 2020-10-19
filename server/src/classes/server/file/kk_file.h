@@ -29,6 +29,7 @@ class KKFile : public QObject, public QEnableSharedFromThis<KKFile> {
 public:
     KKFile(QObject *parent = nullptr);
     ~KKFile();
+    bool contains(KKParticipantPtr participant);
     void join(KKParticipantPtr participant);
     void leave(KKParticipantPtr participant);
     int deliverMessages(KKPayload data, QString username);

@@ -27,13 +27,23 @@ KKFile::KKFile(QObject *parent): QObject(parent) {
 KKFile::~KKFile() {
     timer->stop();
     produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");
+
     if (messagesTask != nullptr && messagesTask->thread() != nullptr)
         messagesTask->thread()->wait();
+
     flushCrdtText();
     crdt = nullptr;
     file = nullptr;
     timer = nullptr;
     KKLogger::log("File deconstructed", hash);
+}
+
+bool KKFile::contains(KKParticipantPtr participant) {
+    bool contains = false;
+    participantsMutex.lock();
+    contains = participants->contains(participant->id);
+    participantsMutex.unlock();
+    return contains;
 }
 
 void KKFile::join(KKParticipantPtr participant) {
@@ -88,6 +98,7 @@ int KKFile::deliverMessages(KKPayload data, QString username) {
 
         while (chatMessages->size() > MaxRecentMessages)
             chatMessages->pop_front();
+
         chatMutex.unlock();
     }
 
@@ -231,11 +242,9 @@ int KKFile::changeCrdtText(QStringList body){
                 unsigned long endLine = body.takeFirst().toULong();
 
                 for(unsigned long i = startLine; i <= endLine; i++) {
-                    if(!crdt->remoteAlignmentChange(i, alignment))
-                        break;
+                    crdt->remoteAlignmentChange(i, alignment);
                 }
             }
-
         } else {
             for (QString crdtChar : body) {
                 KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
