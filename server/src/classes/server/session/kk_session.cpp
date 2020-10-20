@@ -376,8 +376,8 @@ void KKSession::disconnectFromFile()
             logger(QString("[disconnectFromFile] - Close file >%1<").arg(file->getHash()));
             files->remove(file->getHash());
             file->produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");
-            file = nullptr;
         }
+        file = nullptr;
     }
 }
 
