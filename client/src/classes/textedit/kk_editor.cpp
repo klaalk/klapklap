@@ -259,10 +259,10 @@ void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString fon
 
     // Controllo che il background sia coerente
     if (operation == CRDT_INSERT){
-    if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId))
-        format.setBackground(siteIdsColors.value(siteId));
-    else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId))
-        format.setBackground(Qt::white);
+        if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId))
+            format.setBackground(siteIdsColors.value(siteId));
+        else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId))
+            format.setBackground(Qt::white);
     }
 
     // Mergio le modifiche
@@ -1023,10 +1023,13 @@ void KKEditor::updateColorText(int start, int end, const QString& siteId)
     if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId)) {
         format.setBackground(siteIdsColors.value(siteId));
         cursor.mergeCharFormat(format);
+        clearUndoRedoStack();
     } else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId)) {
         format.setBackground(Qt::white);
         cursor.mergeCharFormat(format);
+        clearUndoRedoStack();
     }
+
 }
 
 /// Aggiorno i cursori remoti sulla base della posizione iniziale e numero di operazioni.
