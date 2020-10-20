@@ -331,7 +331,7 @@ void KKSession::connectToFile(QString hashname, QString filename)
                     && db->addFile(filename, file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
                 file->addUser(QString("%1:%2:%3").arg(user->getUsername(), user->getAlias(), user->getImage()));
                 result = SUCCESS;
-                if(!smtp->sendAddUserFileEmail(user,hashname))
+                if(!smtp->sendAddUserFileEmail(user, filename, hashname))
                     logger("Non è stato possibile inviare la mail. Email: "+user->getEmail());
 
             } else sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore in fase di inserimento partecipante per il file richiesto"});

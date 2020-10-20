@@ -16,7 +16,7 @@ private:
 public:
 
     int sendSignupEmail(QString username, QString email, QString name, QString surname);
-    int sendAddUserFileEmail(KKUserPtr user, QString filename);
+    int sendAddUserFileEmail(KKUserPtr user, QString filename, QString hashname);
     int sendShareUserFileEmail(QString filename, KKUserPtr fromUser, KKUserPtr toUser);
 
 };

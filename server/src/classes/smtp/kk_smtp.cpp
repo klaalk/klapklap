@@ -24,10 +24,10 @@ int KKSmtp::sendSignupEmail(QString username, QString email, QString name, QStri
     return SEND_EMAIL_SUCCESS;
 }
 
-int KKSmtp::sendAddUserFileEmail(KKUserPtr user, QString filename) {
+int KKSmtp::sendAddUserFileEmail(KKUserPtr user, QString filename, QString hasnname) {
     QString destName = user->getName() + " " + user->getSurname();
 
-    QString mex = messageBuilder("New File added: " + filename, "Owner: " + destName, user->getUsername() + "", "Share now!", "abaout:blank");
+    QString mex = messageBuilder("New File added: " + filename + " with link: " + hasnname, "Owner: " + destName, user->getUsername() + "", "Share now!", "abaout:blank");
     bool success = sendMessage(mex, destName, user->getEmail(), "KlapKlap File_Add");
     if (!success) {
         return SEND_EMAIL_NOT_SUCCESS;
