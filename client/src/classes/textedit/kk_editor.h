@@ -129,6 +129,7 @@ private:
     void createCursorAndLabel(KKCursor*& remoteCurs, const QString& name, int postion);
 
     QBrush selectRandomColor();
+    void refillColorLists();
 
     QAction *actionSave{};
     QAction *actionTextBold{};

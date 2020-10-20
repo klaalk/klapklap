@@ -1119,7 +1119,11 @@ void KKEditor::createCursorAndLabel(KKCursor*& remoteCurs, const QString& siteId
 
 QBrush KKEditor::selectRandomColor(){
     QBrush color;
-    int index;
+    int index=-1;
+
+
+    if(primaryColors_.size()==0 && secondaryColors_.size()==0)
+        refillColorLists();
 
     if (primaryColors_.size()!=0) {
         index=rand() % primaryColors_.size();
@@ -1129,6 +1133,37 @@ QBrush KKEditor::selectRandomColor(){
     index=rand() % secondaryColors_.size();
 
     return secondaryColors_.takeAt(index);
+}
+
+void KKEditor::refillColorLists(){
+    primaryColors_={QColor(255,179,216,255),
+                                    QColor(140,158,255,127),
+                                    QColor(143,207,255,255),
+                                    QColor(29,233,182,96),
+                                    QColor(255,235,59,153),
+                                    QColor(245,124,0,140),
+                                    QColor(255,106,116,214),
+                                    QColor(172,255,154,255),
+                                    QColor(21,101,200,150),
+                                    QColor(0,214,127,201)
+    };
+    secondaryColors_={QColor(244,67,54,127),
+                           QColor(240,98,146,71),
+                           QColor(156,39,176,71),
+                           QColor(94,53,177,96),
+                           QColor(0,188,212,102),
+                           QColor(0,150,136,107),
+                           QColor(76,175,80,104),
+                           QColor(156,204,101,99),
+                           QColor(205,220,57,153),
+                           QColor(255,193,7,165),
+                           QColor(255,87,34,102),
+                           QColor(121,85,72,114),
+                           QColor(158,158,158,102),
+                           QColor(3,169,244,76),
+                           QColor(255,193,140,216),
+                           QColor(96,125,139,102)
+                          };
 }
 
 void KKEditor::removeNonCompatibleFonts(QComboBox *comboFont){
