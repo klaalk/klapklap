@@ -345,13 +345,13 @@ void OpenFileDialog::on_LogoutButton_clicked()
 
 bool OpenFileDialog::checkEditForm() {
 
-    bool isValidName = regexMatch(ui->nameLineEdit->text(), NAME_REGEX, showHintName, ui->editHintLabel, "*name must contain only alphabetic characters");
+    bool isValidName = regexMatch(ui->nameLineEdit->text(), NAME_REGEX, showHintName, ui->editHintLabel, "*il nome deve contenere solo caratteri alfabeticic");
     if (!isValidName) return false;
 
-    bool isValidSurname = regexMatch(ui->surnameLineEdit->text(), SURNAME_REGEX, showHintSurname, ui->editHintLabel, "*surname must contain only alphabetic characters");
+    bool isValidSurname = regexMatch(ui->surnameLineEdit->text(), SURNAME_REGEX, showHintSurname, ui->editHintLabel, "*il cognome deve contenere solo caratteri alfabeticic");
     if (!isValidSurname) return false;
 
-    bool isValidAlias = regexMatch(ui->aliasLineEdit->text(), USERNAME_REGEX, showHintAlias, ui->editHintLabel, "*insert a valid alias");
+    bool isValidAlias = regexMatch(ui->aliasLineEdit->text(), USERNAME_REGEX, showHintAlias, ui->editHintLabel, "*inserisci un nickname valido");
     if (!isValidAlias) return false;
 
     return isValidName && isValidSurname && isValidAlias;

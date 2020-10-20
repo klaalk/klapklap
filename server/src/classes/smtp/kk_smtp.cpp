@@ -11,13 +11,13 @@
 
 int KKSmtp::sendSignupEmail(QString username, QString email, QString name, QString surname) {
     QString destName = name + " " + surname;
-    QString mex = messageBuilder("Welcome to KlapKlap Soft :)",
+    QString mex = messageBuilder("Benvenuti su KlapKlap Soft",
                                         destName,
-                                        username + "\nyour registration is now complete!",
-                                        "You are signed-up!",
+                                        username + "\nGrazie per aver scelto noi",
+                                        ":)",
                                         "blank"
                                         );
-    bool success = sendMessage(mex, destName, email, "KlapKlap Registration");
+    bool success = sendMessage(mex, destName, email, "KlapKlap Sign-up");
     if (!success) {
         return SEND_EMAIL_NOT_SUCCESS;
     }
@@ -27,23 +27,8 @@ int KKSmtp::sendSignupEmail(QString username, QString email, QString name, QStri
 int KKSmtp::sendAddUserFileEmail(KKUserPtr user, QString filename, QString hasnname) {
     QString destName = user->getName() + " " + user->getSurname();
 
-    QString mex = messageBuilder("New File added: " + filename + " with link: " + hasnname, "Owner: " + destName, user->getUsername() + "", "Share now!", "abaout:blank");
-    bool success = sendMessage(mex, destName, user->getEmail(), "KlapKlap File_Add");
-    if (!success) {
-        return SEND_EMAIL_NOT_SUCCESS;
-    }
-    return SEND_EMAIL_SUCCESS;
-}
-
-
-int KKSmtp::sendShareUserFileEmail(QString filename, KKUserPtr fromUser, KKUserPtr toUser) {
-
-    QString mex = messageBuilder("New file shared: " + filename, "",
-                                        "Sender: " + fromUser->getName() + " " + fromUser->getSurname(),
-                                        "Open now!",
-                                        "about:blank");
-    bool success = sendMessage(mex, toUser->getName() + " " + toUser->getSurname(), toUser->getEmail(), "KlapKlap Invite");
-
+    QString mex = messageBuilder("Nuovo file aggiunto sul tuo workspace: " + filename + " con link: " + hasnname, "Username: " + destName, user->getUsername() + "", ":)", "about:blank");
+    bool success = sendMessage(mex, destName, user->getEmail(), "KlapKlap Nuovo File");
     if (!success) {
         return SEND_EMAIL_NOT_SUCCESS;
     }
