@@ -1020,7 +1020,7 @@ void KKEditor::updateColorText(int start, int end, const QString& siteId)
     cursor.setPosition(end, QTextCursor::KeepAnchor);
 
     QTextCharFormat format = cursor.charFormat();
-    if (format.background() != siteIdsColors.value(siteId) && siteIdsClicked.contains(siteId)) {
+    if (siteIdsClicked.contains(siteId)) {
         format.setBackground(siteIdsColors.value(siteId));
         cursor.mergeCharFormat(format);
         clearUndoRedoStack();
