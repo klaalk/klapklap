@@ -15,10 +15,11 @@
 #define COUNT_USER_PER_USERNAME_QRY "SELECT COUNT(*) FROM `USERS` WHERE `USERNAME`= ?"
 
 #define INSERT_FILE_QRY "INSERT INTO `FILES` (`FILENAME`, `HASHNAME`, `USERNAME`, `CREATION_DATE`) VALUES (?, ?, ?, CURRENT_TIME())"
-#define INSERT_SHAREFILE_QRY "INSERT INTO `FILES_OWNERS` (`USERNAME`, `HASHNAME`, `JOIN_DATE`) VALUES (?, ?, CURRENT_TIME())"
-#define DELETE_SHAREFILE_QRY "DELETE FROM `FILES_OWNERS` WHERE `USERNAME` = ? AND `HASHNAME` = ?"
-
-#define GET_USER_FILES_QRY "SELECT `FILES_OWNERS`.`HASHNAME`, `JOIN_DATE` FROM `FILES_OWNERS` JOIN `FILES` ON `FILES_OWNERS`.`HASHNAME` = `FILES`.`HASHNAME` WHERE `FILES_OWNERS`.`USERNAME`= ? ORDER BY `JOIN_DATE` DESC, `FILES`.`FILENAME`"
+#define DELETE_FILE_QRY "DELETE FROM `FILES` WHERE `USERNAME` = ? AND `HASHNAME` = ?"
+#define INSERT_SHAREFILE_QRY "INSERT INTO `FILES_OWNERS` (`USERNAME`, `HASHNAME`, `JOIN_DATE`, `LAST_ACCESS`, `ACTIVE`) VALUES (?, ?, CURRENT_TIME(), CURRENT_TIME(), 1)"
+#define DEACTIVE_SHAREFILE_QRY "UPDATE `FILES_OWNERS` SET `ACTIVE` = 0 WHERE `USERNAME` = ? AND `HASHNAME` = ?"
+#define UPDATE_ACCESS_SHAREFILE_QRY "UPDATE `FILES_OWNERS` SET `LAST_ACCESS` = CURRENT_TIME(), ACTIVE = 1 WHERE `USERNAME` = ? AND `HASHNAME` = ?"
+#define GET_USER_FILES_QRY "SELECT `FILES`.`FILENAME`, `FILES_OWNERS`.`HASHNAME`, `JOIN_DATE`, `LAST_ACCESS` FROM `FILES_OWNERS` JOIN `FILES` ON `FILES_OWNERS`.`HASHNAME` = `FILES`.`HASHNAME` AND `FILES_OWNERS`.`USERNAME` = `FILES`.`USERNAME` WHERE `FILES_OWNERS`.`USERNAME`= ? AND `ACTIVE`= 1 ORDER BY `LAST_ACCESS` DESC, `FILES`.`FILENAME`"
 #define GET_SHAREFILE_USERS_QRY "SELECT `USERS`.`USERNAME`, `USERS`.`ALIAS`, `USERS`.`IMAGE` FROM `FILES_OWNERS` JOIN `USERS` ON `USERS`.`USERNAME` = `FILES_OWNERS`.`USERNAME` WHERE `HASHNAME`= ?"
 #define COUNT_SHAREFILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES_OWNERS` WHERE `HASHNAME`= ? AND `USERNAME` = ?"
 #define COUNT_FILE_PER_USER_QRY "SELECT COUNT(*) FROM `FILES` WHERE `FILENAME`= ? AND `USERNAME` = ?"
@@ -200,7 +201,30 @@ int KKDataBase::addShareFile(QString hashname, QString username) {
     return resCode;
 }
 
-int KKDataBase::deleteShareFile(QString hashname, QString username)
+int KKDataBase::deactiveShareFile(QString hashname, QString username) {
+    int resCode = DB_DEACTIVE_FILE_FAILED;
+
+    if(!db.open()) {
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else {
+        try {
+            QSqlQuery query(db);
+            query.prepare(DEACTIVE_SHAREFILE_QRY);
+            query.addBindValue(username);
+            query.addBindValue(hashname);
+            query.exec();
+            db.close();
+            resCode = DB_DEACTIVE_FILE_SUCCESS;
+        } catch (QException &e) {
+            db.close();
+            logger(QString("Errore inserimento share file con hash >%1< per l'utente >%2<\nErrore: %3").arg(hashname, username, e.what()));
+        }
+    }
+
+    return resCode;
+}
+
+int KKDataBase::deleteFile(QString hashname, QString username)
 {
     int resCode = DB_DELETE_FILE_FAILED;
 
@@ -209,12 +233,36 @@ int KKDataBase::deleteShareFile(QString hashname, QString username)
     } else {
         try {
             QSqlQuery query(db);
-            query.prepare(DELETE_SHAREFILE_QRY);
+            query.prepare(DELETE_FILE_QRY);
             query.addBindValue(username);
             query.addBindValue(hashname);
             query.exec();
             db.close();
             resCode = DB_DELETE_FILE_SUCCESS;
+        } catch (QException &e) {
+            db.close();
+            logger(QString("Errore inserimento share file con hash >%1< per l'utente >%2<\nErrore: %3").arg(hashname, username, e.what()));
+        }
+    }
+
+    return resCode;
+}
+
+int KKDataBase::updateAccessShareFile(QString hashname, QString username)
+{
+    int resCode = DB_ACCESS_SHAREFILE_FAILED;
+
+    if(!db.open()) {
+        resCode = DB_ERR_NOT_OPEN_CONNECTION;
+    } else {
+        try {
+            QSqlQuery query(db);
+            query.prepare(UPDATE_ACCESS_SHAREFILE_QRY);
+            query.addBindValue(username);
+            query.addBindValue(hashname);
+            query.exec();
+            db.close();
+            resCode = DB_ACCESS_SHAREFILE_SUCCESS;
         } catch (QException &e) {
             db.close();
             logger(QString("Errore inserimento share file con hash >%1< per l'utente >%2<\nErrore: %3").arg(hashname, username, e.what()));
@@ -238,8 +286,10 @@ int  KKDataBase::getUserFiles(QString username, QStringList* files){
             if (files == nullptr)
                 files = new QStringList();
 
-            while(query.next())
-                (*files).push_back(query.value(0).toString() + FILENAME_SEPARATOR + query.value(1).toString());
+            while(query.next()) {
+                QString value = QString("%1/%2/%3/%4").arg(query.value(0).toString(), query.value(1).toString(), query.value(2).toString(), query.value(3).toString());
+                (*files).push_back(value);
+            }
 
             db.close();
             resCode = DB_USER_FILES_FOUND;

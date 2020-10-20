@@ -57,7 +57,7 @@ private:
     void handleCrdtRequest(KKPayload request);
     void handleChatRequest(KKPayload request);
 
-    void connectToFile(QString filename);
+    void connectToFile(QString hashname, QString filename);
     void disconnectFromFile();
     void logger(QString message);
 

@@ -180,26 +180,17 @@ QString OpenFileDialog::getAlias() const
 void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
     QStringList splittedFileRow = fileRow.split(FILENAME_SEPARATOR);
 
-    QString fileName = crypt->decryptToString(splittedFileRow[0]);
+    QString filename = splittedFileRow[0];
+    QString hashname = splittedFileRow[1];
+    QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[2], Qt::ISODate);
+    QDateTime lastAccessDateTime = QDateTime::fromString(splittedFileRow[3], Qt::ISODate);
 
-    QStringList splittedFilename = fileName.split(FILENAME_SEPARATOR);
-    QDateTime creationDateTime = QDateTime::fromString(splittedFileRow[1], Qt::ISODate);
-
-    QString innerFileName = splittedFilename[2];
-    int identifier = 0;
-    for(QString key : files.keys()) {
-        if (key.startsWith(innerFileName))
-            identifier++;
-    }
-    if (identifier > 0)
-        innerFileName = QString("%1 (%2)").arg(innerFileName, QString::number(identifier));
-
-    files.insert(innerFileName, splittedFileRow[0]);
-
-    QTableWidgetItem* name =  new QTableWidgetItem(innerFileName);
-    QTableWidgetItem* access = new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT));
+    files.insert(filename, hashname);
+    QTableWidgetItem* name =  new QTableWidgetItem(filename);
+    QTableWidgetItem* access = new QTableWidgetItem(lastAccessDateTime.toString(DATE_TIME_FORMAT));
     QTableWidgetItem* date = new QTableWidgetItem(creationDateTime.toString(DATE_TIME_FORMAT));
     QTableWidgetItem* delet = new QTableWidgetItem(QIcon(":/icons/delete-icon.png"), "");
+
     date->setTextAlignment(Qt::AlignCenter);
     access->setTextAlignment(Qt::AlignCenter);
     delet->setTextAlignment(Qt::AlignCenter);
@@ -209,6 +200,20 @@ void OpenFileDialog::addFile(int fileIndex, const QString& fileRow) {
     ui->filesTableWidget->setItem(fileIndex, 2, date);
     ui->filesTableWidget->setItem(fileIndex, 3, delet);
 
+}
+
+QString OpenFileDialog::createInnerFilename(QString filename)
+{
+    QString innerFilename = filename;
+    int identifier = 0;
+    for(QString key : files.keys()) {
+        if (key.startsWith(innerFilename))
+            identifier++;
+    }
+    if (identifier > 0)
+        innerFilename = QString("%1 (%2)").arg(innerFilename, QString::number(identifier+1));
+
+    return innerFilename;
 }
 
 void OpenFileDialog::clear()
@@ -280,7 +285,17 @@ void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEd
         QStringList splittedDecryptedLink = decryptedLink.split(FILENAME_SEPARATOR);
         if (splittedDecryptedLink.size() == 3) {
             pastedLink = lineEditText;
-            pastedFilename = splittedDecryptedLink[2];
+            QString innerFilename;
+            for (auto entry : files.toStdMap()) {
+                if (pastedLink == entry.second) {
+                    innerFilename = entry.first;
+                    break;
+                }
+            }
+            if (innerFilename.isEmpty()) {
+                innerFilename = createInnerFilename(splittedDecryptedLink[2]);
+            }
+            pastedFilename = innerFilename;
             ui->createFileNameLineEdit->setText(pastedFilename);
         } else {
             ui->createFileNameLineEdit->setText("");
@@ -301,7 +316,7 @@ void OpenFileDialog::on_createFileNameLineEdit_textChanged(const QString &lineEd
                     isSharedFileName = true;
                 } else {
                     selectedFilename = "";
-                     isSharedFileName = false;
+                    isSharedFileName = false;
                 }
             }
         }

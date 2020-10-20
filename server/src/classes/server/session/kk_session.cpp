@@ -212,19 +212,17 @@ void KKSession::handleOpenFileRequest(KKPayload request) {
         if (search != files->end()) {
             if (files->value(params.at(0))->partecipantExist(user->getUsername())) {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: stai già partecipando al file"});
-
                 return;
             }
 
             if (files->value(params.at(0))->getPartecipantsNumber()>=25) {
                 sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: numero massimo di partecipanti attivi raggiunto"});
-
                 return;
             }
         }
 
         disconnectFromFile();
-        connectToFile(params.at(0));
+        connectToFile(params.at(0), params.at(1));
     } else {
         sendResponse(OPEN_FILE, BAD_REQUEST, {"Errore in fase di richiesta: non è stato inserito nessun nome file"});
     }
@@ -242,7 +240,8 @@ void KKSession::handleDeleteFileRequest(KKPayload request)
                 || file->getHash() != hashname) {
 
             logger(QString("[handleDeleteFileRequest] - Delete perticipant >%1< from file >%2<").arg(user->getUsername(), hashname));
-            if (db->deleteShareFile(hashname, user->getUsername())==DB_DELETE_FILE_SUCCESS)
+            if (db->deleteFile(hashname, user->getUsername()) == DB_DELETE_FILE_SUCCESS
+                    && db->deactiveShareFile(hashname, user->getUsername()) == DB_DEACTIVE_FILE_SUCCESS)
                 sendResponse(DELETE_FILE, SUCCESS, {"File cancellato con successo"});
             else
                 sendResponse(DELETE_FILE, INTERNAL_SERVER_ERROR, {"Non è stato possibile rimuovere il file\nErrore interno generico"});
@@ -279,23 +278,23 @@ void KKSession::handleChatRequest(KKPayload request) {
     file->produceMessages(request, "All");
 }
 
-void KKSession::connectToFile(QString filename)
+void KKSession::connectToFile(QString hashname, QString filename)
 {
-    logger(QString("[connectToFile] -  File >%1<").arg(filename));
+    logger(QString("[connectToFile] -  File name >%1< and hash >%2<").arg(filename, hashname));
     QStringList users;
     QString result = INTERNAL_SERVER_ERROR;
 
-    auto search = files->find(filename);
+    auto search = files->find(hashname);
     if (search != files->end()) {
         // Controllo se il file risulta tra quelli già aperti.
-        file = files->value(filename);
+        file = files->value(hashname);
     } else {
         // Controllo se il file esiste nel DB e recupero la lista di utenti associati a quel file
-        if (db->getShareFileUsers(filename, &users) == DB_FILE_NOT_EXIST) {
+        if (db->getShareFileUsers(hashname, &users) == DB_FILE_NOT_EXIST) {
 
             // File non esistente, controllo se l'utente ha già creato il file con lo stesso nome
             if (db->existFileByUsername(filename, user->getUsername()) == DB_FILE_NOT_EXIST) {
-                file = fileSystem->createFile(filename, user->getUsername());
+                file = fileSystem->createFile(hashname, user->getUsername());
 
                 if (file != FILE_SYSTEM_CREATE_ERROR) {
 
@@ -315,7 +314,7 @@ void KKSession::connectToFile(QString filename)
             }
 
         } else
-            file = fileSystem->openFile(filename);
+            file = fileSystem->openFile(hashname);
 
         if (file != FILE_SYSTEM_CREATE_ERROR) {
             // Inserisco il file nella mappa dei file attivi
@@ -327,17 +326,30 @@ void KKSession::connectToFile(QString filename)
 
     if (file != FILE_SYSTEM_CREATE_ERROR) {
 
-        if( db->existShareFileByUsername(file->getHash(), user->getUsername()) == DB_FILE_NOT_EXIST) {
-
-            if (db->addShareFile(file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
+        if (db->existShareFileByUsername(file->getHash(), user->getUsername()) == DB_FILE_NOT_EXIST) {
+            if (db->addShareFile(file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS
+                    && db->addFile(filename, file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
                 file->addUser(QString("%1:%2:%3").arg(user->getUsername(), user->getAlias(), user->getImage()));
                 result = SUCCESS;
-                if(!smtp->sendAddUserFileEmail(user,filename))
+                if(!smtp->sendAddUserFileEmail(user,hashname))
                     logger("Non è stato possibile inviare la mail. Email: "+user->getEmail());
 
             } else sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore in fase di inserimento partecipante per il file richiesto"});
 
-        } else result = SUCCESS;
+        } else if (db->existFileByUsername(filename, user->getUsername()) == DB_FILE_NOT_EXIST) {
+            if (db->addFile(filename, file->getHash(), user->getUsername()) == DB_INSERT_FILE_SUCCESS) {
+                db->updateAccessShareFile(file->getHash(), user->getUsername());
+                result = SUCCESS;
+            } else {
+                file = FILE_SYSTEM_CREATE_ERROR;
+                sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nell'inseriemento del nuovo file nel database"});
+                return;
+            }
+        } else {
+            qDebug() << "AGGIORNO";
+            db->updateAccessShareFile(file->getHash(), user->getUsername());
+            result = SUCCESS;
+        }
 
     } else sendResponse(OPEN_FILE, INTERNAL_SERVER_ERROR, {"Errore nel filesystem durante l'apertura del nuovo file"});
 
@@ -364,6 +376,7 @@ void KKSession::disconnectFromFile()
             logger(QString("[disconnectFromFile] - Close file >%1<").arg(file->getHash()));
             files->remove(file->getHash());
             file->produceMessages(KKPayload(CLOSE_FILE, NONE, {}), "All");
+            file = nullptr;
         }
     }
 }

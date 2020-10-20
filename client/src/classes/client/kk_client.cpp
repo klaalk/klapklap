@@ -546,7 +546,7 @@ void KKClient::sendOpenFileRequest(const QString& hashname_, const QString& file
 
     if (!timer.isActive())
         timer.start(TIMEOUT_VALUE);
-    bool sended = sendRequest(OPEN_FILE, NONE, {hashname});
+    bool sended = sendRequest(OPEN_FILE, NONE, {hashname, filename});
     if (sended) {
         state = CONNECTED_NOT_OPENFILE;
     }

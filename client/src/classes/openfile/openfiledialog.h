@@ -76,6 +76,7 @@ protected:
 
 private:
     void addFile(int fileIndex, const QString& fileName);
+    QString createInnerFilename(QString filename);
     void initializeFilesTableView();
     bool checkEditForm();
     bool chackEditChanges();

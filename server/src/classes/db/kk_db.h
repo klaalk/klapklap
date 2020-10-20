@@ -33,8 +33,10 @@ public:
 
     /// file
     int addFile(QString filename, QString hashname, QString username);
-    int addShareFile(QString filename, QString username);
-    int deleteShareFile(QString filename, QString username);
+    int addShareFile(QString hashname, QString username);
+    int deactiveShareFile(QString hashname, QString username);
+    int deleteFile(QString hashname, QString username);
+    int updateAccessShareFile(QString hashname, QString username);
     int getUserFiles(QString username, QStringList* files);
     int getShareFileUsers(QString hash, QStringList* users);
 
