@@ -278,7 +278,7 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         editorCurs.insertText(text);
 
     } else if (operation == CRDT_DELETE) {
-        //Prelevo il cursore dell'editor e inserisco il testo
+        //Prelevo il cursore dell'editor e cancello il testo
         editorCurs.deleteChar();
     }
 
@@ -1024,7 +1024,7 @@ void KKEditor::updateColorText(int start, int end, const QString& siteId)
         format.setBackground(siteIdsColors.value(siteId));
         cursor.mergeCharFormat(format);
         clearUndoRedoStack();
-    } else if (format.background() != Qt::white && !siteIdsClicked.contains(siteId)) {
+    } else if (!siteIdsClicked.contains(siteId)) {
         format.setBackground(Qt::white);
         cursor.mergeCharFormat(format);
         clearUndoRedoStack();
