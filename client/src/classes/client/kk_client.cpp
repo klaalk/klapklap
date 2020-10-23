@@ -383,26 +383,25 @@ void KKClient::handleCrdtResponse(KKPayload response) {
     // Recupero le info generiche dell'operazione
     QString operation = body.takeFirst();
     QString remoteSiteId = body.takeFirst();
-    int remoteCursorPos = QVariant(body.takeFirst()).toInt();
+    body.takeFirst();
+
     if (operation == CRDT_ALIGNM) {
-        handleCrdtAlignmentResponse(body);
+        handleCrdtAlignmentResponse(remoteSiteId, body);
     } else {
         handleCrdtTextResponse(remoteSiteId, operation, body);
     }
-    // Aggiorno il cursore dell'utente che ha eseguito l'operazione
 
     if (user->getUsername() != remoteSiteId) {
-        if(operation==CRDT_ALIGNM || operation==CRDT_FORMAT)
-            editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
         // Pulisco lo stack delle operazioni
         editor->clearUndoRedoStack();
     }
     editor->updateLabels();
 }
 
-void KKClient::handleCrdtAlignmentResponse(QStringList ranges)
+void KKClient::handleCrdtAlignmentResponse(QString remoteSiteId, QStringList ranges)
 {
     // Caso in cui sia una operazione di allineamento
+    int currentPosition = -1;
     while(!ranges.isEmpty()) {
         // Recupero le info dell'allineamento
         int alignment = ranges.takeFirst().toInt();
@@ -413,11 +412,15 @@ void KKClient::handleCrdtAlignmentResponse(QStringList ranges)
         for(unsigned long i = startLine; i <= endLine; i++) {
             // Controlla che la riga esista
             if (crdt->remoteAlignmentChange(i, alignment)) {
-                int position = crdt->calculateGlobalPosition(KKPosition(i, 0));
-                editor->applyRemoteAlignmentChange(alignment, position);
+                currentPosition = crdt->calculateGlobalPosition(KKPosition(i, 0));
+                editor->applyRemoteAlignmentChange(alignment, currentPosition);
             }
         }
     }
+
+    // Aggiorno la posizione del cursore remoto
+    if (currentPosition >= 0)
+        editor->applyRemoteCursorChange(remoteSiteId, currentPosition);
 
     // Semplicemente riposiziono il cursore dov'era
     editor->updateLocalCursor();
@@ -451,16 +454,22 @@ void KKClient::handleCrdtTextResponse(QString remoteSiteId, QString operation, Q
         }
 
         // Calcolo la global position
-           currentPosition = crdt->calculateGlobalPosition(crdtPosition);
-
+        currentPosition = crdt->calculateGlobalPosition(crdtPosition);
         editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
     }
 
+    // Aggiorno la posizione del cursore remoto
+    if (currentPosition >= 0) {
+        if (operation == CRDT_INSERT) currentPosition += 1;
+        editor->applyRemoteCursorChange(remoteSiteId, currentPosition);
+    }
+
     if (operationCounter != 0) {
-        // Aggiorno la posizione degl'altri utenti se necessario
-        int startPosition=operation == CRDT_INSERT ? currentPosition-operationCounter : currentPosition;
-        editor->updateCursors(editor->getMySiteId() , startPosition, operationCounter);
-        // Aggiorno la posizione del cursore locale se necessario
+        // Shifto la posizione di tutti gli altri utenti
+        int startPosition = operation == CRDT_INSERT ? currentPosition - operationCounter : currentPosition;
+        editor->updateCursors(remoteSiteId, startPosition, operationCounter);
+
+        // Shifto la posizione del cursore locale se necessario
         editor->updateLocalCursor(startPosition, operationCounter);
     }
 }
