@@ -218,6 +218,7 @@ void KKEditor::load(std::vector<std::list<KKCharPtr>> crdt, std::vector<int> ali
 
 void KKEditor::applyRemoteAlignmentChange(int alignment, int alignPos)
 {
+    textEdit->saveLocalCursor();
     textEdit->setCursorPosition(alignPos);
     QTextBlockFormat f;
     if (alignment == 1) {
@@ -271,6 +272,7 @@ void KKEditor::applyRemoteFormatChange(int position, QString siteId, QString fon
 
 void KKEditor::applyRemoteTextChange(const QString& operation, int position, const QString& siteId, const QChar& text, const QString& font, const QString& color) {
     // Eseguo l'operazione.
+    textEdit->saveLocalCursor();
     QTextCursor editorCurs = textEdit->getCursor(position);
 
     if (operation == CRDT_INSERT) {
@@ -313,7 +315,7 @@ QBrush KKEditor::applySiteIdClicked(const QString& siteId){
         if(siteId != getMySiteId() && cursors.contains(siteId))
             textEdit->setCursorPosition(cursors.value(siteId)->getGlobalPositon());
         else
-            textEdit->restoreCursorPosition();
+            textEdit->restoreLocalCursor();
 
         if (siteIdsColors.contains(siteId))
             color = siteIdsColors.value(siteId);
@@ -1061,7 +1063,7 @@ void KKEditor::updateLocalCursor(int startPosition, int delta)
         position += delta;
         textEdit->setLocalCursorPosition(position);
     } else {
-        textEdit->restoreCursorPosition();
+        textEdit->restoreLocalCursor();
     }
 }
 

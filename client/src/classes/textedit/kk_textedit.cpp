@@ -43,15 +43,12 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     textChanged = false;
 
     QTextEdit::keyPressEvent(e);
-
-    localCursorPosition = textCursor().position();
+    saveLocalCursor();
 
     if (textChanged) {
         calculateDiffText();
     }
-
     textChanged = false;
-
 }
 
 void KKTextEdit::mousePressEvent(QMouseEvent *e)
@@ -59,7 +56,7 @@ void KKTextEdit::mousePressEvent(QMouseEvent *e)
     start = textCursor().position();
     lastText = toPlainText();
     QTextEdit::mousePressEvent(e);
-    localCursorPosition = textCursor().position();
+    saveLocalCursor();
 }
 
 void KKTextEdit::wheelEvent(QWheelEvent *e)
@@ -86,13 +83,14 @@ void KKTextEdit::setCursorPosition(int position)
 
 void KKTextEdit::setLocalCursorPosition(int position)
 {
-    localCursorPosition = position;
-    setCursorPosition(localCursorPosition);
+    QTextCursor tmp = getCursor(position);
+    localCursor = tmp;
+    setTextCursor(localCursor);
 }
 
-void KKTextEdit::restoreCursorPosition()
+void KKTextEdit::restoreLocalCursor()
 {
-    setCursorPosition(localCursorPosition);
+    setTextCursor(localCursor);
 }
 
 int KKTextEdit::cursorPosition()
@@ -102,7 +100,12 @@ int KKTextEdit::cursorPosition()
 
 int KKTextEdit::getLocalCursorPosition()
 {
-    return localCursorPosition;
+    return localCursor.position();
+}
+
+void KKTextEdit::saveLocalCursor()
+{
+    localCursor = textCursor();
 }
 
 void KKTextEdit::handleTextChange()
@@ -195,8 +198,8 @@ void KKTextEdit::textCut()
 void KKTextEdit::calculateDiffText()
 {
     // Prelevo la posizione corrente del cursore
-    end = textCursor().position();
-    localCursorPosition = end;
+    saveLocalCursor();
+    end = getLocalCursorPosition();
     // Se il testo era selezionato e ora non lo è più
     if (wasSelected && !textCursor().hasSelection()) {
         // Allora guardo inizio e fine della slezione facendo in modo che inizio sia sempre "minore" di fine

@@ -26,9 +26,10 @@ public:
     QTextCursor getCursor(int position);
     void setCursorPosition(int position);
     void setLocalCursorPosition(int position);
-    void restoreCursorPosition();
+    void restoreLocalCursor();
     int cursorPosition();
     int getLocalCursorPosition();
+    void saveLocalCursor();
 
     bool getIsUndoAvailable() const;
     bool getIsRedoAvailable() const;
@@ -49,7 +50,7 @@ private:
     int end = -1;
     int selectionStart = -1;
     int selectionEnd = -1;
-    int localCursorPosition = -1;
+    QTextCursor localCursor;
 
     bool wasSelected = false;
     bool textChanged = false;
