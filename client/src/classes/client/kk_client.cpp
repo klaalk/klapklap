@@ -419,7 +419,7 @@ void KKClient::handleCrdtAlignmentResponse(QString remoteSiteId, QStringList ran
     }
 
     // Aggiorno la posizione del cursore remoto
-    if (currentPosition >= 0)
+    if (currentPosition >= 0 && editor->getMySiteId() != remoteSiteId)
         editor->applyRemoteCursorChange(remoteSiteId, currentPosition);
 
     // Semplicemente riposiziono il cursore dov'era
@@ -459,7 +459,7 @@ void KKClient::handleCrdtTextResponse(QString remoteSiteId, QString operation, Q
     }
 
     // Aggiorno la posizione del cursore remoto
-    if (currentPosition >= 0) {
+    if (currentPosition >= 0 && editor->getMySiteId() != remoteSiteId) {
         if (operation == CRDT_INSERT) currentPosition += 1;
         editor->applyRemoteCursorChange(remoteSiteId, currentPosition);
     }
