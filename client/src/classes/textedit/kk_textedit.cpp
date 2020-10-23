@@ -291,6 +291,7 @@ void KKTextEdit::sendDiffText(QString operation, QString text, int start, int en
         printText.append("[...]");
     }
     KKLogger::log(QString("[sendDiffText] - %1 >%2< from >%3< to >%4<").arg(operation, printText, QString::number(start), QString::number(end)), "TEXTEDIT");
+
     emit textChangedEvent(operation, text, start, end);
 }
 

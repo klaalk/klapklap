@@ -1072,6 +1072,10 @@ void KKEditor::updateLabels() {
     int fontMax=-1;
     int positionMax = text.length();
     for(KKCursor* c : cursors.values()) {
+        if(c->getGlobalPositon()>positionMax)
+            c->setGlobalPositon(positionMax);
+        if(c->getGlobalPositon()<0)
+            c->setGlobalPositon(0);
         editorCurs.setPosition(c->getGlobalPositon());
         int fontSx = editorCurs.charFormat().font().pointSize();
         int fontDx = -1;

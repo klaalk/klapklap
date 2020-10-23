@@ -390,9 +390,11 @@ void KKClient::handleCrdtResponse(KKPayload response) {
         handleCrdtTextResponse(remoteSiteId, operation, body);
     }
     // Aggiorno il cursore dell'utente che ha eseguito l'operazione
+
     if (user->getUsername() != remoteSiteId) {
-        editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
-        // E pulisco lo stack delle operazioni
+        if(operation==CRDT_ALIGNM || operation==CRDT_FORMAT)
+            editor->applyRemoteCursorChange(remoteSiteId, remoteCursorPos);
+        // Pulisco lo stack delle operazioni
         editor->clearUndoRedoStack();
     }
     editor->updateLabels();
@@ -425,8 +427,6 @@ void KKClient::handleCrdtTextResponse(QString remoteSiteId, QString operation, Q
 {
     // Posizione corrente
     int currentPosition = -1;
-    // Memorizza la posizione iniziale in cui è stato modificato il testo
-    int startPosition = -1;
     // Memorizza di quanti caratteri è cambiato il testo
     int operationCounter = 0;
 
@@ -438,39 +438,28 @@ void KKClient::handleCrdtTextResponse(QString remoteSiteId, QString operation, Q
         QString crdtChar = operation == CRDT_DELETE ? chars.takeLast() : chars.takeFirst();
         KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
 
-        int deltaPosition = 0;
         if (operation == CRDT_FORMAT) {
             crdtPosition = crdt->remoteFormatChange(charPtr);
-            deltaPosition = 1;
         }
         else if (operation == CRDT_INSERT) {
             crdtPosition = crdt->remoteInsert(charPtr);
             operationCounter++;
-            deltaPosition = 1;
         }
         else if (operation == CRDT_DELETE) {
             crdtPosition = crdt->remoteDelete(charPtr);
             operationCounter--;
-            deltaPosition = -1;
         }
 
-        // Calcolo la global position solo una volta
-        // poi da lì sarà sequenziale
-        if (currentPosition == -1)
-            currentPosition = crdt->calculateGlobalPosition(crdtPosition);
-        else
-            currentPosition += deltaPosition;
-
-        if (startPosition > currentPosition || startPosition == -1)
-            startPosition = currentPosition;
+        // Calcolo la global position
+           currentPosition = crdt->calculateGlobalPosition(crdtPosition);
 
         editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
     }
 
     if (operationCounter != 0) {
         // Aggiorno la posizione degl'altri utenti se necessario
-        editor->updateCursors(remoteSiteId, startPosition, operationCounter);
-
+        int startPosition=operation == CRDT_INSERT ? currentPosition-operationCounter : currentPosition;
+        editor->updateCursors(editor->getMySiteId() , startPosition, operationCounter);
         // Aggiorno la posizione del cursore locale se necessario
         editor->updateLocalCursor(startPosition, operationCounter);
     }
