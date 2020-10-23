@@ -83,8 +83,10 @@ void KKTextEdit::setCursorPosition(int position)
 
 void KKTextEdit::setLocalCursorPosition(int position)
 {
-    QTextCursor tmp = getCursor(position);
-    localCursor = tmp;
+    if (!localCursor.hasSelection()) {
+        QTextCursor tmp = getCursor(position);
+        localCursor = tmp;
+    }
     setTextCursor(localCursor);
 }
 

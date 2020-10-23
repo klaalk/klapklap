@@ -1042,8 +1042,13 @@ void KKEditor::updateCursors(QString siteId, int startPosition, int operations){
             int cursorPosition = c->getGlobalPositon();
             if (cursorPosition > startPosition) {
 
-                if (c->getSiteId() != siteId)
-                    cursorPosition += operations;
+                if (c->getSiteId() != siteId) {
+                    if (cursorPosition < startPosition + abs(operations)) {
+                        cursorPosition = startPosition;
+                    } else {
+                        cursorPosition += operations;
+                    }
+                }
 
                 cursorPosition = cursorPosition >= 0 ? cursorPosition : 0;
                 cursorPosition = cursorPosition <= maxPosition ? cursorPosition : maxPosition;
