@@ -38,12 +38,13 @@ void KKTextEdit::keyPressEvent(QKeyEvent *e)
     } else {
         wasSelected = false;
     }
-
     start = textCursor().position();
     lastText = toPlainText();
     textChanged = false;
 
     QTextEdit::keyPressEvent(e);
+
+    localCursorPosition = textCursor().position();
 
     if (textChanged) {
         calculateDiffText();
