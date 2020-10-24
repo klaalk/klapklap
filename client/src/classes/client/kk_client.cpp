@@ -766,7 +766,7 @@ void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QStri
         changes.push_back(user->getUsername());
         changes.push_back(QVariant(editor->getTextEdit()->cursorPosition()).toString());
 
-        for (unsigned long i = start; i < end; i++) {
+        for (unsigned long i = 0; i < end-start; i++) {
             QChar value;
             KKCharPtr charPtr = crdt->localFormatChange(KKPosition(line, col), fonts.at(i), colors.at(i), &value);
             if (charPtr != nullptr)
