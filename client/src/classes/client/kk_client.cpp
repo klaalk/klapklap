@@ -77,7 +77,7 @@ void KKClient::initEditor()
     connect(editor, &KKEditor::saveCrdtTtoFile, this, &KKClient::onSaveCrdtToFile);
     connect(editor, &KKEditor::alignChange, this, &KKClient::onAlignmentChange);
     connect(editor, &KKEditor::notifyAlignment, this, &KKClient::onNotifyAlignment);
-    connect(editor, &KKEditor::charFormatChange, this, &KKClient::onCharFormatChanged);
+    connect(editor, &KKEditor::formatChangeToCrdt, this, &KKClient::onCharFormatChanged);
     connect(editor, &KKEditor::openFileDialog, this, &KKClient::onOpenFileDialogOpened);
     connect(editor, &KKEditor::editorClosed, this, &KKClient::onEditorClosed);
     connect(editor, &KKEditor::printCrdt, this, &KKClient::printCrdt);
@@ -756,7 +756,7 @@ void KKClient::onRemoveTextFromCrdt(unsigned long start, unsigned long end, QStr
 }
 
 
-void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QString font, QString color){
+void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QStringList fonts, QStringList colors){
     unsigned long line = 0, col = 0;
     QStringList changes;
 
@@ -768,7 +768,7 @@ void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QStri
 
         for (unsigned long i = start; i < end; i++) {
             QChar value;
-            KKCharPtr charPtr = crdt->localFormatChange(KKPosition(line, col), font, color, &value);
+            KKCharPtr charPtr = crdt->localFormatChange(KKPosition(line, col), fonts.at(i), colors.at(i), &value);
             if (charPtr != nullptr)
                 changes.push_back(crdt->encodeCrdtChar(charPtr));
             if (value != '\n') {
@@ -790,7 +790,7 @@ void KKClient::onCharFormatChanged(unsigned long start, unsigned long end, QStri
     }
 }
 
-void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd){
+void KKClient::onAlignmentChange(int alignment, int alignStart, int alignEnd) {
     unsigned long startAlignLine = 0, endAlignLine = 0, startAlignCol = 0, endAlignCol = 0;
     bool success = crdt->calculateLineCol(static_cast<unsigned long>(alignStart), 0, &startAlignLine, &startAlignCol)
             && crdt->calculateLineCol(static_cast<unsigned long>(alignEnd), 0, &endAlignLine, &endAlignCol);

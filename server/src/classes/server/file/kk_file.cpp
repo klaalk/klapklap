@@ -214,7 +214,7 @@ void KKFile::flushCrdtText()
         for(QString crdtChar : crdtText) {
             stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
         }
-        stream << endl;
+        stream << Qt::endl;
         file->close();
         KKLogger::log("Flushed succesfully", hash);
     } else {

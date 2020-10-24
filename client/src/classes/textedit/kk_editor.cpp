@@ -914,19 +914,22 @@ void KKEditor::setupTextActions()
 
 void KKEditor::mergeFormat(const QTextCharFormat &format)
 {
+
+    QStringList fonts, colors;
     QTextCursor cursor = textEdit->textCursor();
-    if(cursor.hasSelection()) {
+    if (cursor.hasSelection()) {
+        textEdit->mergeCurrentCharFormat(format);
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd();
-
-        cursor.setPosition(start);
-        cursor.mergeCharFormat(format);
-
-        QString font = cursor.charFormat().font().toString();
-        QString color = cursor.charFormat().foreground().color().name();
-        emit charFormatChange(static_cast<unsigned long>(start), static_cast<unsigned long>(end), font, color);
+        for (int i = start; i < end; i++) {
+            cursor.setPosition(i);
+            cursor.movePosition(cursor.Right, QTextCursor::KeepAnchor);
+            QTextCharFormat format = cursor.charFormat();
+            fonts.push_back(format.font().toString());
+            colors.push_back(format.foreground().color().name());
+        }
+        emit formatChangeToCrdt(static_cast<unsigned long>(start), static_cast<unsigned long>(end), fonts, colors);
     }
-    textEdit->mergeCurrentCharFormat(format);
     updateLabels();
 }
 

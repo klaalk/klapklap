@@ -74,7 +74,7 @@ private slots:
     void onEditorClosed();
     void onInsertTextToCrdt(unsigned long position, QList<QChar>, QStringList fonts, QStringList colors);
     void onRemoveTextFromCrdt(unsigned long start, unsigned long end, QString value);
-    void onCharFormatChanged(unsigned long start, unsigned long end, QString font, QString color);
+    void onCharFormatChanged(unsigned long start, unsigned long end, QStringList fonts, QStringList colors);
     void onAlignmentChange(int alignment, int alignStart, int alignEnd);
     void onNotifyAlignment(int alignStart, int alignEnd);
     void onSaveCrdtToFile();

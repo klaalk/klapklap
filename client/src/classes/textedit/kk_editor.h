@@ -43,7 +43,7 @@ signals:
     void removeTextFromCrdt(unsigned long start, unsigned long end, QString value);
     void saveCrdtTtoFile();
     void alignChange(int alignment, int alignStart, int alignEnd);
-    void charFormatChange(unsigned long start, unsigned long end, QString font, QString color);
+    void formatChangeToCrdt(unsigned long start, unsigned long end, QStringList fonts, QStringList colors);
     void openFileDialog();
     void editorClosed();
     void notifyAlignment(int startAling,int endAlign);
