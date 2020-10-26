@@ -450,8 +450,9 @@ void KKClient::handleCrdtTextResponse(QString remoteSiteId, QString operation, Q
         }
         else if (operation == CRDT_DELETE) {
             crdtPosition = crdt->remoteDelete(charPtr, &textChange);
-            if (textChange)
+            if (textChange) {
                 operationCounter--;
+            }
         }
 
         // Calcolo la global position

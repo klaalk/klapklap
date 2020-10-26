@@ -185,8 +185,8 @@ KKPosition KKCrdt::remoteDelete(const KKCharPtr& charPtr, bool *flag){
     // Trova la posizione nel crdt del carattere
     KKPosition position = findPosition(charPtr, flag);
 
-    if (!flag) {
-        if(text.empty()){
+    if (!*flag) {
+        if (text.empty()) {
             linesAlignment.push_back(alignFirstRow);
         }
         return position;
