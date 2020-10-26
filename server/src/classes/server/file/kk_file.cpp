@@ -214,7 +214,7 @@ void KKFile::flushCrdtText()
         for(QString crdtChar : crdtText) {
             stream << QString("%1").arg(crdtChar.length(), 3, 10, QChar('0')) + crdtChar;
         }
-        stream << Qt::endl;
+        stream << endl;
         file->close();
         KKLogger::log("Flushed succesfully", hash);
     } else {
@@ -245,10 +245,11 @@ int KKFile::changeCrdtText(QStringList body){
         } else {
             for (QString crdtChar : body) {
                 KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
+                bool value = false;
                 if (operation == CRDT_INSERT) {
                     crdt->remoteInsert(charPtr);
                 } else if (operation == CRDT_DELETE) {
-                    crdt->remoteDelete(charPtr);
+                    crdt->remoteDelete(charPtr, &value);
                 } else if (operation == CRDT_FORMAT) {
                     crdt->remoteFormatChange(charPtr);
                 }
