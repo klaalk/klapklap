@@ -274,7 +274,8 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
     // Eseguo l'operazione.
     textEdit->saveLocalCursor();
     QTextCursor editorCurs = textEdit->getCursor(position);
-
+    QString textBefore = textEdit->toPlainText();
+    qDebug() << "TEXT BEF: " << textBefore;
     if (operation == CRDT_INSERT) {
         //Prelevo il cursore dell'editor e inserisco il testo
         editorCurs.insertText(text);
@@ -288,6 +289,9 @@ void KKEditor::applyRemoteTextChange(const QString& operation, int position, con
         // Aggiorno formato
         applyRemoteFormatChange(position, siteId, font, color, operation);
     }
+    QString textAfter = textEdit->toPlainText();
+    qDebug() << "TEXT AFT: " << textAfter;
+
 }
 
 void KKEditor::applyRemoteCursorChange(const QString &siteId, int position)

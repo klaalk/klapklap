@@ -54,7 +54,7 @@ public:
     list<KKCharPtr> localDelete(KKPosition startPos, KKPosition endPos);
 
     KKPosition remoteInsert(const KKCharPtr& charPtr);
-    KKPosition remoteDelete(const KKCharPtr& charPtr);
+    KKPosition remoteDelete(const KKCharPtr& charPtr, bool *flag);
     KKPosition remoteFormatChange(const KKCharPtr& charPtr);
     bool remoteAlignmentChange(unsigned long idx, int align);
 

@@ -437,7 +437,7 @@ void KKClient::handleCrdtTextResponse(QString remoteSiteId, QString operation, Q
     KKPosition crdtPosition(0, 0);
 
     while (!chars.isEmpty()) {
-
+        bool textChange = true;
         QString crdtChar = operation == CRDT_DELETE ? chars.takeLast() : chars.takeFirst();
         KKCharPtr charPtr = crdt->decodeCrdtChar(crdtChar);
 
@@ -449,13 +449,16 @@ void KKClient::handleCrdtTextResponse(QString remoteSiteId, QString operation, Q
             operationCounter++;
         }
         else if (operation == CRDT_DELETE) {
-            crdtPosition = crdt->remoteDelete(charPtr);
-            operationCounter--;
+            crdtPosition = crdt->remoteDelete(charPtr, &textChange);
+            if (textChange)
+                operationCounter--;
         }
 
         // Calcolo la global position
-        currentPosition = crdt->calculateGlobalPosition(crdtPosition);
-        editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
+        if (textChange) {
+            currentPosition = crdt->calculateGlobalPosition(crdtPosition);
+            editor->applyRemoteTextChange(operation, currentPosition, remoteSiteId, charPtr->getValue(), charPtr->getKKCharFont(), charPtr->getKKCharColor());
+        }
     }
 
     // Aggiorno la posizione del cursore remoto

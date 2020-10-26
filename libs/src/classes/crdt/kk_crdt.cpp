@@ -178,12 +178,12 @@ KKPosition KKCrdt::remoteInsert(const KKCharPtr& charPtr){
     return position;
 }
 
-KKPosition KKCrdt::remoteDelete(const KKCharPtr& charPtr){
-    bool flag = true;
+KKPosition KKCrdt::remoteDelete(const KKCharPtr& charPtr, bool *flag){
+    *flag = true;
     int alignFirstRow = linesAlignment[0];
 
     // Trova la posizione nel crdt del carattere
-    KKPosition position = findPosition(charPtr, &flag);
+    KKPosition position = findPosition(charPtr, flag);
 
     if (!flag) {
         if(text.empty()){
