@@ -4,6 +4,8 @@ The availability of broadband connections and the need to work in a team without
 Use the C ++ language to create a cooperative textual editing system that allows one or more users to modify the content of a document at the same time, ensuring that different insertion or modification operations, carried out by users to the same time, produce the same effects, regardless of the order in which they are performed on different systems in use (commutativity) and that repeated deletions lead to the same result
 (idempotence).
 
+![Example](./screens/editing_show.gif)
+
 # Requirements
 1. Architecture. The system consists of two independent modules, the client and the server.
 2. The server consists of a constantly active process, capable of accepting, through the network, connections from clients. The server, on the inside, keeps
