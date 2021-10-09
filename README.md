@@ -37,3 +37,19 @@ A client can send to his acquaintances, through the channel he deems appropriate
 - **dist** folder contains the finished product. It can be the executable program. Everything in dist must be ready to run and deploy.
 - **doc** folder contains detailed documentation.
 
+# Results
+
+## Client
+
+### Login
+![Login](./screens/login.png)
+
+### Home
+![Home](./screens/home.png)
+
+### Avatars
+![Avatars](screens/avatars.png)
+
+### Editing
+![Editing](screens/editing.png)
+
